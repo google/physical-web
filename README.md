@@ -17,6 +17,6 @@ The Physical Web isn't a replacement for native apps, it's a new user experience
 Things are best when completely open. We'd like to document how this can work but do so in a way that encourages community feedback and input.
 
 ##Start here
-The best place to start is with the [Introduction](http://github.com/scottjenson/physical-web/blob/master/introduction.md) document
+The best place to start is with the [Introduction](http://github.com/google/physical-web/blob/master/documentationintroduction.md) document
 
-If you'd like to just try it hacking with it, check out the [getting started guide](http://github.com/scottjenson/physical-web/blob/master/getting_started.md)
+If you'd like to just try it hacking with it, check out the [getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md)

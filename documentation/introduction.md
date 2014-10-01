@@ -6,7 +6,7 @@ The Physical Web extends the  web we know into the physical world around us. Thi
 * The user picks one
 * The URL is opened in a full screen browser window.
 
-![Example interaction](https://raw.githubusercontent.com/scottjenson/physical-web/master/images/example.png)
+![Example interaction](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/example.png)
 
 Even though this is a fairly simple idea, it immediately generates lots of questions:
 
