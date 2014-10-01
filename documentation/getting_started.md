@@ -5,13 +5,11 @@ In order to get up and running you need two things:
 1. A hardware beacon
 2. Software on your phone/tablet to see that beacon.
 
-The software is the easiest thing to take care of. The source code is here in this repo. However, you can get the latest build of the android APK  [here](#)
+The software is the easiest thing to take care of. The source code is located in this repo. However, you can get the latest build of the android APK  [here.](https://drive.google.com/a/google.com/folderview?id=0BzdAbb5PggFeWXE1S3dJcTRBZk0&usp=sharing&tid=0BzdAbb5PggFeWG5ZOThWUlRsYmM#list) Just make sure you go to Settings>Security>Unknown Sources and flip the checkbox on before you do. 
 
-The trickier thing is to get a beacon broadcasting your URL. For most BLE beacons on the market today, this is not very easy to do. We're working on getting a much simple maker-friendly device released through an online vendor. This should be ready in November 2014.
+The trickier thing is to get a beacon broadcasting a URL. For most BLE beacons on the market today, this is not very easy to do. We're working on getting a much simpler, maker-friendly device released through an online vendor. This should be ready in November 2014.
 
-The simplest way, at the moment, is to get an [RFDuino](http://www.rfduino.com/) as it is very easy to program and available right now. However, it's not pretty or very small, but it's pretty easy to get started with it.
-
-Once you have the RFduino installed with it's libraries, this  sketch will create a sample beacon, that broadcasts "ABC.com":
+The simplest way, at the moment, is to get an [RFDuino](http://www.rfduino.com/) as it is very easy to program and is also available right now.  Once you have the RFduino installed with it's libraries, this  sketch will create a sample beacon, that broadcasts "ABC.com":
 
     #include <RFduinoBLE.h>
 
@@ -45,4 +43,4 @@ Once you have the RFduino installed with it's libraries, this  sketch will creat
 
 Once this is up and running, the Physical Web android app will be able to see it.
 
-If there are other devices out there that can setup easily, please let us know so we can add them to this list.
+If there are other maker-ish devices out there that can setup easily, please let us know so we can add them to this list.

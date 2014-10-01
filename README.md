@@ -3,20 +3,19 @@ The Physical Web is an approach to unleash the core super power of the web: inte
 
 The Physical Web is, at it's base, a discovery service where URLs are broadcast and any nearby device can receive them. This takes the web we know and love and unlocks exciting new ways to interact. 
 
-URLs are the fundamental building block of the web, giving remarkable flexibility of expression. It can be:
+The URL is the fundamental building block of the web, giving remarkable flexibility of expression. It can be:
 
-* a phone number
-* an email address
 * a web page with just a tiny paragraph of info
 * a fully interactive web page
 * a deep link into a native application.  
 
-The Physical Web isn't a replacement for native apps, it's a new user experience gateway that allows for a range of interactions which can include native apps.
-
 ##Why We're Doing This
-Things are best when completely open. We'd like to document how this can work but do so in a way that encourages community feedback and input.
+The number of smart devices is going to explode in number, both in our homes and in public spaces. Much like the web, there is going to be a 'long tail' of interactivity for smart devices. But the overhead of installing an app for each one just doesn't  scale. We need a system that lets someone walk up and use a device with just a tap. The Physical web isn't about replacing native apps, it's about allowing interaction for the times when native apps just aren't practical.
 
-##Start here
+##Open Design
+The Physical Web must be an open standard that everyone can use. This can't be a product that is locked down by a single company. Like many web specifications, this is an open source design that is being released early so everyone can experiment and comment on it. There is much to discuss and add to this specification.
+
+##Start Here
 The best place to start is with the [Introduction](http://github.com/google/physical-web/blob/master/documentation/introduction.md) document
 
-If you'd like to just try it hacking with it, check out the [getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md)
+If you'd like to jump right in, check out the [Getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md)
