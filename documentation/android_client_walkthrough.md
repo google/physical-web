@@ -31,7 +31,7 @@ Now you can enter a new url into the text field and press either the keyboard "D
 
 We started the first flow with the list of beacons, but really once the app is loaded it runs a background scanner (that turns off when your screen is off). This scanner creates a notification that indicates how many beacons have been found nearby, and hides the notification if that number is zero.
 
-![Figure 5]https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_5.png)
+![Figure 5](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_5.png)
 
 If you tap the notification, it will bring you back to the list of the nearby beacons, which you can then use to launch the various beacon urls or configure beacons as mentioned above.
 
