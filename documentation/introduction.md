@@ -47,4 +47,4 @@ The search agent on the phone may keep track of which devices the user taps on s
 There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones/tablets today. This should not be the only wireless solution but it is the easiest to use at the moment so we can experiment and prototype this system.
 
 ##Next
-The next document to read would be the technical [overview](http://github.com/scottjenson/physical-web/blob/master/technical_overview.md) document
+The next document to read would be the technical [overview](http://github.com/google/physical-web/blob/master/documentation/technical_overview.md) document
