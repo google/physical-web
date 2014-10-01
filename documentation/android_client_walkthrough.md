@@ -11,7 +11,7 @@ The overall user flow of the app is fairly simple:
 
 But let’s view an example with screenshots. When you first run the app, you'll be greeted with a screen like this, which is a list of nearby found beacons.
 
-(https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_1.png)
+![Figure 1](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_1.png)
 
 It’s probable that you don't have any beacons configured at the moment, so you'll likely see an empty list in the above screen. So that brings us to the next flow which is configuration. 
 
