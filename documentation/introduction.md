@@ -17,12 +17,12 @@ This is an early prototype. We are trying get people to experiment with this at 
 A core principle of this system is **no proactive notifications**. The user will only see a list of nearby devices when they ask. If your phone were to be buzzing constantly as you walked through the mall, it would be very frustrating. Push notifications in general are too easily abused. Of course, the user can opt-in to notifications, we are just saying that by deault, the user must ask to see anything nearby.
 
 ##2. Isn't there going to be a big list to choose from?
-At first, the nearby smart devices will be small but if we're successful, there will be many to choose from and that does raise an important UX issue. This is where ranking comes in. Today, we are perfectly happy typing "tennis" into a search engine and getting millions of results back, we trust that the first 10 are the best ones. The same applies here. The phone agent can sort by both signal strength as well as personal preference and history. Clearly there is lots of work to be done here, we don't want to minimize this task but we feel that ranking can get us very far for the first few versions of this project.
+At first, the nearby smart devices will be small but if we're successful, there will be many to choose from and that raises an important UX issue. This is where ranking comes in. Today, we are perfectly happy typing "tennis" into a search engine and getting millions of results back, we trust that the first 10 are the best ones. The same applies here. The phone agent can sort by both signal strength as well as personal preference and history, among many other possible factors. Clearly there is lots of work to be done here. We don't want to minimize this task, but we feel that this simple signal strength ranking can get us very far for the first few versions of this project.
 
-##3. Is this secure?
+##3. Is this secure/private?
 URLs broadcast in the clear so anyone can see them. This is by design. That is why we're initially suggesting this to be used in public spaces. This does raise issues for home use where it would be possible for neighbors to intercept beacons. However, one the big advatages of URLs is that there are so many ways they can be used to increase their security:
 
-* The URL could be obfuscated
+* The URL could be obfuscated (e.g. using a non-branded doman)
 * The web page could require a login
 * A rotating token on the beacon would constantly change the URL
 
@@ -42,12 +42,12 @@ This is meant to be an extension of the web so it should work on every platform.
 At this point, we have both an Android and iOS app that is open source. We hope this will be used and ported to other platforms.
 
 ##7. Can't the user be tracked?
-Our current URL broadcast method involves a bluetooth broadcast from each device. The user's phone gathers this info without contacting the device so the user is invisible to each one. This means a user can't be tracked simply by walking past a broadcasting device. This was very much by design to keep users silent passage untrackable. However, once the user does click on a URL, they are then known to that website. 
+Our current URL broadcast method involves a bluetooth broadcast from each beacon. The user's phone gathers this info without connecting to the beacon. This ensures the user is invisible to all beacons, meaning a user can't be tracked simply by walking past a broadcasting beacon. This was very much by design to keep users silent passage untrackable. However, once the user does click on a URL, they are then known to that website. 
 
-The search agent on the phone may keep track of which devices the user taps on so they can improve the ranking in the future. Of course, this too needs to be discussed and the possibly offered to the user as an option so they are in control of how this information is stored.
+The search agent on the phone may keep track of which devices the user taps on so they can improve the ranking in the future. Of course, this too needs to be discussed and then possibly offered to the user as an option so they are in control of how this information is stored.
 
 ##8. Why Bluetooth Low Energy?
-There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones/tablets today. This should not be the only wireless solution but it is the easiest to use at the moment so we can experiment and prototype this system.
+There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones and tablets today. This should not be the only wireless solution but it is the easiest to use at the moment so we can experiment and prototype this system.
 
 ##Next
 The next suggested document to read would be the technical [overview](http://github.com/google/physical-web/blob/master/documentation/technical_overview.md) document
