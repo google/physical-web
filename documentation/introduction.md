@@ -23,7 +23,13 @@ A core principle of this system is **no proactive notifications**. The user will
 At first, the nearby smart devices will be small but if we're successful, there will be many to choose from and that does raise an important UX issue. This is where ranking comes in. Today, we are perfectly happy typing "tennis" into a search engine and getting millions of results back, we trust that the first 10 are the best ones. The same applies here. The phone agent can sort by both signal strength as well as personal preference and history. Clearly there is lots of work to be done here, we don't want to minimize this task but we feel that ranking can get us very far for the first few versions of this project.
 
 ##4. Is this secure?
-This first version is broadcasting URLs in the clear, there is no encryption so in it's current form, it's not yet secure. That is why we're initially suggesting this to be used in public spaces. However, that being said, there are many ways you could imaging making a URL secure, e.g. a rotating token that requires a login/cookie to decode. One of the huge values of URLs is that they are so flexible and encourage this further evolution.
+URLs broadcast in the clear so anyone can see them. This is by design. That is why we're initially suggesting this to be used in public spaces. This does raise issues for home use where it would be possible for neighbors to intercept beacons. However, one the big advatages of URLs is that there are so many ways they can be used to increase their security:
+
+* The URL could be obfuscated
+* the web page could require a login
+* a rotating token on the beacon would constantly change the URL
+
+One of the huge values of URLs is that they are so flexible and encourage this further evolution.
 
 ##5. What about SPAM?
 With any system, there will be people that try to exploit it. There will likely be many solutions around this problem but again, we can start with the web. Search engines today have this issue and are fairly effective and displaying the correct web sites in your search results. That same approach would apply here. Combine that with historical results of who clicks on what and it's possible to build a fairly robust ranking model and only show the proper devices. However, there is likely much more we can do here and we hope to encourage other ideas on how to solve this problem in a more robust way.
@@ -47,4 +53,4 @@ The search agent on the phone may keep track of which devices the user taps on s
 There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones/tablets today. This should not be the only wireless solution but it is the easiest to use at the moment so we can experiment and prototype this system.
 
 ##Next
-The next document to read would be the technical [overview](http://github.com/google/physical-web/blob/master/documentation/technical_overview.md) document
+The next suggested document to read would be the technical [overview](http://github.com/google/physical-web/blob/master/documentation/technical_overview.md) document
