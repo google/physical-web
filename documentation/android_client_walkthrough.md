@@ -17,21 +17,21 @@ It’s probable that you don't have any beacons configured at the moment, so you
 
 Tap the over flow menu button in the top right corner (the vertical ellipsis thing). This brings up the menu. Tap "Edit Urls".
 
-(https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_2.png)
+![Figure 2](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_2.png)
 
 This opens the configuration screen that will start searching for beacons nearby that are ready to be configured.
 
-(https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_3.png)
+![Figure 3](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_3.png)
 
 To make a beacon configurable, press its button. It should beep. If all goes well, the app will have found the configurable beacon and tell you so. Sometimes this can be a little slow (but any longer than 3 seconds or so, just press the back button and then re-tap the "Edit Urls" menu button).
 
-(https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_4.png)
+![Figure 4](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_4.png)
 
 Now you can enter a new url into the text field and press either the keyboard "DONE" button or exit the keyboard and tap "SAVE URL" to write that new url to the beacon.  You should hear a confirmation beep from the beacon and also see a toast onscreen telling you that the url was saved to the beacon. You'll then be taken back to the list of nearby beacons that should update shortly with your newly programmed beacon.
 
 We started the first flow with the list of beacons, but really once the app is loaded it runs a background scanner (that turns off when your screen is off). This scanner creates a notification that indicates how many beacons have been found nearby, and hides the notification if that number is zero.
 
-(https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_5.png)
+![Figure 5]https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_5.png)
 
 If you tap the notification, it will bring you back to the list of the nearby beacons, which you can then use to launch the various beacon urls or configure beacons as mentioned above.
 
