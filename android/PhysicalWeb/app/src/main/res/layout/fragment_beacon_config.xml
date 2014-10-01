@@ -1,0 +1,102 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="physical_web.org.physicalweb.BeaconConfigFragment"
+    android:background="#fff0f0f0"
+    android:clickable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="20dp"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true" >
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="10dp"
+            android:id="@+id/progressBar_searchingForBeacons"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="center_horizontal"
+            android:textSize="16sp"
+            android:paddingBottom="100dp"
+            android:id="@+id/textView_status"
+            android:textColor="#5A5A5A"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/found_beacon_card"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:id="@+id/linearLayout_configurableBeaconCard">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/config_address_label"
+                android:gravity="left"
+                android:paddingLeft="10dp"
+                android:paddingBottom="10dp"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-light"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:gravity="left"
+                android:paddingLeft="10dp"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-light"
+                android:id="@+id/textView_configurableBeaconAddress"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/config_edit_url_label"
+                android:gravity="left"
+                android:paddingLeft="10dp"
+                android:paddingTop="50dp"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-light"
+                android:labelFor="@+id/editText_configurableBeaconUrl"/>
+
+            <EditText
+                style="@style/RobotoEditTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:imeOptions="actionDone"
+                android:inputType="textUri"
+                android:id="@+id/editText_configurableBeaconUrl"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/config_save_url_button"
+                android:background="@android:color/transparent"
+                android:paddingTop="30dp"
+                android:gravity="right"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="14sp"
+                android:textColor="@color/config_save_url_button"
+                android:id="@+id/button_writeToBeacon"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

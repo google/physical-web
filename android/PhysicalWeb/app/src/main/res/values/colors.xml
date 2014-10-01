@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="header_color">#1C47C1</color>
+    <color name="url_color">#099F39</color>
+    <color name="description_color">#545454</color>
+    <color name="menu_item_color">#CCCCCC</color>
+    <color name="config_save_url_button">#4285f4</color>
+</resources>
