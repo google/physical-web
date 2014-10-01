@@ -5,7 +5,7 @@ In order to get up and running you need two things:
 1. A hardware beacon
 2. Software on your phone/tablet to see that beacon.
 
-The software is the easiest thing to take care of. The source code is located in this repo. However, you can get the latest build of the android APK  [here.](https://drive.google.com/a/google.com/folderview?id=0BzdAbb5PggFeWXE1S3dJcTRBZk0&usp=sharing&tid=0BzdAbb5PggFeWG5ZOThWUlRsYmM#list) Just make sure you go to Settings>Security>Unknown Sources and flip the checkbox on before you do. 
+The software is the easiest thing to take care of. The source code is located in this repo. However, you can get the latest list of [Android releases.](https://github.com/google/physical-web/releases) Just make sure you go to Settings>Security>Unknown Sources and flip the checkbox on before you do. 
 
 The trickier thing is to get a beacon broadcasting a URL. For most BLE beacons on the market today, this is not very easy to do. We're working on getting a much simpler, maker-friendly device released through an online vendor. This should be ready in November 2014.
 
