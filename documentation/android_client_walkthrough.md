@@ -4,10 +4,11 @@ An Introduction to the Physical Web Android Client
 We start with a high level-description of the user flows and then dive into and detail the specifics of each screen.
 
 The overall user flow of the app is fairly simple:
-*The app listens for nearby beacons.
-*The app then shows the user a notification about any found beacons.
-*The user can then tap the notification, which brings up a list of the found beacons.
-*The user can then tap one of the items in the list, which then opens the web page for that beacon.
+
+* The app listens for nearby beacons.
+* The app then shows the user a notification about any found beacons.
+* The user can then tap the notification, which brings up a list of the found beacons.
+* The user can then tap one of the items in the list, which then opens the web page for that beacon.
 
 But let’s view an example with screenshots. When you first run the app, you'll be greeted with a screen like this, which is a list of nearby found beacons.
 
