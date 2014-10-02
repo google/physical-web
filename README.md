@@ -16,6 +16,6 @@ The number of smart devices is going to explode in number, both in our homes and
 The Physical Web must be an open standard that everyone can use. This can't be a product that is locked down by a single company. Like many web specifications, this is an open source design that is being released early so everyone can experiment and comment on it. There is much to discuss and add to this specification.
 
 ##Start Here
-The best place to start is with the [Introduction](http://github.com/google/physical-web/blob/master/documentation/introduction.md) document
+The best place to start is with the [Introduction](http://github.com/google/physical-web/blob/master/documentation/introduction.md) document.
 
-If you'd like to jump right in, check out the [Getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md)
+If you'd like to jump right in, check out the [Getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md).
