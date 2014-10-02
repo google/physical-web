@@ -22,7 +22,7 @@ At first, the nearby smart devices will be small but if we're successful, there 
 ##3. Is this secure/private?
 URLs broadcast in the clear so anyone can see them. This is by design. That is why we're initially suggesting this to be used in public spaces. This does raise issues for home use where it would be possible for neighbors to intercept beacons. However, one the big advatages of URLs is that there are so many ways they can be used to increase their security:
 
-* The URL could be obfuscated (e.g. using a non-branded doman)
+* The URL could be obfuscated (e.g. using a non-branded domain)
 * The web page could require a login
 * A rotating token on the beacon would constantly change the URL
 
