@@ -25,6 +25,7 @@ URLs broadcast in the clear so anyone can see them. This is by design. That is w
 * The URL could be obfuscated (e.g. using a non-branded domain)
 * The web page could require a login
 * A rotating token on the beacon would constantly change the URL
+* The URL could reference an IP address that is only accessible when connected to a local network
 
 One of the big values of URLs is that they are so flexible and encourage this further evolution.
 
