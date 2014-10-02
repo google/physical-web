@@ -11,7 +11,7 @@ The Physical Web extends the web we know into the physical world around us. This
 Even though this is a fairly simple idea, it immediately generates lots of questions:
 
 ##0. Wait, why are you an app?
-This is an early prototype. We are trying get people to experiment with this at an early stage. Of course, this should be built into the operating system of all smartphones (and tablets and anything with a screen really). We are building an app for now that tries to not feel like an app. It works in the background so you don't need to use it actively. It just silently monitors beacons that you can browse when you're intererested.
+This is an early prototype. We are trying get people to experiment with this at an early stage. Of course, this should be built into the operating system of all smartphones (and tablets and anything with a screen really). We are building an app for now that tries to not feel like an app. It works in the background so you don't need to use it actively. It just silently monitors beacons that you can browse when you're interested.
 
 ##1. Will you be pestering people with alarms?
 A core principle of this system is **no proactive notifications**. The user will only see a list of nearby devices when they ask. If your phone were to be buzzing constantly as you walked through the mall, it would be very frustrating. Push notifications in general are too easily abused. Of course, the user can opt-in to notifications, we are just saying that by default, the user must ask to see anything nearby.
@@ -20,7 +20,7 @@ A core principle of this system is **no proactive notifications**. The user will
 At first, the nearby smart devices will be small but if we're successful, there will be many to choose from and that raises an important UX issue. This is where ranking comes in. Today, we are perfectly happy typing "tennis" into a search engine and getting millions of results back, we trust that the first 10 are the best ones. The same applies here. The phone agent can sort by both signal strength as well as personal preference and history, among many other possible factors. Clearly there is lots of work to be done here. We don't want to minimize this task, but we feel that this simple signal strength ranking can get us very far for the first few versions of this project.
 
 ##3. Is this secure/private?
-URLs broadcast in the clear so anyone can see them. This is by design. That is why we're initially suggesting this to be used in public spaces. This does raise issues for home use where it would be possible for neighbors to intercept beacons. However, one the big advatages of URLs is that there are so many ways they can be used to increase their security:
+URLs broadcast in the clear so anyone can see them. This is by design. That is why we're initially suggesting this to be used in public spaces. This does raise issues for home use where it would be possible for neighbors to intercept beacons. However, one of the big advantages of URLs is that there are so many ways they can be used to increase their security:
 
 * The URL could be obfuscated (e.g. using a non-branded domain)
 * The web page could require a login
