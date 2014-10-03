@@ -40,7 +40,7 @@ public class UrlShortener {
 
   private static String TAG = "UrlShortener";
 
-  private static final String[] shortUrls = new String[] {"goo.gl", "bit.ly", "bit.do", "adf.ly", "bitly.com", "u.to",
+  private static final String[] SHORT_URLS = new String[] {"goo.gl", "bit.ly", "bit.do", "adf.ly", "bitly.com", "u.to",
           "tinyurl.com", "buzurl.com", "yourls.org", "qr.net"};
 
   /**
@@ -148,7 +148,7 @@ public class UrlShortener {
    * @return
    */
   public static boolean isShortUrl(String url) {
-    for (String shortUrl: shortUrls) {
+    for (String shortUrl: SHORT_URLS) {
       if (url.startsWith("http://" + shortUrl + "/") || url.startsWith("https://" + shortUrl + "/")) {
         return true;
       }
