@@ -12,7 +12,7 @@ procedure enable_advertisement()
 end
 
 # System boot event listener
-event system_boot(major, minor, patch, build, ll_version, protocol_version, hw)  
+event system_boot(major, minor, patch, build, ll_version, protocol_version, hw)
   # Initialize Advertisement data
   adv_data(0:1) = $02  # AD field length = 2 bytes
   adv_data(1:1) = $01  # AD field type = «Flags»
@@ -22,7 +22,7 @@ event system_boot(major, minor, patch, build, ll_version, protocol_version, hw)
   adv_data(4:1) = $03  # AD field type = «Complete List of 16-bit Service Class UUIDs»
   adv_data(5:1) = $D8  # URI Beacon ID
   adv_data(6:1) = $FE
-  
+
   adv_data(7:1) = $0A  # AD field Length = 10 bytes
   adv_data(8:1) = $16  # AD field type = «Service Data»
   adv_data(9:1) = $D8  # URI Beacon ID
