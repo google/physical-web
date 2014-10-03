@@ -24,7 +24,7 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
-  
+
 - url: /index\.html
   static_files: static/index.html
   upload: static/index\.html

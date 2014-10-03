@@ -17,47 +17,47 @@ limitations under the License.
 
 <html>
   <head>
-    
+
     <script>
-    
+
     var resolveScan = function(successCallback) {
       var resolveQuery = document.getElementById("resolvequery");
       successCallback = successCallback || function() {};
-      
+
       var request = new XMLHttpRequest();
-      
+
       request.onreadystatechange = function(e) {
         if(request.readyState == 4 && request.status == 200) {
           successCallback(JSON.parse(request.responseText));
         }
       };
-      
+
       request.open("POST", "/resolve-scan");
       request.send(resolveQuery.value);
     };
-    
+
     window.onload = function() {
       var resolveScanButton = document.getElementById("resolveScanButton");
       var resolveResponseOutput = document.getElementById("resolveResponse");
       resolveScanButton.onclick = function() {
         resolveScan(function(data) {
           resolveResponseOutput.innerText = JSON.stringify(data, undefined, 2);
-        });  
+        });
       };
     };
     </script>
-    
+
   </head>
   <body>
     <h1>Device List</h1>
-    
+
     <h2>/resolve-scan</h2>
     <h3>Request Data</h3>
     <textarea id="resolvequery" cols=40 style="width: 400px; height: 200px;">{
   "objects": [{
       "url": "http://example.com",
       "rssi": -93
-    }, 
+    },
     {
       "url": "http://jenson.org/iot/3",
       "rssi": -50
@@ -96,7 +96,7 @@ limitations under the License.
     <h3>Request Data</h3>
     <pre id="resolveResponse"></pre>
     <button id="resolveScanButton">Run</button>
-    
+
     <h2>Add Device</h2>
     <form action="/add-device" method="POST">
       <label for="name">Name </label><input type="text" id="name" name="name">
