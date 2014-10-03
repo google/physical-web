@@ -30,15 +30,18 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * This class shortens urls
- * and aslo expands those short urls
+ * and also expands those short urls
  * to their original url.
- * Currently this class only supports google url shortener
+ * Currently this class only supports google and few other url shortener
  * TODO: support other url shorteners
  */
 
 public class UrlShortener {
 
   private static String TAG = "UrlShortener";
+
+  private static final String[] shortUrls = new String[] {"goo.gl", "bit.ly", "bit.do", "adf.ly", "bitly.com", "u.to",
+          "tinyurl.com", "buzurl.com", "yourls.org", "qr.net"};
 
   /**
    * Create the shortened form
@@ -145,7 +148,12 @@ public class UrlShortener {
    * @return
    */
   public static boolean isShortUrl(String url) {
-    return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
+    for (String shortUrl: shortUrls) {
+      if (url.startsWith("http://" + shortUrl + "/") || url.startsWith("https://" + shortUrl + "/")) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
