@@ -26,7 +26,7 @@ The specific fields for this packet are as follows:
 | **TX Power**   | 5        | 1      | 8-bit value | See spec                                                        |
 | **URI field**  | 6        | 1..18   | octets      | The US-ASCII text of the URI with embedded Text Expansion Codes |
 
-This does not, however, leave a lot of room for the text of the URL. This is one of tradeoffs that comes from avoiding any connections to the beacon (to ensure no user tracking can occur) URLs are encoded so common patterns like 'htttp://www.' and '.com' can be compressed into a single character. This is very similar to what QRCodes use to encode their URLs. In addition, we expect initial testers will either use short domains or a URL shortener. Both the android and iOS apps do this automatically when a URL is typed in that is too long to fit.
+This does not, however, leave a lot of room for the text of the URL. This is one of tradeoffs that comes from avoiding any connections to the beacon (to ensure no user tracking can occur) URLs are encoded so common patterns like 'http://www.' and '.com' can be compressed into a single character. This is very similar to what QRCodes use to encode their URLs. In addition, we expect initial testers will either use short domains or a URL shortener. Both the android and iOS apps do this automatically when a URL is typed in that is too long to fit.
 
 A GATT service that would allow the URL to be of any arbitrary length, is under consideration. This will be posted shortly for further community discussion.
 
