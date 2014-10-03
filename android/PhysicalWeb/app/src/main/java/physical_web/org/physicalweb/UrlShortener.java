@@ -145,10 +145,7 @@ public class UrlShortener {
    * @return
    */
   public static boolean isShortUrl(String url) {
-    if (url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/")) {
-      return true;
-    }
-    return false;
+    return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
   }
 
 }

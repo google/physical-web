@@ -133,10 +133,7 @@ public class BeaconHelper {
 
   public static boolean urlRequiresShortening(String url) throws IOException {
     byte[] url_bytes = createUrlBytes(url);
-    if (url_bytes.length > MAX_NUM_BYTES_URL) {
-      return true;
-    }
-    return false;
+    return url_bytes.length > MAX_NUM_BYTES_URL;
   }
 
 }
