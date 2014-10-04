@@ -1,0 +1,11 @@
+{
+  "name": "uri-beacon-examples",
+  "version": "0.0.1",
+  "description": "Bluetooth URI Beacons",
+  "author": "Don Coleman",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "bleno": "~0.1.8",
+    "uri-beacon": "~0.1.1"
+  }
+}
