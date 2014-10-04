@@ -16,9 +16,9 @@ advertisementData[7] = 0xFE; // URI Beacon ID
 advertisementData[8] = 0x00; // Flags
 advertisementData[9] = 0x20; // Power
 advertisementData[10] = 0x00; // http://www.
-advertisementData[11] = 0x41; // A
-advertisementData[12] = 0x42; // B
-advertisementData[13] = 0x43; // C
+advertisementData[11] = 0x61; // a
+advertisementData[12] = 0x62; // b
+advertisementData[13] = 0x63; // c
 advertisementData[14] = 0x07; // .com
 
 bleno.startAdvertisingWithEIRData(advertisementData, scanData);
