@@ -19,5 +19,6 @@ template[9] = 0x20; // Power
 var scanData = new Buffer(0); // maximum 31 bytes
 var encoded = uriBeacon.encode("http://example.com");
 var advertisementData = Buffer.concat([template, encoded], template.length + encoded.length);
+advertisementData[4] = encoded.length + 5;
 
 bleno.startAdvertisingWithEIRData(advertisementData, scanData);
