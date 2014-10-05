@@ -30,7 +30,7 @@ This does not, however, leave a lot of room for the text of the URL. This is one
 
 A GATT service that would allow the URL to be of any arbitrary length, is under consideration. This will be posted shortly for further community discussion.
 
-This is just a quick description to show the structure of the ad packet. It is documented in a related GitHub project, the URIBecon specification. This repo will go live shortly.
+This is just a quick description to show the structure of the ad packet. It is documented in a related GitHub project, the URIBeacon specification. This repo will go live shortly.
 
 ###Client
 The current client is an application to prove out the technology. If you open the app, it lists the nearby beacons that it can see, sorted by signal strength. Note the signal strength is a very iffy metric as it there many reasons why it can vary. However, if you are standing in front of device and the next device is >5 feet away, it tends to work out well in practice. This is the primary reason we include a TX_POWER byte in the ad packet so it's possible to calculate signal loss and rank different strength beacons.
