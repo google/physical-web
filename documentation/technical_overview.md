@@ -4,7 +4,7 @@ This is a prototype system being used to understand and explore the issues invol
 ###Broadcast
 The current design uses Bluetooth Low Energy (BLE) devices that broadcast the URL in the advertising packet. In this broadcast mode, it doesn't do anything else such as respond to requests. The sole job of the device is to broadcast the URL to the surrounding area.
 
-The reason  is to accommodate potentially the worst case scenario of a large numbers of devices in an area with a large amount of people.  A broadcast only approach avoids an n-squared problem of every user connecting to every device. By making each device constantly broadcast, any number of devices can just pick up the information passively with little conflict.
+The reason  is to accommodate potentially the worst case scenario of large numbers of devices in an area with a large amount of people.  A broadcast only approach avoids an n-squared problem of every user connecting to every device. By making each device constantly broadcast, any number of devices can just pick up the information passively with little conflict.
 
 This has another advantage in that it means that a user can walk through a space and leave no trace: the broadcasting devices have no idea who is listening.
 
