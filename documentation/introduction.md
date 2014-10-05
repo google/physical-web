@@ -43,7 +43,7 @@ This is meant to be an extension of the web so it should work on every platform.
 At this point, we have both an Android and iOS app that is open source. We hope this will be used and ported to other platforms.
 
 ##7. Can't the user be tracked?
-Our current URL broadcast method involves a bluetooth broadcast from each beacon. The user's phone gathers this info without connecting to the beacon. This ensures the user is invisible to all beacons, meaning a user can't be tracked simply by walking past a broadcasting beacon. This was very much by design to keep users silent passage untrackable. However, once the user does click on a URL, they are then known to that website.
+Our current URL broadcast method involves a bluetooth broadcast from each beacon. The user's phone gathers this info without connecting to the beacon. This ensures the user is invisible to all beacons, meaning a user can't be tracked simply by walking past a broadcasting beacon. This was very much by design to keep users' silent passage untrackable. However, once the user does click on a URL, they are then known to that website.
 
 The search agent on the phone may keep track of which devices the user taps on so they can improve the ranking in the future. Of course, this too needs to be discussed and then possibly offered to the user as an option so they are in control of how this information is stored.
 
