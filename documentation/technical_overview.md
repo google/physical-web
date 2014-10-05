@@ -30,7 +30,7 @@ This does not, however, leave a lot of room for the text of the URL. This is one
 
 A GATT service that would allow the URL to be of any arbitrary length, is under consideration. This will be posted shortly for further community discussion.
 
-This is just a quick description to show the structure of the ad packet. It is documented in a related GitHub project, the URIBecon specification. This repo will go live shortly.
+This is just a quick description to show the structure of the ad packet. It is documented in a related GitHub project, the URIBeacon specification. This repo will go live shortly.
 
 ###Client
 The current client is an application to prove out the technology. If you open the app, it lists the nearby beacons that it can see, sorted by signal strength. Note the signal strength is a very iffy metric as it there many reasons why it can vary. However, if you are standing in front of device and the next device is >5 feet away, it tends to work out well in practice. This is the primary reason we include a TX_POWER byte in the ad packet so it's possible to calculate signal loss and rank different strength beacons.
@@ -38,7 +38,7 @@ The current client is an application to prove out the technology. If you open th
 The client lists the meta information from the URL: TITLE, DESCRIPTION, URL, and FAVICON. These could be pulled at run time but there is a simple proxy server that acts as a cache to speed up this process.
 
 ###Server
-The server receives a request from the client with all of the URLs found and returns a JSON data structure listing all of the meta information listed about. The current prototype collects no user data, only returning the casched info. However alternative implementations could keep track of user choice and use that to help change the ranking within the client. The server isn't required but greatly simplifies the work on the client side.
+The server receives a request from the client with all of the URLs found and returns a JSON data structure listing all of the meta information listed about. The current prototype collects no user data, only returning the cached info. However alternative implementations could keep track of user choice and use that to help change the ranking within the client. The server isn't required but greatly simplifies the work on the client side.
 
 ###Meta Data
 In order to use URLs, the system expects those URLs to point to a web page, which offers up the meta information described above. This somewhat limits the URLs as they much then always point to a valid HTML page. This is likely a big limitation to URLs that want to link to native applications. This is an imporant use case and needs to be discussed. Is there an alternative way to offer this meta data but not point to a web page?
