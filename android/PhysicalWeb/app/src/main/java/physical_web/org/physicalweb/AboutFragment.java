@@ -15,7 +15,6 @@ import android.widget.TextView;
 public class AboutFragment extends Fragment {
 
   private static String TAG = "AboutFragment";
-  private static String TITLE_ABOUT = "About";
 
   public AboutFragment() {
   }
@@ -26,22 +25,23 @@ public class AboutFragment extends Fragment {
   }
 
   private void initialize() {
-    getActivity().getActionBar().setTitle(TITLE_ABOUT);
+    getActivity().getActionBar().setTitle(getString(R.string.title_about));
     initializeApplicationVersionText();
   }
 
   private void initializeApplicationVersionText() {
+    String versionString = "";
     String versionName = "";
     try {
       PackageInfo pInfo;
       pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
       versionName = pInfo.versionName;
+      versionString = getString(R.string.about_version_label) + " " + versionName;
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();
     }
-
     TextView textView_applicationVersion = (TextView) getView().findViewById(R.id.textView_applicationVersion);
-    textView_applicationVersion.setText(versionName);
+    textView_applicationVersion.setText(versionString);
   }
 
 

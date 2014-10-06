@@ -1,9 +1,36 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="physical_web.org.physicalweb.NearbyBeaconsFragment"
-    android:background="#ffffffff">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="physical_web.org.physicalweb.NearbyBeaconsFragment"
+                android:background="#ffffffff">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:id="@+id/linearLayout_nearbyDevicesEmptyListView"
+                  android:paddingLeft="16dp"
+                  android:paddingRight="16dp"
+                  android:paddingBottom="100dp"
+                  android:gravity="center">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="10dp"
+            android:id="@+id/progressBar_searchingForBeacons"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_nearby_devices_list_text"
+            android:gravity="center_horizontal"
+            android:textSize="16sp"
+            android:textColor="#5A5A5A"/>
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/list_view_nearby_devices"

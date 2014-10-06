@@ -1,20 +1,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="physical_web.org.physicalweb.BeaconConfigFragment"
-    android:background="#fff0f0f0"
-    android:clickable="true">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="physical_web.org.physicalweb.BeaconConfigFragment"
+                android:background="#fff0f0f0"
+                android:clickable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingTop="20dp"
         android:orientation="vertical"
         android:focusable="true"
-        android:focusableInTouchMode="true" >
+        android:focusableInTouchMode="true"
+        android:gravity="center"
+        android:paddingBottom="100dp">
 
         <ProgressBar
             android:layout_width="match_parent"
@@ -29,9 +30,19 @@
             android:text=""
             android:gravity="center_horizontal"
             android:textSize="16sp"
-            android:paddingBottom="100dp"
             android:id="@+id/textView_status"
             android:textColor="#5A5A5A"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -40,8 +51,8 @@
             android:background="@drawable/found_beacon_card"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:id="@+id/linearLayout_configurableBeaconCard">
 
             <TextView

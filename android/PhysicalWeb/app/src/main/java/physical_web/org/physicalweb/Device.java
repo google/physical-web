@@ -1,8 +1,6 @@
 package physical_web.org.physicalweb;
 
 import android.bluetooth.BluetoothDevice;
-import android.graphics.Bitmap;
-
 import org.uribeacon.beacon.UriBeacon;
 import java.util.ArrayList;
 
@@ -28,7 +26,7 @@ public class Device {
       return;
     }
 
-    String longUrl = null;
+    String longUrl;
     String shortUrl = null;
     String url = mUriBeacon.getUriString();
     // If this is a shortened url
@@ -47,7 +45,6 @@ public class Device {
   public BluetoothDevice getBluetoothDevice() { return mBluetoothDevice; }
   public UriBeacon getUriBeacon() { return mUriBeacon; }
   public MetadataResolver.DeviceMetadata getMetadata() { return mDeviceMetadata; }
-  public String getShortUrl() { return mShortUrl; }
   public String getLongUrl() { return mLongUrl; }
   public void setMetadata(MetadataResolver.DeviceMetadata deviceMetadata) { mDeviceMetadata = deviceMetadata; }
   private ArrayList<Integer> getRssiHistory() { return mRssiHistory; }

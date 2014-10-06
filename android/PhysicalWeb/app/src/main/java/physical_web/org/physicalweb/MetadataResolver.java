@@ -67,14 +67,9 @@ public class MetadataResolver {
       mQueryHandler = new Handler();
     }
     if (mDeviceBatchList == null) {
-      mDeviceBatchList = new ArrayList<Device>();
+      mDeviceBatchList = new ArrayList<>();
     }
   }
-
-
-  /////////////////////////////////
-  // accessors
-  /////////////////////////////////
 
 
   /////////////////////////////////
@@ -176,7 +171,7 @@ public class MetadataResolver {
       Device device = mDeviceBatchList.get(i);
       deviceMap.put(device.getUriBeacon().getUriString(), device);
     }
-    // create the metadata request
+    // Create the metadata request
     // for the given json request object and device map
     JsonObjectRequest jsObjRequest = createMetadataRequest(jsonObj, deviceMap);
 
@@ -230,7 +225,7 @@ public class MetadataResolver {
                   iconUrl = deviceData.getString("icon");
                 }
 
-                // TODO(smus): Eliminate this fallback since we expect the server to always return an icon.
+                // TODO: Eliminate this fallback since we expect the server to always return an icon.
                 // Provisions for a favicon specified as a relative URL.
                 if (!iconUrl.startsWith("http")) {
                   // Lets just assume we are dealing with a relative path.
@@ -283,7 +278,6 @@ public class MetadataResolver {
         Device device = devices.get(i);
         JSONObject urlObject = new JSONObject();
         urlObject.put("url", device.getUriBeacon().getUriString());
-        //urlObject.put("rssi", -50);
         urlArray.put(urlObject);
       }
 

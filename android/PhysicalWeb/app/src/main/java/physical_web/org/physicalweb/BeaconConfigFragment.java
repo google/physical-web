@@ -16,7 +16,6 @@
 
 package physical_web.org.physicalweb;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.os.Bundle;
@@ -66,7 +65,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private static String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mFoundConfigurableBeaconBluetoothDevice;
-  private BeaconConfigFragment mSelf;
   private Timer mCheckForFoundConfigurableDevicesTimer;
   private static final int CHECK_FOR_FOUND_CONFIGURABLE_DEVICES_PERIOD = 2000;
   private HashMap<String, Device> mDeviceAddressToDeviceMap;
