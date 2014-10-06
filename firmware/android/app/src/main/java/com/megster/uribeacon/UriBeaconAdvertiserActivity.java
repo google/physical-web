@@ -13,9 +13,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.bluetooth.le.*;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
  * Advertise a URI Beacon with Android L
@@ -23,12 +23,12 @@ import java.util.UUID;
  *
  * @author Don Coleman
  */
-public class UriBeacon extends Activity {
+public class UriBeaconAdvertiserActivity extends Activity {
 
-    private static final String TAG = "UriBeacon";
+    private static final String TAG = "UriBeaconAdvertiserActivity";
     private static final int ENABLE_BLUETOOTH_REQUEST = 17;
     // Really 0xFED8, but Android seems to prefer the expanded 128-bit UUID version
-    public static final UUID URI_BEACON_128_BIT_UUID = UUID.fromString("0000FED8-0000-1000-8000-00805F9B34FB");
+    private static final ParcelUuid URI_BEACON_UUID = ParcelUuid.fromString("0000FED8-0000-1000-8000-00805F9B34FB");
 
     private BluetoothAdapter bluetoothAdapter;
 
@@ -65,12 +65,11 @@ public class UriBeacon extends Activity {
         beaconData[7] = 0x66; // f
         beaconData[8] = 0x08; // .org
 
-        builder.setServiceData(new ParcelUuid(new UUID(0xFE, 0xD8)), beaconData);
+        builder.setServiceData(URI_BEACON_UUID, beaconData);
 
         // Adding 0xFED8 to the "Service Complete List UUID 16" (0x3) for iOS compatibility
-        // Need to use the 128 bit version of the UUID o_O
         builder.setServiceUuids(new ArrayList<ParcelUuid>() {{
-            add(new ParcelUuid(URI_BEACON_128_BIT_UUID));
+            add(URI_BEACON_UUID);
         }});
 
         return builder.build();
@@ -144,18 +143,31 @@ public class UriBeacon extends Activity {
         }
     }
 
-    private AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
+    private final AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
         @Override
         public void onSuccess(AdvertiseSettings advertiseSettings) {
-            String successMsg = "Advertisement successful";
-            Log.d(TAG, successMsg);
+            final String message = "Advertisement successful";
+            Log.d(TAG, message);
+            UriBeaconAdvertiserActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UriBeaconAdvertiserActivity.this, message, Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
         @Override
         public void onFailure(int i) {
-            String failMsg = "Advertisement failed error code: " + i;
-            Log.e(TAG, failMsg);
+            final String message = "Advertisement failed error code: " + i;
+            Log.e(TAG, message);
+            UriBeaconAdvertiserActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UriBeaconAdvertiserActivity.this, message, Toast.LENGTH_LONG).show();
+                }
+            });
         }
+
     };
 
 }
