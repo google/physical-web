@@ -10,6 +10,6 @@ Install from the command line
 
   $ gradle installDebug
 
-or use [Android Studio](https://developer.android.com/sdk/installing/studio.html)
+or import into [Android Studio](https://developer.android.com/sdk/installing/studio.html)
 
-See [UriBeacon.java](app/src/main/java/com/megster/uribeacon/UriBeacon.java) for more details.
+See [UriBeaconAdvertiserActivity.java](app/src/main/java/com/megster/uribeacon/UriBeaconAdvertiserActivity.java) for more details.
