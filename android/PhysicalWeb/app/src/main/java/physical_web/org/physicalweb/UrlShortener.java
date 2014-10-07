@@ -17,7 +17,6 @@
 package physical_web.org.physicalweb;
 
 import android.os.AsyncTask;
-import android.util.Log;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.http.HttpTransport;
@@ -26,16 +25,17 @@ import com.google.api.services.urlshortener.Urlshortener;
 import com.google.api.services.urlshortener.UrlshortenerRequestInitializer;
 import com.google.api.services.urlshortener.model.Url;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 /**
- * This class shortens urls
- * and aslo expands those short urls
+ * This class shortens urls and aslo expands those short urls
  * to their original url.
  * Currently this class only supports google url shortener
  * TODO: support other url shorteners
  */
-
 public class UrlShortener {
 
   private static String TAG = "UrlShortener";
@@ -81,46 +81,6 @@ public class UrlShortener {
   }
 
   /**
-   * Create the shortened form
-   * of the given url.
-   * Currently uses google url shortener
-   *
-   * @param shortUrl
-   * @return
-   */
-  public static String lengthenShortUrl(String shortUrl) {
-    String longUrl = null;
-    try {
-      longUrl = (String) new LengthenShortUrlTask().execute(shortUrl).get();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      e.printStackTrace();
-    }
-    return longUrl;
-  }
-
-  /**
-   * Create a google url shortener interface object
-   * and make a request to expand the given url
-   */
-
-  private static class LengthenShortUrlTask extends AsyncTask {
-    @Override
-    protected String doInBackground(Object[] params) {
-      String shortUrl = (String) params[0];
-      Urlshortener urlshortener = createGoogleUrlShortener();
-      try {
-        Url response = urlshortener.url().get(shortUrl).execute();
-        return response.getLongUrl();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      return null;
-    }
-  }
-
-  /**
    * Create an instance of the google url shortener object
    * and return it.
    *
@@ -151,4 +111,49 @@ public class UrlShortener {
     return false;
   }
 
+  /**
+   * Takes any short url and converts it to the long url that is being pointed to.
+   * Note: this method will work for all types of shortened urls as it inspect the
+   * returned headers for the location.
+   *
+   * @param shortUrl
+   * @return
+   */
+  public static String lengthenShortUrl(String shortUrl) {
+    String longUrl = null;
+    try {
+      longUrl = (String) new LengthenShortUrlTask().execute(shortUrl).get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+    return longUrl;
+  }
+
+  private static class LengthenShortUrlTask extends AsyncTask {
+    @Override
+    protected String doInBackground(Object[] params) {
+      String shortUrl = (String) params[0];
+      String longUrl;
+      URL url = null;
+      try {
+        url = new URL(shortUrl);
+      } catch (MalformedURLException e) {
+        e.printStackTrace();
+      }
+      HttpURLConnection httpURLConnection = null;
+      try {
+        httpURLConnection = (HttpURLConnection) url.openConnection();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      httpURLConnection.setInstanceFollowRedirects(false);
+      longUrl = httpURLConnection.getHeaderField("location");
+      if (longUrl == null) {
+        longUrl = shortUrl;
+      }
+      return longUrl;
+    }
+  }
 }
