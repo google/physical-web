@@ -25,7 +25,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 import org.uribeacon.beacon.UriBeacon;
@@ -39,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class show the ui list for all
+ * This class shows the ui list for all
  * detected nearby devices that are beacons.
  * It also listens for tap events
  * on items within the list.

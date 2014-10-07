@@ -19,6 +19,8 @@
     <string name="service_name_device_discovery">BeaconDiscoveryService</string>
     <string name="empty_nearby_devices_list_text">Searching...</string>
     <string name="about_app_title">Physical Web</string>
+    <string name="about_learn_more">LEARN MORE</string>
+    <string name="url_learn_more">https://github.com/google/physical-web/blob/master/documentation/android_client_walkthrough.md</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>

@@ -8,4 +8,5 @@
     <color name="menu_item_text_color">#333333</color>
     <color name="action_bar_title_text_color">#5A5A5A</color>
     <color name="action_bar_background_color">#FFFFFF</color>
+    <color name="about_learn_more_button">#4285f4</color>
 </resources>

@@ -1,15 +1,16 @@
 package physical_web.org.physicalweb;
 
-
-import android.content.pm.PackageInfo;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class AboutFragment extends Fragment {
@@ -27,8 +28,10 @@ public class AboutFragment extends Fragment {
   private void initialize() {
     getActivity().getActionBar().setTitle(getString(R.string.title_about));
     initializeApplicationVersionText();
+    initializeLearnMoreButton();
   }
 
+  /*
   private void initializeApplicationVersionText() {
     String versionString = "";
     String versionName = "";
@@ -42,6 +45,26 @@ public class AboutFragment extends Fragment {
     }
     TextView textView_applicationVersion = (TextView) getView().findViewById(R.id.textView_applicationVersion);
     textView_applicationVersion.setText(versionString);
+  }
+  */
+
+  private void initializeApplicationVersionText() {
+    String versionString;
+    String versionName = null;
+    try {
+      Context context = getActivity();
+      versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+    } catch (PackageManager.NameNotFoundException e) {
+      e.printStackTrace();
+    }
+    versionString = getString(R.string.about_version_label) + " " + versionName;
+    TextView textView_applicationVersion = (TextView) getView().findViewById(R.id.textView_applicationVersion);
+    textView_applicationVersion.setText(versionString);
+  }
+
+  private void initializeLearnMoreButton() {
+    Button button = (Button) getView().findViewById(R.id.button_learnMore);
+    button.setOnClickListener(learnMoreButtonOnClickListener);
   }
 
 
@@ -64,7 +87,7 @@ public class AboutFragment extends Fragment {
   @Override
   public void onDetach() {
     super.onDestroy();
-    getActivity().getActionBar().setTitle(getString(R.string.title_nearby_beacons));
+    getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
   }
 
   @Override
@@ -72,6 +95,24 @@ public class AboutFragment extends Fragment {
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
+  }
+
+  /**
+   * This is the class that listens
+   * for when the user taps the learn-more button
+   */
+  private View.OnClickListener learnMoreButtonOnClickListener = new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+      showLearnMorePage();
+    }
+  };
+
+  private void showLearnMorePage() {
+    String url = getString(R.string.url_learn_more);
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(url));
+    startActivity(intent);
   }
 
 }

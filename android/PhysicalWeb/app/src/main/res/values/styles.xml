@@ -17,6 +17,7 @@
         <item name="android:background">@color/action_bar_background_color</item>
         <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="android:icon">@android:color/transparent</item>
+
     </style>
 
     <style name="ActionBar.TitleTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">

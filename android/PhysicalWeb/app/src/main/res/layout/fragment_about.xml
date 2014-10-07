@@ -11,40 +11,60 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:focusable="true"
         android:focusableInTouchMode="true">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_about"
-            android:gravity="left"
-            android:paddingTop="5dp"/>
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingLeft="10dp">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/about_app_title"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-light"
-                android:textColor="#5A5A5A"
-                android:paddingBottom="10dp"/>
+                android:src="@drawable/ic_about"
+                android:gravity="left"
+                android:paddingTop="5dp"/>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-light"
-                android:id="@+id/textView_applicationVersion"
-                android:textColor="#5A5A5A"/>
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/about_app_title"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-light"
+                    android:textColor="#5A5A5A"
+                    android:paddingBottom="10dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-light"
+                    android:id="@+id/textView_applicationVersion"
+                    android:textColor="#5A5A5A"/>
+            </LinearLayout>
+
         </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_learn_more"
+            android:background="@android:color/transparent"
+            android:paddingTop="30dp"
+            android:paddingRight="30dp"
+            android:gravity="right|bottom"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="14sp"
+            android:textColor="@color/about_learn_more_button"
+            android:id="@+id/button_learnMore"/>
 
     </LinearLayout>
 
