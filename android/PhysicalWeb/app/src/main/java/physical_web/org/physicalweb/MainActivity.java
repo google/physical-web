@@ -17,7 +17,6 @@
 package physical_web.org.physicalweb;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -25,7 +24,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
-import java.util.List;
 
 /**
  * The main entry point for the app.
@@ -83,21 +81,6 @@ public class MainActivity extends Activity {
     }
   }
 
-  /**
-   * Check if the service that tracks
-   * currently available beacons is running.
-   */
-  private boolean checkIfBeaconDiscoveryServiceIsRunning() {
-    ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-    List<ActivityManager.RunningServiceInfo> RunningServiceInfos = activityManager.getRunningServices(Integer.MAX_VALUE);
-    for (ActivityManager.RunningServiceInfo runningServiceInfo : RunningServiceInfos) {
-      if (runningServiceInfo.service.getClassName().equals(getString(R.string.service_name_device_discovery))) {
-        return true;
-      }
-    }
-    return false;
-  }
-
 
   /////////////////////////////////
   // callbacks
@@ -152,10 +135,8 @@ public class MainActivity extends Activity {
    * Start up the BeaconDiscoveryService
    */
   private void startBeaconDiscoveryService() {
-    if (!checkIfBeaconDiscoveryServiceIsRunning()) {
-      Intent intent = new Intent(this, DeviceDiscoveryService.class);
-      startService(intent);
-    }
+    Intent intent = new Intent(this, DeviceDiscoveryService.class);
+    startService(intent);
   }
 
   /**

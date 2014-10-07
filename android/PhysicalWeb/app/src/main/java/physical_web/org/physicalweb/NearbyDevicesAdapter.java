@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-
 /**
  * This class is responsible for
  * displaying the list of nearby devices.
