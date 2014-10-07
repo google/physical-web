@@ -34,7 +34,6 @@ import java.util.List;
 public class MainActivity extends Activity {
 
   private static String TAG = "MainActivity";
-  private static String SERVICE_NAME_DEVICE_DISCOVERY = "BeaconDiscoveryService";
   private int REQUEST_ENABLE_BT = 0;
 
   @Override
@@ -47,10 +46,6 @@ public class MainActivity extends Activity {
     }
 
     initialize();
-
-    String shortUrl = "http://goo.gl/3fs9";
-    String longUrl = UrlShortener.lengthenShortUrl(shortUrl);
-    Log.d(TAG, "zzzzzzzzzzzzzzzzzzzzzzzzzz" + longUrl);
   }
 
   private void showNearbyBeaconsFragment() {
@@ -96,17 +91,12 @@ public class MainActivity extends Activity {
     ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
     List<ActivityManager.RunningServiceInfo> RunningServiceInfos = activityManager.getRunningServices(Integer.MAX_VALUE);
     for (ActivityManager.RunningServiceInfo runningServiceInfo : RunningServiceInfos) {
-      if (runningServiceInfo.service.getClassName().equals(SERVICE_NAME_DEVICE_DISCOVERY)) {
+      if (runningServiceInfo.service.getClassName().equals(getString(R.string.service_name_device_discovery))) {
         return true;
       }
     }
     return false;
   }
-
-
-  /////////////////////////////////
-  // accessors
-  /////////////////////////////////
 
 
   /////////////////////////////////

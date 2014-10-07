@@ -9,6 +9,8 @@ android {
     if (versionPropertiesFile.canRead()) {
         def Properties properties = new Properties()
         properties.load(new FileInputStream(versionPropertiesFile))
+        def major = properties['MAJOR'].toInteger()
+        def minor = properties['MINOR'].toInteger()
         def build = properties['BUILD'].toInteger() + 1
         properties['BUILD'] = build.toString()
         properties.store(versionPropertiesFile.newWriter(), null)
@@ -18,7 +20,7 @@ android {
             minSdkVersion 18
             targetSdkVersion 21
             versionCode 1
-            versionName "0.1.${build}"
+            versionName "${major}.${minor}.${build}"
         }
     }
 

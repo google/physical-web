@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 import org.uribeacon.beacon.UriBeacon;
@@ -67,6 +68,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
 
   private void initializeNearbyDevicesListView(View rootView) {
     mNearbyDevicesListView = (ListView) rootView.findViewById(R.id.list_view_nearby_devices);
+    mNearbyDevicesListView.setEmptyView(rootView.findViewById(R.id.linearLayout_nearbyDevicesEmptyListView));
     mNearbyDevicesListView.setOnItemClickListener(onItemClick_nearbyDevicesListViewItem);
   }
 

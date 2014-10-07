@@ -5,4 +5,7 @@
     <color name="description_color">#545454</color>
     <color name="menu_item_color">#CCCCCC</color>
     <color name="config_save_url_button">#4285f4</color>
+    <color name="menu_item_text_color">#333333</color>
+    <color name="action_bar_title_text_color">#5A5A5A</color>
+    <color name="action_bar_background_color">#FFFFFF</color>
 </resources>

@@ -125,24 +125,24 @@ public class NearbyDevicesAdapter extends BaseAdapter {
   public Device handleFoundDevice(ScanResult scanResult) {
     Device newDevice = null;
     // Try to create a UriBeacon object using the scan record
-    UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-    // If this device is a beacon
-    if (uriBeacon != null) {
-      //Log.i(TAG, String.format("onLeScan: %s, RSSI: %d", scanResult.getDevice().getAddress(), scanResult.getRssi));
-
-      // Try to get a stored nearby device that matches this device
-      Device existingDevice = mDeviceAddressToDeviceMap.get(scanResult.getDevice().getAddress());
-
-      // If no match was found (i.e. if this a newly discovered device)
-      if (existingDevice == null) {
-        // Create a new device sighting
-        newDevice = new Device(uriBeacon, scanResult.getDevice(), scanResult.getRssi());
-        // Add it to the stored map
-        addDevice(newDevice);
-      }
-      else {
-        // Update the time this device was last seen
-        updateDevice(existingDevice, scanResult.getRssi());
+    byte[] scanRecordBytes = scanResult.getScanRecord().getBytes();
+    if (scanRecordBytes != null) {
+      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanRecordBytes);
+      // If this device is a beacon
+      if (uriBeacon != null) {
+        //Log.i(TAG, String.format("onLeScan: %s, RSSI: %d", scanResult.getDevice().getAddress(), scanResult.getRssi));
+        // Try to get a stored nearby device that matches this device
+        Device existingDevice = mDeviceAddressToDeviceMap.get(scanResult.getDevice().getAddress());
+        // If no match was found (i.e. if this a newly discovered device)
+        if (existingDevice == null) {
+          // Create a new device sighting
+          newDevice = new Device(uriBeacon, scanResult.getDevice(), scanResult.getRssi());
+          // Add it to the stored map
+          addDevice(newDevice);
+        } else {
+          // Update the time this device was last seen
+          updateDevice(existingDevice, scanResult.getRssi());
+        }
       }
     }
     return newDevice;
