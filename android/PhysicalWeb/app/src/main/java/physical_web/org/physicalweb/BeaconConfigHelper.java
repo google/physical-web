@@ -227,7 +227,7 @@ public class BeaconConfigHelper {
       // If this is a shortened url
       if (UrlShortener.isShortUrl(url)) {
         // Expand the url to it's original url
-        url = UrlShortener.lengthenShortUrl(url);
+        url = UrlShortener.lengthenAnyShortUrl(url);
       }
 
       // Make sure the url has an http:// or https:// prefix

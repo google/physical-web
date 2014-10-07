@@ -17,7 +17,6 @@
 package physical_web.org.physicalweb;
 
 import android.os.AsyncTask;
-import android.util.Log;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.http.HttpTransport;
@@ -26,6 +25,9 @@ import com.google.api.services.urlshortener.Urlshortener;
 import com.google.api.services.urlshortener.UrlshortenerRequestInitializer;
 import com.google.api.services.urlshortener.model.Url;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -151,4 +153,48 @@ public class UrlShortener {
     return false;
   }
 
+  /**
+   * Takes any short url and converts it
+   * to the long url that is being pointed to.
+   * Note: this method will work for all types
+   * of shortened urls as it inspect the
+   * returned headers for the location.
+   *
+   * @param shortUrl
+   * @return
+   */
+  public static String lengthenAnyShortUrl(String shortUrl) {
+    String longUrl = null;
+    try {
+      longUrl = (String) new LengthenAnyShortUrlTask().execute(shortUrl).get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+    return longUrl;
+  }
+
+  private static class LengthenAnyShortUrlTask extends AsyncTask {
+    @Override
+    protected String doInBackground(Object[] params) {
+      String shortUrl = (String) params[0];
+      String longUrl;
+      URL url = null;
+      try {
+        url = new URL(shortUrl);
+      } catch (MalformedURLException e) {
+        e.printStackTrace();
+      }
+      HttpURLConnection httpURLConnection = null;
+      try {
+        httpURLConnection = (HttpURLConnection) url.openConnection();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      httpURLConnection.setInstanceFollowRedirects(false);
+      longUrl = httpURLConnection.getHeaderField("location");
+      return longUrl;
+    }
+  }
 }

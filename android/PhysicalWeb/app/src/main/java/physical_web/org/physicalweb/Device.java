@@ -33,7 +33,7 @@ public class Device {
     if (UrlShortener.isShortUrl(url)) {
       shortUrl = url;
       // Expand the url to it's original url
-      longUrl = UrlShortener.lengthenShortUrl(url);
+      longUrl = UrlShortener.lengthenAnyShortUrl(url);
     }
     else {
       longUrl = url;
