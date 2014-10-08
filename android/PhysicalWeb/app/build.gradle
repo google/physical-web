@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     //auto versioning logic
@@ -18,7 +18,7 @@ android {
         defaultConfig {
             applicationId "physical_web.org.physicalweb"
             minSdkVersion 18
-            targetSdkVersion 21
+            targetSdkVersion 20
             versionCode 1
             versionName "${major}.${minor}.${build}"
         }
