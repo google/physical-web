@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">UriBeacon</string>
+    <string name="advertising_beacon">Hello I\'m advertising a URI Beacon!</string>
+    <string name="bluetooth_error">Bluetooth Error</string>
+    <string name="no_bluetooth">This device does not have Bluetooth</string>
+    <string name="ok">OK</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
