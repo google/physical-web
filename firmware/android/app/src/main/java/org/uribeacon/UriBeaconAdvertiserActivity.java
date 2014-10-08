@@ -1,5 +1,6 @@
-package com.megster.uribeacon;
+package org.uribeacon;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -144,6 +145,7 @@ public class UriBeaconAdvertiserActivity extends Activity {
     }
 
     private final AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
+        @SuppressLint("Override") /* Remove when android-21 is released */
         @Override
         public void onSuccess(AdvertiseSettings advertiseSettings) {
             final String message = "Advertisement successful";
@@ -156,6 +158,7 @@ public class UriBeaconAdvertiserActivity extends Activity {
             });
         }
 
+        @SuppressLint("Override") /* Remove when android-21 is released */
         @Override
         public void onFailure(int i) {
             final String message = "Advertisement failed error code: " + i;

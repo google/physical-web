@@ -5,7 +5,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.megster.uribeacon"
+        applicationId "org.uribeacon"
         minSdkVersion 'L'
         targetSdkVersion 'L'
         versionCode 1
