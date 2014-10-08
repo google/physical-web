@@ -12,4 +12,4 @@ Install from the command line
 
 or import into [Android Studio](https://developer.android.com/sdk/installing/studio.html)
 
-See [UriBeaconAdvertiserActivity.java](app/src/main/java/org/uribeacon/UriBeaconAdvertiserActivity.java) for more details.
+See [UriBeaconAdvertiserActivity.java](app/src/main/java/org/uribeacon/example/beacon/UriBeaconAdvertiserActivity.java) for more details.

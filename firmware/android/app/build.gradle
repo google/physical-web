@@ -5,7 +5,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "org.uribeacon"
+        applicationId "org.uribeacon.example.beacon"
         minSdkVersion 'L'
         targetSdkVersion 'L'
         versionCode 1

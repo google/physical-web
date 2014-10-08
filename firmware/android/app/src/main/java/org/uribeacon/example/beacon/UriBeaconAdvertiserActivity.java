@@ -1,4 +1,4 @@
-package org.uribeacon;
+package org.uribeacon.example.beacon;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
