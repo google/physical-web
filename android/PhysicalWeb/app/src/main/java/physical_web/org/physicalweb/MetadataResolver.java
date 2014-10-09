@@ -169,7 +169,9 @@ public class MetadataResolver {
     for (int i = 0; i < mDeviceBatchList.size(); i++) {
       // Add the given url and device to the map
       Device device = mDeviceBatchList.get(i);
-      deviceMap.put(device.getUriBeacon().getUriString(), device);
+      String url = device.getUriBeacon().getUriString();
+      url = ensureUrlHasHttpPrefix(url);
+      deviceMap.put(url, device);
     }
     // Create the metadata request
     // for the given json request object and device map
@@ -177,6 +179,13 @@ public class MetadataResolver {
 
     // Queue the request
     mRequestQueue.add(jsObjRequest);
+  }
+
+  private static String ensureUrlHasHttpPrefix(String url) {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "http://" + url;
+    }
+    return url;
   }
 
   /**
@@ -270,19 +279,17 @@ public class MetadataResolver {
    */
   private static JSONObject createRequestObject(ArrayList<Device> devices) {
     JSONObject jsonObj = new JSONObject();
-
     try {
       JSONArray urlArray = new JSONArray();
-
       for (int i = 0; i < devices.size(); i++) {
         Device device = devices.get(i);
         JSONObject urlObject = new JSONObject();
-        urlObject.put("url", device.getUriBeacon().getUriString());
+        String url = device.getUriBeacon().getUriString();
+        url = ensureUrlHasHttpPrefix(url);
+        urlObject.put("url", url);
         urlArray.put(urlObject);
       }
-
       jsonObj.put("objects", urlArray);
-
     } catch (JSONException ex) {
 
     }
