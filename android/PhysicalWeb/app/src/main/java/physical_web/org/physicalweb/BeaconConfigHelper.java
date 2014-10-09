@@ -229,12 +229,6 @@ public class BeaconConfigHelper {
         // Expand the url to it's original url
         url = UrlShortener.lengthenShortUrl(url);
       }
-
-      // Make sure the url has an http:// or https:// prefix
-      // so the metadata server will accept it
-      if (!url.startsWith("http://") && !url.startsWith("https://")) {
-        url = "http://" + url;
-      }
     }
     return url;
   }
