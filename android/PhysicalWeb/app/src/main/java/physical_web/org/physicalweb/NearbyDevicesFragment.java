@@ -209,6 +209,11 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   }
 
   private void openUrlInBrowser(String url) {
+    // Ensure we have an http prefix
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "http://" + url;
+    }
+    // Open the browser and point it to the given url
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
     startActivity(intent);
