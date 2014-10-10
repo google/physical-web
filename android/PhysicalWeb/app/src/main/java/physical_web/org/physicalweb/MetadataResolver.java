@@ -22,6 +22,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import android.webkit.URLUtil;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -212,47 +214,29 @@ public class MetadataResolver {
               int deviceCount = foundMetaData.length();
               for (int i = 0; i < deviceCount; i++) {
 
-                JSONObject deviceData = foundMetaData.getJSONObject(i);
+                JSONObject device = foundMetaData.getJSONObject(i);
+                DeviceMetadata metadata = new DeviceMetadata();
 
-                String title = "Unknown name";
-                String url = "Unknown url";
-                String description = "Unknown description";
-                String iconUrl = "/favicon.ico";
-                String id = deviceData.getString("id");
-
-                if (deviceData.has("title")) {
-                  title = deviceData.getString("title");
-                }
-                if (deviceData.has("url")) {
-                  url = deviceData.getString("url");
-                }
-                if (deviceData.has("description")) {
-                  description = deviceData.getString("description");
-                }
-                if (deviceData.has("icon")) {
-                  // We might need to do some magic here.
-                  iconUrl = deviceData.getString("icon");
-                }
+                metadata.title = device.optString("title", "Unknown name");
+                metadata.siteUrl = device.optString("url", "Unknown url");
+                metadata.description = device.optString("description", "Unknown description");
+                metadata.iconUrl = device.optString("icon", "/favicon.ico");
 
                 // TODO: Eliminate this fallback since we expect the server to always return an icon.
                 // Provisions for a favicon specified as a relative URL.
-                if (!iconUrl.startsWith("http")) {
+                if (!URLUtil.isNetworkUrl(metadata.iconUrl)) {
                   // Lets just assume we are dealing with a relative path.
-                  Uri fullUri = Uri.parse(url);
+                  Uri fullUri = Uri.parse(metadata.siteUrl);
                   Uri.Builder builder = fullUri.buildUpon();
                   // Append the default favicon path to the URL.
-                  builder.path(iconUrl);
-                  iconUrl = builder.toString();
+                  builder.path(metadata.iconUrl);
+                  metadata.iconUrl = builder.toString();
                 }
 
-                DeviceMetadata deviceMetadata = new DeviceMetadata();
-                deviceMetadata.title = title;
-                deviceMetadata.description = description;
-                deviceMetadata.siteUrl = url;
-                deviceMetadata.iconUrl = iconUrl;
-                downloadIcon(deviceMetadata, deviceMap.get(id));
+                String id = device.getString("id");
+                downloadIcon(metadata, deviceMap.get(id));
 
-                onDeviceMetadataReceived(deviceMap.get(id), deviceMetadata);
+                onDeviceMetadataReceived(deviceMap.get(id), metadata);
               }
             } catch (JSONException e) {
               e.printStackTrace();
