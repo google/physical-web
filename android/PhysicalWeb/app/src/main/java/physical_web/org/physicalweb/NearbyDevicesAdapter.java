@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * This class is responsible for
@@ -41,11 +43,27 @@ public class NearbyDevicesAdapter extends BaseAdapter {
   private HashMap<String, Device> mDeviceAddressToDeviceMap;
   private List<Device> mSortedDevices;
   private Activity mActivity;
+  private boolean mCanUpdateList;
+  private Timer mUpdateListTimer;
+  private int UPDATE_PERIOD = 5000;
 
   NearbyDevicesAdapter(Activity activity) {
     mActivity = activity;
     mDeviceAddressToDeviceMap = new HashMap<>();
     mSortedDevices = null;
+    mCanUpdateList = true;
+    createUpdateListTimer();
+  }
+
+  private void createUpdateListTimer() {
+    mUpdateListTimer = new Timer();
+    UpdateListTimerTask updateListTimerTask = new UpdateListTimerTask();
+    mUpdateListTimer.scheduleAtFixedRate(updateListTimerTask, 0, UPDATE_PERIOD);
+  }
+  class UpdateListTimerTask extends TimerTask {
+    public void run() {
+      mCanUpdateList = true;
+    }
   }
 
 
@@ -162,7 +180,10 @@ public class NearbyDevicesAdapter extends BaseAdapter {
       @Override
       public void run() {
         device.updateRssiHistory(rssi);
-        notifyDataSetChanged();
+        if (mCanUpdateList) {
+          mCanUpdateList = false;
+          notifyDataSetChanged();
+        }
       }
     });
   }
@@ -194,15 +215,36 @@ public class NearbyDevicesAdapter extends BaseAdapter {
 
   private void sortDevices() {
     if (mSortedDevices == null) {
-      mSortedDevices = new ArrayList<>(mDeviceAddressToDeviceMap.values());
-      Collections.sort(mSortedDevices, mRssiComparator);
+
+      int[] RANGE_BOUNDARIES = new int[]{-100, -70, -50, -30, 1};
+      // Create the empty range buckets
+      ArrayList<ArrayList<Device>> ranges = new ArrayList<>();
+      for (int i=0; i<RANGE_BOUNDARIES.length-1; i++) {
+        ranges.add(new ArrayList<Device>());
+      }
+
+      // Put the devices into their appropriate range buckets
+      ArrayList<Device> devices = new ArrayList<>(mDeviceAddressToDeviceMap.values());
+      for (Device device : devices) {
+        int averageRssi = device.calculateAverageRssi();
+        for (int j=0; j<RANGE_BOUNDARIES.length-1; j++) {
+          int boundaryMin = RANGE_BOUNDARIES[j];
+          int boundaryMax = RANGE_BOUNDARIES[j+1];
+          if ( (averageRssi >= boundaryMin) && (averageRssi < boundaryMax) ) {
+            ranges.get(j).add(device);
+          }
+        }
+      }
+
+      // Collect the devices from the buckets
+      mSortedDevices = new ArrayList<>();
+      for (ArrayList<Device> range : ranges) {
+        for (Device device : range) {
+          Log.d(TAG, "device:  " + device);
+          mSortedDevices.add(device);
+        }
+      }
+      Collections.reverse(mSortedDevices);
     }
   }
-
-  private Comparator<Device> mRssiComparator = new Comparator<Device>() {
-    @Override
-    public int compare(Device lhs, Device rhs) {
-      return rhs.calculateAverageRssi() - lhs.calculateAverageRssi();
-    }
-  };
 }
