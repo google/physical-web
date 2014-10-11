@@ -162,11 +162,9 @@ public class DeviceDiscoveryService extends Service {
   private void startSearchingForDevices() {
     Log.v(TAG, "startSearchingForDevices");
 
-    int scanMode = ScanSettings.SCAN_MODE_LOW_POWER;
-
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_FIRST_MATCH | ScanSettings.CALLBACK_TYPE_MATCH_LOST)
-        .setScanMode(scanMode)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
         .build();
 
     List<ScanFilter> filters = new ArrayList<>();
