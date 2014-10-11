@@ -40,21 +40,42 @@ class SiteInformation(BaseModel):
     title = ndb.StringProperty()
     description = ndb.StringProperty()
 
+class DemoMetadata(webapp2.RequestHandler):
+    def get(self):
+        objects = [
+            {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
+            {'url': 'http://benfry.com/distellamap/'},
+            {'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe'},
+            {'url': 'http://sfmoma.org'}
+        ]
+        metadata_output = BuildResponse(objects)
+        output = {
+          "metadata": metadata_output
+        }
+        self.response.headers['Content-Type'] = 'application/json'
+        json_data = json.dumps(output);
+        self.response.write(json_data)
+
 class ResolveScan(webapp2.RequestHandler):
     def post(self):
         input_data = self.request.body
         input_object = json.loads(input_data) # Data is not sanitised.
         
-        metadata_output = []
-        output = {
-          "metadata": metadata_output
-        }
-        
-        devices = []
         if "objects" in input_object:
             objects = input_object["objects"]
         else:
             objects = []
+        
+        metadata_output = BuildResponse(objects)
+        output = {
+          "metadata": metadata_output
+        }
+        self.response.headers['Content-Type'] = 'application/json'
+        json_data = json.dumps(output);
+        self.response.write(json_data)
+
+def BuildResponse(objects):
+        metadata_output = []
         
         # Resolve the devices
         
@@ -103,27 +124,7 @@ class ResolveScan(webapp2.RequestHandler):
             
             metadata_output.append(device_data)
         
-        logging.info(output);
-        # Resolve from DB based off key.
-        self.response.headers['Content-Type'] = 'application/json'
-        json_data = json.dumps(output);
-        self.response.write(json_data)
-        
-class SaveUrl(webapp2.RequestHandler):
-    def post(self):
-        name = self.request.get("name")
-        url = self.request.get("url")
-        
-        title = ""
-        icon = "/favicon.ico"
-        
-        device = Device.get_or_insert(name, name = name, url = url)
-        device.url = url
-        device.put()
-        
-        # Index the page
-        FetchAndStoreUrl(device.url)
-        self.redirect("/index.html")
+        return metadata_output
 
 def FetchAndStoreUrl(siteInfo, url):
     # Index the page
@@ -160,6 +161,17 @@ def GetContentEncoding(content):
     
     return encoding
 
+def FlattenString(input):
+    input = input.strip()
+    input = input.replace("\r", " ");
+    input = input.replace("\n", " ");
+    input = input.replace("\t", " ");
+    input = input.replace("\v", " ");
+    input = input.replace("\f", " ");
+    while "  " in input:
+        input = input.replace("  ", " ");
+    return input
+
 def StoreUrl(siteInfo, url, final_url, content, encoding):
     title = None
     description = None
@@ -176,6 +188,8 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
         value = htmltree.xpath("//head//meta[@property='og:title']/attribute::content");
         if (len(value) > 0):
             title = value[0]
+    if title is not None:
+        title = FlattenString(title)
     
     # Try to use <meta name="description" content="...">.
     value = htmltree.xpath("//head//meta[@name='description']/attribute::content")
@@ -216,15 +230,8 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
     
     # Cleanup.
     if description is not None:
-        description = description.strip()
-        description = description.replace("\r", " ");
-        description = description.replace("\n", " ");
-        description = description.replace("\t", " ");
-        description = description.replace("\v", " ");
-        description = description.replace("\f", " ");
-        while "  " in description:
-            description = description.replace("  ", " ");
-        if description is not None and len(description) > 500:
+        description = FlattenString(description)
+        if len(description) > 500:
             description = description[:500]
     
     if icon is None:
@@ -276,5 +283,5 @@ class Index(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', Index),
     ('/resolve-scan', ResolveScan),
-    ('/add-device', SaveUrl)
+    ('/demo', DemoMetadata)
 ], debug=True)
