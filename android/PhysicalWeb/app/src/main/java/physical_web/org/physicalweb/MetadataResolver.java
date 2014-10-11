@@ -20,7 +20,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Handler;
 import android.util.Log;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -31,15 +30,12 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
- * Class for resolving metadata.
- * Batches up found device urls,
- * and sends them to the metadata server
- * which then scrapes the given pages
- * at the give nurls for the metadata.
+ * Class for resolving url metadata.
+ * Sends requests to the metadata server
+ * which then scrapes the page at the given url
+ * for its metadata
  */
 
 public class MetadataResolver {
@@ -48,10 +44,6 @@ public class MetadataResolver {
   private static String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
-  private static boolean mIsQueuing = false;
-  private static Handler mQueryHandler;
-  private static ArrayList<Device> mDeviceBatchList;
-  private static int QUERY_PERIOD = 500;
   private static MetadataResolverCallback mMetadataResolverCallback;
 
   public MetadataResolver(Activity activity) {
@@ -63,12 +55,6 @@ public class MetadataResolver {
       mRequestQueue = Volley.newRequestQueue(context);
     }
     mIsInitialized = true;
-    if (mQueryHandler == null) {
-      mQueryHandler = new Handler();
-    }
-    if (mDeviceBatchList == null) {
-      mDeviceBatchList = new ArrayList<>();
-    }
   }
 
 
@@ -77,20 +63,18 @@ public class MetadataResolver {
   /////////////////////////////////
 
   public interface MetadataResolverCallback {
-    public void onDeviceMetadataReceived(Device device, DeviceMetadata deviceMetadata);
+    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
   }
 
   /**
-   * Called when a device's metadata has been fetched and returned.
+   * Called when a url's metadata has been fetched and returned.
    *
-   * @param device
-   * @param deviceMetadata
+   * @param url
+   * @param urlMetadata
    */
-  private static void onDeviceMetadataReceived(Device device, DeviceMetadata deviceMetadata) {
-    // Set the metadata for the given device
-    device.setMetadata(deviceMetadata);
+  private static void onUrlMetadataReceived(String url, UrlMetadata urlMetadata) {
     // Callback to the context that made the request
-    mMetadataResolverCallback.onDeviceMetadataReceived(device, deviceMetadata);
+    mMetadataResolverCallback.onUrlMetadataReceived(url, urlMetadata);
   }
 
 
@@ -98,7 +82,7 @@ public class MetadataResolver {
   // utilities
   /////////////////////////////////
 
-  public static void findDeviceMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback, final Device device) {
+  public static void findUrlMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback, final String url) {
     // Store the context
     mActivity = (Activity) context;
     // Store the callback so we can call it back later
@@ -107,131 +91,94 @@ public class MetadataResolver {
       @Override
       public void run() {
         initialize(context);
-        // If we're not currently queuing up
-        // urls to fetch metadata for
-        if (!mIsQueuing) {
-          mIsQueuing = true;
-          // We wait QUERY_PERIOD ms to see if any other devices are discovered so we can batch.
-          mQueryHandler.postAtTime(mBatchMetadataRunnable, QUERY_PERIOD);
-        }
-        // Add the device to the queue of devices to look for.
-        mDeviceBatchList.add(device);
+        requestUrlMetadata(url);
       }
     });
   }
 
   /**
-   * Create placeholder metadata to load immediately
-   * while the actual metadata is being fetched.
-   * This will trigger a ui update and the user
-   * will be able to see the device url in the list view.
-   *
-   * @param mDeviceBatchList
-   */
-  private static void loadInitialMetadata(ArrayList<Device> mDeviceBatchList) {
-    if (!mIsInitialized) {
-      Log.e(TAG, "Not initialized.");
-      return;
-    }
-
-    for (int i = 0; i < mDeviceBatchList.size(); i++) {
-      Device device = mDeviceBatchList.get(i);
-      DeviceMetadata deviceMetadata = new DeviceMetadata();
-      deviceMetadata.title = "";
-      deviceMetadata.description = "";
-      deviceMetadata.siteUrl = device.getUriBeacon().getUriString();
-      deviceMetadata.iconUrl = "";
-      onDeviceMetadataReceived(device, deviceMetadata);
-    }
-  }
-
-  /**
    * Start the process that will ask
-   * the metadata server for metadata
-   * for each of the urls in the request.
-   * This method creates the request object
-   * and adds it to a queue for subsequent processing
-   * some time later.
+   * the metadata server for the given url's metadata
    *
-   * @param mDeviceBatchList
+   * @param url
    */
-  public static void getBatchMetadata(ArrayList<Device> mDeviceBatchList) {
+  public static void requestUrlMetadata(String url) {
     if (!mIsInitialized) {
       Log.e(TAG, "Not initialized.");
       return;
     }
-
     // Create the json request object
-    JSONObject jsonObj = createRequestObject(mDeviceBatchList);
-    // Create a map between the device url and the device object
-    HashMap<String, Device> deviceMap = new HashMap<String, Device>();
-    // Loop through the list of devices to get metadata for
-    for (int i = 0; i < mDeviceBatchList.size(); i++) {
-      // Add the given url and device to the map
-      Device device = mDeviceBatchList.get(i);
-      String url = device.getUriBeacon().getUriString();
-      url = ensureUrlHasHttpPrefix(url);
-      deviceMap.put(url, device);
-    }
+    JSONObject jsonObj = createUrlMetadataRequestObject(url);
     // Create the metadata request
-    // for the given json request object and device map
-    JsonObjectRequest jsObjRequest = createMetadataRequest(jsonObj, deviceMap);
-
+    // for the given json request object
+    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj);
     // Queue the request
     mRequestQueue.add(jsObjRequest);
   }
 
-  private static String ensureUrlHasHttpPrefix(String url) {
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      url = "http://" + url;
+  /**
+   * Create the json request object
+   * that will be sent to the metadata server
+   * asking for metadata for the given url.
+   *
+   * @param url
+   * @return
+   */
+  private static JSONObject createUrlMetadataRequestObject(String url) {
+    JSONObject jsonObject = new JSONObject();
+    try {
+      JSONArray urlJsonArray = new JSONArray();
+      JSONObject urlJsonObject = new JSONObject();
+      urlJsonObject.put("url", url);
+      urlJsonArray.put(urlJsonObject);
+      jsonObject.put("objects", urlJsonArray);
+    } catch (JSONException ex) {
     }
-    return url;
+    return jsonObject;
   }
 
   /**
-   * Create the metadata request, given
-   * the json request object and device map
+   * Create the url metadata request,
+   * given the json request object
    *
    * @param jsonObj
-   * @param deviceMap
    * @return
    */
-  private static JsonObjectRequest createMetadataRequest(JSONObject jsonObj, final HashMap<String, Device> deviceMap) {
+  private static JsonObjectRequest createUrlMetadataRequest(JSONObject jsonObj) {
     return new JsonObjectRequest(
         METADATA_URL,
         jsonObj,
         new Response.Listener<JSONObject>() {
-          // called when the server returns a response
+          // Called when the server returns a response
           @Override
           public void onResponse(JSONObject jsonResponse) {
 
-            // build the metadata from the response
+            // Build the metadata from the response
             try {
               JSONArray foundMetaData = jsonResponse.getJSONArray("metadata");
 
-              int deviceCount = foundMetaData.length();
-              for (int i = 0; i < deviceCount; i++) {
+              if (foundMetaData.length() > 0) {
 
-                JSONObject deviceData = foundMetaData.getJSONObject(i);
+                JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(0);
 
                 String title = "Unknown name";
                 String url = "Unknown url";
                 String description = "Unknown description";
                 String iconUrl = "/favicon.ico";
-                String id = deviceData.getString("id");
+                String id = jsonUrlMetadata.getString("id");
 
-                if (deviceData.has("title")) {
-                  title = deviceData.getString("title");
+                if (jsonUrlMetadata.has("title")) {
+                  title = jsonUrlMetadata.getString("title");
                 }
-                if (deviceData.has("url")) {
-                  url = deviceData.getString("url");
+                if (jsonUrlMetadata.has("url")) {
+                  url = jsonUrlMetadata.getString("url");
                 }
-                if (deviceData.has("description")) {
-                  description = deviceData.getString("description");
+                if (jsonUrlMetadata.has("description")) {
+                  description = jsonUrlMetadata.getString("description");
                 }
-                if (deviceData.has("icon")) {
+                if (jsonUrlMetadata.has("icon")) {
                   // We might need to do some magic here.
-                  iconUrl = deviceData.getString("icon");
+                  iconUrl = jsonUrlMetadata.getString("icon");
                 }
 
                 // TODO: Eliminate this fallback since we expect the server to always return an icon.
@@ -245,14 +192,14 @@ public class MetadataResolver {
                   iconUrl = builder.toString();
                 }
 
-                DeviceMetadata deviceMetadata = new DeviceMetadata();
-                deviceMetadata.title = title;
-                deviceMetadata.description = description;
-                deviceMetadata.siteUrl = url;
-                deviceMetadata.iconUrl = iconUrl;
-                downloadIcon(deviceMetadata, deviceMap.get(id));
+                UrlMetadata urlMetadata = new UrlMetadata();
+                urlMetadata.title = title;
+                urlMetadata.description = description;
+                urlMetadata.siteUrl = url;
+                urlMetadata.iconUrl = iconUrl;
+                downloadIcon(urlMetadata, url);
 
-                onDeviceMetadataReceived(deviceMap.get(id), deviceMetadata);
+                onUrlMetadataReceived(id, urlMetadata);
               }
             } catch (JSONException e) {
               e.printStackTrace();
@@ -270,92 +217,37 @@ public class MetadataResolver {
   }
 
   /**
-   * Create the json request object
-   * that will be sent to the metadata server
-   * asking for metadata for each device's url.
+   * Asynchronously download the image for the url favicon.
    *
-   * @param devices
-   * @return
+   * @param urlMetadata
+   * @param url
    */
-  private static JSONObject createRequestObject(ArrayList<Device> devices) {
-    JSONObject jsonObj = new JSONObject();
-    try {
-      JSONArray urlArray = new JSONArray();
-      for (int i = 0; i < devices.size(); i++) {
-        Device device = devices.get(i);
-        JSONObject urlObject = new JSONObject();
-        String url = device.getUriBeacon().getUriString();
-        url = ensureUrlHasHttpPrefix(url);
-        urlObject.put("url", url);
-        urlArray.put(urlObject);
-      }
-      jsonObj.put("objects", urlArray);
-    } catch (JSONException ex) {
-
-    }
-    return jsonObj;
-  }
-
-  /**
-   * Asynchronously download the image for the device.
-   *
-   * @param deviceMetadata
-   * @param device
-   */
-  private static void downloadIcon(final DeviceMetadata deviceMetadata, final Device device) {
-    ImageRequest imageRequest = new ImageRequest(deviceMetadata.iconUrl, new Response.Listener<Bitmap>() {
+  private static void downloadIcon(final UrlMetadata urlMetadata, final String url) {
+    ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, new Response.Listener<Bitmap>() {
       @Override
       public void onResponse(Bitmap response) {
-        deviceMetadata.icon = response;
-        onDeviceMetadataReceived(device, deviceMetadata);
+        urlMetadata.icon = response;
+        onUrlMetadataReceived(url, urlMetadata);
       }
     }, 0, 0, null, null);
     mRequestQueue.add(imageRequest);
   }
 
-  private static Runnable mBatchMetadataRunnable = new Runnable() {
-    @Override
-    public void run() {
-      batchLoadInitialMetadata();
-      batchFetchMetaData();
-      mIsQueuing = false;
-    }
-  };
-
-  private static void batchLoadInitialMetadata() {
-    if (mDeviceBatchList.size() > 0) {
-      loadInitialMetadata(mDeviceBatchList);
-    }
-  }
-
-  private static void batchFetchMetaData() {
-    if (mDeviceBatchList.size() > 0) {
-      getBatchMetadata(mDeviceBatchList);
-      // Clear out the list
-      mDeviceBatchList = new ArrayList<>();
-    }
-  }
-
-
   /**
-   * A container class for a url's
-   * fetched metadata.
-   * The metadata consists of
-   * the title, site url, description,
+   * A container class for a url's fetched metadata.
+   * The metadata consists of the title, site url, description,
    * iconUrl and the icon (or favicon).
-   * This data is scraped via a
-   * server that receives a url
+   * This data is scraped via a server that receives a url
    * and returns a json blob.
    */
-
-  public static class DeviceMetadata {
+  public static class UrlMetadata {
     public String title;
     public String siteUrl;
     public String description;
     public String iconUrl;
     public Bitmap icon;
 
-    public DeviceMetadata() {
+    public UrlMetadata() {
     }
 
   }
