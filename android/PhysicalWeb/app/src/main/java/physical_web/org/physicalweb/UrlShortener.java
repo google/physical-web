@@ -111,6 +111,7 @@ public class UrlShortener {
       if (url.startsWith("http://" + shortUrl + "/") || url.startsWith("https://" + shortUrl + "/")) {
         return true;
       }
+    }
     return false;
   }
 
