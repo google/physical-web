@@ -169,11 +169,13 @@ public class DeviceDiscoveryService extends Service {
 
     List<ScanFilter> filters = new ArrayList<>();
 
-    ScanFilter.Builder builder = new ScanFilter.Builder()
+    ScanFilter filter =  new ScanFilter.Builder()
         .setServiceData(UriBeacon.URI_SERVICE_UUID,
             new byte[] {},
-            new byte[] {});
-    filters.add(builder.build());
+            new byte[] {})
+        .build();
+
+    filters.add(filter);
 
     boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
