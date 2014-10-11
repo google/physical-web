@@ -32,7 +32,7 @@ public class BeaconHelper {
   private static String[] EXPANSION_CODES_TO_TEXT_MAP = new String[]{"http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "geo:", ".com", ".org", ".edu"};
   private static int MAX_NUM_BYTES_URL = 18;
   private static byte[] ADVERTISING_PACKET_HEADER = new byte[]{(byte) 0x03, (byte) 0x03, (byte) 0xD8, (byte) 0xFE};
-  private static byte[] URI_SERVICE_DATA_HEADER = new byte[]{(byte) 0x16, (byte) 0xD8, (byte) 0xFE, (byte) 0x00, (byte) 0xBB};
+  private static byte[] URI_SERVICE_DATA_HEADER = new byte[]{(byte) 0x16, (byte) 0xD8, (byte) 0xFE, (byte) 0x00, (byte) 0xC1};
 
   /**
    * Create a beacon advertising packet
