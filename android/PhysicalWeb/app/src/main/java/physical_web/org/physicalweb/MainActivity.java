@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 
   private void showNearbyBeaconsFragment() {
     getFragmentManager().beginTransaction()
-        .add(R.id.homeScreen_container, NearbyDevicesFragment.newInstance())
+        .add(R.id.main_activity_container, NearbyDevicesFragment.newInstance())
         .commit();
   }
 
