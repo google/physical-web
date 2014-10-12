@@ -22,17 +22,15 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * The main entry point for the app.
  */
 
 public class MainActivity extends Activity {
-
-  private static String TAG = "MainActivity";
-  private int REQUEST_ENABLE_BT = 0;
+  private static final int REQUEST_ENABLE_BT = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -43,29 +41,9 @@ public class MainActivity extends Activity {
       showNearbyBeaconsFragment();
     }
 
-    initialize();
-  }
-
-  private void showNearbyBeaconsFragment() {
-    getFragmentManager().beginTransaction()
-        .add(R.id.homeScreen_container, NearbyDevicesFragment.newInstance())
-        .commit();
-  }
-
-  private void initialize() {
-    Log.d(TAG, "<<<<<<<<<<<< MainActivity initialize >>>>>>>>>>>>");
-
-    initializeActionBar();
+    //noinspection ConstantConditions
+    getActionBar().setTitle(R.string.title_nearby_beacons);
     ensureBluetoothIsEnabled();
-    stopDeviceDiscoveryService();
-    startBeaconDiscoveryService();
-  }
-
-  /**
-   * Setup the action bar at the top of the screen.
-   */
-  private void initializeActionBar() {
-    getActionBar().setTitle(getString(R.string.title_nearby_beacons));
   }
 
   /**
@@ -80,11 +58,6 @@ public class MainActivity extends Activity {
       startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
     }
   }
-
-
-  /////////////////////////////////
-  // callbacks
-  /////////////////////////////////
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,24 +82,35 @@ public class MainActivity extends Activity {
     switch (item.getItemId()) {
       // If the configuration menu item was selected
       case R.id.action_config:
-        handleActionConfigMenuItemSelected();
+        showBeaconConfigFragment();
         return true;
       // If the about menu item was selected
       case R.id.action_about:
-        handleActionAboutMenuItemSelected();
+        showAboutFragment();
+        return true;
     }
     return super.onOptionsItemSelected(item);
   }
 
+  @Override
+  protected void onPause() {
+    super.onPause();
+    // The service runs when the app isn't running.
+    startUriBeaconDiscoveryService();
+  }
 
-  /////////////////////////////////
-  // utilities
-  /////////////////////////////////
+  @Override
+  protected void onResume() {
+    super.onResume();
+    // The service pauses while the app is running since the app does it's own scans or
+    // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
+    stopUriBeaconDiscoveryService();
+  }
 
   /**
    * Stop the beacon discovery service from running.
    */
-  private void stopDeviceDiscoveryService() {
+  private void stopUriBeaconDiscoveryService() {
     Intent intent = new Intent(this, DeviceDiscoveryService.class);
     stopService(intent);
   }
@@ -134,25 +118,24 @@ public class MainActivity extends Activity {
   /**
    * Start up the BeaconDiscoveryService
    */
-  private void startBeaconDiscoveryService() {
+  private void startUriBeaconDiscoveryService() {
     Intent intent = new Intent(this, DeviceDiscoveryService.class);
     startService(intent);
   }
 
   /**
-   * Do a list of actions, given that
-   * the config menu item was tapped.
+   * Show the fragment scanning nearby UriBeacons.
    */
-  private void handleActionConfigMenuItemSelected() {
-    // Show the config ui
-    showBeaconConfigFramgent();
+  private void showNearbyBeaconsFragment() {
+    getFragmentManager().beginTransaction()
+        .add(R.id.main_activity_container, NearbyDevicesFragment.newInstance())
+        .commit();
   }
 
   /**
-   * Show the ui for configuring a beacon,
-   * which is a fragment.
+   * Show the fragment configuring a beacon.
    */
-  private void showBeaconConfigFramgent() {
+  private void showBeaconConfigFragment() {
     BeaconConfigFragment beaconConfigFragment = BeaconConfigFragment.newInstance();
     getFragmentManager().beginTransaction()
         .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
@@ -161,11 +144,9 @@ public class MainActivity extends Activity {
         .commit();
   }
 
-  private void handleActionAboutMenuItemSelected() {
-    // Show the about ui
-    showAboutFragment();
-  }
-
+  /**
+   * Show the fragment displaying information about this application.
+   */
   private void showAboutFragment() {
     AboutFragment aboutFragment = AboutFragment.newInstance();
     getFragmentManager().beginTransaction()
@@ -174,5 +155,4 @@ public class MainActivity extends Activity {
         .addToBackStack(null)
         .commit();
   }
-
 }
