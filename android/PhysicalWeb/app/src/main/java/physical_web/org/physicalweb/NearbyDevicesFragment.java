@@ -125,6 +125,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   @Override
   public void onResume() {
     super.onResume();
+    getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     startScanning();
   }
 
