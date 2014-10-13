@@ -54,14 +54,14 @@ import java.util.List;
  * the current number of nearby devices.
  */
 
-public class DeviceDiscoveryService extends Service {
+public class UriBeaconDiscoveryService extends Service {
 
   private static String TAG = "DeviceDiscoveryService";
   private static int ID_NOTIFICATION = 23;
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private HashSet<String> mDeviceAddressesFound;
 
-  public DeviceDiscoveryService() {
+  public UriBeaconDiscoveryService() {
   }
 
   private void initialize() {
