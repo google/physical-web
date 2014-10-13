@@ -1,11 +1,9 @@
 package physical_web.org.physicalweb;
 
-import android.content.Context;
+import android.app.Fragment;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -15,62 +13,33 @@ import android.widget.TextView;
 
 public class AboutFragment extends Fragment {
 
-  private static String TAG = "AboutFragment";
-
+  @SuppressWarnings("WeakerAccess")
   public AboutFragment() {
   }
 
   public static AboutFragment newInstance() {
-    AboutFragment aboutFragment = new AboutFragment();
-    return aboutFragment;
+    return new AboutFragment();
   }
-
-  private void initialize() {
-    getActivity().getActionBar().setTitle(getString(R.string.title_about));
-    initializeApplicationVersionText();
-    initializeLearnMoreButton();
-  }
-
-  /*
-  private void initializeApplicationVersionText() {
-    String versionString = "";
-    String versionName = "";
-    try {
-      PackageInfo pInfo;
-      pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
-      versionName = pInfo.versionName;
-      versionString = getString(R.string.about_version_label) + " " + versionName;
-    } catch (PackageManager.NameNotFoundException e) {
-      e.printStackTrace();
-    }
-    TextView textView_applicationVersion = (TextView) getView().findViewById(R.id.textView_applicationVersion);
-    textView_applicationVersion.setText(versionString);
-  }
-  */
 
   private void initializeApplicationVersionText() {
-    String versionString;
-    String versionName = null;
-    try {
-      Context context = getActivity();
-      versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-    } catch (PackageManager.NameNotFoundException e) {
-      e.printStackTrace();
+    String versionString = getString(R.string.about_version_label) + " " + BuildConfig.VERSION_NAME;
+    View view = getView();
+    if (view != null) {
+      TextView versionView = (TextView) view.findViewById(R.id.version);
+      versionView.setText(versionString);
     }
-    versionString = getString(R.string.about_version_label) + " " + versionName;
-    TextView textView_applicationVersion = (TextView) getView().findViewById(R.id.textView_applicationVersion);
-    textView_applicationVersion.setText(versionString);
   }
 
   private void initializeLearnMoreButton() {
-    Button button = (Button) getView().findViewById(R.id.button_learnMore);
-    button.setOnClickListener(learnMoreButtonOnClickListener);
+    Button button = (Button) getActivity().findViewById(R.id.button_learn_more);
+    // This listens for the taps the learn-more button
+    button.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        showLearnMorePage();
+      }
+    });
   }
-
-
-  /////////////////////////////////
-  // callbacks
-  /////////////////////////////////
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,13 +50,10 @@ public class AboutFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-    initialize();
-  }
-
-  @Override
-  public void onDetach() {
-    super.onDestroy();
-    getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
+    //noinspection ConstantConditions
+    getActivity().getActionBar().setTitle(R.string.title_about);
+    initializeApplicationVersionText();
+    initializeLearnMoreButton();
   }
 
   @Override
@@ -96,17 +62,6 @@ public class AboutFragment extends Fragment {
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
   }
-
-  /**
-   * This is the class that listens
-   * for when the user taps the learn-more button
-   */
-  private View.OnClickListener learnMoreButtonOnClickListener = new View.OnClickListener() {
-    @Override
-    public void onClick(View view) {
-      showLearnMorePage();
-    }
-  };
 
   private void showLearnMorePage() {
     String url = getString(R.string.url_learn_more);
