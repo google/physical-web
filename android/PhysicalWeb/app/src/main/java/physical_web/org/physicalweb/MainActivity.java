@@ -40,9 +40,6 @@ public class MainActivity extends Activity {
     if (savedInstanceState == null) {
       showNearbyBeaconsFragment();
     }
-
-    //noinspection ConstantConditions
-    getActionBar().setTitle(R.string.title_nearby_beacons);
     ensureBluetoothIsEnabled();
   }
 
