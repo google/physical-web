@@ -26,6 +26,7 @@ import os
 import re
 from lxml import etree
 import cgi
+from google.appengine.api import urlfetch_errors
 
 class BaseModel(ndb.Model):
     added_on = ndb.DateTimeProperty(auto_now_add = True)
@@ -80,16 +81,17 @@ def BuildResponse(objects):
             key_id = None
             url = None
             force = False
-            
+            valid = True
+            siteInfo = None
+
             if "id" in obj:
                 key_id = obj["id"]
             elif "url" in obj:
                 key_id = obj["url"]
                 url = obj["url"]
                 parsed_url = urlparse(url)
-                if parsed_url.scheme == '':
-                    url = 'http://' + url
-                    key_id = url
+                if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
+                    valid = False
 
             if "force" in obj:
                 force = True
@@ -98,13 +100,14 @@ def BuildResponse(objects):
 
             # We don't need RSSI yet.
             #rssi = obj["rssi"]
-           
-            # Really if we don't have the data we should not return it.
-            siteInfo = SiteInformation.get_by_id(url)
 
-            if force or siteInfo is None or siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
-                # If we don't have the data or it is older than 5 minutes, fetch.
-                siteInfo = FetchAndStoreUrl(siteInfo, url)
+            if valid:
+                # Really if we don't have the data we should not return it.
+                siteInfo = SiteInformation.get_by_id(url)
+
+                if force or siteInfo is None or siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
+                    # If we don't have the data or it is older than 5 minutes, fetch.
+                    siteInfo = FetchAndStoreUrl(siteInfo, url)
 
             device_data = {};
             if siteInfo is not None:
@@ -126,7 +129,11 @@ def BuildResponse(objects):
 
 def FetchAndStoreUrl(siteInfo, url):
     # Index the page
-    result = urlfetch.fetch(url, validate_certificate = True)
+    try:
+        result = urlfetch.fetch(url, validate_certificate = True)
+    except urlfetch_errors.DeadlineExceededError:
+        return None
+
     if result.status_code == 200:
         encoding = GetContentEncoding(result.content)
         final_url = GetExpandedURL(url)
