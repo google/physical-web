@@ -20,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:gravity="center"
+            android:contentDescription="@string/physical_web_logo"
             android:src="@drawable/ic_about"/>
 
         <LinearLayout
