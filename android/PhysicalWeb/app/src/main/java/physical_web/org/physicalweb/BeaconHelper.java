@@ -29,17 +29,17 @@ import java.io.IOException;
 public class BeaconHelper {
 
   private static String TAG = "BeaconHelper";
-  private static String[] EXPANSION_CODES_TO_TEXT_MAP = new String[]{"http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "geo:", ".com", ".org", ".edu"};
-  private static int MAX_NUM_BYTES_URL = 18;
-  private static byte[] ADVERTISING_PACKET_HEADER = new byte[]{(byte) 0x03, (byte) 0x03, (byte) 0xD8, (byte) 0xFE};
-  private static byte[] URI_SERVICE_DATA_HEADER = new byte[]{(byte) 0x16, (byte) 0xD8, (byte) 0xFE, (byte) 0x00, (byte) 0xC1};
+  private static final String[] EXPANSION_CODES_TO_TEXT_MAP = new String[]{"http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "geo:", ".com", ".org", ".edu"};
+  private static final int MAX_NUM_BYTES_URL = 18;
+  private static final byte[] ADVERTISING_PACKET_HEADER = new byte[]{(byte) 0x03, (byte) 0x03, (byte) 0xD8, (byte) 0xFE};
+  private static final byte[] URI_SERVICE_DATA_HEADER = new byte[]{(byte) 0x16, (byte) 0xD8, (byte) 0xFE, (byte) 0x00, (byte) 0xC1};
 
   /**
    * Create a beacon advertising packet
    * that will contain the given url.
    *
-   * @param url
-   * @return
+   * @param url Url to write to the beacon
+   * @return the encoded url
    * @throws IOException
    */
   public static byte[] createAdvertisingPacket(String url) throws IOException {
@@ -60,8 +60,8 @@ public class BeaconHelper {
    * with a url shortener.
    * Then we compress that url using the expansion codes again.
    *
-   * @param url
-   * @return
+   * @param url URL to encode
+   * @return encoded URL
    * @throws IOException
    */
   public static byte[] createUrlBytes(String url) throws IOException {
@@ -79,8 +79,8 @@ public class BeaconHelper {
    * a hardcoded set of substrings (e.g. http://, .edu, etc.)
    * and replacing them with an associated integer.
    *
-   * @param url
-   * @return
+   * @param url URL to compress
+   * @return Compressed URL
    * @throws IOException
    */
   private static byte[] compressUrlUsingExpansionCodes(String url) throws IOException {
@@ -107,8 +107,7 @@ public class BeaconHelper {
     // Split the url up by the split character
     String[] url_split = url.split(splitChar);
     // Loop through the substring in the split array
-    for (int j = 0; j < url_split.length; j++) {
-      String subString = url_split[j];
+    for (String subString : url_split) {
       // If the given substring contains the
       // code indicator character
       // (i.e. if there is an expansion code)
