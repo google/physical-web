@@ -38,7 +38,7 @@ import java.util.UUID;
 
 public class BeaconConfigHelper {
 
-  private static String TAG = "BeaconConfigHelper";
+  private static final String TAG = "BeaconConfigHelper";
   private static BluetoothGatt mBluetoothGatt;
   private static byte[] mAdvertisingPacketData_read = null;
   private static byte[] mAdvertisingPacketData_write = null;

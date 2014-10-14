@@ -62,7 +62,7 @@ import java.util.TimerTask;
 
 public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback{
 
-  private static String TAG = "BeaconConfigFragment";
+  private static final String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mFoundConfigurableBeaconBluetoothDevice;
   private Timer mCheckForFoundConfigurableDevicesTimer;

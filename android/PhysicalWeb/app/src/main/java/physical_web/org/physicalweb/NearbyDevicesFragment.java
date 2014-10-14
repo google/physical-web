@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class NearbyDevicesFragment extends Fragment implements MetadataResolver.MetadataResolverCallback {
 
-  private static String TAG = "NearbyDevicesFragment";
+  private static final String TAG = "NearbyDevicesFragment";
   private ListView mNearbyDevicesListView;
   private LayoutInflater mLayoutInflater;
   private NearbyDevicesAdapter mNearbyDevicesAdapter;
