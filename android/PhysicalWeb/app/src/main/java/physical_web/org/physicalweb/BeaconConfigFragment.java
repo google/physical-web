@@ -43,7 +43,7 @@ import org.uribeacon.scan.compat.ScanCallback;
 import org.uribeacon.scan.compat.ScanFilter;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,7 +62,7 @@ import java.util.TimerTask;
 
 public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback{
 
-  private static String TAG = "BeaconConfigFragment";
+  private static final String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mFoundConfigurableBeaconBluetoothDevice;
   private Timer mCheckForFoundConfigurableDevicesTimer;
@@ -73,11 +73,10 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
   private LinearLayout mConfigurableBeaconLinearLayout;
-  private ProgressBar msearchingForBeaconsProgressBar;
+  private ProgressBar mSearchingForBeaconsProgressBar;
 
   public static BeaconConfigFragment newInstance() {
-    BeaconConfigFragment beaconConfigFragment = new BeaconConfigFragment();
-    return beaconConfigFragment;
+    return new BeaconConfigFragment();
   }
 
   public BeaconConfigFragment() {
@@ -88,14 +87,14 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mShowingConfigurableCard = false;
     mDeviceAddressToDeviceMap = new HashMap<>();
     getActivity().getActionBar().setTitle(getString(R.string.title_edit_urls));
-    inititalizeSearchingForBeaconsProgressBar();
+    initializeSearchingForBeaconsProgressBar();
     initializeTextViews();
     initializeConfigurableBeaconCard();
     startSearchingForDevices();
   }
 
-  private void inititalizeSearchingForBeaconsProgressBar() {
-    msearchingForBeaconsProgressBar = (ProgressBar) getView().findViewById(R.id.progressBar_searchingForBeacons);
+  private void initializeSearchingForBeaconsProgressBar() {
+    mSearchingForBeaconsProgressBar = (ProgressBar) getView().findViewById(R.id.progressBar_searchingForBeacons);
     showSearchingForBeaconsProgressBar();
   }
 
@@ -142,8 +141,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    View view = inflater.inflate(R.layout.fragment_beacon_config, container, false);
-    return view;
+    return inflater.inflate(R.layout.fragment_beacon_config, container, false);
   }
 
   @Override
@@ -234,8 +232,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
 
   /**
    * Called when the user presses the keyboard "DONE" key
-   *
-   * @throws IOException
    */
   private void onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed() {
     // Hide the software keyboard
@@ -429,7 +425,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * is being performed.
    */
   private void showSearchingForBeaconsProgressBar() {
-    msearchingForBeaconsProgressBar.setVisibility(View.VISIBLE);
+    mSearchingForBeaconsProgressBar.setVisibility(View.VISIBLE);
   }
 
   /**
@@ -438,7 +434,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * is being performed.
    */
   private void hideSearchingForBeaconsProgressBar() {
-    msearchingForBeaconsProgressBar.setVisibility(View.INVISIBLE);
+    mSearchingForBeaconsProgressBar.setVisibility(View.INVISIBLE);
   }
 
 }

@@ -9,20 +9,13 @@ public class Device {
   private BluetoothDevice mBluetoothDevice;
   private UriBeacon mUriBeacon;
   public ArrayList<Integer> mRssiHistory;
-  private int MAX_LENGTH_RSSI_HISTORY = 6;
+  private final int MAX_LENGTH_RSSI_HISTORY = 6;
 
   public Device(UriBeacon uriBeacon, BluetoothDevice bluetoothDevice, int rssi) {
     mUriBeacon = uriBeacon;
     mBluetoothDevice = bluetoothDevice;
     mRssiHistory = new ArrayList<>();
     mRssiHistory.add(rssi);
-    initializeUrl();
-  }
-
-  private void initializeUrl() {
-    if (mUriBeacon == null) {
-      return;
-    }
   }
 
   public BluetoothDevice getBluetoothDevice() { return mBluetoothDevice; }

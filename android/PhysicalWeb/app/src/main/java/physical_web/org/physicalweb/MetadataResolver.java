@@ -39,9 +39,9 @@ import org.json.JSONObject;
  */
 
 public class MetadataResolver {
-  private static String TAG = "MetadataResolver";
+  private static final String TAG = "MetadataResolver";
   private static Activity mActivity;
-  private static String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
+  private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
   private static MetadataResolverCallback mMetadataResolverCallback;

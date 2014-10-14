@@ -38,7 +38,7 @@ import java.util.UUID;
 
 public class BeaconConfigHelper {
 
-  private static String TAG = "BeaconConfigHelper";
+  private static final String TAG = "BeaconConfigHelper";
   private static BluetoothGatt mBluetoothGatt;
   private static byte[] mAdvertisingPacketData_read = null;
   private static byte[] mAdvertisingPacketData_write = null;
@@ -119,9 +119,9 @@ public class BeaconConfigHelper {
     /**
      * Called when a characteristic write operation has occurred
      *
-     * @param gatt
-     * @param characteristic
-     * @param status
+     * @param gatt GATT client that called writeCharacteristic
+     * @param characteristic Characteristic that was written to the associated remote device.
+     * @param status The result of the write operation GATT_SUCCESS if the operation succeeds.
      */
     @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
@@ -162,7 +162,7 @@ public class BeaconConfigHelper {
   /**
    * Called when the operation to read a beacon's GATT service has completed.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Characteristic that was read from the associated remote device.
    */
   private static void onNearbyBeaconsGattCharacteristicRead(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     // If the read was for retrieving part 1 of the beacon advertising packet.
@@ -180,7 +180,7 @@ public class BeaconConfigHelper {
   /**
    * Called when the operation to write to a beacon's GATT service has completed.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Characteristic that was written to the associated remote device.
    */
   private static void onNearbyBeaconsGattCharacteristicWrite(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     // If the write was for writing part 1 of the beacon advertising packet.
@@ -209,8 +209,8 @@ public class BeaconConfigHelper {
    * but also expand a short url
    * and ensure an http prefix exists.
    *
-   * @param scanRecord
-   * @return
+   * @param scanRecord encoded url
+   * @return The url that was encoded the scan record.
    */
   public static String createUrlFromScanRecord(byte[] scanRecord) {
     String url = null;
@@ -262,7 +262,7 @@ public class BeaconConfigHelper {
    * Connect to the nearby beacon's GATT service.
    *
    * @param context
-   * @param beaconBluetoothDevice
+   * @param beaconBluetoothDevice Device hosting the GATT Server
    */
   private static void connectToNearbyBeacon(Context context, BluetoothDevice beaconBluetoothDevice) {
     mBluetoothGatt = beaconBluetoothDevice.connectGatt(context, true, mBluetoothGattCallback);
@@ -304,7 +304,7 @@ public class BeaconConfigHelper {
    * of part 1 of the beacon's advertising packet
    * has completed.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Data Part 1 characteristic that was read from the associated remote device.
    */
   private static void handleGattCharacteristicRead_beaconDataPart1(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     // Store the read value byte array
@@ -318,7 +318,7 @@ public class BeaconConfigHelper {
    * of the length of the beacon's advertising packet
    * has completed.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Length characteristic that was read from the associated remote device.
    */
   private static void handleGattCharacteristicRead_beaconDataLength(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     // Get the read value data length
@@ -338,7 +338,7 @@ public class BeaconConfigHelper {
    * of part 1 of the beacon's advertising packet
    * has completed.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Data part 2 characteristic that was read from the associated remote device.
    */
   private static void handleGattCharacteristicRead_beaconDataPart2(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     // Get the read value byte array
@@ -359,11 +359,11 @@ public class BeaconConfigHelper {
   /**
    * Write the given url to the
    * currently-being-configured beacon.
-   * This involves constructing the adverstising packet
+   * This involves constructing the advertising packet
    * that contains the url and then pushing that packet
    * to the beacon via GATT.
    *
-   * @param url
+   * @param url URL to write to the beacon
    */
   public static void writeBeaconUrl(Context context, BeaconConfigCallback beaconConfigCallback, BluetoothDevice beaconBluetoothDevice, String url) {
     Log.d(TAG, "writeBeaconUrl" + "  url:  " + url);
@@ -377,7 +377,7 @@ public class BeaconConfigHelper {
    * that contains the given url to the
    * currently-being-configured beacon.
    *
-   * @param url
+   * @param url URL to write to the beacon
    */
   private static void beginWritingBeaconAdvertisingPacket(String url) {
     try {
@@ -409,7 +409,7 @@ public class BeaconConfigHelper {
    * This only writes part 1 which is up to 20 bytes
    * of the packet data.
    *
-   * @param data
+   * @param data First part of the data to write to the beacon; up to 20 bytes
    */
   private static void writeCharacteristic_beaconDataPart1(byte[] data) {
     // Get the characteristic for part 1 of the beacon data
@@ -425,7 +425,7 @@ public class BeaconConfigHelper {
    * This only writes part 2 which is up to 8 bytes
    * of the packet data and is appended to the data from part 1.
    *
-   * @param data
+   * @param data Second part of the data to write to the beacon; up to 8 bytes.
    */
   private static void writeCharacteristic_beaconDataPart2(byte[] data) {
     // Get the characteristic for part 2 of the beacon data
@@ -440,7 +440,7 @@ public class BeaconConfigHelper {
    * Run actions given that the data was successfully written
    * to part 1 of the beacon advertising packet.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Data part 1 characteristic that was written to the associated remote device.
    */
   private static void handleGattCharacteristicWrite_beaconDataPart1(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     // If the length of the advertising packet is less than or equal to the part 1 threshold length
@@ -448,7 +448,7 @@ public class BeaconConfigHelper {
       onWriteComplete_beaconData();
       // If the length of the advertising packet is greater than the part 1 threshold length
     } else {
-      // Get the second part of the data to write from the threhold length index
+      // Get the second part of the data to write from the threshold length index
       // to the total length index of the advertising packet
       byte[] data_toWrite = Arrays.copyOfRange(mAdvertisingPacketData_write, MAX_NUM_BYTES_DATA_PART_1, mAdvertisingPacketData_write.length);
       // Write the given data to part 2 of the beacon advertising packet
@@ -460,7 +460,7 @@ public class BeaconConfigHelper {
    * Run actions given that the data was successfully written
    * to part 2 of the beacon advertising packet.
    *
-   * @param bluetoothGattCharacteristic
+   * @param bluetoothGattCharacteristic Data part 2 characteristic that was written to the associated remote device.
    */
   private static void handleGattCharacteristicWrite_beaconDataPart2(BluetoothGattCharacteristic bluetoothGattCharacteristic) {
     onWriteComplete_beaconData();

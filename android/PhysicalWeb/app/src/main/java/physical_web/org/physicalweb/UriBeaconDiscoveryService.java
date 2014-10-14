@@ -56,8 +56,8 @@ import java.util.List;
 
 public class UriBeaconDiscoveryService extends Service {
 
-  private static String TAG = "DeviceDiscoveryService";
-  private static int ID_NOTIFICATION = 23;
+  private static final String TAG = "DeviceDiscoveryService";
+  private static final int ID_NOTIFICATION = 23;
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private HashSet<String> mDeviceAddressesFound;
 
