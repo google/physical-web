@@ -2,7 +2,7 @@
 
 To demonstrate usage of the included 3D acceleration sensor the included hello world example transmits the URL only while the beacon is facing forward.
 
-Get the [hardware design](http://get.openbeacon.org/device.html) and [development environment](http://get.openbeacon.org/source/) for creating your own beacons.
+Get the nRF51822 based [hardware design](http://get.openbeacon.org/device.html) and [development environment](http://get.openbeacon.org/source/) for creating your own beacons.
 
 You can find the main loop in [firmware/nRF51/tag-physical-web/entry.c](https://github.com/meriac/openbeacon-ng/blob/master/firmware/nRF51/tag-physical-web/entry.c).
 
