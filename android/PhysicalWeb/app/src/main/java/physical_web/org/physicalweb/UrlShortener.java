@@ -31,14 +31,14 @@ import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 /**
- * This class shortens urls and aslo expands those short urls
+ * This class shortens urls and also expands those short urls
  * to their original url.
  * Currently this class only supports google url shortener
  * TODO: support other url shorteners
  */
 public class UrlShortener {
 
-  private static String TAG = "UrlShortener";
+  private static final String TAG = "UrlShortener";
 
   /**
    * Create the shortened form
@@ -51,9 +51,7 @@ public class UrlShortener {
     String shortUrl = null;
     try {
       shortUrl = (String) new ShortenUrlTask().execute(longUrl).get();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
+    } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
     return shortUrl;
@@ -90,10 +88,10 @@ public class UrlShortener {
     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
     JsonFactory jsonFactory = AndroidJsonFactory.getDefaultInstance();
     UrlshortenerRequestInitializer urlshortenerRequestInitializer = new UrlshortenerRequestInitializer();
-    Urlshortener.Builder builder = new Urlshortener.Builder(httpTransport, jsonFactory, null);
-    builder.setApplicationName("PhysicalWeb");
-    builder.setUrlshortenerRequestInitializer(urlshortenerRequestInitializer).build();
-    Urlshortener urlshortener = builder.build();
+    Urlshortener urlshortener = new Urlshortener.Builder(httpTransport, jsonFactory, null)
+        .setApplicationName("PhysicalWeb")
+        .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
+        .build();
 
     return urlshortener;
   }
@@ -105,10 +103,7 @@ public class UrlShortener {
    * @return
    */
   public static boolean isShortUrl(String url) {
-    if (url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/")) {
-      return true;
-    }
-    return false;
+    return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
   }
 
   /**
@@ -123,9 +118,7 @@ public class UrlShortener {
     String longUrl = null;
     try {
       longUrl = (String) new LengthenShortUrlTask().execute(shortUrl).get();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
+    } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
     return longUrl;

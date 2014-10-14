@@ -60,7 +60,7 @@ import java.util.List;
  */
 public class NearbyDevicesFragment extends Fragment implements MetadataResolver.MetadataResolverCallback {
 
-  private static String TAG = "NearbyDevicesFragment";
+  private static final String TAG = "NearbyDevicesFragment";
   private ListView mNearbyDevicesListView;
   private LayoutInflater mLayoutInflater;
   private NearbyDevicesAdapter mNearbyDevicesAdapter;
@@ -125,11 +125,6 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   /////////////////////////////////
   // callbacks
   /////////////////////////////////
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-  }
 
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
     mLayoutInflater = layoutInflater;
@@ -274,8 +269,8 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
       @Override
       public void run() {
         UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-        int txPowerLevel = uriBeacon.getTxPowerLevel();
         if (uriBeacon != null) {
+          int txPowerLevel = uriBeacon.getTxPowerLevel();
           String url = uriBeacon.getUriString();
           if (!mUrlToUrlMetadata.containsKey(url)) {
             mUrlToUrlMetadata.put(url, null);
