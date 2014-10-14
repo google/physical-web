@@ -211,8 +211,8 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
       @Override
       public void run() {
         UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-        int txPowerLevel = uriBeacon.getTxPowerLevel();
         if (uriBeacon != null) {
+          int txPowerLevel = uriBeacon.getTxPowerLevel();
           String url = uriBeacon.getUriString();
           if (!mUrlToUrlMetadata.containsKey(url)) {
             mUrlToUrlMetadata.put(url, null);
