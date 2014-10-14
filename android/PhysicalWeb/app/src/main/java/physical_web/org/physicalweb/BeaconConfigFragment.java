@@ -153,13 +153,13 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   @Override
   public void onPause() {
     super.onPause();
+    BeaconConfigHelper.shutDownConfigGatt();
     stopSearchingForDevices();
   }
 
   @Override
   public void onDetach() {
     super.onDestroy();
-    BeaconConfigHelper.shutDownConfigGatt();
     getActivity().getActionBar().setTitle(getString(R.string.title_nearby_beacons));
   }
 
