@@ -107,8 +107,7 @@ public class BeaconHelper {
     // Split the url up by the split character
     String[] url_split = url.split(splitChar);
     // Loop through the substring in the split array
-    for (int j = 0; j < url_split.length; j++) {
-      String subString = url_split[j];
+    for (String subString : url_split) {
       // If the given substring contains the
       // code indicator character
       // (i.e. if there is an expansion code)

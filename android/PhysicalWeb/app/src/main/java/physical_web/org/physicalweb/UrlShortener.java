@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class UrlShortener {
 
-  private static String TAG = "UrlShortener";
+  private static final String TAG = "UrlShortener";
 
   /**
    * Create the shortened form
