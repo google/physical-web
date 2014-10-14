@@ -110,11 +110,6 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   // callbacks
   /////////////////////////////////
 
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-  }
-
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
     mLayoutInflater = layoutInflater;
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_devices, container, false);
