@@ -1,9 +1,6 @@
 ## OpenBeacon Physical Web Beacon
 
-Our code is hosted on [github.com](https://github.com/meriac/openbeacon-ng). Software development is officially supported for OS X and Linux. Please use the latest [gcc-arm-none-eabi](https://launchpad.net/gcc-arm-embedded) toolchain from launchpad. Thanks a lot to ARM for maintaining [GNU Tools for ARM Embedded Processor](https://launchpad.net/gcc-arm-embedded).
-
-### Hello World!
-To demonstrate usage of the included 3D acceleration sensor the included hello world example transmits the URL only while facing forward.
+To demonstrate usage of the included 3D acceleration sensor the included hello world example transmits the URL only while the beacon is facing forward.
 
 Get the [hardware design](http://get.openbeacon.org/device.html) and [development environment](http://get.openbeacon.org/source/) for creating your own beacons.
 
@@ -19,7 +16,10 @@ cd openbeacon-ng/firmware/nRF51/tag-physical-web
 # compile and flash code
 make clean flash
 ```
+Software development is officially supported for OS X and Linux. Please use the latest [gcc-arm-none-eabi](https://launchpad.net/gcc-arm-embedded) toolchain from launchpad. Thanks a lot to ARM for maintaining [GNU Tools for ARM Embedded Processor](https://launchpad.net/gcc-arm-embedded).
+
 As you can see the makefile directly supports flashing from command line (under OSX and Linux) by using a [Segger J-Link debug probe](https://www.segger.com/jlink-software.html) from the [Nordic nRF51822 development kit](http://uk.mouser.com/Search/Refine.aspx?Keyword=949-NRF51822-DK).
+
 
 ### Support ###
 
