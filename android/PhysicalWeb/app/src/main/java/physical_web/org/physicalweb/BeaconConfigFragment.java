@@ -76,8 +76,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private ProgressBar msearchingForBeaconsProgressBar;
 
   public static BeaconConfigFragment newInstance() {
-    BeaconConfigFragment beaconConfigFragment = new BeaconConfigFragment();
-    return beaconConfigFragment;
+    return new BeaconConfigFragment();
   }
 
   public BeaconConfigFragment() {
