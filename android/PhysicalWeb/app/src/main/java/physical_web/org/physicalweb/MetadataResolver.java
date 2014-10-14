@@ -42,6 +42,7 @@ public class MetadataResolver {
   private static String TAG = "MetadataResolver";
   private static Activity mActivity;
   private static String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
+  private static String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
   private static MetadataResolverCallback mMetadataResolverCallback;
@@ -64,17 +65,8 @@ public class MetadataResolver {
 
   public interface MetadataResolverCallback {
     public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
-  }
 
-  /**
-   * Called when a url's metadata has been fetched and returned.
-   *
-   * @param url
-   * @param urlMetadata
-   */
-  private static void onUrlMetadataReceived(String url, UrlMetadata urlMetadata) {
-    // Callback to the context that made the request
-    mMetadataResolverCallback.onUrlMetadataReceived(url, urlMetadata);
+    public void onDemoUrlMetadataReceived(String url, UrlMetadata urlMetadata);
   }
 
 
@@ -102,7 +94,7 @@ public class MetadataResolver {
    *
    * @param url
    */
-  public static void requestUrlMetadata(String url) {
+  private static void requestUrlMetadata(String url) {
     if (!mIsInitialized) {
       Log.e(TAG, "Not initialized.");
       return;
@@ -111,7 +103,33 @@ public class MetadataResolver {
     JSONObject jsonObj = createUrlMetadataRequestObject(url);
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj);
+    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj, false);
+    // Queue the request
+    mRequestQueue.add(jsObjRequest);
+  }
+
+  public static void findDemoUrlMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback) {
+    // Store the context
+    mActivity = (Activity) context;
+    // Store the callback so we can call it back later
+    mMetadataResolverCallback = metadataResolverCallback;
+    mActivity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        initialize(context);
+        requestDemoUrlMetadata();
+      }
+    });
+  }
+
+  public static void requestDemoUrlMetadata() {
+    if (!mIsInitialized) {
+      Log.e(TAG, "Not initialized.");
+      return;
+    }
+    // Create the metadata request
+    // for the given json request object
+    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(null, true);
     // Queue the request
     mRequestQueue.add(jsObjRequest);
   }
@@ -144,9 +162,9 @@ public class MetadataResolver {
    * @param jsonObj
    * @return
    */
-  private static JsonObjectRequest createUrlMetadataRequest(JSONObject jsonObj) {
+  private static JsonObjectRequest createUrlMetadataRequest(JSONObject jsonObj, final boolean isDemoRequest) {
     return new JsonObjectRequest(
-        METADATA_URL,
+        isDemoRequest ? DEMO_METADATA_URL : METADATA_URL,
         jsonObj,
         new Response.Listener<JSONObject>() {
           // Called when the server returns a response
@@ -157,49 +175,61 @@ public class MetadataResolver {
             try {
               JSONArray foundMetaData = jsonResponse.getJSONArray("metadata");
 
+              // Loop through the metadata for each url
               if (foundMetaData.length() > 0) {
 
-                JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(0);
+                for (int i=0; i<foundMetaData.length(); i++) {
 
-                String title = "Unknown name";
-                String url = "Unknown url";
-                String description = "Unknown description";
-                String iconUrl = "/favicon.ico";
-                String id = jsonUrlMetadata.getString("id");
+                  JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(i);
 
-                if (jsonUrlMetadata.has("title")) {
-                  title = jsonUrlMetadata.getString("title");
-                }
-                if (jsonUrlMetadata.has("url")) {
-                  url = jsonUrlMetadata.getString("url");
-                }
-                if (jsonUrlMetadata.has("description")) {
-                  description = jsonUrlMetadata.getString("description");
-                }
-                if (jsonUrlMetadata.has("icon")) {
-                  // We might need to do some magic here.
-                  iconUrl = jsonUrlMetadata.getString("icon");
+                  String title = "Unknown name";
+                  String url = "Unknown url";
+                  String description = "Unknown description";
+                  String iconUrl = "/favicon.ico";
+                  String id = jsonUrlMetadata.getString("id");
+
+                  if (jsonUrlMetadata.has("title")) {
+                    title = jsonUrlMetadata.getString("title");
+                  }
+                  if (jsonUrlMetadata.has("url")) {
+                    url = jsonUrlMetadata.getString("url");
+                  }
+                  if (jsonUrlMetadata.has("description")) {
+                    description = jsonUrlMetadata.getString("description");
+                  }
+                  if (jsonUrlMetadata.has("icon")) {
+                    // We might need to do some magic here.
+                    iconUrl = jsonUrlMetadata.getString("icon");
+                  }
+
+                  // TODO: Eliminate this fallback since we expect the server to always return an icon.
+                  // Provisions for a favicon specified as a relative URL.
+                  if (!iconUrl.startsWith("http")) {
+                    // Lets just assume we are dealing with a relative path.
+                    Uri fullUri = Uri.parse(url);
+                    Uri.Builder builder = fullUri.buildUpon();
+                    // Append the default favicon path to the URL.
+                    builder.path(iconUrl);
+                    iconUrl = builder.toString();
+                  }
+
+                  // Create the metadata object
+                  UrlMetadata urlMetadata = new UrlMetadata();
+                  urlMetadata.title = title;
+                  urlMetadata.description = description;
+                  urlMetadata.siteUrl = url;
+                  urlMetadata.iconUrl = iconUrl;
+
+                  // Kick off the icon download
+                  downloadIcon(urlMetadata, url);
+
+                  if (isDemoRequest) {
+                    mMetadataResolverCallback.onDemoUrlMetadataReceived(id, urlMetadata);
+                  } else {
+                    mMetadataResolverCallback.onUrlMetadataReceived(id, urlMetadata);
+                  }
                 }
 
-                // TODO: Eliminate this fallback since we expect the server to always return an icon.
-                // Provisions for a favicon specified as a relative URL.
-                if (!iconUrl.startsWith("http")) {
-                  // Lets just assume we are dealing with a relative path.
-                  Uri fullUri = Uri.parse(url);
-                  Uri.Builder builder = fullUri.buildUpon();
-                  // Append the default favicon path to the URL.
-                  builder.path(iconUrl);
-                  iconUrl = builder.toString();
-                }
-
-                UrlMetadata urlMetadata = new UrlMetadata();
-                urlMetadata.title = title;
-                urlMetadata.description = description;
-                urlMetadata.siteUrl = url;
-                urlMetadata.iconUrl = iconUrl;
-                downloadIcon(urlMetadata, url);
-
-                onUrlMetadataReceived(id, urlMetadata);
               }
             } catch (JSONException e) {
               e.printStackTrace();
@@ -227,7 +257,7 @@ public class MetadataResolver {
       @Override
       public void onResponse(Bitmap response) {
         urlMetadata.icon = response;
-        onUrlMetadataReceived(url, urlMetadata);
+        mMetadataResolverCallback.onUrlMetadataReceived(url, urlMetadata);
       }
     }, 0, 0, null, null);
     mRequestQueue.add(imageRequest);

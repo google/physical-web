@@ -88,13 +88,13 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mShowingConfigurableCard = false;
     mDeviceAddressToDeviceMap = new HashMap<>();
     getActivity().getActionBar().setTitle(getString(R.string.title_edit_urls));
-    inititalizeSearchingForBeaconsProgressBar();
+    initializeSearchingForBeaconsProgressBar();
     initializeTextViews();
     initializeConfigurableBeaconCard();
     startSearchingForDevices();
   }
 
-  private void inititalizeSearchingForBeaconsProgressBar() {
+  private void initializeSearchingForBeaconsProgressBar() {
     msearchingForBeaconsProgressBar = (ProgressBar) getView().findViewById(R.id.progressBar_searchingForBeacons);
     showSearchingForBeaconsProgressBar();
   }
@@ -170,6 +170,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_demo).setVisible(false);
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {

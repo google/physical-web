@@ -61,6 +61,7 @@ public class AboutFragment extends Fragment {
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_demo).setVisible(false);
   }
 
   private void showLearnMorePage() {
