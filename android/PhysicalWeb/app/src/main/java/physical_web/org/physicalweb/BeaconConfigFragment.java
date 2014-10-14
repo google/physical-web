@@ -232,8 +232,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
 
   /**
    * Called when the user presses the keyboard "DONE" key
-   *
-   * @throws IOException
    */
   private void onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed() {
     // Hide the software keyboard

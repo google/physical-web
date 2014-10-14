@@ -38,8 +38,8 @@ public class BeaconHelper {
    * Create a beacon advertising packet
    * that will contain the given url.
    *
-   * @param url
-   * @return
+   * @param url Url to write to the beacon
+   * @return the encoded url
    * @throws IOException
    */
   public static byte[] createAdvertisingPacket(String url) throws IOException {
@@ -60,8 +60,8 @@ public class BeaconHelper {
    * with a url shortener.
    * Then we compress that url using the expansion codes again.
    *
-   * @param url
-   * @return
+   * @param url URL to encode
+   * @return encoded URL
    * @throws IOException
    */
   public static byte[] createUrlBytes(String url) throws IOException {
@@ -79,8 +79,8 @@ public class BeaconHelper {
    * a hardcoded set of substrings (e.g. http://, .edu, etc.)
    * and replacing them with an associated integer.
    *
-   * @param url
-   * @return
+   * @param url URL to compress
+   * @return Compressed URL
    * @throws IOException
    */
   private static byte[] compressUrlUsingExpansionCodes(String url) throws IOException {
