@@ -90,10 +90,10 @@ public class UrlShortener {
     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
     JsonFactory jsonFactory = AndroidJsonFactory.getDefaultInstance();
     UrlshortenerRequestInitializer urlshortenerRequestInitializer = new UrlshortenerRequestInitializer();
-    Urlshortener.Builder builder = new Urlshortener.Builder(httpTransport, jsonFactory, null);
-    builder.setApplicationName("PhysicalWeb");
-    builder.setUrlshortenerRequestInitializer(urlshortenerRequestInitializer).build();
-    Urlshortener urlshortener = builder.build();
+    Urlshortener urlshortener = new Urlshortener.Builder(httpTransport, jsonFactory, null)
+        .setApplicationName("PhysicalWeb")
+        .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
+        .build();
 
     return urlshortener;
   }
