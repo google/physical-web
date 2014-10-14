@@ -16,13 +16,6 @@ public class Device {
     mBluetoothDevice = bluetoothDevice;
     mRssiHistory = new ArrayList<>();
     mRssiHistory.add(rssi);
-    initializeUrl();
-  }
-
-  private void initializeUrl() {
-    if (mUriBeacon == null) {
-      return;
-    }
   }
 
   public BluetoothDevice getBluetoothDevice() { return mBluetoothDevice; }
