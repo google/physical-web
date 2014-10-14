@@ -359,7 +359,7 @@ public class BeaconConfigHelper {
   /**
    * Write the given url to the
    * currently-being-configured beacon.
-   * This involves constructing the adverstising packet
+   * This involves constructing the advertising packet
    * that contains the url and then pushing that packet
    * to the beacon via GATT.
    *
@@ -448,7 +448,7 @@ public class BeaconConfigHelper {
       onWriteComplete_beaconData();
       // If the length of the advertising packet is greater than the part 1 threshold length
     } else {
-      // Get the second part of the data to write from the threhold length index
+      // Get the second part of the data to write from the threshold length index
       // to the total length index of the advertising packet
       byte[] data_toWrite = Arrays.copyOfRange(mAdvertisingPacketData_write, MAX_NUM_BYTES_DATA_PART_1, mAdvertisingPacketData_write.length);
       // Write the given data to part 2 of the beacon advertising packet

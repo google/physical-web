@@ -43,7 +43,7 @@ import org.uribeacon.scan.compat.ScanCallback;
 import org.uribeacon.scan.compat.ScanFilter;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,7 +73,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
   private LinearLayout mConfigurableBeaconLinearLayout;
-  private ProgressBar msearchingForBeaconsProgressBar;
+  private ProgressBar mSearchingForBeaconsProgressBar;
 
   public static BeaconConfigFragment newInstance() {
     return new BeaconConfigFragment();
@@ -87,14 +87,14 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mShowingConfigurableCard = false;
     mDeviceAddressToDeviceMap = new HashMap<>();
     getActivity().getActionBar().setTitle(getString(R.string.title_edit_urls));
-    inititalizeSearchingForBeaconsProgressBar();
+    initializeSearchingForBeaconsProgressBar();
     initializeTextViews();
     initializeConfigurableBeaconCard();
     startSearchingForDevices();
   }
 
-  private void inititalizeSearchingForBeaconsProgressBar() {
-    msearchingForBeaconsProgressBar = (ProgressBar) getView().findViewById(R.id.progressBar_searchingForBeacons);
+  private void initializeSearchingForBeaconsProgressBar() {
+    mSearchingForBeaconsProgressBar = (ProgressBar) getView().findViewById(R.id.progressBar_searchingForBeacons);
     showSearchingForBeaconsProgressBar();
   }
 
@@ -425,7 +425,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * is being performed.
    */
   private void showSearchingForBeaconsProgressBar() {
-    msearchingForBeaconsProgressBar.setVisibility(View.VISIBLE);
+    mSearchingForBeaconsProgressBar.setVisibility(View.VISIBLE);
   }
 
   /**
@@ -434,7 +434,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * is being performed.
    */
   private void hideSearchingForBeaconsProgressBar() {
-    msearchingForBeaconsProgressBar.setVisibility(View.INVISIBLE);
+    mSearchingForBeaconsProgressBar.setVisibility(View.INVISIBLE);
   }
 
 }

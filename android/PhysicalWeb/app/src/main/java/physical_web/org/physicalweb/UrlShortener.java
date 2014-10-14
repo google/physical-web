@@ -31,7 +31,7 @@ import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 /**
- * This class shortens urls and aslo expands those short urls
+ * This class shortens urls and also expands those short urls
  * to their original url.
  * Currently this class only supports google url shortener
  * TODO: support other url shorteners
