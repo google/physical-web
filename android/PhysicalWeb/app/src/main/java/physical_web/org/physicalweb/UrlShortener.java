@@ -51,9 +51,7 @@ public class UrlShortener {
     String shortUrl = null;
     try {
       shortUrl = (String) new ShortenUrlTask().execute(longUrl).get();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
+    } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
     return shortUrl;
@@ -120,9 +118,7 @@ public class UrlShortener {
     String longUrl = null;
     try {
       longUrl = (String) new LengthenShortUrlTask().execute(shortUrl).get();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    } catch (ExecutionException e) {
+    } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
     return longUrl;
