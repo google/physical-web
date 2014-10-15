@@ -64,7 +64,7 @@ public class BeaconHelper {
    * @return encoded URL
    * @throws IOException
    */
-  public static byte[] createUrlBytes(String url) throws IOException {
+  private static byte[] createUrlBytes(String url) throws IOException {
     byte[] url_bytes;
     url_bytes = compressUrlUsingExpansionCodes(url);
     if (url_bytes.length > MAX_NUM_BYTES_URL) {

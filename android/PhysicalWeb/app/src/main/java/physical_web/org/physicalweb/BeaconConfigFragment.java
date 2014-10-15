@@ -168,6 +168,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_demo).setVisible(false);
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {

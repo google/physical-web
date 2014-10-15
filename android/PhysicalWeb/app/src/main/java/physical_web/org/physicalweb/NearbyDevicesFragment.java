@@ -17,12 +17,14 @@ package physical_web.org.physicalweb;
  */
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +39,12 @@ import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
 import org.uribeacon.scan.compat.ScanCallback;
 import org.uribeacon.scan.compat.ScanFilter;
+import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.widget.ScanResultAdapter;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,9 +67,15 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   private BluetoothAdapter mBluetoothAdapter;
   private static final int REQUEST_ENABLE_BT = 1;
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
+  private boolean mIsDemoMode;
+  private static int BEACON_EXPIRATION_DURATION = 5;
 
-  public static NearbyDevicesFragment newInstance() {
-    return new NearbyDevicesFragment();
+  public static NearbyDevicesFragment newInstance(boolean isDemoMode) {
+    NearbyDevicesFragment nearbyDevicesFragment = new NearbyDevicesFragment();
+    Bundle bundle = new Bundle();
+    bundle.putBoolean("isDemoMode", isDemoMode);
+    nearbyDevicesFragment.setArguments(bundle);
+    return nearbyDevicesFragment;
   }
 
   public NearbyDevicesFragment() {
@@ -72,10 +83,15 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
 
   private void initialize(View rootView) {
     mUrlToUrlMetadata = new HashMap<>();
-
+    mIsDemoMode = getArguments().getBoolean("isDemoMode");
     initializeNearbyDevicesListView(rootView);
     createNearbyDevicesAdapter();
-    initializeBluetooth();
+    if (mIsDemoMode) {
+      MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyDevicesFragment.this);
+    }
+    else {
+      initializeBluetooth();
+    }
   }
 
   private void initializeNearbyDevicesListView(View rootView) {
@@ -120,14 +136,21 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   @Override
   public void onResume() {
     super.onResume();
-    getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
-    startScanning();
+    if (!mIsDemoMode) {
+      getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
+      startScanning();
+    }
+    else {
+      getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
+    }
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    stopScanning();
+    if (!mIsDemoMode) {
+      stopScanning();
+    }
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -160,12 +183,47 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   };
 
   @Override
-  public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
-    mUrlToUrlMetadata.put(url, urlMetadata);
+  public void onUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
+    mUrlToUrlMetadata.put(id, urlMetadata);
     // If we don't want to wait for another sighting
     mNearbyDevicesAdapter.notifyDataSetChanged();
   }
 
+  @Override
+  public void onDemoUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+    byteBuffer.putInt(id.hashCode());
+    byte[] byteBufferArray = byteBuffer.array();
+    String idHash = "http://" + Base64.encodeToString(byteBufferArray, 0, 4, Base64.DEFAULT);
+    mUrlToUrlMetadata.put(idHash, urlMetadata);
+    
+    byte[] advertisingPacket = new byte[0];
+    try {
+      advertisingPacket = BeaconHelper.createAdvertisingPacket(idHash);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    // Create dummy bluetooth address
+    BluetoothDevice bluetoothDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(generateMockBluetoothAddress(id.hashCode()));
+    // Build the scan record from the advertising packet
+    ScanRecord scanRecord = ScanRecord.parseFromBytes(advertisingPacket);
+    // Build the scan result from the scan record
+    ScanResult scanResult = new ScanResult(bluetoothDevice, scanRecord, -20, 0);
+    // Add the demo beacon with a very long timeout
+    mNearbyDevicesAdapter.add(scanResult, 20, Integer.MAX_VALUE);
+    // If we don't want to wait for another sighting
+    mNearbyDevicesAdapter.notifyDataSetChanged();
+  }
+
+  private static String generateMockBluetoothAddress(int hashCode) {
+    String mockAddress = "00:11";
+    for (int i=0; i<4; i++) {
+      mockAddress += String.format(":%02X", hashCode&0xFF);
+      hashCode = hashCode >> 8;
+    }
+    return mockAddress;
+  }
 
   /////////////////////////////////
   // utilities
@@ -218,7 +276,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
             mUrlToUrlMetadata.put(url, null);
             MetadataResolver.findUrlMetadata(getActivity(), NearbyDevicesFragment.this, url);
           } else if (mUrlToUrlMetadata.get(url) != null) {
-            mNearbyDevicesAdapter.add(scanResult, txPowerLevel, 5);
+            mNearbyDevicesAdapter.add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
           }
         }
       }
@@ -242,6 +300,8 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
 
   private static String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
     UriBeacon uriBeacon = UriBeacon.parseFromBytes(deviceSighting.scanResult.getScanRecord().getBytes());
+    String foo = uriBeacon.getUriString();
+    Log.d(TAG, "uriBeaconString:  " + foo);
     return uriBeacon.getUriString();
   }
 

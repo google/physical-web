@@ -21,16 +21,18 @@ from datetime import datetime, timedelta
 from google.appengine.ext import ndb
 from google.appengine.api import urlfetch
 from urlparse import urljoin
-from urlparse import urlparse
 import os
 import re
 from lxml import etree
 import cgi
-from google.appengine.api import urlfetch_errors
 
 class BaseModel(ndb.Model):
     added_on = ndb.DateTimeProperty(auto_now_add = True)
     updated_on = ndb.DateTimeProperty(auto_now = True)
+
+class Device(BaseModel):
+    name = ndb.StringProperty()
+    url = ndb.StringProperty()
 
 class SiteInformation(BaseModel):
     url = ndb.StringProperty()
@@ -81,17 +83,12 @@ def BuildResponse(objects):
             key_id = None
             url = None
             force = False
-            valid = True
-            siteInfo = None
-
+            
             if "id" in obj:
                 key_id = obj["id"]
             elif "url" in obj:
                 key_id = obj["url"]
                 url = obj["url"]
-                parsed_url = urlparse(url)
-                if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
-                    valid = False
 
             if "force" in obj:
                 force = True
@@ -100,59 +97,42 @@ def BuildResponse(objects):
 
             # We don't need RSSI yet.
             #rssi = obj["rssi"]
-
-            if valid:
+           
+            # In this model we can only deal with one device with a given ID.
+            device = Device.get_or_insert(key_id, name = key_id, url = url)
+         
+            device_data = {
+              "id": device.name
+            }
+            
+            if force or device.url is not None:
                 # Really if we don't have the data we should not return it.
-                siteInfo = SiteInformation.get_by_id(url)
+                siteInfo = SiteInformation.get_by_id(device.url)
 
                 if force or siteInfo is None or siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
                     # If we don't have the data or it is older than 5 minutes, fetch.
-                    siteInfo = FetchAndStoreUrl(siteInfo, url)
-
-            device_data = {};
-            if siteInfo is not None:
-                device_data["id"] = url
-                device_data["url"] = siteInfo.url
-                if siteInfo.title is not None:
+                    siteInfo = FetchAndStoreUrl(siteInfo, device.url)
+                
+                if siteInfo is not None:
+                    device_data["url"] = siteInfo.url
                     device_data["title"] = siteInfo.title
-                if siteInfo.description is not None:
                     device_data["description"] = siteInfo.description
-                if siteInfo.favicon_url is not None:
                     device_data["icon"] = siteInfo.favicon_url
-            else:
-                device_data["id"] = url
-                device_data["url"] = url
-
+                    device_data["favicon_url"] = siteInfo.favicon_url
+                else:
+                    device_data["url"] = device.url
+            
             metadata_output.append(device_data)
-
+        
         return metadata_output
 
 def FetchAndStoreUrl(siteInfo, url):
     # Index the page
-    try:
-        result = urlfetch.fetch(url, validate_certificate = True)
-    except urlfetch_errors.DeadlineExceededError:
-        return None
-
+    result = urlfetch.fetch(url)
     if result.status_code == 200:
         encoding = GetContentEncoding(result.content)
-        final_url = GetExpandedURL(url)
+        final_url = result.final_url or url
         return StoreUrl(siteInfo, url, final_url, result.content, encoding)
-
-def GetExpandedURL(url):
-    parsed_url = urlparse(url)
-    final_url = url
-    url_shorteners = ['t.co', 'goo.gl', 'bit.ly', 'j.mp', 'bitly.com',
-        'amzn.to', 'fb.com', 'bit.do', 'adf.ly', 'u.to', 'tinyurl.com',
-        'buzurl.com', 'yourls.org', 'qr.net']
-    url_shorteners_set = set(url_shorteners)
-    if parsed_url.netloc in url_shorteners_set and (parsed_url.path != '/' or
-        parsed_url.path != ''):
-        # expand
-        result = urlfetch.fetch(url, method = 'HEAD', follow_redirects = False)
-        if result.status_code == 301:
-            final_url = result.headers['location']
-    return final_url
 
 def GetContentEncoding(content):
     encoding = None
@@ -279,10 +259,6 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
         icon = urljoin(final_url, icon)
     if icon is None:
         icon = urljoin(final_url, "/favicon.ico")
-    # make sure the icon exists
-    result = urlfetch.fetch(icon, method = 'HEAD')
-    if result.status_code != 200:
-        icon = None
     
     if siteInfo is None:
         siteInfo = SiteInformation.get_or_insert(url, 

@@ -15,12 +15,14 @@
     <string name="config_url_saved_text">URL Saved!</string>
     <string name="title_edit_urls">Edit URLs</string>
     <string name="title_nearby_beacons">Nearby Beacons</string>
+    <string name="title_nearby_beacons_demo">Nearby Beacons Demo</string>
     <string name="title_about">About</string>
     <string name="service_name_device_discovery">BeaconDiscoveryService</string>
     <string name="empty_nearby_devices_list_text">Searching…</string>
     <string name="about_app_title">Physical Web</string>
     <string name="about_learn_more">LEARN MORE</string>
     <string name="url_learn_more">https://github.com/google/physical-web/blob/master/documentation/android_client_walkthrough.md</string>
+    <string name="action_demo">Demo</string>
     <string name="physical_web_logo">Physical Web Logo</string>
 
     <plurals name="numFoundBeacons">
