@@ -17,12 +17,11 @@
         android:gravity="center"
         android:paddingBottom="100dp">
 
-        <ProgressBar
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:paddingBottom="10dp"
-            android:id="@+id/progressBar_searchingForBeacons"/>
+            android:gravity="center"
+            android:id="@+id/imageView_configScanning"/>
 
         <TextView
             android:layout_width="match_parent"

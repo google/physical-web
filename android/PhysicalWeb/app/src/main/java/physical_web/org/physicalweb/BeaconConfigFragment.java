@@ -18,6 +18,7 @@ package physical_web.org.physicalweb;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.ParcelUuid;
@@ -33,10 +34,11 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
 import org.uribeacon.scan.compat.ScanCallback;
@@ -60,7 +62,7 @@ import java.util.TimerTask;
  * and also allows the user to enter a new url for that beacon.
  */
 
-public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback{
+public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback {
 
   private static final String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
@@ -73,7 +75,8 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
   private LinearLayout mConfigurableBeaconLinearLayout;
-  private ProgressBar mSearchingForBeaconsProgressBar;
+  private AnimationDrawable mScanningAnimationDrawable;
+  private ImageView mScanningImageView;
 
   public static BeaconConfigFragment newInstance() {
     return new BeaconConfigFragment();
@@ -87,15 +90,10 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mShowingConfigurableCard = false;
     mDeviceAddressToDeviceMap = new HashMap<>();
     getActivity().getActionBar().setTitle(getString(R.string.title_edit_urls));
-    initializeSearchingForBeaconsProgressBar();
     initializeTextViews();
     initializeConfigurableBeaconCard();
+    initializeScanningAnimation();
     startSearchingForDevices();
-  }
-
-  private void initializeSearchingForBeaconsProgressBar() {
-    mSearchingForBeaconsProgressBar = (ProgressBar) getView().findViewById(R.id.progressBar_searchingForBeacons);
-    showSearchingForBeaconsProgressBar();
   }
 
   /**
@@ -117,6 +115,13 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mConfigurableBeaconAddressTextView = (TextView) getView().findViewById(R.id.textView_configurableBeaconAddress);
     mConfigurableBeaconUrlEditText = (EditText) getView().findViewById(R.id.editText_configurableBeaconUrl);
     mConfigurableBeaconUrlEditText.setOnEditorActionListener(onEditorActionListener_configurableBeaconUrlEditText);
+  }
+
+  private void initializeScanningAnimation() {
+    mScanningImageView = (ImageView) getActivity().findViewById(R.id.imageView_configScanning);
+    mScanningImageView.setBackgroundResource(R.drawable.scanning_animation);
+    mScanningAnimationDrawable = (AnimationDrawable) mScanningImageView.getBackground();
+    mScanningAnimationDrawable.start();
   }
 
 
@@ -153,6 +158,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   @Override
   public void onPause() {
     super.onPause();
+    mScanningAnimationDrawable.stop();
     stopSearchingForDevices();
   }
 
@@ -384,7 +390,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        hideSearchingForBeaconsProgressBar();
+        mScanningImageView.setVisibility(View.INVISIBLE);
         mStatusTextView.setText(getString(R.string.config_found_beacon_text));
         mConfigurableBeaconAddressTextView.setText(device.getBluetoothDevice().getAddress());
       }
@@ -418,25 +424,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_and_slide_up);
     mConfigurableBeaconLinearLayout.startAnimation(animation);
   }
-
-  /**
-   * Show the progress bar that indicates
-   * a search for nearby configurable beacons
-   * is being performed.
-   */
-  private void showSearchingForBeaconsProgressBar() {
-    mSearchingForBeaconsProgressBar.setVisibility(View.VISIBLE);
-  }
-
-  /**
-   * Hide the progress bar that indicates
-   * a search for nearby configurable beacons
-   * is being performed.
-   */
-  private void hideSearchingForBeaconsProgressBar() {
-    mSearchingForBeaconsProgressBar.setVisibility(View.INVISIBLE);
-  }
-
 }
 
 
