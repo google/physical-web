@@ -111,8 +111,8 @@ public class UriBeaconDiscoveryService extends Service {
 
   @Override
   public void onDestroy() {
-    unregisterReceiver(mScreenStateBroadcastReceiver);
     stopSearchingForDevices();
+    unregisterReceiver(mScreenStateBroadcastReceiver);
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {
