@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
     setContentView(R.layout.activity_main);
 
     if (savedInstanceState == null) {
-      showNearbyBeaconsFragment();
+      showNearbyBeaconsFragment(false);
     }
     ensureBluetoothIsEnabled();
   }
@@ -68,6 +68,7 @@ public class MainActivity extends Activity {
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(true);
     menu.findItem(R.id.action_about).setVisible(true);
+    menu.findItem(R.id.action_demo).setVisible(true);
     return true;
   }
 
@@ -84,6 +85,10 @@ public class MainActivity extends Activity {
       // If the about menu item was selected
       case R.id.action_about:
         showAboutFragment();
+        return true;
+      // If the demo menu item was selected
+      case R.id.action_demo:
+        showNearbyBeaconsFragment(true);
         return true;
     }
     return super.onOptionsItemSelected(item);
@@ -123,10 +128,19 @@ public class MainActivity extends Activity {
   /**
    * Show the fragment scanning nearby UriBeacons.
    */
-  private void showNearbyBeaconsFragment() {
-    getFragmentManager().beginTransaction()
-        .add(R.id.main_activity_container, NearbyDevicesFragment.newInstance())
-        .commit();
+  private void showNearbyBeaconsFragment(boolean isDemoMode) {
+    if (!isDemoMode) {
+      getFragmentManager().beginTransaction()
+          .replace(R.id.main_activity_container, NearbyDevicesFragment.newInstance(isDemoMode))
+          .commit();
+    }
+    else {
+      getFragmentManager().beginTransaction()
+          .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
+          .replace(R.id.main_activity_container, NearbyDevicesFragment.newInstance(isDemoMode))
+          .addToBackStack(null)
+          .commit();
+    }
   }
 
   /**
