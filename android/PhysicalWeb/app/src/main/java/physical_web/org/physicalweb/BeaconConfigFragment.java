@@ -279,18 +279,18 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private void startSearchingForDevices() {
     Log.v(TAG, "startSearchingForDevices");
 
-    int scanMode = ScanSettings.SCAN_MODE_LOW_LATENCY;
-
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-        .setScanMode(scanMode)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
         .build();
 
     List<ScanFilter> filters = new ArrayList<>();
 
-    ScanFilter.Builder builder = new ScanFilter.Builder()
-        .setServiceUuid(CHANGE_URL_SERVICE_UUID);
-    filters.add(builder.build());
+    ScanFilter filter = new ScanFilter.Builder()
+        .setServiceUuid(CHANGE_URL_SERVICE_UUID)
+        .build();
+
+    filters.add(filter);
 
     boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
