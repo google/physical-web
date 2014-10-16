@@ -192,9 +192,10 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
       // Get the url for the given item
       String url = getUrlFromDeviceSighting(mNearbyDevicesAdapter.getItem(position));
-      if (url != null) {
+      String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
+      if (siteUrl != null) {
         // Open the url in the browser
-        openUrlInBrowser(url);
+        openUrlInBrowser(siteUrl);
       } else {
         Toast.makeText(getActivity(), "No URL found.", Toast.LENGTH_SHORT).show();
       }
