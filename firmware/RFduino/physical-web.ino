@@ -13,9 +13,9 @@ uint8_t advdata[] =
   0x00,  // flags
   0x20,  // power
   0x00,  // http://www.
-  0x41,  // 'A'
-  0x42,  // 'B'
-  0x43,  // 'C'
+  'A',
+  'B',
+  'C',
   0x07,  // .".com"
 };
 
