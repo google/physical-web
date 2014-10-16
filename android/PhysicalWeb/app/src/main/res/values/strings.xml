@@ -21,7 +21,7 @@
     <string name="empty_nearby_devices_list_text">Searching for beacons</string>
     <string name="about_app_title">Physical Web</string>
     <string name="about_learn_more">LEARN MORE</string>
-    <string name="url_learn_more">https://github.com/google/physical-web/blob/master/documentation/android_client_walkthrough.md</string>
+    <string name="url_getting_started">http://google.github.io/physical-web/mobile/android/getting-started.html</string>
     <string name="action_demo">Demo</string>
 
     <plurals name="numFoundBeacons">

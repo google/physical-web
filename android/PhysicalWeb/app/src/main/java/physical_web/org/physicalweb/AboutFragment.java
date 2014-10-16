@@ -8,10 +8,15 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 
 public class AboutFragment extends Fragment {
+
+  private WebView mWebView;
 
   @SuppressWarnings("WeakerAccess")
   public AboutFragment() {
@@ -30,15 +35,12 @@ public class AboutFragment extends Fragment {
     }
   }
 
-  private void initializeLearnMoreButton() {
-    Button button = (Button) getActivity().findViewById(R.id.button_learn_more);
-    // This listens for the taps the learn-more button
-    button.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        showLearnMorePage();
-      }
-    });
+  private void intializeWebView() {
+    mWebView = (WebView) getActivity().findViewById(R.id.about_webview);
+    mWebView.getSettings().setJavaScriptEnabled(true);
+    mWebView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+    mWebView.setWebViewClient(new WebViewClient());
+    mWebView.loadUrl(getString(R.string.url_getting_started));
   }
 
   @Override
@@ -52,8 +54,8 @@ public class AboutFragment extends Fragment {
     super.onResume();
     //noinspection ConstantConditions
     getActivity().getActionBar().setTitle(R.string.title_about);
+    intializeWebView();
     initializeApplicationVersionText();
-    initializeLearnMoreButton();
   }
 
   @Override
@@ -62,13 +64,6 @@ public class AboutFragment extends Fragment {
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
     menu.findItem(R.id.action_demo).setVisible(false);
-  }
-
-  private void showLearnMorePage() {
-    String url = getString(R.string.url_learn_more);
-    Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(Uri.parse(url));
-    startActivity(intent);
   }
 
 }

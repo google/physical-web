@@ -1,4 +1,4 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,60 +6,38 @@
     android:clickable="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:orientation="vertical"
-    android:paddingLeft="18dp"
-    android:paddingRight="18dp"
-    android:paddingTop="20dp">
+    android:orientation="vertical">
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/about_webview"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:gravity="center"
-            android:src="@drawable/ic_about"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingEnd="10dp"
-            android:paddingStart="10dp">
+        android:orientation="horizontal"
+        android:paddingTop="5dp"
+        android:paddingLeft="16dp">
 
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
-                android:paddingBottom="10dp"
                 android:text="@string/about_app_title"
                 android:textColor="#5A5A5A"
-                android:textSize="16sp"/>
+                android:textSize="10sp"/>
 
             <TextView
                 android:id="@+id/version"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:textColor="#5A5A5A"
-                android:textSize="16sp"/>
-        </LinearLayout>
+                android:textSize="10sp"
+                android:paddingLeft="5dp"/>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button_learn_more"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/transparent_pressed_background"
-        android:fontFamily="sans-serif-medium"
-        android:layout_gravity="right"
-        android:padding="10dp"
-        android:text="@string/about_learn_more"
-        android:textColor="@color/about_learn_more_button"
-        android:textSize="14sp"/>
-
-</LinearLayout>
+</RelativeLayout>
 
