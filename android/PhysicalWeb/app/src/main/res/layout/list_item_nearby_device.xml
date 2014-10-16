@@ -29,7 +29,7 @@
                 android:textSize="20sp"
                 android:fontFamily="sans-serif"
                 android:textColor="@color/header_color"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:ellipsize="end">
             </TextView>
             <TextView
