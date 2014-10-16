@@ -118,15 +118,16 @@ public class UriBeaconDiscoveryService extends Service {
   private final ScanCallback mScanCallback = new ScanCallback() {
     @Override
     public void onScanResult(int callbackType, ScanResult scanResult) {
-      String address = scanResult.getDevice().getAddress();
+      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
+      String url = uriBeacon.getUriString();
       switch (callbackType) {
         case ScanSettings.CALLBACK_TYPE_FIRST_MATCH:
-          if (mDeviceAddressesFound.add(address)) {
+          if (mDeviceAddressesFound.add(url)) {
             updateNearbyDevicesNotification();
           }
           break;
         case ScanSettings.CALLBACK_TYPE_MATCH_LOST:
-          if (mDeviceAddressesFound.remove(address)) {
+          if (mDeviceAddressesFound.remove(url)) {
             updateNearbyDevicesNotification();
           }
           break;
