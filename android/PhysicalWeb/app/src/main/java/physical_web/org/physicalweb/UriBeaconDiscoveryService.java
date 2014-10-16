@@ -119,20 +119,22 @@ public class UriBeaconDiscoveryService extends Service {
     @Override
     public void onScanResult(int callbackType, ScanResult scanResult) {
       UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-      String url = uriBeacon.getUriString();
-      switch (callbackType) {
-        case ScanSettings.CALLBACK_TYPE_FIRST_MATCH:
-          if (mDeviceAddressesFound.add(url)) {
-            updateNearbyDevicesNotification();
-          }
-          break;
-        case ScanSettings.CALLBACK_TYPE_MATCH_LOST:
-          if (mDeviceAddressesFound.remove(url)) {
-            updateNearbyDevicesNotification();
-          }
-          break;
-        default:
-          Log.e(TAG, "Unrecognized callback type constant received: " + callbackType);
+      if (uriBeacon != null) {
+        String url = uriBeacon.getUriString();
+        switch (callbackType) {
+          case ScanSettings.CALLBACK_TYPE_FIRST_MATCH:
+            if (mDeviceAddressesFound.add(url)) {
+              updateNearbyDevicesNotification();
+            }
+            break;
+          case ScanSettings.CALLBACK_TYPE_MATCH_LOST:
+            if (mDeviceAddressesFound.remove(url)) {
+              updateNearbyDevicesNotification();
+            }
+            break;
+          default:
+            Log.e(TAG, "Unrecognized callback type constant received: " + callbackType);
+        }
       }
     }
 
