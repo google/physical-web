@@ -9,7 +9,7 @@
                   android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
-                  android:id="@+id/linearLayout_nearbyDevicesEmptyListView"
+                  android:id="@android:id/empty"
                   android:paddingLeft="16dp"
                   android:paddingRight="16dp"
                   android:paddingBottom="100dp"
@@ -32,7 +32,7 @@
     </LinearLayout>
 
     <ListView
-        android:id="@+id/list_view_nearby_devices"
+        android:id="@android:id/list"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:divider="@null">
