@@ -95,8 +95,6 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     initializeNearbyDevicesListView(rootView);
     initializeScanningAnimation(rootView);
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
-
-    createNearbyDevicesAdapter();
     if (mIsDemoMode) {
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyDevicesFragment.this);
     } else {
@@ -107,11 +105,8 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   private void initializeNearbyDevicesListView(View rootView) {
     mNearbyDevicesEmptyListView = (LinearLayout) rootView.findViewById(R.id.linearLayout_nearbyDevicesEmptyListView);
     mNearbyDevicesListView = (ListView) rootView.findViewById(R.id.list_view_nearby_devices);
-    mNearbyDevicesListView.setEmptyView(mNearbyDevicesListView);
+    mNearbyDevicesListView.setEmptyView(mNearbyDevicesEmptyListView);
     mNearbyDevicesListView.setOnItemClickListener(onItemClick_nearbyDevicesListViewItem);
-  }
-
-  private void createNearbyDevicesAdapter() {
     mNearbyDevicesAdapter = new NearbyDevicesAdapter();
     mNearbyDevicesListView.setAdapter(mNearbyDevicesAdapter);
   }
