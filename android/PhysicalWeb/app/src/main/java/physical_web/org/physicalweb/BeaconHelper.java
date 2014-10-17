@@ -29,7 +29,7 @@ import java.io.IOException;
 public class BeaconHelper {
 
   private static String TAG = "BeaconHelper";
-  private static final String[] EXPANSION_CODES_TO_TEXT_MAP = new String[]{"http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "geo:", ".com", ".org", ".edu"};
+  private static final String[] EXPANSION_CODES_TO_TEXT_MAP = new String[]{"http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "geo:", ".com/" ".org/", ".edu/"};
   private static final int MAX_NUM_BYTES_URL = 18;
   private static final byte[] ADVERTISING_PACKET_HEADER = new byte[]{(byte) 0x03, (byte) 0x03, (byte) 0xD8, (byte) 0xFE};
   private static final byte[] URI_SERVICE_DATA_HEADER = new byte[]{(byte) 0x16, (byte) 0xD8, (byte) 0xFE, (byte) 0x00, (byte) 0xC1};
