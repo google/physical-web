@@ -43,4 +43,4 @@ The simplest way, if you're in a hurry, is to get an [RFDuino](http://www.rfduin
 
 Once this is up and running, the Physical Web app will be able to see it.
 
-If there are other maker-ish devices out there that can setup easily, please let us know so we can add them to this list.
+There is also a growing list of other devices that support the broadcasting of URLs in [this directory](https://github.com/google/physical-web/tree/master/firmware)
