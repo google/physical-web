@@ -1,6 +1,6 @@
 ##Physical Web Firmware Examples
 
-This directory contains firmware examples for various Bluetooth Low Energy platforms. The following platforms are presently supported:
+In order for the application to show you nearby devices, these devices must be broadcasting URLs/URIs. In the future, this capability would be built into the device but for now, we need to add hardware to do this. This directory contains firmware examples for various Bluetooth Low Energy platforms that will allow you to do this. The following platforms are presently supported:
 
 * [Bluegiga BLE113][1]
 * [RFduino][2]
