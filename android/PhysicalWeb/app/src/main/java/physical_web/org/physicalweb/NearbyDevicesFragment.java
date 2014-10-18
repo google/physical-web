@@ -93,6 +93,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
     // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
+      getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyDevicesFragment.this);
     } else {
       initializeBluetooth();
