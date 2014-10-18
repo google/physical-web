@@ -1,4 +1,4 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,19 +10,15 @@
 
     <WebView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/about_webview"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent"
+        android:id="@+id/about_webview"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:gravity="bottom">
+        android:paddingLeft="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -40,7 +36,8 @@
                 android:textColor="#5A5A5A"
                 android:textSize="10sp"
                 android:paddingLeft="5dp"/>
+
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>
 
