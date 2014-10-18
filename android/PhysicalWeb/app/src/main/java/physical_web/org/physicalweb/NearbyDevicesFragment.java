@@ -97,9 +97,9 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     initializeNearbyDevicesListView(rootView);
     initializeScanningAnimation(rootView);
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
-
     createNearbyDevicesAdapter();
     if (mIsDemoMode) {
+      getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyDevicesFragment.this);
     } else {
       initializeBluetooth();

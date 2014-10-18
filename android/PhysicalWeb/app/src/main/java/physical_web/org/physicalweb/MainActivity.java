@@ -36,7 +36,6 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
     if (savedInstanceState == null) {
       showNearbyBeaconsFragment(false);
     }
@@ -81,6 +80,10 @@ public class MainActivity extends Activity {
       case R.id.action_demo:
         showNearbyBeaconsFragment(true);
         return true;
+      // If the action bar up button was pressed
+      case android.R.id.home:
+        getFragmentManager().popBackStack();
+        getActionBar().setDisplayHomeAsUpEnabled(false);
     }
     return super.onOptionsItemSelected(item);
   }
