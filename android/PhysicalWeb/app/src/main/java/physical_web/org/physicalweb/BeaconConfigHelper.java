@@ -27,6 +27,7 @@ import android.util.Log;
 import org.uribeacon.beacon.UriBeacon;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -381,10 +382,9 @@ public class BeaconConfigHelper {
    */
   private static void beginWritingBeaconAdvertisingPacket(String url) {
     try {
-      // Create the advertising packet that contains
-      // the given url.
+      // Create the advertising packet that contains the given url.
       mAdvertisingPacketData_write = BeaconHelper.createAdvertisingPacket(url);
-    } catch (IOException e) {
+    } catch (URISyntaxException e) {
       e.printStackTrace();
     }
     byte[] data_toWrite;

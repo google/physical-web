@@ -49,6 +49,7 @@ import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.widget.ScanResultAdapter;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -220,7 +221,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     byte[] advertisingPacket = new byte[0];
     try {
       advertisingPacket = BeaconHelper.createAdvertisingPacket(idHash);
-    } catch (IOException e) {
+    } catch (URISyntaxException e) {
       e.printStackTrace();
     }
 
