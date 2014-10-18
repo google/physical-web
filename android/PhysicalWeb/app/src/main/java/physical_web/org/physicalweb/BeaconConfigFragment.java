@@ -141,6 +141,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
+    getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
   @Override
