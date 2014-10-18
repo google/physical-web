@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -83,6 +84,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
   }
 
   private void initialize(View rootView) {
+    setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     setListAdapter(new NearbyDevicesAdapter());
@@ -151,6 +153,21 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     super.onPause();
     if (!mIsDemoMode) {
       stopScanning();
+    }
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(Menu menu) {
+    super.onPrepareOptionsMenu(menu);
+    if (mIsDemoMode) {
+      menu.findItem(R.id.action_config).setVisible(false);
+      menu.findItem(R.id.action_about).setVisible(false);
+      menu.findItem(R.id.action_demo).setVisible(false);
+    }
+    else {
+      menu.findItem(R.id.action_config).setVisible(true);
+      menu.findItem(R.id.action_about).setVisible(true);
+      menu.findItem(R.id.action_demo).setVisible(true);
     }
   }
 

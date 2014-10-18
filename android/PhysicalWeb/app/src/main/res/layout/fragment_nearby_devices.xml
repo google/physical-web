@@ -27,7 +27,8 @@
             android:text="@string/empty_nearby_devices_list_text"
             android:gravity="center_horizontal"
             android:textSize="16sp"
-            android:textColor="#5A5A5A"/>
+            android:textColor="#5A5A5A"
+            android:paddingTop="16dp"/>
 
     </LinearLayout>
 
