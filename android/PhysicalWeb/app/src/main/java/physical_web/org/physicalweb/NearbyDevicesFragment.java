@@ -29,6 +29,7 @@ import android.app.Fragment;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -90,6 +91,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   }
 
   private void initialize(View rootView) {
+    setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     initializeNearbyDevicesListView(rootView);
@@ -170,6 +172,21 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
       stopScanning();
     }
     mNearbyDevicesEmptyListView.setVisibility(View.INVISIBLE);
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(Menu menu) {
+    super.onPrepareOptionsMenu(menu);
+    if (mIsDemoMode) {
+      menu.findItem(R.id.action_config).setVisible(false);
+      menu.findItem(R.id.action_about).setVisible(false);
+      menu.findItem(R.id.action_demo).setVisible(false);
+    }
+    else {
+      menu.findItem(R.id.action_config).setVisible(true);
+      menu.findItem(R.id.action_about).setVisible(true);
+      menu.findItem(R.id.action_demo).setVisible(true);
+    }
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {

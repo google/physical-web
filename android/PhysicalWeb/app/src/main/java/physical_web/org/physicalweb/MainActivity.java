@@ -63,15 +63,6 @@ public class MainActivity extends Activity {
     return true;
   }
 
-  @Override
-  public boolean onPrepareOptionsMenu(Menu menu) {
-    super.onPrepareOptionsMenu(menu);
-    menu.findItem(R.id.action_config).setVisible(true);
-    menu.findItem(R.id.action_about).setVisible(true);
-    menu.findItem(R.id.action_demo).setVisible(true);
-    return true;
-  }
-
   /**
    * Called when a menu item is tapped.
    */
