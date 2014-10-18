@@ -17,6 +17,7 @@ package physical_web.org.physicalweb;
  */
 
 import android.annotation.SuppressLint;
+import android.app.ListFragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -25,20 +26,16 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
@@ -48,7 +45,6 @@ import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.widget.ScanResultAdapter;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -64,18 +60,15 @@ import java.util.List;
  * the browser and point that browser
  * to the given list items url.
  */
-public class NearbyDevicesFragment extends Fragment implements MetadataResolver.MetadataResolverCallback {
+public class NearbyDevicesFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback {
 
   private static final String TAG = "NearbyDevicesFragment";
-  private ListView mNearbyDevicesListView;
   private LayoutInflater mLayoutInflater;
-  private NearbyDevicesAdapter mNearbyDevicesAdapter;
   private BluetoothAdapter mBluetoothAdapter;
   private static final int REQUEST_ENABLE_BT = 1;
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
   private AnimationDrawable mScanningAnimationDrawable;
   private ImageView mScanningImageView;
-  private LinearLayout mNearbyDevicesEmptyListView;
   private boolean mIsDemoMode;
   private static int BEACON_EXPIRATION_DURATION = 5;
 
@@ -94,28 +87,15 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
-    initializeNearbyDevicesListView(rootView);
+    setListAdapter(new NearbyDevicesAdapter());
     initializeScanningAnimation(rootView);
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
-
-    createNearbyDevicesAdapter();
+    // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyDevicesFragment.this);
     } else {
       initializeBluetooth();
     }
-  }
-
-  private void initializeNearbyDevicesListView(View rootView) {
-    mNearbyDevicesEmptyListView = (LinearLayout) rootView.findViewById(R.id.linearLayout_nearbyDevicesEmptyListView);
-    mNearbyDevicesListView = (ListView) rootView.findViewById(R.id.list_view_nearby_devices);
-    mNearbyDevicesListView.setEmptyView(mNearbyDevicesListView);
-    mNearbyDevicesListView.setOnItemClickListener(onItemClick_nearbyDevicesListViewItem);
-  }
-
-  private void createNearbyDevicesAdapter() {
-    mNearbyDevicesAdapter = new NearbyDevicesAdapter();
-    mNearbyDevicesListView.setAdapter(mNearbyDevicesAdapter);
   }
 
   private void initializeBluetooth() {
@@ -141,6 +121,10 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     return BluetoothLeScannerCompatProvider.getBluetoothLeScannerCompat(getActivity());
   }
 
+  private NearbyDevicesAdapter getNearbyDevicesAdapter() {
+    return (NearbyDevicesAdapter)getListAdapter();
+  }
+
 
   /////////////////////////////////
   // callbacks
@@ -162,7 +146,6 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     } else {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
     }
-    mNearbyDevicesEmptyListView.setVisibility(View.VISIBLE);
   }
 
   @Override
@@ -171,7 +154,6 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     if (!mIsDemoMode) {
       stopScanning();
     }
-    mNearbyDevicesEmptyListView.setVisibility(View.INVISIBLE);
   }
 
   @Override
@@ -201,29 +183,24 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     }
   };
 
-  /**
-   * Called when an item in the list view is clicked.
-   */
-  private AdapterView.OnItemClickListener onItemClick_nearbyDevicesListViewItem = new AdapterView.OnItemClickListener() {
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-      // Get the url for the given item
-      String url = getUrlFromDeviceSighting(mNearbyDevicesAdapter.getItem(position));
-      String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
-      if (siteUrl != null) {
-        // Open the url in the browser
-        openUrlInBrowser(siteUrl);
-      } else {
-        Toast.makeText(getActivity(), "No URL found.", Toast.LENGTH_SHORT).show();
-      }
+  @Override
+  public void onListItemClick (ListView l, View v, int position, long id) {
+    // Get the url for the given item
+    String url = getUrlFromDeviceSighting(getNearbyDevicesAdapter().getItem(position));
+    String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
+    if (siteUrl != null) {
+      // Open the url in the browser
+      openUrlInBrowser(siteUrl);
+    } else {
+      Toast.makeText(getActivity(), "No URL found.", Toast.LENGTH_SHORT).show();
     }
-  };
+  }
 
   @Override
   public void onUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(id, urlMetadata);
     // If we don't want to wait for another sighting
-    mNearbyDevicesAdapter.notifyDataSetChanged();
+    getNearbyDevicesAdapter().notifyDataSetChanged();
   }
 
   @Override
@@ -248,9 +225,9 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     // Build the scan result from the scan record
     ScanResult scanResult = new ScanResult(bluetoothDevice, scanRecord, -20, 0);
     // Add the demo beacon with a very long timeout
-    mNearbyDevicesAdapter.add(scanResult, 20, Integer.MAX_VALUE);
+    getNearbyDevicesAdapter().add(scanResult, 20, Integer.MAX_VALUE);
     // If we don't want to wait for another sighting
-    mNearbyDevicesAdapter.notifyDataSetChanged();
+    getNearbyDevicesAdapter().notifyDataSetChanged();
   }
 
   private static String generateMockBluetoothAddress(int hashCode) {
@@ -297,7 +274,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        mNearbyDevicesAdapter.clear();
+        getNearbyDevicesAdapter().clear();
       }
     });
   }
@@ -314,7 +291,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
             mUrlToUrlMetadata.put(url, null);
             MetadataResolver.findUrlMetadata(getActivity(), NearbyDevicesFragment.this, url);
           } else if (mUrlToUrlMetadata.get(url) != null) {
-            mNearbyDevicesAdapter.add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+            getNearbyDevicesAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
           }
         }
         updateScanningAnimation();
@@ -323,7 +300,7 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
   }
 
   private void updateScanningAnimation() {
-    if (mNearbyDevicesAdapter.getCount() > 0) {
+    if (getNearbyDevicesAdapter().getCount() > 0) {
       if (mScanningAnimationDrawable.isRunning()) {
         mScanningAnimationDrawable.stop();
       }
@@ -400,5 +377,4 @@ public class NearbyDevicesFragment extends Fragment implements MetadataResolver.
     }
   }
 }
-
 
