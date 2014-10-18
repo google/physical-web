@@ -81,6 +81,10 @@ public class MainActivity extends Activity {
       case R.id.action_demo:
         showNearbyBeaconsFragment(true);
         return true;
+      // If the action bar up button was pressed
+      case android.R.id.home:
+        getFragmentManager().popBackStack();
+        getActionBar().setDisplayHomeAsUpEnabled(false);
     }
     return super.onOptionsItemSelected(item);
   }
