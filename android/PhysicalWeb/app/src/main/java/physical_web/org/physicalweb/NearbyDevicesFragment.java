@@ -218,6 +218,12 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
       advertisingPacket = BeaconHelper.createAdvertisingPacket(idHash);
     } catch (URISyntaxException e) {
       e.printStackTrace();
+      id = UrlShortener.shortenUrl(id);
+      try {
+        advertisingPacket = BeaconHelper.createAdvertisingPacket(id);
+      } catch (URISyntaxException e1) {
+        e1.printStackTrace();
+      }
     }
 
     // Create dummy bluetooth address

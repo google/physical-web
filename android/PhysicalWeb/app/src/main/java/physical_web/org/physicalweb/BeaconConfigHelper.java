@@ -385,13 +385,13 @@ public class BeaconConfigHelper {
       // Create the advertising packet that contains the given url.
       mAdvertisingPacketData_write = BeaconHelper.createAdvertisingPacket(url);
     } catch (URISyntaxException e) {
+      e.printStackTrace();
       url = UrlShortener.shortenUrl(url);
       try {
         mAdvertisingPacketData_write = BeaconHelper.createAdvertisingPacket(url);
       } catch (URISyntaxException e1) {
         e1.printStackTrace();
       }
-      e.printStackTrace();
     }
     byte[] data_toWrite;
     // If the packet data byte array is less than or equal to the
