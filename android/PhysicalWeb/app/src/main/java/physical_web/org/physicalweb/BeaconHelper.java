@@ -17,9 +17,6 @@
 package physical_web.org.physicalweb;
 
 import org.uribeacon.beacon.UriBeacon;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
