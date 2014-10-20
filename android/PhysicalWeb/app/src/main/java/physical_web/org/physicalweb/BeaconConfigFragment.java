@@ -17,13 +17,10 @@
 package physical_web.org.physicalweb;
 
 import android.app.Fragment;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -52,7 +49,6 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This fragment is the ui that the user sees when
@@ -67,8 +63,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private static final String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mNearestDevice;
-  private static final long NEAREST_DEVICE_CHECK_DELAY = TimeUnit.SECONDS.toMillis(2);
   private RegionResolver mRegionResolver;
+  // TODO: default value for TxPower should be in another module
+  private static final int TX_POWER_DEFAULT = -63;
   private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
   private EditText mConfigurableBeaconUrlEditText;
   private TextView mStatusTextView;
@@ -312,9 +309,10 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
     Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
-    mRegionResolver.onUpdate(address, rxPower, -63);
+    mRegionResolver.onUpdate(address, rxPower, TX_POWER_DEFAULT);
     final String nearestAddress = mRegionResolver.getNearestAddress();
-    if (nearestAddress == address) {
+    // When the current sighting comes from the nearest device...
+    if (address.equals(nearestAddress)) {
       getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
