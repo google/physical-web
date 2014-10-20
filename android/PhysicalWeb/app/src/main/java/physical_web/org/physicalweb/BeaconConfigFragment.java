@@ -67,7 +67,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private static final String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mNearestDevice;
-  private Handler mHandler;
   private static final long NEAREST_DEVICE_CHECK_DELAY = TimeUnit.SECONDS.toMillis(2);
   private RegionResolver mRegionResolver;
   private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
@@ -140,7 +139,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setHasOptionsMenu(true);
-    mHandler = new Handler();
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
@@ -308,16 +306,32 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private void stopSearchingForDevices() {
     Log.v(TAG, "stopSearchingForDevices");
     getLeScanner().stopScan(mScanCallback);
-    mHandler.removeCallbacks(mNearestDeviceCheck);
   }
 
-  private void handleFoundDevice(ScanResult scanResult) {
-    String address = scanResult.getDevice().getAddress();
+  private void handleFoundDevice(final ScanResult scanResult) {
+    final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
     Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
-    mRegionResolver.onUpdate(address, rxPower, 0);
-    // Delay processing in order to find the closest rather than the first device.
-    mHandler.postDelayed(mNearestDeviceCheck, NEAREST_DEVICE_CHECK_DELAY);
+    mRegionResolver.onUpdate(address, rxPower, -63);
+    final String nearestAddress = mRegionResolver.getNearestAddress();
+    if (nearestAddress == address) {
+      getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          mNearestDevice = scanResult.getDevice();
+          stopSearchingForDevices();
+          mScanningImageView.setVisibility(View.INVISIBLE);
+          mStatusTextView.setText(
+              getString(R.string.config_found_beacon_text)
+          );
+          mConfigurableBeaconAddressTextView.setText(nearestAddress);
+          final Context context = BeaconConfigFragment.this.getActivity();
+          BeaconConfigHelper.readBeaconUrl(context, BeaconConfigFragment.this, mNearestDevice);
+        }
+      });
+    } else {
+      Log.d(TAG, "handleFoundDevice: found but not nearest " + address);
+    }
   }
 
   private void handleLostDevice(ScanResult scanResult) {
@@ -325,27 +339,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     Log.i(TAG, String.format("handleLostDevice: %s", address));
     mRegionResolver.onLost(address);
   }
-
-  private final Runnable mNearestDeviceCheck = new Runnable() {
-    public void run() {
-      // We expect this is the UI thread since mHandler is created within a Fragment callback.
-      if (BuildConfig.DEBUG && Looper.myLooper() != Looper.getMainLooper()) {
-        throw new RuntimeException();
-      }
-      final String address = mRegionResolver.getNearestAddress();
-      if (address != null) {
-        mNearestDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
-        stopSearchingForDevices();
-        mScanningImageView.setVisibility(View.INVISIBLE);
-        mStatusTextView.setText(getString(R.string.config_found_beacon_text));
-        mConfigurableBeaconAddressTextView.setText(address);
-        final Context context = BeaconConfigFragment.this.getActivity();
-        BeaconConfigHelper.readBeaconUrl(context, BeaconConfigFragment.this, mNearestDevice);
-      } else {
-        mNearestDevice = null;
-      }
-    }
-  };
 
   /**
    * Hide the software keyboard
