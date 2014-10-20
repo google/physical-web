@@ -386,6 +386,12 @@ public class BeaconConfigHelper {
       mAdvertisingPacketData_write = BeaconHelper.createAdvertisingPacket(url);
     } catch (URISyntaxException e) {
       e.printStackTrace();
+      url = UrlShortener.shortenUrl(url);
+      try {
+        mAdvertisingPacketData_write = BeaconHelper.createAdvertisingPacket(url);
+      } catch (URISyntaxException e1) {
+        e1.printStackTrace();
+      }
     }
     byte[] data_toWrite;
     // If the packet data byte array is less than or equal to the
