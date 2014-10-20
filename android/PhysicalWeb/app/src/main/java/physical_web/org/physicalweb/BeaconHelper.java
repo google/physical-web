@@ -17,9 +17,6 @@
 package physical_web.org.physicalweb;
 
 import org.uribeacon.beacon.UriBeacon;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
@@ -32,11 +29,22 @@ import java.net.URISyntaxException;
 public class BeaconHelper {
 
   public static byte[] createAdvertisingPacket(String url) throws URISyntaxException {
-    return new UriBeacon.Builder()
-        .uriString(url)
-        .txPowerLevel((byte) 0xc1)
-        .flags((byte) 0)
-        .build().toByteArray();
+    byte[] advertisingPacket;
+    try {
+      advertisingPacket = new UriBeacon.Builder()
+          .uriString(url)
+          .txPowerLevel((byte) 0xc1)
+          .flags((byte) 0)
+          .build().toByteArray();
+    } catch (URISyntaxException e) {
+      url = UrlShortener.shortenUrl(url);
+      advertisingPacket = new UriBeacon.Builder()
+          .uriString(url)
+          .txPowerLevel((byte) 0xc1)
+          .flags((byte) 0)
+          .build().toByteArray();
+    }
+    return advertisingPacket;
   }
 }
 
