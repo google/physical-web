@@ -144,6 +144,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     super.onResume();
     if (!mIsDemoMode) {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
+      getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
       startScanning();
     } else {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
