@@ -57,7 +57,8 @@ import java.util.List;
  * and also allows the user to enter a new url for that beacon.
  */
 
-public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback {
+public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback,
+    TextView.OnEditorActionListener {
 
   private static final String TAG = "BeaconConfigFragment";
   private BluetoothDevice mNearestDevice;
@@ -65,7 +66,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   // TODO: default value for TxPower should be in another module
   private static final int TX_POWER_DEFAULT = -63;
   private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
-  private EditText mConfigurableBeaconUrlEditText;
+  private EditText mEditCardUrl;
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
   private LinearLayout mEditCard;
@@ -112,8 +113,8 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mConfigurableBeaconAddressTextView = (TextView) view.findViewById(R.id.textView_configurableBeaconAddress);
 
     // Setup the URL Edit Text handler
-    mConfigurableBeaconUrlEditText = (EditText) view.findViewById(R.id.editText_configurableBeaconUrl);
-    mConfigurableBeaconUrlEditText.setOnEditorActionListener(onEditorActionListener_configurableBeaconUrlEditText);
+    mEditCardUrl = (EditText) view.findViewById(R.id.editText_configurableBeaconUrl);
+    mEditCardUrl.setOnEditorActionListener(this);
 
     // Setup the animation
     mScanningImageView = (ImageView) view.findViewById(R.id.imageView_configScanning);
@@ -127,7 +128,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   public void onResume() {
     super.onResume();
     mConfigurableBeaconAddressTextView.setText("");
-    mConfigurableBeaconUrlEditText.setText("");
+    mEditCardUrl.setText("");
     mEditCard.setVisibility(View.INVISIBLE);
     mScanningImageView.setVisibility(View.VISIBLE);
     mStatusTextView.setText(getString(R.string.config_searching_for_beacons_text));
@@ -185,7 +186,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Remove the focus from the url edit text field
     mEditCard.clearFocus();
     // Get the current text in the url edit text field.
-    String url = mConfigurableBeaconUrlEditText.getText().toString();
+    String url = mEditCardUrl.getText().toString();
     // Write the url to the device
     BeaconConfigHelper.writeBeaconUrl(getActivity(), BeaconConfigFragment.this, mNearestDevice, url);
   }
@@ -197,18 +198,15 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * on the edit text field that the user uses
    * to enter a new url for the configurable beacon
    */
-  private final TextView.OnEditorActionListener
-      onEditorActionListener_configurableBeaconUrlEditText = new TextView.OnEditorActionListener() {
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-      // If the keyboard "DONE" button was pressed
-      if (actionId == EditorInfo.IME_ACTION_DONE) {
-        onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed();
-        return true;
-      }
-      return false;
+  @Override
+  public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+    // If the keyboard "DONE" button was pressed
+    if (actionId == EditorInfo.IME_ACTION_DONE) {
+      onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed();
+      return true;
     }
-  };
+    return false;
+  }
 
   /**
    * Called when the user presses the keyboard "DONE" key
@@ -217,7 +215,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Hide the software keyboard
     hideSoftKeyboard();
     // Get the currently entered url in the url edit text field
-    String url = mConfigurableBeaconUrlEditText.getText().toString();
+    String url = mEditCardUrl.getText().toString();
     // Write the url to the device
     BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
   }
@@ -229,7 +227,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
       @Override
       public void run() {
         // Update the url edit text field with the given url
-        mConfigurableBeaconUrlEditText.setText(url);
+        mEditCardUrl.setText(url);
         // Show the beacon configuration card
         showConfigurableBeaconCard();
       }
@@ -317,7 +315,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    */
   private void hideSoftKeyboard() {
     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(mConfigurableBeaconUrlEditText.getWindowToken(), 0);
+    imm.hideSoftInputFromWindow(mEditCardUrl.getWindowToken(), 0);
   }
 
   /**
