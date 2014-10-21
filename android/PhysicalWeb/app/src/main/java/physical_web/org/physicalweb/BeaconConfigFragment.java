@@ -60,7 +60,6 @@ import java.util.List;
 public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback {
 
   private static final String TAG = "BeaconConfigFragment";
-  private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
   // TODO: default value for TxPower should be in another module
@@ -69,7 +68,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private EditText mConfigurableBeaconUrlEditText;
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
-  private LinearLayout mConfigurableBeaconLinearLayout;
+  private LinearLayout mEditCard;
   private AnimationDrawable mScanningAnimationDrawable;
   private ImageView mScanningImageView;
 
@@ -95,7 +94,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mShowingConfigurableCard = false;
     mRegionResolver = new RegionResolver();
     setHasOptionsMenu(true);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -107,7 +105,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_beacon_config, container, false);
 
-    mConfigurableBeaconLinearLayout = (LinearLayout) view.findViewById(R.id.linearLayout_configurableBeaconCard);
+    mEditCard = (LinearLayout) view.findViewById(R.id.edit_card);
 
     // Get handles to Status and Address views
     mStatusTextView = (TextView) view.findViewById(R.id.textView_status);
@@ -130,7 +128,8 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     super.onResume();
     mConfigurableBeaconAddressTextView.setText("");
     mConfigurableBeaconUrlEditText.setText("");
-    mConfigurableBeaconLinearLayout.setVisibility(View.INVISIBLE);
+    mEditCard.setVisibility(View.INVISIBLE);
+    mScanningImageView.setVisibility(View.VISIBLE);
     mStatusTextView.setText(getString(R.string.config_searching_for_beacons_text));
     mScanningAnimationDrawable.start();
     startSearchingForDevices();
@@ -184,7 +183,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Update the status text
     mStatusTextView.setText(getString(R.string.config_writing_to_beacon_text));
     // Remove the focus from the url edit text field
-    mConfigurableBeaconLinearLayout.clearFocus();
+    mEditCard.clearFocus();
     // Get the current text in the url edit text field.
     String url = mConfigurableBeaconUrlEditText.getText().toString();
     // Write the url to the device
@@ -232,9 +231,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
         // Update the url edit text field with the given url
         mConfigurableBeaconUrlEditText.setText(url);
         // Show the beacon configuration card
-        if (!mShowingConfigurableCard) {
-          showConfigurableBeaconCard();
-        }
+        showConfigurableBeaconCard();
       }
     });
   }
@@ -328,10 +325,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * of the currently-being-configured beacon
    */
   private void showConfigurableBeaconCard() {
-    mShowingConfigurableCard = true;
-    mConfigurableBeaconLinearLayout.setVisibility(View.VISIBLE);
+    mEditCard.setVisibility(View.VISIBLE);
     Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_and_slide_up);
-    mConfigurableBeaconLinearLayout.startAnimation(animation);
+    mEditCard.startAnimation(animation);
   }
 }
 

@@ -53,7 +53,7 @@
             android:paddingBottom="20dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:id="@+id/linearLayout_configurableBeaconCard">
+            android:id="@+id/edit_card">
 
             <TextView
                 android:layout_width="match_parent"
