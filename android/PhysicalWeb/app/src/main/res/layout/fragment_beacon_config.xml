@@ -105,7 +105,8 @@
                 android:fontFamily="sans-serif-medium"
                 android:textSize="14sp"
                 android:textColor="@color/config_save_url_button"
-                android:id="@+id/button_writeToBeacon"/>
+                android:id="@+id/button_writeToBeacon"
+                android:onClick="onWriteToBeaconButtonClick"/>
         </LinearLayout>
 
     </LinearLayout>
