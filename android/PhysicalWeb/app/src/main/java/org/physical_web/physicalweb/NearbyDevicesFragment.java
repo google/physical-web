@@ -1,4 +1,4 @@
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 /*
  * Copyright 2014 Google Inc. All rights reserved.
@@ -36,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
@@ -45,12 +46,14 @@ import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.widget.ScanResultAdapter;
-import java.io.IOException;
+
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.physical_web.physicalweb.R;
 
 /**
  * This class shows the ui list for all

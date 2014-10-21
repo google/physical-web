@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import org.uribeacon.beacon.UriBeacon;
 import java.net.URISyntaxException;
