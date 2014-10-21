@@ -2,7 +2,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="physical_web.org.physicalweb.NearbyBeaconsFragment"
+                tools:context="org.physical_web.physicalweb.NearbyBeaconsFragment"
                 android:background="#ffffffff">
 
     <LinearLayout

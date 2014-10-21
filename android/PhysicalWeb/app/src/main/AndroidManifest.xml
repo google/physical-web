@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="physical_web.org.physicalweb" >
+    package="org.physical_web.physicalweb" >
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/CustomAppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="org.physical_web.physicalweb.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -31,7 +31,7 @@
         </activity>
 
         <service
-            android:name=".UriBeaconDiscoveryService"
+            android:name="org.physical_web.physicalweb.UriBeaconDiscoveryService"
             android:enabled="true"
             android:exported="false" >
         </service>
