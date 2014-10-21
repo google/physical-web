@@ -32,7 +32,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -58,19 +57,19 @@ import java.util.List;
  * and also allows the user to enter a new url for that beacon.
  */
 
-public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback {
+public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback,
+    TextView.OnEditorActionListener {
 
   private static final String TAG = "BeaconConfigFragment";
-  private boolean mShowingConfigurableCard = false;
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
   // TODO: default value for TxPower should be in another module
   private static final int TX_POWER_DEFAULT = -63;
   private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
-  private EditText mConfigurableBeaconUrlEditText;
+  private EditText mEditCardUrl;
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
-  private LinearLayout mConfigurableBeaconLinearLayout;
+  private LinearLayout mEditCard;
   private AnimationDrawable mScanningAnimationDrawable;
   private ImageView mScanningImageView;
 
@@ -80,45 +79,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
 
   public BeaconConfigFragment() {
   }
-
-  private void initialize() {
-    mShowingConfigurableCard = false;
-    mRegionResolver = new RegionResolver();
-    getActivity().getActionBar().setTitle(getString(R.string.title_edit_urls));
-    initializeTextViews();
-    initializeConfigurableBeaconCard();
-    initializeScanningAnimation();
-    startSearchingForDevices();
-  }
-
-  /**
-   * Setup the card that will display
-   * the information about the to-be-configured beacon
-   */
-  private void initializeConfigurableBeaconCard() {
-    mConfigurableBeaconLinearLayout = (LinearLayout) getView().findViewById(R.id.linearLayout_configurableBeaconCard);
-    mConfigurableBeaconAddressTextView.setText("");
-    mConfigurableBeaconUrlEditText.setText("");
-    Button button_writeToBeacon = (Button) getView().findViewById(R.id.button_writeToBeacon);
-    button_writeToBeacon.setOnClickListener(writeToBeaconButtonOnClickListener);
-    hideConfigurableBeaconCard();
-  }
-
-  private void initializeTextViews() {
-    mStatusTextView = (TextView) getView().findViewById(R.id.textView_status);
-    mStatusTextView.setText(getString(R.string.config_searching_for_beacons_text));
-    mConfigurableBeaconAddressTextView = (TextView) getView().findViewById(R.id.textView_configurableBeaconAddress);
-    mConfigurableBeaconUrlEditText = (EditText) getView().findViewById(R.id.editText_configurableBeaconUrl);
-    mConfigurableBeaconUrlEditText.setOnEditorActionListener(onEditorActionListener_configurableBeaconUrlEditText);
-  }
-
-  private void initializeScanningAnimation() {
-    mScanningImageView = (ImageView) getActivity().findViewById(R.id.imageView_configScanning);
-    mScanningImageView.setBackgroundResource(R.drawable.scanning_animation);
-    mScanningAnimationDrawable = (AnimationDrawable) mScanningImageView.getBackground();
-    mScanningAnimationDrawable.start();
-  }
-
 
   /////////////////////////////////
   // accessors
@@ -135,20 +95,45 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    mRegionResolver = new RegionResolver();
     setHasOptionsMenu(true);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
+
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_beacon_config, container, false);
+    View view = inflater.inflate(R.layout.fragment_beacon_config, container, false);
+
+    mEditCard = (LinearLayout) view.findViewById(R.id.edit_card);
+
+    // Get handles to Status and Address views
+    mStatusTextView = (TextView) view.findViewById(R.id.textView_status);
+    mConfigurableBeaconAddressTextView = (TextView) view.findViewById(R.id.textView_configurableBeaconAddress);
+
+    // Setup the URL Edit Text handler
+    mEditCardUrl = (EditText) view.findViewById(R.id.editText_configurableBeaconUrl);
+    mEditCardUrl.setOnEditorActionListener(this);
+
+    // Setup the animation
+    mScanningImageView = (ImageView) view.findViewById(R.id.imageView_configScanning);
+    mScanningImageView.setBackgroundResource(R.drawable.scanning_animation);
+    mScanningAnimationDrawable = (AnimationDrawable) mScanningImageView.getBackground();
+
+    return view;
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    initialize();
+    mConfigurableBeaconAddressTextView.setText("");
+    mEditCardUrl.setText("");
+    mEditCard.setVisibility(View.INVISIBLE);
+    mScanningImageView.setVisibility(View.VISIBLE);
+    mStatusTextView.setText(getString(R.string.config_searching_for_beacons_text));
+    mScanningAnimationDrawable.start();
+    startSearchingForDevices();
   }
 
   @Override
@@ -156,13 +141,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     super.onPause();
     mScanningAnimationDrawable.stop();
     stopSearchingForDevices();
-  }
-
-  @Override
-  public void onDetach() {
-    super.onDestroy();
     BeaconConfigHelper.shutDownConfigGatt();
-    getActivity().getActionBar().setTitle(getString(R.string.title_nearby_beacons));
   }
 
   @Override
@@ -201,19 +180,17 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * This is the class that listens
    * for when the user taps the write-to-beacon button.
    */
-  private final View.OnClickListener writeToBeaconButtonOnClickListener = new View.OnClickListener() {
-    @Override
-    public void onClick(View view) {
-      // Update the status text
-      mStatusTextView.setText(getString(R.string.config_writing_to_beacon_text));
-      // Remove the focus from the url edit text field
-      mConfigurableBeaconLinearLayout.clearFocus();
-      // Get the current text in the url edit text field.
-      String url = mConfigurableBeaconUrlEditText.getText().toString();
-      // Write the url to the device
-      BeaconConfigHelper.writeBeaconUrl(getActivity(), BeaconConfigFragment.this, mNearestDevice, url);
-    }
-  };
+  public void onWriteToBeaconButtonClick(View view) {
+    // Update the status text
+    mStatusTextView.setText(getString(R.string.config_writing_to_beacon_text));
+    // Remove the focus from the url edit text field
+    mEditCard.clearFocus();
+    // Get the current text in the url edit text field.
+    String url = mEditCardUrl.getText().toString();
+    // Write the url to the device
+    BeaconConfigHelper.writeBeaconUrl(getActivity(), BeaconConfigFragment.this, mNearestDevice, url);
+  }
+
 
   /**
    * This is the class that listens for specific text entry events
@@ -221,18 +198,15 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * on the edit text field that the user uses
    * to enter a new url for the configurable beacon
    */
-  private final TextView.OnEditorActionListener
-      onEditorActionListener_configurableBeaconUrlEditText = new TextView.OnEditorActionListener() {
-    @Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-      // If the keyboard "DONE" button was pressed
-      if (actionId == EditorInfo.IME_ACTION_DONE) {
-        onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed();
-        return true;
-      }
-      return false;
+  @Override
+  public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+    // If the keyboard "DONE" button was pressed
+    if (actionId == EditorInfo.IME_ACTION_DONE) {
+      onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed();
+      return true;
     }
-  };
+    return false;
+  }
 
   /**
    * Called when the user presses the keyboard "DONE" key
@@ -241,7 +215,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Hide the software keyboard
     hideSoftKeyboard();
     // Get the currently entered url in the url edit text field
-    String url = mConfigurableBeaconUrlEditText.getText().toString();
+    String url = mEditCardUrl.getText().toString();
     // Write the url to the device
     BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
   }
@@ -253,11 +227,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
       @Override
       public void run() {
         // Update the url edit text field with the given url
-        mConfigurableBeaconUrlEditText.setText(url);
+        mEditCardUrl.setText(url);
         // Show the beacon configuration card
-        if (!mShowingConfigurableCard) {
-          showConfigurableBeaconCard();
-        }
+        showConfigurableBeaconCard();
       }
     });
   }
@@ -343,15 +315,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    */
   private void hideSoftKeyboard() {
     InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-    imm.hideSoftInputFromWindow(mConfigurableBeaconUrlEditText.getWindowToken(), 0);
-  }
-
-  /**
-   * Hide the card that displays the address and url
-   * of the currently-being-configured beacon
-   */
-  private void hideConfigurableBeaconCard() {
-    mConfigurableBeaconLinearLayout.setVisibility(View.INVISIBLE);
+    imm.hideSoftInputFromWindow(mEditCardUrl.getWindowToken(), 0);
   }
 
   /**
@@ -359,10 +323,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * of the currently-being-configured beacon
    */
   private void showConfigurableBeaconCard() {
-    mShowingConfigurableCard = true;
-    mConfigurableBeaconLinearLayout.setVisibility(View.VISIBLE);
+    mEditCard.setVisibility(View.VISIBLE);
     Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_and_slide_up);
-    mConfigurableBeaconLinearLayout.startAnimation(animation);
+    mEditCard.startAnimation(animation);
   }
 }
 
