@@ -16,11 +16,11 @@
 
 package physical_web.org.physicalweb;
 
+import android.app.Fragment;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -45,14 +45,10 @@ import org.uribeacon.scan.compat.ScanCallback;
 import org.uribeacon.scan.compat.ScanFilter;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
+import org.uribeacon.scan.util.RegionResolver;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * This fragment is the ui that the user sees when
@@ -66,11 +62,11 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
 
   private static final String TAG = "BeaconConfigFragment";
   private boolean mShowingConfigurableCard = false;
-  private BluetoothDevice mFoundConfigurableBeaconBluetoothDevice;
-  private Timer mCheckForFoundConfigurableDevicesTimer;
-  private static final int CHECK_FOR_FOUND_CONFIGURABLE_DEVICES_PERIOD = 2000;
-  private HashMap<String, Device> mDeviceAddressToDeviceMap;
-  public static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
+  private BluetoothDevice mNearestDevice;
+  private RegionResolver mRegionResolver;
+  // TODO: default value for TxPower should be in another module
+  private static final int TX_POWER_DEFAULT = -63;
+  private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
   private EditText mConfigurableBeaconUrlEditText;
   private TextView mStatusTextView;
   private TextView mConfigurableBeaconAddressTextView;
@@ -86,9 +82,8 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   }
 
   private void initialize() {
-    mFoundConfigurableBeaconBluetoothDevice = null;
     mShowingConfigurableCard = false;
-    mDeviceAddressToDeviceMap = new HashMap<>();
+    mRegionResolver = new RegionResolver();
     getActivity().getActionBar().setTitle(getString(R.string.title_edit_urls));
     initializeTextViews();
     initializeConfigurableBeaconCard();
@@ -206,7 +201,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * This is the class that listens
    * for when the user taps the write-to-beacon button.
    */
-  private View.OnClickListener writeToBeaconButtonOnClickListener = new View.OnClickListener() {
+  private final View.OnClickListener writeToBeaconButtonOnClickListener = new View.OnClickListener() {
     @Override
     public void onClick(View view) {
       // Update the status text
@@ -216,7 +211,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
       // Get the current text in the url edit text field.
       String url = mConfigurableBeaconUrlEditText.getText().toString();
       // Write the url to the device
-      BeaconConfigHelper.writeBeaconUrl(getActivity(), BeaconConfigFragment.this, mFoundConfigurableBeaconBluetoothDevice, url);
+      BeaconConfigHelper.writeBeaconUrl(getActivity(), BeaconConfigFragment.this, mNearestDevice, url);
     }
   };
 
@@ -226,7 +221,8 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
    * on the edit text field that the user uses
    * to enter a new url for the configurable beacon
    */
-  private TextView.OnEditorActionListener onEditorActionListener_configurableBeaconUrlEditText = new TextView.OnEditorActionListener() {
+  private final TextView.OnEditorActionListener
+      onEditorActionListener_configurableBeaconUrlEditText = new TextView.OnEditorActionListener() {
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
       // If the keyboard "DONE" button was pressed
@@ -247,7 +243,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Get the currently entered url in the url edit text field
     String url = mConfigurableBeaconUrlEditText.getText().toString();
     // Write the url to the device
-    BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mFoundConfigurableBeaconBluetoothDevice, url);
+    BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
   }
 
   @Override
@@ -302,102 +298,44 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
 
     boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
-
-    //every so often look to see if we found any configurable devices
-    startCheckForConfigurableDevicesTimer();
   }
 
   private void stopSearchingForDevices() {
     Log.v(TAG, "stopSearchingForDevices");
     getLeScanner().stopScan(mScanCallback);
-    stopCheckForConfigurableDevicesTimer();
   }
 
-  private void startCheckForConfigurableDevicesTimer() {
-    mCheckForFoundConfigurableDevicesTimer = new Timer();
-    CheckForFoundConfigurableDevicesTask checkForFoundConfigurableDevicesTask = new CheckForFoundConfigurableDevicesTask();
-    mCheckForFoundConfigurableDevicesTimer.scheduleAtFixedRate(checkForFoundConfigurableDevicesTask, 0, CHECK_FOR_FOUND_CONFIGURABLE_DEVICES_PERIOD);
-  }
-
-  private void stopCheckForConfigurableDevicesTimer() {
-    if (mCheckForFoundConfigurableDevicesTimer != null) {
-      mCheckForFoundConfigurableDevicesTimer.cancel();
-      mCheckForFoundConfigurableDevicesTimer = null;
-    }
-  }
-
-  private void handleFoundDevice(ScanResult scanResult) {
-    Log.i(TAG, String.format("onLeScan: %s, RSSI: %d", scanResult.getDevice().getAddress(), scanResult.getRssi()));
-
-    // Try to get a stored nearby device that matches this device
-    Device device = mDeviceAddressToDeviceMap.get(scanResult.getDevice().getAddress());
-
-    // If no match was found (i.e. if this a newly discovered device)
-    if (device == null) {
-      device = new Device(null, scanResult.getDevice(), scanResult.getRssi());
-      addConfigurableDevice(device);
-    }
-    // If a match was found
-    else {
-      updateConfigurableDevice(device, scanResult.getRssi());
+  private void handleFoundDevice(final ScanResult scanResult) {
+    final String address = scanResult.getDevice().getAddress();
+    int rxPower = scanResult.getRssi();
+    Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
+    mRegionResolver.onUpdate(address, rxPower, TX_POWER_DEFAULT);
+    final String nearestAddress = mRegionResolver.getNearestAddress();
+    // When the current sighting comes from the nearest device...
+    if (address.equals(nearestAddress)) {
+      getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          mNearestDevice = scanResult.getDevice();
+          stopSearchingForDevices();
+          mScanningImageView.setVisibility(View.INVISIBLE);
+          mStatusTextView.setText(
+              getString(R.string.config_found_beacon_text)
+          );
+          mConfigurableBeaconAddressTextView.setText(nearestAddress);
+          final Context context = BeaconConfigFragment.this.getActivity();
+          BeaconConfigHelper.readBeaconUrl(context, BeaconConfigFragment.this, mNearestDevice);
+        }
+      });
+    } else {
+      Log.d(TAG, "handleFoundDevice: found but not nearest " + address);
     }
   }
 
   private void handleLostDevice(ScanResult scanResult) {
     String address = scanResult.getDevice().getAddress();
-    mDeviceAddressToDeviceMap.remove(address);
-  }
-
-  private void addConfigurableDevice(Device device) {
-    mDeviceAddressToDeviceMap.put(device.getBluetoothDevice().getAddress(), device);
-  }
-
-  private void updateConfigurableDevice(Device device, int rssi) {
-    device.updateRssiHistory(rssi);
-  }
-
-  private class CheckForFoundConfigurableDevicesTask extends TimerTask {
-    @Override
-    public void run() {
-      Device device = findNearestConfigurableDevice();
-      if (device != null) {
-        handleFoundNearestConfigurableDevice(device);
-      }
-    }
-  }
-
-  private Device findNearestConfigurableDevice() {
-    Device nearestConfigurableDevice = null;
-    if (mDeviceAddressToDeviceMap.size() > 0) {
-      ArrayList<Device> sortedDevices = new ArrayList<>(mDeviceAddressToDeviceMap.values());
-      Collections.sort(sortedDevices, mRssiComparator);
-      for (Device device : sortedDevices) {
-        Log.d(TAG, "device: " + device.getBluetoothDevice().getAddress() + "  rssi:  " + device.calculateAverageRssi());
-      }
-      nearestConfigurableDevice = sortedDevices.get(0);
-    }
-    return nearestConfigurableDevice;
-  }
-
-  private Comparator<Device> mRssiComparator = new Comparator<Device>() {
-    @Override
-    public int compare(Device lhs, Device rhs) {
-      return rhs.calculateAverageRssi() - lhs.calculateAverageRssi();
-    }
-  };
-
-  private void handleFoundNearestConfigurableDevice(final Device device) {
-    mFoundConfigurableBeaconBluetoothDevice = device.getBluetoothDevice();
-    stopSearchingForDevices();
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mScanningImageView.setVisibility(View.INVISIBLE);
-        mStatusTextView.setText(getString(R.string.config_found_beacon_text));
-        mConfigurableBeaconAddressTextView.setText(device.getBluetoothDevice().getAddress());
-      }
-    });
-    BeaconConfigHelper.readBeaconUrl(getActivity(), this, mFoundConfigurableBeaconBluetoothDevice);
+    Log.i(TAG, String.format("handleLostDevice: %s", address));
+    mRegionResolver.onLost(address);
   }
 
   /**
