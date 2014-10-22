@@ -62,7 +62,7 @@ import java.util.List;
  */
 
 public class BeaconConfigFragment extends Fragment implements
-    TextView.OnEditorActionListener, BeaconConfigHelper.Callback {
+    TextView.OnEditorActionListener, BeaconConfigHelper.BeaconConfigCallback {
 
   private static final String TAG = "BeaconConfigFragment";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -101,7 +101,7 @@ public class BeaconConfigFragment extends Fragment implements
   private ImageView mScanningImage;
   private BeaconConfigHelper mBeaconConfig;
 
-  private BeaconConfigFragment() {
+  public BeaconConfigFragment() {
   }
 
   public static BeaconConfigFragment newInstance() {
@@ -295,7 +295,7 @@ public class BeaconConfigFragment extends Fragment implements
   }
 
   @Override
-  public void onUriBeaconRead(byte[] scanRecord, int status) {
+  public void onBeaconConfigReadUrlComplete(byte[] scanRecord, int status) {
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
@@ -317,7 +317,7 @@ public class BeaconConfigFragment extends Fragment implements
   }
 
   @Override
-  public void onUriBeaconWrite(final int status) {
+  public void onBeaconConfigWriteUrlComplete(final int status) {
     getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {

@@ -41,9 +41,9 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   private BluetoothGatt mBluetoothGatt;
   private Integer mDataLength;
   private byte[] mData;
-  private Callback mCallback;
+  private BeaconConfigCallback mCallback;
 
-  public BeaconConfigHelper(Context context, Callback callback) {
+  public BeaconConfigHelper(Context context, BeaconConfigCallback callback) {
     mContext = context;
     mCallback = callback;
   }
@@ -122,14 +122,14 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
         if (mDataLength > DATA_LENGTH_MAX) {
           readCharacteristic(gatt, characteristic.getService(), DATA_TWO);
         } else {
-          mCallback.onUriBeaconRead(mData, status);
+          mCallback.onBeaconConfigReadUrlComplete(mData, status);
         }
       } else if (DATA_TWO.equals(uuid)) {
         mData = concatenate(mData, characteristic.getValue());
-        mCallback.onUriBeaconRead(mData, status);
+        mCallback.onBeaconConfigReadUrlComplete(mData, status);
       }
     } else {
-      mCallback.onUriBeaconRead(null, status);
+      mCallback.onBeaconConfigReadUrlComplete(null, status);
     }
   }
 
@@ -146,7 +146,7 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
         return;
       }
     }
-    mCallback.onUriBeaconWrite(status);
+    mCallback.onBeaconConfigWriteUrlComplete(status);
     closeUriBeacon();
   }
 
@@ -178,9 +178,9 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
     }
   }
 
-  public interface Callback {
-    public void onUriBeaconRead(byte[] scanRecord, int status);
+  public interface BeaconConfigCallback {
+    public void onBeaconConfigReadUrlComplete(byte[] scanRecord, int status);
 
-    public void onUriBeaconWrite(int status);
+    public void onBeaconConfigWriteUrlComplete(int status);
   }
 }
