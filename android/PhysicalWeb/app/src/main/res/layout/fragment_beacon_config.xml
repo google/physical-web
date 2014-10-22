@@ -105,8 +105,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:textSize="14sp"
                 android:textColor="@color/config_save_url_button"
-                android:id="@+id/edit_card_save"
-                android:onClick="onEditCardSaveButtonClick"/>
+                android:id="@+id/edit_card_save"/>
         </LinearLayout>
 
     </LinearLayout>

@@ -32,6 +32,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -59,7 +60,7 @@ import java.util.List;
  */
 
 public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback,
-    TextView.OnEditorActionListener {
+    TextView.OnEditorActionListener, View.OnClickListener {
 
   private static final String TAG = "BeaconConfigFragment";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -136,6 +137,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mScanningImage.setBackgroundResource(R.drawable.scanning_animation);
     mScanningAnimation = (AnimationDrawable) mScanningImage.getBackground();
 
+    Button button = (Button) view.findViewById(R.id.edit_card_save);
+    button.setOnClickListener(this);
+
     return view;
   }
 
@@ -168,21 +172,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   }
 
   /**
-   * This is called when the user taps the write-to-beacon button.
-   */
-  @SuppressWarnings("unused")
-  public void onEditCardSaveButtonClick(View view) {
-    // Update the status text
-    mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
-    // Remove the focus from the url edit text field
-    mEditCard.clearFocus();
-    // Get the current text in the url edit text field.
-    String url = mEditCardUrl.getText().toString();
-    // Write the url to the device
-    BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
-  }
-
-  /**
    * This is the class that listens for specific text entry events
    * (e.g. the DONE key)
    * on the edit text field that the user uses
@@ -194,7 +183,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     if (actionId == EditorInfo.IME_ACTION_DONE) {
       // Hide the software keyboard
       hideSoftKeyboard();
-      onEditCardSaveButtonClick(textView);
+      onClick(textView);
       return true;
     }
     return false;
@@ -301,6 +290,21 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mEditCard.setVisibility(View.VISIBLE);
     Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_and_slide_up);
     mEditCard.startAnimation(animation);
+  }
+
+  /**
+   * This is called when the user taps the write-to-beacon button.
+   */
+  @Override
+  public void onClick(View view) {
+    // Update the status text
+    mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
+    // Remove the focus from the url edit text field
+    mEditCard.clearFocus();
+    // Get the current text in the url edit text field.
+    String url = mEditCardUrl.getText().toString();
+    // Write the url to the device
+    BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
   }
 }
 
