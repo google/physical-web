@@ -1,4 +1,4 @@
-# Physical-Web example for RFDigital RFduino
+// Physical-Web example for RFDigital RFduino
 
 #include <RFduinoBLE.h>
 
