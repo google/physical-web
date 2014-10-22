@@ -1,4 +1,4 @@
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

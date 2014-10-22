@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import android.app.Fragment;
 import android.bluetooth.BluetoothDevice;
@@ -38,6 +38,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.physical_web.physicalweb.BeaconConfigHelper;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
 import org.uribeacon.scan.compat.ScanCallback;

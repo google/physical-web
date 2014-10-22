@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -37,6 +37,8 @@ import org.uribeacon.scan.compat.ScanSettings;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import org.physical_web.physicalweb.R;
 
 /**
  * This is the services that scans for devices.

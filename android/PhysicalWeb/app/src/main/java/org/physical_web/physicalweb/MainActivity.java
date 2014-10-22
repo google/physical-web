@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -24,6 +24,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import org.physical_web.physicalweb.BeaconConfigFragment;
+import org.physical_web.physicalweb.R;
 
 /**
  * The main entry point for the app.

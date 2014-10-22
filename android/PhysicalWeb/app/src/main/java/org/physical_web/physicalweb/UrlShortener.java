@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package physical_web.org.physicalweb;
+package org.physical_web.physicalweb;
 
 import android.os.AsyncTask;
 import com.google.api.client.extensions.android.http.AndroidHttp;
