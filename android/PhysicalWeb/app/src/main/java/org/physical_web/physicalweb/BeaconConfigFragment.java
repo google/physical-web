@@ -164,6 +164,11 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     super.onPause();
     mScanningAnimation.stop();
     stopSearchingForDevices();
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
     BeaconConfigHelper.shutDownConfigGatt();
   }
 
