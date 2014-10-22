@@ -45,14 +45,14 @@ public class UriBeaconAdvertiserActivity extends Activity {
 
         BluetoothLeAdvertiser bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
 
-        AdvertisementData advertisementData = getAdvertisementData();
+        AdvertiseData advertisementData = getAdvertisementData();
         AdvertiseSettings advertiseSettings = getAdvertiseSettings();
 
         bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertisementData, advertiseCallback);
     }
 
-    private AdvertisementData getAdvertisementData() {
-        AdvertisementData.Builder builder = new AdvertisementData.Builder();
+    private AdvertiseData getAdvertisementData() {
+        AdvertiseData.Builder builder = new AdvertiseData.Builder();
         builder.setIncludeTxPowerLevel(false); // reserve advertising space for URI
 
         byte[] beaconData = new byte[9];
@@ -66,12 +66,10 @@ public class UriBeaconAdvertiserActivity extends Activity {
         beaconData[7] = 0x66; // f
         beaconData[8] = 0x08; // .org
 
-        builder.setServiceData(URI_BEACON_UUID, beaconData);
+        builder.addServiceData(URI_BEACON_UUID, beaconData);
 
         // Adding 0xFED8 to the "Service Complete List UUID 16" (0x3) for iOS compatibility
-        builder.setServiceUuids(new ArrayList<ParcelUuid>() {{
-            add(URI_BEACON_UUID);
-        }});
+        builder.addServiceUuid(URI_BEACON_UUID);
 
         return builder.build();
     }
@@ -80,7 +78,7 @@ public class UriBeaconAdvertiserActivity extends Activity {
         AdvertiseSettings.Builder builder = new AdvertiseSettings.Builder();
         builder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED);
         builder.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH);
-        builder.setType(AdvertiseSettings.ADVERTISE_TYPE_NON_CONNECTABLE);
+        builder.setConnectable(false);
 
         return builder.build();
     }
@@ -145,9 +143,9 @@ public class UriBeaconAdvertiserActivity extends Activity {
     }
 
     private final AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
-        @SuppressLint("Override") /* Remove when android-21 is released */
+        @SuppressLint("Override")
         @Override
-        public void onSuccess(AdvertiseSettings advertiseSettings) {
+        public void onStartSuccess(AdvertiseSettings advertiseSettings) {
             final String message = "Advertisement successful";
             Log.d(TAG, message);
             UriBeaconAdvertiserActivity.this.runOnUiThread(new Runnable() {
@@ -158,9 +156,9 @@ public class UriBeaconAdvertiserActivity extends Activity {
             });
         }
 
-        @SuppressLint("Override") /* Remove when android-21 is released */
+        @SuppressLint("Override")
         @Override
-        public void onFailure(int i) {
+        public void onStartFailure(int i) {
             final String message = "Advertisement failed error code: " + i;
             Log.e(TAG, message);
             UriBeaconAdvertiserActivity.this.runOnUiThread(new Runnable() {
