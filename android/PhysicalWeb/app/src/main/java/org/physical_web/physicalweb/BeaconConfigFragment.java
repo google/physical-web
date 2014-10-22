@@ -218,6 +218,44 @@ public class BeaconConfigFragment extends Fragment implements
     return false;
   }
 
+
+  @Override
+  public void onBeaconConfigReadUrlComplete(byte[] scanRecord, int status) {
+    if (status != BluetoothGatt.GATT_SUCCESS) {
+      Log.e(TAG, "onUriBeaconRead - error " + status);
+    } else {
+      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanRecord);
+      if (uriBeacon != null) {
+        final String url = uriBeacon.getUriString();
+        Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
+        getActivity().runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            // Update the url edit text field with the given url
+            mEditCardUrl.setText(url);
+            // Show the beacon configuration card
+            showConfigurableBeaconCard();
+          }
+        });
+      }
+    }
+  }
+
+  @Override
+  public void onBeaconConfigWriteUrlComplete(final int status) {
+    getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        // Detach this fragment from its activity
+        getFragmentManager().popBackStack();
+        // Show a toast to the user to let them know if the Url was written or error occurred.
+        int msgId = (status == BluetoothGatt.GATT_SUCCESS)
+            ? R.string.config_url_saved : R.string.config_url_error;
+        Toast.makeText(getActivity(), getString(msgId), Toast.LENGTH_SHORT).show();
+      }
+    });
+  }
+  
   private void startSearchingForDevices() {
     Log.v(TAG, "startSearchingForDevices");
 
@@ -292,43 +330,6 @@ public class BeaconConfigFragment extends Fragment implements
     mEditCard.setVisibility(View.VISIBLE);
     Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_and_slide_up);
     mEditCard.startAnimation(animation);
-  }
-
-  @Override
-  public void onBeaconConfigReadUrlComplete(byte[] scanRecord, int status) {
-    if (status != BluetoothGatt.GATT_SUCCESS) {
-      Log.e(TAG, "onUriBeaconRead - error " + status);
-    } else {
-      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanRecord);
-      if (uriBeacon != null) {
-        final String url = uriBeacon.getUriString();
-        Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
-        getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            // Update the url edit text field with the given url
-            mEditCardUrl.setText(url);
-            // Show the beacon configuration card
-            showConfigurableBeaconCard();
-          }
-        });
-      }
-    }
-  }
-
-  @Override
-  public void onBeaconConfigWriteUrlComplete(final int status) {
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        // Detach this fragment from its activity
-        getFragmentManager().popBackStack();
-        // Show a toast to the user to let them know if the Url was written or error occurred.
-        int msgId = (status == BluetoothGatt.GATT_SUCCESS)
-            ? R.string.config_url_saved : R.string.config_url_error;
-        Toast.makeText(getActivity(), getString(msgId), Toast.LENGTH_SHORT).show();
-      }
-    });
   }
 
   /**
