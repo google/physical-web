@@ -178,7 +178,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     // Get the current text in the url edit text field.
     String url = mEditCardUrl.getText().toString();
     // Write the url to the device
-    BeaconConfigHelper.writeBeaconUrl(getActivity(), BeaconConfigFragment.this, mNearestDevice, url);
+    BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
   }
 
   /**
@@ -191,22 +191,12 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
     // If the keyboard "DONE" button was pressed
     if (actionId == EditorInfo.IME_ACTION_DONE) {
-      onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed();
+      // Hide the software keyboard
+      hideSoftKeyboard();
+      onEditCardSaveButtonClick(textView);
       return true;
     }
     return false;
-  }
-
-  /**
-   * Called when the user presses the keyboard "DONE" key
-   */
-  private void onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed() {
-    // Hide the software keyboard
-    hideSoftKeyboard();
-    // Get the currently entered url in the url edit text field
-    String url = mEditCardUrl.getText().toString();
-    // Write the url to the device
-    BeaconConfigHelper.writeBeaconUrl(getActivity(), this, mNearestDevice, url);
   }
 
   @Override
