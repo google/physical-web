@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:id="@+id/imageView_configScanning"/>
+            android:id="@+id/scanning_image"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:text=""
             android:gravity="center_horizontal"
             android:textSize="16sp"
-            android:id="@+id/textView_status"
+            android:id="@+id/scanning_status"
             android:textColor="#5A5A5A"
             android:paddingTop="16dp"/>
     </LinearLayout>
@@ -73,7 +73,7 @@
                 android:paddingLeft="10dp"
                 android:textSize="16sp"
                 android:fontFamily="sans-serif-light"
-                android:id="@+id/textView_configurableBeaconAddress"/>
+                android:id="@+id/edit_card_address"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -84,7 +84,7 @@
                 android:paddingTop="50dp"
                 android:textSize="16sp"
                 android:fontFamily="sans-serif-light"
-                android:labelFor="@+id/editText_configurableBeaconUrl"/>
+                android:labelFor="@+id/edit_card_url"/>
 
             <EditText
                 style="@style/RobotoEditTextStyle"
@@ -93,7 +93,7 @@
                 android:text=""
                 android:imeOptions="actionDone"
                 android:inputType="textUri"
-                android:id="@+id/editText_configurableBeaconUrl"/>
+                android:id="@+id/edit_card_url"/>
 
             <Button
                 android:layout_width="match_parent"
@@ -105,8 +105,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:textSize="14sp"
                 android:textColor="@color/config_save_url_button"
-                android:id="@+id/button_writeToBeacon"
-                android:onClick="onWriteToBeaconButtonClick"/>
+                android:id="@+id/edit_card_save"/>
         </LinearLayout>
 
     </LinearLayout>

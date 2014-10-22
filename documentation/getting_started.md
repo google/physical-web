@@ -5,7 +5,7 @@ In order to get up and running you need two things:
 1. A hardware beacon
 2. Software on your phone/tablet to see that beacon.
 
-The software is the easiest thing to take care of. The source code is located in this repo. However, you can get the latest list of [Android releases.](https://github.com/google/physical-web/releases) Just make sure you go to Settings>Security>Unknown Sources and flip the checkbox on before you do. A walkthrough of the app [is here](http://github.com/google/physical-web/blob/master/documentation/android_client_walkthrough.md)
+The software is the easiest thing to take care of. The app is on the [Google Play store](https://play.google.com/store/apps/details?id=physical_web.org.physicalweb) as well as the [Apple App Store](https://itunes.apple.com/us/app/physical-web/id927653608?mt=8). The source code is also located in this repo with the latest list of the [Android releases.](https://github.com/google/physical-web/releases) If you install the Android app from the releases page, just make sure you go to Settings>Security>Unknown Sources and flip the checkbox on before you do. A walkthrough of the app [is here](http://github.com/google/physical-web/blob/master/documentation/android_client_walkthrough.md)
 
 The trickier thing is to get a beacon broadcasting a URL. For most BLE beacons on the market today, this is not very easy to do. We're working on getting a much simpler, maker-friendly device released through an online vendor. This beacon will allow you to set the URL easily through the app and should be available in November 2014.
 

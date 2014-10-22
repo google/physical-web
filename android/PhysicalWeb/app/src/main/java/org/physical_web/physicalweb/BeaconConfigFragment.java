@@ -33,13 +33,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.physical_web.physicalweb.BeaconConfigHelper;
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
@@ -65,99 +65,6 @@ public class BeaconConfigFragment extends Fragment implements
     TextView.OnEditorActionListener, BeaconConfigHelper.Callback {
 
   private static final String TAG = "BeaconConfigFragment";
-  private BluetoothDevice mNearestDevice;
-  private RegionResolver mRegionResolver;
-  // TODO: default value for TxPower should be in another module
-  private static final int TX_POWER_DEFAULT = -63;
-  private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
-  private EditText mEditCardUrl;
-  private TextView mStatusTextView;
-  private TextView mConfigurableBeaconAddressTextView;
-  private LinearLayout mEditCard;
-  private AnimationDrawable mScanningAnimationDrawable;
-  private ImageView mScanningImageView;
-  private BeaconConfigHelper mBeaconConfig;
-
-  public static BeaconConfigFragment newInstance() {
-    return new BeaconConfigFragment();
-  }
-
-  public BeaconConfigFragment() {
-  }
-
-  /////////////////////////////////
-  // accessors
-  /////////////////////////////////
-
-  private BluetoothLeScannerCompat getLeScanner() {
-    return BluetoothLeScannerCompatProvider.getBluetoothLeScannerCompat(getActivity());
-  }
-
-  /////////////////////////////////
-  // callbacks
-  /////////////////////////////////
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    mRegionResolver = new RegionResolver();
-    mBeaconConfig = new BeaconConfigHelper(getActivity(), this);
-    setHasOptionsMenu(true);
-    getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-  }
-
-
-  @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    // Inflate the layout for this fragment
-    View view = inflater.inflate(R.layout.fragment_beacon_config, container, false);
-
-    mEditCard = (LinearLayout) view.findViewById(R.id.edit_card);
-
-    // Get handles to Status and Address views
-    mStatusTextView = (TextView) view.findViewById(R.id.textView_status);
-    mConfigurableBeaconAddressTextView = (TextView) view.findViewById(R.id.textView_configurableBeaconAddress);
-
-    // Setup the URL Edit Text handler
-    mEditCardUrl = (EditText) view.findViewById(R.id.editText_configurableBeaconUrl);
-    mEditCardUrl.setOnEditorActionListener(this);
-
-    // Setup the animation
-    mScanningImageView = (ImageView) view.findViewById(R.id.imageView_configScanning);
-    mScanningImageView.setBackgroundResource(R.drawable.scanning_animation);
-    mScanningAnimationDrawable = (AnimationDrawable) mScanningImageView.getBackground();
-
-    return view;
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    mConfigurableBeaconAddressTextView.setText("");
-    mEditCardUrl.setText("");
-    mEditCard.setVisibility(View.INVISIBLE);
-    mScanningImageView.setVisibility(View.VISIBLE);
-    mStatusTextView.setText(getString(R.string.config_searching_for_beacons_text));
-    mScanningAnimationDrawable.start();
-    startSearchingForDevices();
-  }
-
-  @Override
-  public void onPause() {
-    super.onPause();
-    mScanningAnimationDrawable.stop();
-    stopSearchingForDevices();
-    mBeaconConfig.closeUriBeacon();
-  }
-
-  @Override
-  public void onPrepareOptionsMenu(Menu menu) {
-    super.onPrepareOptionsMenu(menu);
-    menu.findItem(R.id.action_config).setVisible(false);
-    menu.findItem(R.id.action_about).setVisible(false);
-    menu.findItem(R.id.action_demo).setVisible(false);
-  }
-
   private final ScanCallback mScanCallback = new ScanCallback() {
     @Override
     public void onScanResult(int callbackType, ScanResult scanResult) {
@@ -181,6 +88,97 @@ public class BeaconConfigFragment extends Fragment implements
       Log.d(TAG, "onScanFailed  " + "errorCode: " + errorCode);
     }
   };
+  // TODO: default value for TxPower should be in another module
+  private static final int TX_POWER_DEFAULT = -63;
+  private static final ParcelUuid CHANGE_URL_SERVICE_UUID = ParcelUuid.fromString("B35D7DA6-EED4-4D59-8F89-F6573EDEA967");
+  private BluetoothDevice mNearestDevice;
+  private RegionResolver mRegionResolver;
+  private EditText mEditCardUrl;
+  private TextView mScanningStatus;
+  private TextView mEditCardAddress;
+  private LinearLayout mEditCard;
+  private AnimationDrawable mScanningAnimation;
+  private ImageView mScanningImage;
+  private BeaconConfigHelper mBeaconConfig;
+
+  private BeaconConfigFragment() {
+  }
+
+  public static BeaconConfigFragment newInstance() {
+    return new BeaconConfigFragment();
+  }
+
+  private BluetoothLeScannerCompat getLeScanner() {
+    return BluetoothLeScannerCompatProvider.getBluetoothLeScannerCompat(getActivity());
+  }
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    mRegionResolver = new RegionResolver();
+    mBeaconConfig = new BeaconConfigHelper(getActivity(), this);
+    setHasOptionsMenu(true);
+    getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    // Inflate the layout for this fragment
+    View view = inflater.inflate(R.layout.fragment_beacon_config, container, false);
+
+    mEditCard = (LinearLayout) view.findViewById(R.id.edit_card);
+
+    // Get handles to Status and Address views
+    mScanningStatus = (TextView) view.findViewById(R.id.scanning_status);
+    mEditCardAddress = (TextView) view.findViewById(R.id.edit_card_address);
+
+    // Setup the URL Edit Text handler
+    mEditCardUrl = (EditText) view.findViewById(R.id.edit_card_url);
+    mEditCardUrl.setOnEditorActionListener(this);
+
+    // Setup the animation
+    mScanningImage = (ImageView) view.findViewById(R.id.scanning_image);
+    mScanningImage.setBackgroundResource(R.drawable.scanning_animation);
+    mScanningAnimation = (AnimationDrawable) mScanningImage.getBackground();
+
+    Button button = (Button) view.findViewById(R.id.edit_card_save);
+    button.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        saveEditCardUrlToBeacon();
+      }
+    });
+
+    return view;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    mEditCardAddress.setText("");
+    mEditCardUrl.setText("");
+    mEditCard.setVisibility(View.INVISIBLE);
+    mScanningImage.setVisibility(View.VISIBLE);
+    mScanningStatus.setText(getString(R.string.config_searching_for_beacons_text));
+    mScanningAnimation.start();
+    startSearchingForDevices();
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    mScanningAnimation.stop();
+    stopSearchingForDevices();
+    mBeaconConfig.closeUriBeacon();
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(Menu menu) {
+    super.onPrepareOptionsMenu(menu);
+    menu.findItem(R.id.action_config).setVisible(false);
+    menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_demo).setVisible(false);
+  }
 
   /**
    * This is the class that listens
@@ -188,7 +186,7 @@ public class BeaconConfigFragment extends Fragment implements
    */
   public void onWriteToBeaconButtonClick(View view) {
     // Update the status text
-    mStatusTextView.setText(getString(R.string.config_writing_to_beacon_text));
+    mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
     // Remove the focus from the url edit text field
     mEditCard.clearFocus();
     // Get the current text in the url edit text field.
@@ -212,31 +210,13 @@ public class BeaconConfigFragment extends Fragment implements
   public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
     // If the keyboard "DONE" button was pressed
     if (actionId == EditorInfo.IME_ACTION_DONE) {
-      onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed();
+      // Hide the software keyboard
+      hideSoftKeyboard();
+      saveEditCardUrlToBeacon();
       return true;
     }
     return false;
   }
-
-  /**
-   * Called when the user presses the keyboard "DONE" key
-   */
-  private void onEditorAction_nearestConfigurableBeaconUrlEditTextDoneKeyPressed() {
-    // Hide the software keyboard
-    hideSoftKeyboard();
-    // Get the currently entered url in the url edit text field
-    String url = mEditCardUrl.getText().toString();
-    // Write the url to the device
-    try {
-      byte[] scanRecord = BeaconHelper.createAdvertisingPacket(url);
-      mBeaconConfig.writeUriBeacon(scanRecord);
-    } catch (URISyntaxException e) {
-    }
-  }
-
-  /////////////////////////////////
-  // utilities
-  /////////////////////////////////
 
   private void startSearchingForDevices() {
     Log.v(TAG, "startSearchingForDevices");
@@ -254,8 +234,8 @@ public class BeaconConfigFragment extends Fragment implements
 
     filters.add(filter);
 
-  boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
-  Log.v(TAG, started ? "... scan started" : "... scan NOT started");
+    boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
+    Log.v(TAG, started ? "... scan started" : "... scan NOT started");
   }
 
   private void stopSearchingForDevices() {
@@ -276,11 +256,11 @@ public class BeaconConfigFragment extends Fragment implements
         public void run() {
           mNearestDevice = scanResult.getDevice();
           stopSearchingForDevices();
-          mScanningImageView.setVisibility(View.INVISIBLE);
-          mStatusTextView.setText(
+          mScanningImage.setVisibility(View.INVISIBLE);
+          mScanningStatus.setText(
               getString(R.string.config_found_beacon_text)
           );
-          mConfigurableBeaconAddressTextView.setText(nearestAddress);
+          mEditCardAddress.setText(nearestAddress);
           final Context context = BeaconConfigFragment.this.getActivity();
           mBeaconConfig.connectUriBeacon(mNearestDevice);
         }
@@ -349,6 +329,25 @@ public class BeaconConfigFragment extends Fragment implements
         Toast.makeText(getActivity(), getString(msgId), Toast.LENGTH_SHORT).show();
       }
     });
+  }
+
+  /**
+   * This is called when the user taps the write-to-beacon button.
+   */
+  private void saveEditCardUrlToBeacon() {
+    // Update the status text
+    mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
+    // Remove the focus from the url edit text field
+    mEditCard.clearFocus();
+    // Get the current text in the url edit text field.
+    String url = mEditCardUrl.getText().toString();
+    // Write the url to the device
+    try {
+      byte[] scanResult = BeaconHelper.createAdvertisingPacket(url);
+      mBeaconConfig.writeUriBeacon(scanResult);
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
   }
 }
 
