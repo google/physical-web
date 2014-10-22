@@ -39,7 +39,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.physical_web.physicalweb.BeaconConfigHelper;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
 import org.uribeacon.scan.compat.ScanCallback;
@@ -60,7 +59,7 @@ import java.util.List;
  */
 
 public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback,
-    TextView.OnEditorActionListener, View.OnClickListener {
+    TextView.OnEditorActionListener {
 
   private static final String TAG = "BeaconConfigFragment";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -138,7 +137,12 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mScanningAnimation = (AnimationDrawable) mScanningImage.getBackground();
 
     Button button = (Button) view.findViewById(R.id.edit_card_save);
-    button.setOnClickListener(this);
+    button.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        saveEditCardUrlToBeacon();
+      }
+    });
 
     return view;
   }
@@ -183,7 +187,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     if (actionId == EditorInfo.IME_ACTION_DONE) {
       // Hide the software keyboard
       hideSoftKeyboard();
-      onClick(textView);
+      saveEditCardUrlToBeacon();
       return true;
     }
     return false;
@@ -295,8 +299,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   /**
    * This is called when the user taps the write-to-beacon button.
    */
-  @Override
-  public void onClick(View view) {
+  private void saveEditCardUrlToBeacon() {
     // Update the status text
     mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
     // Remove the focus from the url edit text field
