@@ -24,7 +24,7 @@ This opens the configuration screen that will start searching for beacons nearby
 
 ![Figure 3](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_3.png)
 
-To make a beacon configurable, press its button. It should beep. If all goes well, the app will have found the configurable beacon and tell you so. Sometimes this can be a little slow (but any longer than 3 seconds or so, just press the back button and then re-tap the "Edit Urls" menu button).
+There are lots of different beacons that are being experimented with. Many are broadcast only. If you have one of beacons that Google has passed out, it has a button in the center face. To make it configurable, just press the button and you should hear a beep. If not, that usually means the battery is dead and you should replace it. If all goes well, the app will have found the configurable beacon and tell you so. This can take up to 3 seconds or so.
 
 ![Figure 4](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/android_walkthrough_4.png)
 
@@ -39,3 +39,21 @@ If you tap the notification, it will bring you back to the list of the nearby be
 So that’s it! Happy Physical Webbing!
 
 Please note that this app has been targeting Android L release (21) and has been tested primarily on the Nexus 5.
+
+
+##FCC Stuff
+###FCC Part 15.105(b) Warning Statement
+This equipment has been tested and found to comply with the limits for a Class B digital device, pursuant 
+to part 15 of the FCC Rules. These limits are designed to provide reasonable protection against harmful 
+interference in a residential installation. This equipment generates, uses and can radiate radio frequcny 
+energy and, if not installed and used in accordance with the instructions, may cause harful interference to 
+radio communications. However, there is no guarantee that interference will not occur in a particular 
+installation. If this equipment does cause harmful interference to radio or television reception, which can 
+be determined by running the equipment off and on, the user is encouraged to try to correct the 
+interference by one or more of the following measures:
+
+1. Reorient or relocate the receiving antenna
+2. Increase the separation between the equipment and receiver
+3. Connect the equipment into an outlet on a circuit different from that to which the receiver is 
+connected
+4. Consult the dealer or an experience radio/TV technician for help
