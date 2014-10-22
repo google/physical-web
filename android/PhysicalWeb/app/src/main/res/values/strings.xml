@@ -12,7 +12,8 @@
     <string name="config_searching_for_beacons_text">Put your beacon into config mode</string>
     <string name="config_found_beacon_text">Beacon Found!</string>
     <string name="config_writing_to_beacon_text">Saving to Beacon</string>
-    <string name="config_url_saved_text">URL Saved!</string>
+    <string name="config_url_saved">URL Saved</string>
+    <string name="config_url_error">Error Saving URL</string>
     <string name="title_edit_urls">Edit URLs</string>
     <string name="title_nearby_beacons">Nearby Beacons</string>
     <string name="title_nearby_beacons_demo">Nearby Beacons Demo</string>
