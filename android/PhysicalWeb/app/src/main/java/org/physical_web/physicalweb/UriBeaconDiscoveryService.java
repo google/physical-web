@@ -113,8 +113,10 @@ public class UriBeaconDiscoveryService extends Service {
 
   @Override
   public void onDestroy() {
+    Log.d(TAG, "onDestroy:  service exiting");
     stopSearchingForDevices();
     unregisterReceiver(mScreenStateBroadcastReceiver);
+    cancelNotification();
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -212,8 +214,7 @@ public class UriBeaconDiscoveryService extends Service {
     // If there are no nearby devices
     if (numNearbyDevices == 0) {
       // Remove the notification
-      NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-      mNotificationManager.cancel(ID_NOTIFICATION);
+      cancelNotification();
       return;
     }
 
@@ -234,6 +235,12 @@ public class UriBeaconDiscoveryService extends Service {
     builder.setContentIntent(resultPendingIntent);
     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     mNotificationManager.notify(ID_NOTIFICATION, builder.build());
+  }
+
+  private void cancelNotification() {
+    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationManager.cancel(ID_NOTIFICATION);
+
   }
 }
 
