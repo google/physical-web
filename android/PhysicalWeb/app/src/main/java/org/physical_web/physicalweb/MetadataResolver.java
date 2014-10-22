@@ -182,9 +182,9 @@ public class MetadataResolver {
 
                   JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(i);
 
-                  String title = "Unknown name";
-                  String url = "Unknown url";
-                  String description = "Unknown description";
+                  String title = "";
+                  String url = "";
+                  String description = "";
                   String iconUrl = "/favicon.ico";
                   String id = jsonUrlMetadata.getString("id");
 
