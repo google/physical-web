@@ -181,26 +181,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   }
 
   /**
-   * This is the class that listens
-   * for when the user taps the write-to-beacon button.
-   */
-  public void onWriteToBeaconButtonClick(View view) {
-    // Update the status text
-    mScanningStatus.setText(R.string.config_writing_to_beacon_text);
-    // Remove the focus from the url edit text field
-    mEditCard.clearFocus();
-    // Get the current text in the url edit text field.
-    String url = mEditCardUrl.getText().toString();
-    // Write the url to the device
-    try {
-      byte[] scanRecord = BeaconHelper.createAdvertisingPacket(url);
-      mBeaconConfig.writeUriBeacon(scanRecord);
-    } catch (URISyntaxException e) {
-    }
-  }
-
-
-  /**
    * This is the class that listens for specific text entry events
    * (e.g. the DONE key)
    * on the edit text field that the user uses
