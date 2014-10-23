@@ -10,7 +10,8 @@
     <string name="about_version_label">Version</string>
     <string name="nearby_device_favicon_content_description">favicon for the given URL for this entry</string>
     <string name="config_searching_for_beacons_text">Put your beacon into config mode</string>
-    <string name="config_found_beacon_text">Beacon Found!</string>
+    <string name="config_found_near_beacon">Beacon found!</string>
+    <string name="config_found_far_beacon">Move Beacon closer!</string>
     <string name="config_writing_to_beacon_text">Saving to Beacon</string>
     <string name="config_url_saved">URL Saved</string>
     <string name="config_url_error">Error Saving URL</string>

@@ -159,7 +159,7 @@ public class BeaconConfigFragment extends Fragment implements
     mEditCardUrl.setText("");
     mEditCard.setVisibility(View.INVISIBLE);
     mScanningImage.setVisibility(View.VISIBLE);
-    mScanningStatus.setText(getString(R.string.config_searching_for_beacons_text));
+    mScanningStatus.setText(R.string.config_searching_for_beacons_text);
     mScanningAnimation.start();
     startSearchingForDevices();
   }
@@ -186,7 +186,7 @@ public class BeaconConfigFragment extends Fragment implements
    */
   public void onWriteToBeaconButtonClick(View view) {
     // Update the status text
-    mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
+    mScanningStatus.setText(R.string.config_writing_to_beacon_text);
     // Remove the focus from the url edit text field
     mEditCard.clearFocus();
     // Get the current text in the url edit text field.
@@ -225,19 +225,18 @@ public class BeaconConfigFragment extends Fragment implements
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
       UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanRecord);
-      if (uriBeacon != null) {
-        final String url = uriBeacon.getUriString();
-        Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
-        getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            // Update the url edit text field with the given url
-            mEditCardUrl.setText(url);
-            // Show the beacon configuration card
-            showConfigurableBeaconCard();
-          }
-        });
-      }
+      final String url = (uriBeacon != null) ? uriBeacon.getUriString() : "";
+      Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
+      getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          // Update the url edit text field with the given url
+          mEditCardUrl.setText(url);
+          // Show the beacon configuration card
+          showConfigurableBeaconCard();
+        }
+      });
+
     }
   }
 
@@ -251,11 +250,11 @@ public class BeaconConfigFragment extends Fragment implements
         // Show a toast to the user to let them know if the Url was written or error occurred.
         int msgId = (status == BluetoothGatt.GATT_SUCCESS)
             ? R.string.config_url_saved : R.string.config_url_error;
-        Toast.makeText(getActivity(), getString(msgId), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), msgId, Toast.LENGTH_SHORT).show();
       }
     });
   }
-  
+
   private void startSearchingForDevices() {
     Log.v(TAG, "startSearchingForDevices");
 
@@ -289,24 +288,27 @@ public class BeaconConfigFragment extends Fragment implements
     final String nearestAddress = mRegionResolver.getNearestAddress();
     // When the current sighting comes from the nearest device...
     if (address.equals(nearestAddress)) {
-      getActivity().runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          mNearestDevice = scanResult.getDevice();
-          stopSearchingForDevices();
-          mScanningImage.setVisibility(View.INVISIBLE);
-          mScanningStatus.setText(
-              getString(R.string.config_found_beacon_text)
-          );
-          mEditCardAddress.setText(nearestAddress);
-          final Context context = BeaconConfigFragment.this.getActivity();
-          mBeaconConfig.connectUriBeacon(mNearestDevice);
-        }
-      });
+      // Stopping the scan in this thread is important for responsiveness
+      stopSearchingForDevices();
+      mNearestDevice = scanResult.getDevice();
+      mBeaconConfig.connectUriBeacon(mNearestDevice);
     } else {
-      Log.d(TAG, "handleFoundDevice: found but not nearest " + address);
+      mNearestDevice = null;
     }
+    getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (mNearestDevice != null) {
+          mScanningImage.setVisibility(View.INVISIBLE);
+          mScanningStatus.setText(R.string.config_found_near_beacon);
+          mEditCardAddress.setText(nearestAddress);
+        } else {
+          mScanningStatus.setText(R.string.config_found_far_beacon);
+        }
+      }
+    });
   }
+
 
   private void handleLostDevice(ScanResult scanResult) {
     String address = scanResult.getDevice().getAddress();
@@ -337,7 +339,7 @@ public class BeaconConfigFragment extends Fragment implements
    */
   private void saveEditCardUrlToBeacon() {
     // Update the status text
-    mScanningStatus.setText(getString(R.string.config_writing_to_beacon_text));
+    mScanningStatus.setText(R.string.config_writing_to_beacon_text);
     // Remove the focus from the url edit text field
     mEditCard.clearFocus();
     // Get the current text in the url edit text field.

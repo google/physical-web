@@ -23,6 +23,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -42,10 +43,13 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   private Integer mDataLength;
   private byte[] mData;
   private BeaconConfigCallback mCallback;
+  private BluetoothGattService mGattService;
+  private Handler mBackgroundHandler;
 
   public BeaconConfigHelper(Context context, BeaconConfigCallback callback) {
     mContext = context;
     mCallback = callback;
+    mBackgroundHandler = new Handler();
   }
 
   /**
@@ -70,7 +74,7 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   public void connectUriBeacon(BluetoothDevice device) {
     mData = null;
     mDataLength = null;
-    mBluetoothGatt = device.connectGatt(mContext, true, this);
+    mBluetoothGatt = device.connectGatt(mContext, false, this);
   }
 
   /**
@@ -81,24 +85,24 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   public void writeUriBeacon(byte[] scanRecord) {
     mData = scanRecord;
     BluetoothGattService service = mBluetoothGatt.getService(CONFIG_SERVICE_UUID.getUuid());
-    writeCharacteristic(mBluetoothGatt, service, DATA_ONE, mData, 0);
+    writeCharacteristic(DATA_ONE, mData, 0);
   }
 
   @Override
   public void onConnectionStateChange(android.bluetooth.BluetoothGatt gatt, int status, int newState) {
     super.onConnectionStateChange(gatt, status, newState);
     if (newState == BluetoothProfile.STATE_CONNECTED) {
-      gatt.discoverServices();
+      mBluetoothGatt.discoverServices();
     }
   }
 
   @Override
   public void onServicesDiscovered(android.bluetooth.BluetoothGatt gatt, int status) {
     if (status == BluetoothGatt.GATT_SUCCESS) {
-      BluetoothGattService service = gatt.getService(CONFIG_SERVICE_UUID.getUuid());
-      if (service != null) {
+      mGattService = mBluetoothGatt.getService(CONFIG_SERVICE_UUID.getUuid());
+      if (mGattService != null) {
         // Start the operation that will read the beacon's advertising packet
-        readCharacteristic(gatt, service, DATA_LENGTH);
+        readCharacteristic(DATA_LENGTH);
         return;
       }
     }
@@ -111,16 +115,18 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
    */
   @Override
   public void onCharacteristicRead(android.bluetooth.BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+    Log.d(TAG, "Characteristic " + characteristic.getUuid().toString() + " "
+      + " len: " + characteristic.getValue().length);
     // If the operation was successful
     if (status == BluetoothGatt.GATT_SUCCESS) {
       UUID uuid = characteristic.getUuid();
       if (DATA_LENGTH.equals(uuid)) {
         mDataLength = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0);
-        readCharacteristic(gatt, characteristic.getService(), DATA_ONE);
+        readCharacteristic(DATA_ONE);
       } else if (DATA_ONE.equals(uuid)) {
         mData = characteristic.getValue();
         if (mDataLength > DATA_LENGTH_MAX) {
-          readCharacteristic(gatt, characteristic.getService(), DATA_TWO);
+          readCharacteristic(DATA_TWO);
         } else {
           mCallback.onBeaconConfigReadUrlComplete(mData, status);
         }
@@ -142,29 +148,37 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
     if (status == BluetoothGatt.GATT_SUCCESS) {
       UUID uuid = characteristic.getUuid();
       if (DATA_ONE.equals(uuid) && mData.length > DATA_LENGTH_MAX) {
-        writeCharacteristic(gatt, characteristic.getService(), DATA_TWO, mData, DATA_LENGTH_MAX);
+        writeCharacteristic(DATA_TWO, mData, DATA_LENGTH_MAX);
         return;
       }
     }
-    mCallback.onBeaconConfigWriteUrlComplete(status);
     closeUriBeacon();
+    try {
+      // If we don't sleep here the write works only 20% of the time.
+      Thread.sleep(20);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    mCallback.onBeaconConfigWriteUrlComplete(status);
   }
 
   // Start a read operation.
-  private void readCharacteristic(android.bluetooth.BluetoothGatt gatt, BluetoothGattService service, UUID uuid) {
-    BluetoothGattCharacteristic characteristic = service.getCharacteristic(uuid);
-    gatt.readCharacteristic(characteristic);
+  private void readCharacteristic(UUID uuid) {
+    BluetoothGattCharacteristic characteristic = mGattService.getCharacteristic(uuid);
+    if (!mBluetoothGatt.readCharacteristic(characteristic)) {
+      Log.e(TAG, "readCharacteristic failed for " + uuid);
+    }
   }
 
   // Start a write operation.
-  private void writeCharacteristic(android.bluetooth.BluetoothGatt gatt,
-                                   BluetoothGattService service,
-                                   UUID uuid, byte[] data, int offset) {
+  private void writeCharacteristic(UUID uuid, byte[] data, int offset) {
     int len = Math.min(DATA_LENGTH_MAX, data.length - offset);
     byte[] dataRange = Arrays.copyOfRange(data, offset, offset + len);
-    BluetoothGattCharacteristic characteristic = service.getCharacteristic(uuid);
+    BluetoothGattCharacteristic characteristic = mGattService.getCharacteristic(uuid);
     characteristic.setValue(dataRange);
-    gatt.writeCharacteristic(characteristic);
+    if (!mBluetoothGatt.writeCharacteristic(characteristic)) {
+      Log.e(TAG, "writeCharacteristic failed for " + uuid);
+    }
   }
 
   /**
@@ -172,10 +186,11 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
    * possible after it is done with this GATT client.
    */
   public void closeUriBeacon() {
-    if (mBluetoothGatt != null) {
-      mBluetoothGatt.close();
-      mBluetoothGatt = null;
+    if (mBluetoothGatt == null) {
+      return;
     }
+    mBluetoothGatt.close();
+    mBluetoothGatt = null;
   }
 
   public interface BeaconConfigCallback {
