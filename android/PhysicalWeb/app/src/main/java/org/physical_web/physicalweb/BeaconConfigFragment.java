@@ -61,8 +61,8 @@ import java.util.List;
  * and also allows the user to enter a new url for that beacon.
  */
 
-public class BeaconConfigFragment extends Fragment implements
-    TextView.OnEditorActionListener, BeaconConfigHelper.BeaconConfigCallback {
+public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper.BeaconConfigCallback,
+    TextView.OnEditorActionListener {
 
   private static final String TAG = "BeaconConfigFragment";
   private final ScanCallback mScanCallback = new ScanCallback() {
