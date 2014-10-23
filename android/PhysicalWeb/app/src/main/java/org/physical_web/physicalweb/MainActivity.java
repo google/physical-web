@@ -25,9 +25,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.physical_web.physicalweb.BeaconConfigFragment;
-import org.physical_web.physicalweb.R;
-
 /**
  * The main entry point for the app.
  */
@@ -129,13 +126,13 @@ public class MainActivity extends Activity {
   private void showNearbyBeaconsFragment(boolean isDemoMode) {
     if (!isDemoMode) {
       getFragmentManager().beginTransaction()
-          .replace(R.id.main_activity_container, NearbyDevicesFragment.newInstance(isDemoMode))
+          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
           .commit();
     }
     else {
       getFragmentManager().beginTransaction()
           .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
-          .replace(R.id.main_activity_container, NearbyDevicesFragment.newInstance(isDemoMode))
+          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
           .addToBackStack(null)
           .commit();
     }
