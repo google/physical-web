@@ -152,7 +152,6 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
         return;
       }
     }
-    closeUriBeacon();
     try {
       // If we don't sleep here the write works only 20% of the time.
       Thread.sleep(20);
