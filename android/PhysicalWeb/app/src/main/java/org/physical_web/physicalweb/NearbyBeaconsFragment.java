@@ -53,8 +53,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.physical_web.physicalweb.R;
-
 /**
  * This class shows the ui list for all
  * detected nearby beacons.
@@ -64,9 +62,9 @@ import org.physical_web.physicalweb.R;
  * the browser and point that browser
  * to the given list items url.
  */
-public class NearbyDevicesFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback {
+public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback {
 
-  private static final String TAG = "NearbyDevicesFragment";
+  private static final String TAG = "NearbyBeaconsFragment";
   private LayoutInflater mLayoutInflater;
   private BluetoothAdapter mBluetoothAdapter;
   private static final int REQUEST_ENABLE_BT = 1;
@@ -76,28 +74,28 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
   private boolean mIsDemoMode;
   private static int BEACON_EXPIRATION_DURATION = 5;
 
-  public static NearbyDevicesFragment newInstance(boolean isDemoMode) {
-    NearbyDevicesFragment nearbyDevicesFragment = new NearbyDevicesFragment();
+  public static NearbyBeaconsFragment newInstance(boolean isDemoMode) {
+    NearbyBeaconsFragment nearbyBeaconsFragment = new NearbyBeaconsFragment();
     Bundle bundle = new Bundle();
     bundle.putBoolean("isDemoMode", isDemoMode);
-    nearbyDevicesFragment.setArguments(bundle);
-    return nearbyDevicesFragment;
+    nearbyBeaconsFragment.setArguments(bundle);
+    return nearbyBeaconsFragment;
   }
 
-  public NearbyDevicesFragment() {
+  public NearbyBeaconsFragment() {
   }
 
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
-    setListAdapter(new NearbyDevicesAdapter());
+    setListAdapter(new NearbyBeaconsAdapter());
     initializeScanningAnimation(rootView);
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
     // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
       getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-      MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyDevicesFragment.this);
+      MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
     } else {
       initializeBluetooth();
     }
@@ -111,7 +109,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
   }
 
   private void initializeScanningAnimation(View rootView) {
-    mScanningImageView = (ImageView) rootView.findViewById(R.id.imageView_nearbyDevicesScanning);
+    mScanningImageView = (ImageView) rootView.findViewById(R.id.imageView_nearbyBeaconsScanning);
     mScanningImageView.setBackgroundResource(R.drawable.scanning_animation);
     mScanningAnimationDrawable = (AnimationDrawable) mScanningImageView.getBackground();
     mScanningAnimationDrawable.start();
@@ -126,8 +124,8 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     return BluetoothLeScannerCompatProvider.getBluetoothLeScannerCompat(getActivity());
   }
 
-  private NearbyDevicesAdapter getNearbyDevicesAdapter() {
-    return (NearbyDevicesAdapter)getListAdapter();
+  private NearbyBeaconsAdapter getNearbyBeaconsAdapter() {
+    return (NearbyBeaconsAdapter)getListAdapter();
   }
 
 
@@ -137,7 +135,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
 
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
     mLayoutInflater = layoutInflater;
-    View rootView = layoutInflater.inflate(R.layout.fragment_nearby_devices, container, false);
+    View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
     initialize(rootView);
     return rootView;
   }
@@ -192,7 +190,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
   @Override
   public void onListItemClick (ListView l, View v, int position, long id) {
     // Get the url for the given item
-    String url = getUrlFromDeviceSighting(getNearbyDevicesAdapter().getItem(position));
+    String url = getUrlFromDeviceSighting(getNearbyBeaconsAdapter().getItem(position));
     String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
     if (siteUrl != null) {
       // Open the url in the browser
@@ -206,7 +204,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
   public void onUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(id, urlMetadata);
     // If we don't want to wait for another sighting
-    getNearbyDevicesAdapter().notifyDataSetChanged();
+    getNearbyBeaconsAdapter().notifyDataSetChanged();
   }
 
   @Override
@@ -231,9 +229,9 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     // Build the scan result from the scan record
     ScanResult scanResult = new ScanResult(bluetoothDevice, scanRecord, -20, 0);
     // Add the demo beacon with a very long timeout
-    getNearbyDevicesAdapter().add(scanResult, 20, Integer.MAX_VALUE);
+    getNearbyBeaconsAdapter().add(scanResult, 20, Integer.MAX_VALUE);
     // If we don't want to wait for another sighting
-    getNearbyDevicesAdapter().notifyDataSetChanged();
+    getNearbyBeaconsAdapter().notifyDataSetChanged();
   }
 
   private static String generateMockBluetoothAddress(int hashCode) {
@@ -280,7 +278,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     getActivity().runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        getNearbyDevicesAdapter().clear();
+        getNearbyBeaconsAdapter().clear();
       }
     });
   }
@@ -295,9 +293,9 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
           String url = uriBeacon.getUriString();
           if (!mUrlToUrlMetadata.containsKey(url)) {
             mUrlToUrlMetadata.put(url, null);
-            MetadataResolver.findUrlMetadata(getActivity(), NearbyDevicesFragment.this, url);
+            MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
           } else if (mUrlToUrlMetadata.get(url) != null) {
-            getNearbyDevicesAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+            getNearbyBeaconsAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
           }
         }
         updateScanningAnimation();
@@ -306,7 +304,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
   }
 
   private void updateScanningAnimation() {
-    if (getNearbyDevicesAdapter().getCount() > 0) {
+    if (getNearbyBeaconsAdapter().getCount() > 0) {
       if (mScanningAnimationDrawable.isRunning()) {
         mScanningAnimationDrawable.stop();
       }
@@ -337,10 +335,10 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     return uriBeacon.getUriString();
   }
 
-  // Adapter for holding devices found through scanning.
-  private class NearbyDevicesAdapter extends ScanResultAdapter {
+  // Adapter for holding beacons found through scanning.
+  private class NearbyBeaconsAdapter extends ScanResultAdapter {
 
-    NearbyDevicesAdapter() {
+    NearbyBeaconsAdapter() {
       super(mLayoutInflater);
     }
 
@@ -349,7 +347,7 @@ public class NearbyDevicesFragment extends ListFragment implements MetadataResol
     public View getView(int i, View view, ViewGroup viewGroup) {
       // Get the list view item for the given position
       if (view == null) {
-        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_device, viewGroup, false);
+        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon, viewGroup, false);
       }
       // Get the url for the given position
       String url = getUrlFromDeviceSighting(getItem(i));

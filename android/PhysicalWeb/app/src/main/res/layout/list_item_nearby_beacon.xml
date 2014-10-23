@@ -56,7 +56,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginTop="6dp"
-                android:contentDescription="@string/nearby_device_favicon_content_description">
+                android:contentDescription="@string/nearby_beacon_favicon_content_description">
             </ImageView>
         </LinearLayout>
 

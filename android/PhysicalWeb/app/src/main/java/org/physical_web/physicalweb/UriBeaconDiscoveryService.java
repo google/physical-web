@@ -41,24 +41,24 @@ import java.util.List;
 import org.physical_web.physicalweb.R;
 
 /**
- * This is the services that scans for devices.
+ * This is the services that scans for beacons.
  * When the application loads, it checks
  * if the service is running and if it is not,
  * the applications creates the service (from MainActivity).
- * The service finds nearby ble devices,
+ * The service finds nearby ble beacons,
  * and stores a count of them.
  * Also, the service listens for screen on/off events
  * and start/stops the scanning accordingly.
  * Also, this service issues a notification
- * informing the user of nearby devices.
- * As devices are found and lost,
+ * informing the user of nearby beacons.
+ * As beaoncs are found and lost,
  * the notification is updated to reflect
- * the current number of nearby devices.
+ * the current number of nearby beacons.
  */
 
 public class UriBeaconDiscoveryService extends Service {
 
-  private static final String TAG = "DeviceDiscoveryService";
+  private static final String TAG = "UriBeaconDiscoveryService";
   private static final int ID_NOTIFICATION = 23;
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private HashSet<String> mDeviceAddressesFound;
@@ -69,7 +69,7 @@ public class UriBeaconDiscoveryService extends Service {
   private void initialize() {
     mDeviceAddressesFound = new HashSet<>();
     initializeScreenStateBroadcastReceiver();
-    startSearchingForDevices();
+    startSearchingForBeacons();
   }
 
   /**
@@ -113,8 +113,10 @@ public class UriBeaconDiscoveryService extends Service {
 
   @Override
   public void onDestroy() {
-    stopSearchingForDevices();
+    Log.d(TAG, "onDestroy:  service exiting");
+    stopSearchingForBeacons();
     unregisterReceiver(mScreenStateBroadcastReceiver);
+    cancelNotification();
   }
 
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -126,12 +128,12 @@ public class UriBeaconDiscoveryService extends Service {
         switch (callbackType) {
           case ScanSettings.CALLBACK_TYPE_FIRST_MATCH:
             if (mDeviceAddressesFound.add(url)) {
-              updateNearbyDevicesNotification();
+              updateNearbyBeaconsNotification();
             }
             break;
           case ScanSettings.CALLBACK_TYPE_MATCH_LOST:
             if (mDeviceAddressesFound.remove(url)) {
-              updateNearbyDevicesNotification();
+              updateNearbyBeaconsNotification();
             }
             break;
           default:
@@ -154,9 +156,9 @@ public class UriBeaconDiscoveryService extends Service {
     public void onReceive(Context context, Intent intent) {
       boolean isScreenOn = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
       if (isScreenOn) {
-        startSearchingForDevices();
+        startSearchingForBeacons();
       } else {
-        stopSearchingForDevices();
+        stopSearchingForBeacons();
       }
     }
   }
@@ -165,8 +167,8 @@ public class UriBeaconDiscoveryService extends Service {
   // utilities
   /////////////////////////////////
 
-  private void startSearchingForDevices() {
-    Log.v(TAG, "startSearchingForDevices");
+  private void startSearchingForBeacons() {
+    Log.v(TAG, "startSearchingForBeacons");
 
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_FIRST_MATCH | ScanSettings.CALLBACK_TYPE_MATCH_LOST)
@@ -187,18 +189,18 @@ public class UriBeaconDiscoveryService extends Service {
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
   }
 
-  private void stopSearchingForDevices() {
-    Log.v(TAG, "stopSearchingForDevices");
+  private void stopSearchingForBeacons() {
+    Log.v(TAG, "stopSearchingForBeacons");
     getLeScanner().stopScan(mScanCallback);
   }
 
   /**
    * Update the notification that displays
-   * the number of nearby devices.
-   * If there are no devices the notification
+   * the number of nearby beacons.
+   * If there are no beacons the notification
    * is removed.
    */
-  private void updateNearbyDevicesNotification() {
+  private void updateNearbyBeaconsNotification() {
     // Create the notification builder
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     // Set the notification icon
@@ -206,23 +208,22 @@ public class UriBeaconDiscoveryService extends Service {
 
     // Set the title
     String contentTitle = "";
-    // Get the number of current nearby devices
-    int numNearbyDevices = mDeviceAddressesFound.size();
+    // Get the number of current nearby beacons
+    int numNearbyBeacons = mDeviceAddressesFound.size();
 
-    // If there are no nearby devices
-    if (numNearbyDevices == 0) {
+    // If there are no nearby beacons
+    if (numNearbyBeacons == 0) {
       // Remove the notification
-      NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-      mNotificationManager.cancel(ID_NOTIFICATION);
+      cancelNotification();
       return;
     }
 
     // Add the ending part of the title
     // which is either singular or plural
-    // based on the number of devices
-    contentTitle += String.valueOf(numNearbyDevices) + " ";
+    // based on the number of beacons
+    contentTitle += String.valueOf(numNearbyBeacons) + " ";
     Resources resources = getResources();
-    contentTitle += resources.getQuantityString(R.plurals.numFoundBeacons, numNearbyDevices, numNearbyDevices);
+    contentTitle += resources.getQuantityString(R.plurals.numFoundBeacons, numNearbyBeacons, numNearbyBeacons);
     builder.setContentTitle(contentTitle);
 
     // Have the app launch when the user taps the notification
@@ -234,6 +235,12 @@ public class UriBeaconDiscoveryService extends Service {
     builder.setContentIntent(resultPendingIntent);
     NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     mNotificationManager.notify(ID_NOTIFICATION, builder.build());
+  }
+
+  private void cancelNotification() {
+    NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationManager.cancel(ID_NOTIFICATION);
+
   }
 }
 

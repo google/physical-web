@@ -8,7 +8,7 @@
     <string name="config_edit_url_label">URL</string>
     <string name="config_save_url_button">SAVE URL</string>
     <string name="about_version_label">Version</string>
-    <string name="nearby_device_favicon_content_description">favicon for the given URL for this entry</string>
+    <string name="nearby_beacon_favicon_content_description">favicon for the given URL for this entry</string>
     <string name="config_searching_for_beacons_text">Put your beacon into config mode</string>
     <string name="config_found_near_beacon">Beacon found!</string>
     <string name="config_found_far_beacon">Move Beacon closer!</string>
@@ -19,8 +19,8 @@
     <string name="title_nearby_beacons">Nearby Beacons</string>
     <string name="title_nearby_beacons_demo">Nearby Beacons Demo</string>
     <string name="title_about">About</string>
-    <string name="service_name_device_discovery">BeaconDiscoveryService</string>
-    <string name="empty_nearby_devices_list_text">Searching for beacons</string>
+    <string name="service_name_beacon_discovery">UriBeaconDiscoveryService</string>
+    <string name="empty_nearby_beacons_list_text">Searching for beacons</string>
     <string name="about_app_title">Physical Web</string>
     <string name="about_learn_more">LEARN MORE</string>
     <string name="url_getting_started">https://google.github.io/physical-web/mobile/android/getting-started.html</string>

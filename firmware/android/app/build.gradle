@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 'android-L'
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion '21.0.2'
 
     defaultConfig {
         applicationId "org.uribeacon.example.beacon"
-        minSdkVersion 'L'
-        targetSdkVersion 'L'
+        minSdkVersion 21
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
