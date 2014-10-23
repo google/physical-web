@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    compileSdkVersion 21
+    buildToolsVersion "21.0.2"
 
     //auto versioning logic
     def versionPropertiesFile = file('version.properties')
@@ -18,7 +18,7 @@ android {
         defaultConfig {
             applicationId "org.physical_web.physicalweb"
             minSdkVersion 18
-            targetSdkVersion 20
+            targetSdkVersion 21
             versionCode 1
             versionName "${major}.${minor}.${build}"
         }
@@ -45,7 +45,7 @@ repositories{
 dependencies {
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library@aar'
-    compile 'com.android.support:appcompat-v7:20.0.+'
+    compile 'com.android.support:appcompat-v7:21.0.+'
     compile files('libs/google-api-client-1.19.0.jar')
     compile files('libs/google-http-client-1.19.0.jar')
     compile files('libs/google-api-services-urlshortener-v1-rev33-1.19.0.jar')
