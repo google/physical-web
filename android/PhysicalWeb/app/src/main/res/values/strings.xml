@@ -25,6 +25,7 @@
     <string name="about_learn_more">LEARN MORE</string>
     <string name="url_getting_started">https://google.github.io/physical-web/mobile/android/getting-started.html</string>
     <string name="action_demo">Demo</string>
+    <string name="desc_searching_beacons">Searching for beacons</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
