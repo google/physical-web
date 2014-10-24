@@ -108,7 +108,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   private void initializeScanningAnimation(View rootView) {
-    TextView tv = (TextView) rootView.findViewById(R.id.textView_nearbyBeaconsScanning);
+    TextView tv = (TextView) rootView.findViewById(android.R.id.empty);
     //Get the top drawable
     mScanningAnimationDrawable = (AnimationDrawable) tv.getCompoundDrawables()[1];
     mScanningAnimationDrawable.start();
