@@ -155,6 +155,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   @Override
   public void onResume() {
     super.onResume();
+    getActivity().getActionBar().setTitle(R.string.title_edit_urls);
     mEditCardAddress.setText("");
     mEditCardUrl.setText("");
     mEditCard.setVisibility(View.INVISIBLE);
