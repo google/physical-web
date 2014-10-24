@@ -35,7 +35,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -98,7 +97,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
   private TextView mEditCardAddress;
   private LinearLayout mEditCard;
   private AnimationDrawable mScanningAnimation;
-  private ImageView mScanningImage;
   private BeaconConfigHelper mBeaconConfig;
 
   public BeaconConfigFragment() {
@@ -129,7 +127,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mEditCard = (LinearLayout) view.findViewById(R.id.edit_card);
 
     // Get handles to Status and Address views
-    mScanningStatus = (TextView) view.findViewById(R.id.scanning_status);
     mEditCardAddress = (TextView) view.findViewById(R.id.edit_card_address);
 
     // Setup the URL Edit Text handler
@@ -137,9 +134,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mEditCardUrl.setOnEditorActionListener(this);
 
     // Setup the animation
-    mScanningImage = (ImageView) view.findViewById(R.id.scanning_image);
-    mScanningImage.setBackgroundResource(R.drawable.scanning_animation);
-    mScanningAnimation = (AnimationDrawable) mScanningImage.getBackground();
+    mScanningStatus = (TextView) view.findViewById(R.id.textView_scanningStatus);
+    mScanningAnimation = (AnimationDrawable) getResources().getDrawable(R.drawable.scanning_animation);
+    mScanningStatus.setCompoundDrawablesWithIntrinsicBounds(null, mScanningAnimation, null, null);
 
     Button button = (Button) view.findViewById(R.id.edit_card_save);
     button.setOnClickListener(new View.OnClickListener() {
@@ -159,7 +156,6 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
     mEditCardAddress.setText("");
     mEditCardUrl.setText("");
     mEditCard.setVisibility(View.INVISIBLE);
-    mScanningImage.setVisibility(View.VISIBLE);
     mScanningStatus.setText(R.string.config_searching_for_beacons_text);
     mScanningAnimation.start();
     startSearchingForDevices();
@@ -280,7 +276,9 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
       @Override
       public void run() {
         if (mNearestDevice != null) {
-          mScanningImage.setVisibility(View.INVISIBLE);
+          // Remove animation
+          mScanningStatus.setCompoundDrawables(null, null, null, null);
+
           mScanningStatus.setText(R.string.config_found_near_beacon);
           mEditCardAddress.setText(nearestAddress);
         } else {

@@ -23,7 +23,6 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
@@ -36,7 +35,7 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   private static final UUID DATA_TWO = UUID.fromString("b35d7da8-eed4-4d59-8f89-f6573edea967");
   private static final UUID DATA_LENGTH = UUID.fromString("b35d7da9-eed4-4d59-8f89-f6573edea967");
   private static final int DATA_LENGTH_MAX = 20;
-  private static String TAG = "BeaconConfigHelper";
+  private static final String TAG = "BeaconConfigHelper";
   private final Context mContext;
 
   private BluetoothGatt mBluetoothGatt;
@@ -44,12 +43,10 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   private byte[] mData;
   private BeaconConfigCallback mCallback;
   private BluetoothGattService mGattService;
-  private Handler mBackgroundHandler;
 
   public BeaconConfigHelper(Context context, BeaconConfigCallback callback) {
     mContext = context;
     mCallback = callback;
-    mBackgroundHandler = new Handler();
   }
 
   /**
