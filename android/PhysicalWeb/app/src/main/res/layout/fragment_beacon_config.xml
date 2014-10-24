@@ -6,34 +6,17 @@
                 android:background="#fff0f0f0"
                 android:clickable="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:orientation="vertical"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:gravity="center"
-        android:paddingBottom="100dp">
-
-        <ImageView
+    <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:contentDescription="@string/desc_searching_beacons"
-            android:id="@+id/scanning_image"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text=""
-            android:gravity="center_horizontal"
             android:textSize="16sp"
-            android:id="@+id/scanning_status"
             android:textColor="#5A5A5A"
-            android:paddingTop="16dp"/>
-    </LinearLayout>
+            android:paddingTop="16dp"
+            android:drawableTop="@drawable/scanning_animation"
+            android:layout_centerInParent="true"
+            android:id="@+id/textView_scanningStatus"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"

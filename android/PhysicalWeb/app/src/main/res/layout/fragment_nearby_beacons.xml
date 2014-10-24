@@ -12,8 +12,8 @@
             android:textSize="16sp"
             android:textColor="#5A5A5A"
             android:drawableTop="@drawable/scanning_animation"
-            android:layout_centerInParent="true"
-            android:id="@+id/textView_nearbyBeaconsScanning" android:gravity="center_horizontal"/>
+            android:id="@+id/textView_nearbyBeaconsScanning"
+            android:layout_centerInParent="true"/>
 
     <ListView
         android:id="@android:id/list"
