@@ -38,8 +38,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.physical_web.physicalweb.R;
-
 /**
  * This is the services that scans for beacons.
  * When the application loads, it checks
@@ -228,6 +226,7 @@ public class UriBeaconDiscoveryService extends Service {
 
     // Have the app launch when the user taps the notification
     Intent resultIntent = new Intent(this, MainActivity.class);
+    resultIntent.putExtra("isFromUriBeaconDiscoveryService", true);
     int requestID = (int) System.currentTimeMillis();
     PendingIntent resultPendingIntent = PendingIntent.getActivity(this, requestID, resultIntent, 0);
 
