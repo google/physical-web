@@ -13,7 +13,6 @@
             android:textSize="16sp"
             android:textColor="#5A5A5A"
             android:paddingTop="16dp"
-            android:drawableTop="@drawable/scanning_animation"
             android:layout_centerInParent="true"
             android:id="@+id/textView_scanningStatus"/>
 

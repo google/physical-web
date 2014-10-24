@@ -135,8 +135,8 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
 
     // Setup the animation
     mScanningStatus = (TextView) view.findViewById(R.id.textView_scanningStatus);
-    mScanningAnimation = (AnimationDrawable) mScanningStatus.getCompoundDrawables()[1];
-
+    mScanningAnimation = (AnimationDrawable) getResources().getDrawable(R.drawable.scanning_animation);
+    mScanningStatus.setCompoundDrawablesWithIntrinsicBounds(null, mScanningAnimation, null, null);
 
     Button button = (Button) view.findViewById(R.id.edit_card_save);
     button.setOnClickListener(new View.OnClickListener() {
