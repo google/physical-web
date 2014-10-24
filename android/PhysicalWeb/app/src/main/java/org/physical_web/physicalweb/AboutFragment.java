@@ -16,8 +16,6 @@ import org.physical_web.physicalweb.R;
 
 public class AboutFragment extends Fragment {
 
-  private WebView mWebView;
-
   @SuppressWarnings("WeakerAccess")
   public AboutFragment() {
   }
@@ -36,11 +34,11 @@ public class AboutFragment extends Fragment {
   }
 
   private void intializeWebView() {
-    mWebView = (WebView) getActivity().findViewById(R.id.about_webview);
-    mWebView.getSettings().setJavaScriptEnabled(true);
-    mWebView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
-    mWebView.setWebViewClient(new WebViewClient());
-    mWebView.loadUrl(getString(R.string.url_getting_started));
+    WebView webView = (WebView) getActivity().findViewById(R.id.about_webview);
+    webView.getSettings().setJavaScriptEnabled(true);
+    webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+    webView.setWebViewClient(new WebViewClient());
+    webView.loadUrl(getString(R.string.url_getting_started));
   }
 
   @Override
