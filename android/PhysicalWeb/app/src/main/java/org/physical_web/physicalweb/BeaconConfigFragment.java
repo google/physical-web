@@ -275,7 +275,7 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
       @Override
       public void run() {
         if (mNearestDevice != null) {
-          //Remove animation
+          // Remove animation
           mScanningStatus.setCompoundDrawables(null, null, null, null);
 
           mScanningStatus.setText(R.string.config_found_near_beacon);
