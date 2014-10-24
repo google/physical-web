@@ -17,6 +17,7 @@
 package org.physical_web.physicalweb;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -31,6 +32,7 @@ import android.view.MenuItem;
 
 public class MainActivity extends Activity {
   private static final int REQUEST_ENABLE_BT = 0;
+  private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +104,17 @@ public class MainActivity extends Activity {
     // The service pauses while the app is running since the app does it's own scans or
     // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
     stopUriBeaconDiscoveryService();
+    // Check if the intent was from the discovery service
+    if (getIntent().getBooleanExtra("isFromUriBeaconDiscoveryService", false)) {
+      // Ensure the default view is visible
+      showNearbyBeaconsFragment(false);
+    }
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
   }
 
   /**
@@ -125,9 +138,22 @@ public class MainActivity extends Activity {
    */
   private void showNearbyBeaconsFragment(boolean isDemoMode) {
     if (!isDemoMode) {
-      getFragmentManager().beginTransaction()
-          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
-          .commit();
+      // Look for an instance of the nearby beacons fragment
+      Fragment nearbyBeaconsFragment =  getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
+      // If the fragment does not exist
+      if (nearbyBeaconsFragment == null) {
+        // Create the fragment
+        getFragmentManager().beginTransaction()
+            .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode), NEARBY_BEACONS_FRAGMENT_TAG)
+            .commit();
+        // If the fragment does exist
+      } else {
+        // If the fragment is not currently visible
+        if (!nearbyBeaconsFragment.isVisible()) {
+          // Assume another fragment is visible, so pop that fragment off the stack
+          getFragmentManager().popBackStack();
+        }
+      }
     }
     else {
       getFragmentManager().beginTransaction()
