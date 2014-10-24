@@ -19,13 +19,10 @@
     <string name="title_nearby_beacons">Nearby Beacons</string>
     <string name="title_nearby_beacons_demo">Nearby Beacons Demo</string>
     <string name="title_about">About</string>
-    <string name="service_name_beacon_discovery">UriBeaconDiscoveryService</string>
     <string name="empty_nearby_beacons_list_text">Searching for beacons</string>
     <string name="about_app_title">Physical Web</string>
-    <string name="about_learn_more">LEARN MORE</string>
     <string name="url_getting_started">https://google.github.io/physical-web/mobile/android/getting-started.html</string>
     <string name="action_demo">Demo</string>
-    <string name="desc_searching_beacons">Searching for beacons</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
