@@ -13,9 +13,10 @@
             android:textColor="#5A5A5A"
             android:drawableTop="@drawable/scanning_animation"
             android:drawablePadding="16dp"
-            android:id="@id/android:empty"
-            android:layout_marginTop="160dp"
-            android:layout_centerHorizontal="true"/>
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="260dp"
+            android:layout_centerHorizontal="true"
+            android:id="@id/android:empty"/>
 
     <ListView
         android:id="@android:id/list"
