@@ -45,7 +45,7 @@ repositories{
 dependencies {
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library@aar'
-    compile 'com.android.support:appcompat-v7:21.0.+'
+    compile 'com.android.support:appcompat-v7:21.0.0'
     compile files('libs/google-api-client-1.19.0.jar')
     compile files('libs/google-http-client-1.19.0.jar')
     compile files('libs/google-api-services-urlshortener-v1-rev33-1.19.0.jar')
