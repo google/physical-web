@@ -33,7 +33,7 @@ public class AboutFragment extends Fragment {
     }
   }
 
-  private void intializeWebView() {
+  private void initializeWebView() {
     WebView webView = (WebView) getActivity().findViewById(R.id.about_webview);
     webView.getSettings().setJavaScriptEnabled(true);
     webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
@@ -53,7 +53,7 @@ public class AboutFragment extends Fragment {
     super.onResume();
     //noinspection ConstantConditions
     getActivity().getActionBar().setTitle(R.string.title_about);
-    intializeWebView();
+    initializeWebView();
     initializeApplicationVersionText();
   }
 

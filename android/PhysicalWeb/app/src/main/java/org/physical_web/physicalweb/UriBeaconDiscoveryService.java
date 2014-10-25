@@ -49,7 +49,7 @@ import java.util.List;
  * and start/stops the scanning accordingly.
  * Also, this service issues a notification
  * informing the user of nearby beacons.
- * As beaoncs are found and lost,
+ * As beacons are found and lost,
  * the notification is updated to reflect
  * the current number of nearby beacons.
  */

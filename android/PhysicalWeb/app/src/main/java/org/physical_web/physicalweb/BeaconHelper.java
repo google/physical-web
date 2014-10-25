@@ -26,7 +26,7 @@ import java.net.URISyntaxException;
  * afford url expansion codes when creating url byte arrays,
  * and create instances of beacons.
  */
-public class BeaconHelper {
+class BeaconHelper {
 
   public static byte[] createAdvertisingPacket(String url) throws URISyntaxException {
     byte[] advertisingPacket;
