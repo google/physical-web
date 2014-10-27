@@ -28,10 +28,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -289,12 +291,18 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
         if (uriBeacon != null) {
           int txPowerLevel = uriBeacon.getTxPowerLevel();
-          String url = ensureUrlHasHttpPrefix(uriBeacon.getUriString());
-          if (!mUrlToUrlMetadata.containsKey(url)) {
-            mUrlToUrlMetadata.put(url, null);
-            MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
-          } else if (mUrlToUrlMetadata.get(url) != null) {
-            getNearbyBeaconsAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+          // Read the raw uri beacon string
+          String rawUrl = uriBeacon.getUriString();
+          // If this matches url patterns (i.e. don't consider non-url uris)
+          if (Patterns.WEB_URL.matcher(rawUrl).matches()) {
+            // Make certain there is an http prefix
+            String url = ensureUrlHasHttpPrefix(rawUrl);
+            if (!mUrlToUrlMetadata.containsKey(url)) {
+              mUrlToUrlMetadata.put(url, null);
+              MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+            } else if (mUrlToUrlMetadata.get(url) != null) {
+              getNearbyBeaconsAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+            }
           }
         }
         updateScanningAnimation();
@@ -326,7 +334,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   private String ensureUrlHasHttpPrefix(String url) {
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    if (!URLUtil.isHttpUrl(url) && !URLUtil.isHttpsUrl(url)) {
       url = "http://" + url;
     }
     return url;
