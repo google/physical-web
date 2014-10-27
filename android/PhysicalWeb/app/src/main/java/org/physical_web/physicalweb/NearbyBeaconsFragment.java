@@ -28,10 +28,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -289,12 +291,18 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
         if (uriBeacon != null) {
           int txPowerLevel = uriBeacon.getTxPowerLevel();
-          String url = uriBeacon.getUriString();
-          if (!mUrlToUrlMetadata.containsKey(url)) {
-            mUrlToUrlMetadata.put(url, null);
-            MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
-          } else if (mUrlToUrlMetadata.get(url) != null) {
-            getNearbyBeaconsAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+          // Read the raw uri beacon string
+          String rawUrl = uriBeacon.getUriString();
+          // If this matches url patterns (i.e. don't consider non-url uris)
+          if (Patterns.WEB_URL.matcher(rawUrl).matches()) {
+            // Make certain there is an http prefix
+            String url = ensureUrlHasHttpPrefix(rawUrl);
+            if (!mUrlToUrlMetadata.containsKey(url)) {
+              mUrlToUrlMetadata.put(url, null);
+              MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+            } else if (mUrlToUrlMetadata.get(url) != null) {
+              getNearbyBeaconsAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+            }
           }
         }
         updateScanningAnimation();
@@ -319,19 +327,22 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   private void openUrlInBrowser(String url) {
-    // Ensure we have an http prefix
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      url = "http://" + url;
-    }
     // Open the browser and point it to the given url
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
     startActivity(intent);
   }
 
-  private static String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
+  private String ensureUrlHasHttpPrefix(String url) {
+    if (!URLUtil.isHttpUrl(url) && !URLUtil.isHttpsUrl(url)) {
+      url = "http://" + url;
+    }
+    return url;
+  }
+
+  private String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
     UriBeacon uriBeacon = UriBeacon.parseFromBytes(deviceSighting.scanResult.getScanRecord().getBytes());
-    return uriBeacon.getUriString();
+    return ensureUrlHasHttpPrefix(uriBeacon.getUriString());
   }
 
   // Adapter for holding beacons found through scanning.
