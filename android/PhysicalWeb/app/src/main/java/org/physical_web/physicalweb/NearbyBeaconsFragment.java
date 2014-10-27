@@ -289,7 +289,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
         if (uriBeacon != null) {
           int txPowerLevel = uriBeacon.getTxPowerLevel();
-          String url = uriBeacon.getUriString();
+          String url = ensureUrlHasHttpPrefix(uriBeacon.getUriString());
           if (!mUrlToUrlMetadata.containsKey(url)) {
             mUrlToUrlMetadata.put(url, null);
             MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
@@ -319,19 +319,22 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   private void openUrlInBrowser(String url) {
-    // Ensure we have an http prefix
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      url = "http://" + url;
-    }
     // Open the browser and point it to the given url
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
     startActivity(intent);
   }
 
-  private static String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
+  private String ensureUrlHasHttpPrefix(String url) {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "http://" + url;
+    }
+    return url;
+  }
+
+  private String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
     UriBeacon uriBeacon = UriBeacon.parseFromBytes(deviceSighting.scanResult.getScanRecord().getBytes());
-    return uriBeacon.getUriString();
+    return ensureUrlHasHttpPrefix(uriBeacon.getUriString());
   }
 
   // Adapter for holding beacons found through scanning.
