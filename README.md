@@ -6,6 +6,8 @@ The Physical Web is an effort to extend the core superpower of the web - the URL
 
 At its base, the Physical Web is a discovery service: a smart object broadcasts relevant URLs that any nearby device can receive. This ostensibly mundane capability can unlock exciting new ways to interact with the Web. 
 
+[![Build Status](https://travis-ci.org/google/physical-web.png?branch=master)](https://travis-ci.org/google/physical-web)
+
 ## Why URLs?
 
 The URL is the fundamental building block of the web, giving remarkable flexibility of expression. It can be:
