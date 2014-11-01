@@ -211,7 +211,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     ByteBuffer byteBuffer = ByteBuffer.allocate(4);
     byteBuffer.putInt(id.hashCode());
     byte[] byteBufferArray = byteBuffer.array();
-    String idHash = "http://" + Base64.encodeToString(byteBufferArray, 0, 4, Base64.DEFAULT);
+
+    String idHash = "https://" +
+        Base64.encodeToString(byteBufferArray, 0, 4, Base64.NO_PADDING).replace("\n","");
     mUrlToUrlMetadata.put(idHash, urlMetadata);
 
     byte[] advertisingPacket = new byte[0];
