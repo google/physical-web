@@ -47,6 +47,7 @@ class UrlShortener {
    * @param longUrl The url that will be shortened
    * @return The short url for the given longUrl
    */
+  // TODO: make sure this network operation is off the ui thread
   public static String shortenUrl(String longUrl) {
     String shortUrl = null;
     try {
@@ -112,6 +113,7 @@ class UrlShortener {
    * @param shortUrl The short url that will be lengthened
    * @return The lengthened url for the given short url
    */
+  // TODO: make sure this network operation is off the ui thread
   public static String lengthenShortUrl(String shortUrl) {
     String longUrl = null;
     try {
