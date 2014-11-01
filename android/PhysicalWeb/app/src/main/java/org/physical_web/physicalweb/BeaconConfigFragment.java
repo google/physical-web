@@ -202,13 +202,17 @@ public class BeaconConfigFragment extends Fragment implements BeaconConfigHelper
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
       UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanRecord);
-      final String url = (uriBeacon != null) ? uriBeacon.getUriString() : "";
+      String url = (uriBeacon != null) ? uriBeacon.getUriString() : "";
       Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
+      if (UrlShortener.isShortUrl(url)) {
+        url = UrlShortener.lengthenShortUrl(url);
+      }
+      final String urlToDisplay = url;
       getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
           // Update the url edit text field with the given url
-          mEditCardUrl.setText(url);
+          mEditCardUrl.setText(urlToDisplay);
           // Show the beacon configuration card
           showConfigurableBeaconCard();
         }
