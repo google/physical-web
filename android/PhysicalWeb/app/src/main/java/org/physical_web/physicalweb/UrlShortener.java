@@ -25,6 +25,9 @@ import com.google.api.services.urlshortener.Urlshortener;
 import com.google.api.services.urlshortener.UrlshortenerRequestInitializer;
 import com.google.api.services.urlshortener.model.Url;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -35,6 +38,7 @@ import java.util.concurrent.ExecutionException;
  */
 class UrlShortener {
 
+  private static final String TAG = "UrlShortener";
   /**
    * Create the shortened form
    * of the given url.
@@ -90,5 +94,61 @@ class UrlShortener {
         .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
         .build();
   }
+  /**
+   * Check if the given url is a short url.
+   *
+   * @param url The url that will be tested to see if it is short
+   * @return The value that indicates if the given url is short
+   */
+  public static boolean isShortUrl(String url) {
+      return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
+  }
 
+  /**
+   * Takes any short url and converts it to the long url that is being pointed to.
+   * Note: this method will work for all types of shortened urls as it inspect the
+   * returned headers for the location.
+   *
+   * @param shortUrl The short url that will be lengthened
+   * @return The lengthened url for the given short url
+   */
+  public static String lengthenShortUrl(String shortUrl) {
+      String longUrl = null;
+      try {
+          longUrl = new LengthenShortUrlTask().execute(shortUrl).get();
+      } catch (InterruptedException | ExecutionException e) {
+          e.printStackTrace();
+      }
+      return longUrl;
+  }
+
+  private static class LengthenShortUrlTask extends AsyncTask<Object, Void, String> {
+      @Override
+      protected String doInBackground(Object[] params) {
+          String shortUrl = (String) params[0];
+          String longUrl = null;
+          URL url = null;
+          try {
+              url = new URL(shortUrl);
+          } catch (MalformedURLException e) {
+              e.printStackTrace();
+          }
+          HttpURLConnection httpURLConnection = null;
+          try {
+              if(url!=null) { //avoid possible NPE
+                  httpURLConnection = (HttpURLConnection) url.openConnection();
+              }
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+          if(httpURLConnection!=null) { //avoid possible NPE
+              httpURLConnection.setInstanceFollowRedirects(false);
+              longUrl = httpURLConnection.getHeaderField("location");
+          }
+          if (longUrl == null) {
+              longUrl = shortUrl;
+          }
+          return longUrl;
+      }
+  }
 }
