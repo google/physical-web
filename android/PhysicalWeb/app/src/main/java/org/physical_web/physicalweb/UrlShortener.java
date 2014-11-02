@@ -24,6 +24,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.services.urlshortener.Urlshortener;
 import com.google.api.services.urlshortener.UrlshortenerRequestInitializer;
 import com.google.api.services.urlshortener.model.Url;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -39,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 class UrlShortener {
 
   private static final String TAG = "UrlShortener";
+
   /**
    * Create the shortened form
    * of the given url.
@@ -61,17 +63,18 @@ class UrlShortener {
    * Create a google url shortener interface object
    * and make a request to shorten the given url
    */
-  private static class ShortenUrlTask extends AsyncTask<Object, Void, String> {
+  private static class ShortenUrlTask extends AsyncTask<String, Void, String> {
     @Override
-    protected String doInBackground(Object[] params) {
-      String longUrl = (String) params[0];
+    protected String doInBackground(String[] params) {
+      String longUrl = params[0];
       Urlshortener urlshortener = createGoogleUrlShortener();
       Url url = new Url();
       url.setLongUrl(longUrl);
       try {
         Url response = urlshortener.url().insert(url).execute();
-        if(response!=null) {//avoid NPE
-            return response.getId();
+        //avoid possible NPE
+        if (response != null) {
+          return response.getId();
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -95,6 +98,7 @@ class UrlShortener {
         .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
         .build();
   }
+
   /**
    * Check if the given url is a short url.
    *
@@ -102,7 +106,7 @@ class UrlShortener {
    * @return The value that indicates if the given url is short
    */
   public static boolean isShortUrl(String url) {
-      return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
+    return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
   }
 
   /**
@@ -115,42 +119,44 @@ class UrlShortener {
    */
   // TODO: make sure this network operation is off the ui thread
   public static String lengthenShortUrl(String shortUrl) {
-      String longUrl = null;
-      try {
-          longUrl = new LengthenShortUrlTask().execute(shortUrl).get();
-      } catch (InterruptedException | ExecutionException e) {
-          e.printStackTrace();
-      }
-      return longUrl;
+    String longUrl = null;
+    try {
+      longUrl = new LengthenShortUrlTask().execute(shortUrl).get();
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
+    return longUrl;
   }
 
-  private static class LengthenShortUrlTask extends AsyncTask<Object, Void, String> {
-      @Override
-      protected String doInBackground(Object[] params) {
-          String shortUrl = (String) params[0];
-          String longUrl = null;
-          URL url = null;
-          try {
-              url = new URL(shortUrl);
-          } catch (MalformedURLException e) {
-              e.printStackTrace();
-          }
-          HttpURLConnection httpURLConnection = null;
-          try {
-              if(url!=null) { //avoid possible NPE
-                  httpURLConnection = (HttpURLConnection) url.openConnection();
-              }
-          } catch (IOException e) {
-              e.printStackTrace();
-          }
-          if(httpURLConnection!=null) { //avoid possible NPE
-              httpURLConnection.setInstanceFollowRedirects(false);
-              longUrl = httpURLConnection.getHeaderField("location");
-          }
-          if (longUrl == null) {
-              longUrl = shortUrl;
-          }
-          return longUrl;
+  private static class LengthenShortUrlTask extends AsyncTask<String, Void, String> {
+    @Override
+    protected String doInBackground(String[] params) {
+      String shortUrl = params[0];
+      String longUrl = null;
+      URL url = null;
+      try {
+        url = new URL(shortUrl);
+      } catch (MalformedURLException e) {
+        e.printStackTrace();
       }
+      HttpURLConnection httpURLConnection = null;
+      try {
+        //avoid possible NPE
+        if (url != null) {
+          httpURLConnection = (HttpURLConnection) url.openConnection();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      //avoid possible NPE
+      if (httpURLConnection != null) {
+        httpURLConnection.setInstanceFollowRedirects(false);
+        longUrl = httpURLConnection.getHeaderField("location");
+      }
+      if (longUrl == null) {
+        longUrl = shortUrl;
+      }
+      return longUrl;
+    }
   }
 }
