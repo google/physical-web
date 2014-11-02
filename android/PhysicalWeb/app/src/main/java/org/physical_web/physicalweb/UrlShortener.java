@@ -39,7 +39,6 @@ import java.util.concurrent.ExecutionException;
 class UrlShortener {
 
   private static final String TAG = "UrlShortener";
-
   /**
    * Create the shortened form
    * of the given url.
@@ -96,7 +95,6 @@ class UrlShortener {
         .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
         .build();
   }
-
   /**
    * Check if the given url is a short url.
    *
@@ -104,7 +102,7 @@ class UrlShortener {
    * @return The value that indicates if the given url is short
    */
   public static boolean isShortUrl(String url) {
-    return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
+      return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
   }
 
   /**
@@ -117,38 +115,42 @@ class UrlShortener {
    */
   // TODO: make sure this network operation is off the ui thread
   public static String lengthenShortUrl(String shortUrl) {
-    String longUrl = null;
-    try {
-      longUrl = (String) new LengthenShortUrlTask().execute(shortUrl).get();
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-    return longUrl;
-  }
-
-  private static class LengthenShortUrlTask extends AsyncTask {
-    @Override
-    protected String doInBackground(Object[] params) {
-      String shortUrl = (String) params[0];
-      String longUrl;
-      URL url = null;
+      String longUrl = null;
       try {
-        url = new URL(shortUrl);
-      } catch (MalformedURLException e) {
-        e.printStackTrace();
-      }
-      HttpURLConnection httpURLConnection = null;
-      try {
-        httpURLConnection = (HttpURLConnection) url.openConnection();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      httpURLConnection.setInstanceFollowRedirects(false);
-      longUrl = httpURLConnection.getHeaderField("location");
-      if (longUrl == null) {
-        longUrl = shortUrl;
+          longUrl = new LengthenShortUrlTask().execute(shortUrl).get();
+      } catch (InterruptedException | ExecutionException e) {
+          e.printStackTrace();
       }
       return longUrl;
-    }
+  }
+
+  private static class LengthenShortUrlTask extends AsyncTask<Object, Void, String> {
+      @Override
+      protected String doInBackground(Object[] params) {
+          String shortUrl = (String) params[0];
+          String longUrl = null;
+          URL url = null;
+          try {
+              url = new URL(shortUrl);
+          } catch (MalformedURLException e) {
+              e.printStackTrace();
+          }
+          HttpURLConnection httpURLConnection = null;
+          try {
+              if(url!=null) { //avoid possible NPE
+                  httpURLConnection = (HttpURLConnection) url.openConnection();
+              }
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+          if(httpURLConnection!=null) { //avoid possible NPE
+              httpURLConnection.setInstanceFollowRedirects(false);
+              longUrl = httpURLConnection.getHeaderField("location");
+          }
+          if (longUrl == null) {
+              longUrl = shortUrl;
+          }
+          return longUrl;
+      }
   }
 }
