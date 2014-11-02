@@ -24,7 +24,6 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.services.urlshortener.Urlshortener;
 import com.google.api.services.urlshortener.UrlshortenerRequestInitializer;
 import com.google.api.services.urlshortener.model.Url;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
