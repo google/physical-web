@@ -51,7 +51,7 @@ class UrlShortener {
   public static String shortenUrl(String longUrl) {
     String shortUrl = null;
     try {
-      shortUrl = (String) new ShortenUrlTask().execute(longUrl).get();
+      shortUrl = new ShortenUrlTask().execute(longUrl).get();
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
@@ -62,7 +62,7 @@ class UrlShortener {
    * Create a google url shortener interface object
    * and make a request to shorten the given url
    */
-  private static class ShortenUrlTask extends AsyncTask {
+  private static class ShortenUrlTask extends AsyncTask<Object, Void, String> {
     @Override
     protected String doInBackground(Object[] params) {
       String longUrl = (String) params[0];
@@ -71,7 +71,9 @@ class UrlShortener {
       url.setLongUrl(longUrl);
       try {
         Url response = urlshortener.url().insert(url).execute();
-        return response.getId();
+        if(response!=null) {//avoid NPE
+            return response.getId();
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }
