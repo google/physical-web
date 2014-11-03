@@ -29,6 +29,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
+import android.util.Log;
 
 /**
  * This class shortens urls and also expands those short urls
@@ -131,31 +132,18 @@ class UrlShortener {
     @Override
     protected String doInBackground(String[] params) {
       String shortUrl = params[0];
-      String longUrl = null;
-      URL url = null;
       try {
-        url = new URL(shortUrl);
+        URL url = new URL(shortUrl);
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setInstanceFollowRedirects(false);
+        String longUrl = httpURLConnection.getHeaderField("location");
+        return (longUrl != null) ? longUrl : shortUrl;
       } catch (MalformedURLException e) {
-        e.printStackTrace();
-      }
-      HttpURLConnection httpURLConnection = null;
-      try {
-        //avoid possible NPE
-        if (url != null) {
-          httpURLConnection = (HttpURLConnection) url.openConnection();
-        }
+        Log.w(TAG, "Malformed URL: " + shortUrl);
       } catch (IOException e) {
         e.printStackTrace();
       }
-      //avoid possible NPE
-      if (httpURLConnection != null) {
-        httpURLConnection.setInstanceFollowRedirects(false);
-        longUrl = httpURLConnection.getHeaderField("location");
-      }
-      if (longUrl == null) {
-        longUrl = shortUrl;
-      }
-      return longUrl;
+      return null;
     }
   }
 }
