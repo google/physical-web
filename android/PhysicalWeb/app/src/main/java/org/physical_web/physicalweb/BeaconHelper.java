@@ -28,19 +28,21 @@ import java.net.URISyntaxException;
  */
 class BeaconHelper {
 
+  private static final byte DEFAULT_TX_POWER = -63;
+
   public static byte[] createAdvertisingPacket(String url) throws URISyntaxException {
     byte[] advertisingPacket;
     try {
       advertisingPacket = new UriBeacon.Builder()
           .uriString(url)
-          .txPowerLevel((byte) 0xc1)
+          .txPowerLevel(DEFAULT_TX_POWER)
           .flags((byte) 0)
           .build().toByteArray();
     } catch (URISyntaxException e) {
       url = UrlShortener.shortenUrl(url);
       advertisingPacket = new UriBeacon.Builder()
           .uriString(url)
-          .txPowerLevel((byte) 0xc1)
+          .txPowerLevel(DEFAULT_TX_POWER)
           .flags((byte) 0)
           .build().toByteArray();
     }
