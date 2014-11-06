@@ -70,9 +70,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private static final int REQUEST_ENABLE_BT = 1;
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
   private AnimationDrawable mScanningAnimationDrawable;
-  private ImageView mScanningImageView;
   private boolean mIsDemoMode;
-  private static int BEACON_EXPIRATION_DURATION = 5;
+  private static final int BEACON_EXPIRATION_DURATION = 5;
 
   public static NearbyBeaconsFragment newInstance(boolean isDemoMode) {
     NearbyBeaconsFragment nearbyBeaconsFragment = new NearbyBeaconsFragment();
@@ -109,9 +108,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   private void initializeScanningAnimation(View rootView) {
-    mScanningImageView = (ImageView) rootView.findViewById(R.id.imageView_nearbyBeaconsScanning);
-    mScanningImageView.setBackgroundResource(R.drawable.scanning_animation);
-    mScanningAnimationDrawable = (AnimationDrawable) mScanningImageView.getBackground();
+    TextView tv = (TextView) rootView.findViewById(android.R.id.empty);
+    //Get the top drawable
+    mScanningAnimationDrawable = (AnimationDrawable) tv.getCompoundDrawables()[1];
     mScanningAnimationDrawable.start();
   }
 
@@ -212,7 +211,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     ByteBuffer byteBuffer = ByteBuffer.allocate(4);
     byteBuffer.putInt(id.hashCode());
     byte[] byteBufferArray = byteBuffer.array();
-    String idHash = "http://" + Base64.encodeToString(byteBufferArray, 0, 4, Base64.DEFAULT);
+
+    String idHash = "https://" +
+        Base64.encodeToString(byteBufferArray, 0, 4, Base64.NO_PADDING).replace("\n","");
     mUrlToUrlMetadata.put(idHash, urlMetadata);
 
     byte[] advertisingPacket = new byte[0];

@@ -38,20 +38,16 @@ import org.json.JSONObject;
  * for its metadata
  */
 
-public class MetadataResolver {
-  private static String TAG = "MetadataResolver";
+class MetadataResolver {
+  private static final String TAG = "MetadataResolver";
   private static Activity mActivity;
-  private static String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
-  private static String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
+  private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
+  private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
   private static MetadataResolverCallback mMetadataResolverCallback;
 
-  public MetadataResolver(Activity activity) {
-    initialize(activity);
-  }
-
-  public static void initialize(Context context) {
+  private static void initialize(Context context) {
     if (mRequestQueue == null) {
       mRequestQueue = Volley.newRequestQueue(context);
     }
@@ -92,7 +88,7 @@ public class MetadataResolver {
    * Start the process that will ask
    * the metadata server for the given url's metadata
    *
-   * @param url
+   * @param url The url for which to request data
    */
   private static void requestUrlMetadata(String url) {
     if (!mIsInitialized) {
@@ -122,7 +118,7 @@ public class MetadataResolver {
     });
   }
 
-  public static void requestDemoUrlMetadata() {
+  private static void requestDemoUrlMetadata() {
     if (!mIsInitialized) {
       Log.e(TAG, "Not initialized.");
       return;
@@ -139,8 +135,8 @@ public class MetadataResolver {
    * that will be sent to the metadata server
    * asking for metadata for the given url.
    *
-   * @param url
-   * @return
+   * @param url The url for which the request data will be created
+   * @return The constructed json object
    */
   private static JSONObject createUrlMetadataRequestObject(String url) {
     JSONObject jsonObject = new JSONObject();
@@ -151,6 +147,7 @@ public class MetadataResolver {
       urlJsonArray.put(urlJsonObject);
       jsonObject.put("objects", urlJsonArray);
     } catch (JSONException ex) {
+      Log.d(TAG, "error: " + ex);
     }
     return jsonObject;
   }
@@ -159,8 +156,8 @@ public class MetadataResolver {
    * Create the url metadata request,
    * given the json request object
    *
-   * @param jsonObj
-   * @return
+   * @param jsonObj The given json object to use in the request
+   * @return The created json request object
    */
   private static JsonObjectRequest createUrlMetadataRequest(JSONObject jsonObj, final boolean isDemoRequest) {
     return new JsonObjectRequest(
@@ -249,8 +246,8 @@ public class MetadataResolver {
   /**
    * Asynchronously download the image for the url favicon.
    *
-   * @param urlMetadata
-   * @param url
+   * @param urlMetadata The metadata for the given url
+   * @param url The url for which the icon will be retrieved
    */
   private static void downloadIcon(final UrlMetadata urlMetadata, final String url) {
     ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, new Response.Listener<Bitmap>() {

@@ -3,10 +3,8 @@
     <color name="header_color">#1C47C1</color>
     <color name="url_color">#099F39</color>
     <color name="description_color">#545454</color>
-    <color name="menu_item_color">#CCCCCC</color>
     <color name="config_save_url_button">#4285f4</color>
     <color name="menu_item_text_color">#333333</color>
     <color name="action_bar_title_text_color">#5A5A5A</color>
     <color name="action_bar_background_color">#FFFFFF</color>
-    <color name="about_learn_more_button">#4285f4</color>
 </resources>

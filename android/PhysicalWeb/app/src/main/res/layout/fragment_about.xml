@@ -10,7 +10,7 @@
 
     <WebView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:id="@+id/about_webview"
         android:layout_weight="1"/>
 
@@ -39,7 +39,8 @@
                 android:fontFamily="sans-serif-light"
                 android:textColor="#5A5A5A"
                 android:textSize="10sp"
-                android:paddingLeft="5dp"/>
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -57,3 +57,17 @@ interference by one or more of the following measures:
 3. Connect the equipment into an outlet on a circuit different from that to which the receiver is 
 connected
 4. Consult the dealer or an experience radio/TV technician for help
+
+###FCC Part 15.19
+This device complies with part 15 of the FCC Rules. Operation is subject to The following two conditions: 
+
+1. This device may not cause harmful interference, and 
+2. This device must accept any interference received, including interference that may cause undesired operation.
+
+###FCC Part 15.21
+Any changes or modifications (including the antennas) made to this device that are not expressly approved by the manufacturer may void the user's authority to operate the equipment.
+
+###FCC RF Radiation Exposure Statement
+This transmitter must not be co-location or operating in conjunction with any other antenna or transmitter.
+
+This equipment complies with FCC RF radiation exposure limits set forth for an uncontrolled environment.

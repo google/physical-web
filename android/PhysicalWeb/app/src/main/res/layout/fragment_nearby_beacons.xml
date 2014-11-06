@@ -5,32 +5,18 @@
                 tools:context="org.physical_web.physicalweb.NearbyBeaconsFragment"
                 android:background="#ffffffff">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@android:id/empty"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingBottom="100dp"
-        android:gravity="center">
-
-        <ImageView
+    <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:id="@+id/imageView_nearbyBeaconsScanning"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:text="@string/empty_nearby_beacons_list_text"
-            android:gravity="center_horizontal"
             android:textSize="16sp"
             android:textColor="#5A5A5A"
-            android:paddingTop="16dp"/>
-
-    </LinearLayout>
+            android:drawableTop="@drawable/scanning_animation"
+            android:drawablePadding="16dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="260dp"
+            android:layout_centerHorizontal="true"
+            android:id="@id/android:empty"/>
 
     <ListView
         android:id="@android:id/list"

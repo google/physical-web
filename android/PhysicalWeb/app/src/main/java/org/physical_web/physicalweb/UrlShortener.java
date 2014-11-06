@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
  * Currently this class only supports google url shortener
  * TODO: support other url shorteners
  */
-public class UrlShortener {
+class UrlShortener {
 
   private static final String TAG = "UrlShortener";
 
@@ -44,9 +44,10 @@ public class UrlShortener {
    * Create the shortened form
    * of the given url.
    *
-   * @param longUrl
-   * @return
+   * @param longUrl The url that will be shortened
+   * @return The short url for the given longUrl
    */
+  // TODO: make sure this network operation is off the ui thread
   public static String shortenUrl(String longUrl) {
     String shortUrl = null;
     try {
@@ -82,25 +83,23 @@ public class UrlShortener {
    * Create an instance of the google url shortener object
    * and return it.
    *
-   * @return
+   * @return The created shortener object
    */
   private static Urlshortener createGoogleUrlShortener() {
     HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
     JsonFactory jsonFactory = AndroidJsonFactory.getDefaultInstance();
     UrlshortenerRequestInitializer urlshortenerRequestInitializer = new UrlshortenerRequestInitializer();
-    Urlshortener urlshortener = new Urlshortener.Builder(httpTransport, jsonFactory, null)
+    return new Urlshortener.Builder(httpTransport, jsonFactory, null)
         .setApplicationName("PhysicalWeb")
         .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
         .build();
-
-    return urlshortener;
   }
 
   /**
    * Check if the given url is a short url.
    *
-   * @param url
-   * @return
+   * @param url The url that will be tested to see if it is short
+   * @return The value that indicates if the given url is short
    */
   public static boolean isShortUrl(String url) {
     return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
@@ -111,9 +110,10 @@ public class UrlShortener {
    * Note: this method will work for all types of shortened urls as it inspect the
    * returned headers for the location.
    *
-   * @param shortUrl
-   * @return
+   * @param shortUrl The short url that will be lengthened
+   * @return The lengthened url for the given short url
    */
+  // TODO: make sure this network operation is off the ui thread
   public static String lengthenShortUrl(String shortUrl) {
     String longUrl = null;
     try {

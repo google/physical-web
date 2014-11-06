@@ -33,10 +33,11 @@ class BaseModel(ndb.Model):
     updated_on = ndb.DateTimeProperty(auto_now = True)
 
 class SiteInformation(BaseModel):
-    url = ndb.StringProperty()
-    favicon_url = ndb.StringProperty()
-    title = ndb.StringProperty()
-    description = ndb.StringProperty()
+    url = ndb.TextProperty()
+    favicon_url = ndb.TextProperty()
+    title = ndb.TextProperty()
+    description = ndb.TextProperty()
+    jsonlds = ndb.TextProperty()
 
 class DemoMetadata(webapp2.RequestHandler):
     def get(self):
@@ -119,6 +120,8 @@ def BuildResponse(objects):
                     device_data["description"] = siteInfo.description
                 if siteInfo.favicon_url is not None:
                     device_data["icon"] = siteInfo.favicon_url
+                if siteInfo.jsonlds is not None:
+                    device_data["json-ld"] = json.loads(siteInfo.jsonlds)
             else:
                 device_data["id"] = url
                 device_data["url"] = url
@@ -283,19 +286,38 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
     result = urlfetch.fetch(icon, method = 'HEAD')
     if result.status_code != 200:
         icon = None
-    
+
+    jsonlds = []
+    value = htmltree.xpath("//head//script[@type='application/ld+json']/text()");
+    for jsonldtext in value:
+        jsonldobject = None
+        try:
+            jsonldobject = json.loads(jsonldtext) # Data is not sanitised.
+        except UnicodeDecodeError:
+            jsonldobject = None
+        if jsonldobject is not None:
+            jsonlds.append(jsonldobject)
+
+    if (len(jsonlds) > 0):
+        jsonlds_data = json.dumps(jsonlds);
+        logging.info(jsonlds_data)
+    else:
+        jsonlds_data = None
+
     if siteInfo is None:
         siteInfo = SiteInformation.get_or_insert(url, 
             url = final_url,
             title = title,
             favicon_url = icon,
-            description = description)
+            description = description,
+            jsonlds = jsonlds_data)
     else:
         # update the data because it already exists
         siteInfo.url = final_url
         siteInfo.title = title
         siteInfo.favicon_url = icon
         siteInfo.description = description
+        siteInfo.jsonlds = jsonlds_data
         siteInfo.put()
     
     return siteInfo

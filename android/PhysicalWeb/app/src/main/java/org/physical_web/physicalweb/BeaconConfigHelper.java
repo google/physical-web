@@ -23,33 +23,30 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.util.Arrays;
 import java.util.UUID;
 
-public class BeaconConfigHelper extends BluetoothGattCallback {
-  public static final ParcelUuid CONFIG_SERVICE_UUID = ParcelUuid.fromString("b35d7da6-eed4-4d59-8f89-f6573edea967");
+class BeaconConfigHelper extends BluetoothGattCallback {
+  private static final ParcelUuid CONFIG_SERVICE_UUID = ParcelUuid.fromString("b35d7da6-eed4-4d59-8f89-f6573edea967");
   private static final UUID DATA_ONE = UUID.fromString("b35d7da7-eed4-4d59-8f89-f6573edea967");
   private static final UUID DATA_TWO = UUID.fromString("b35d7da8-eed4-4d59-8f89-f6573edea967");
   private static final UUID DATA_LENGTH = UUID.fromString("b35d7da9-eed4-4d59-8f89-f6573edea967");
   private static final int DATA_LENGTH_MAX = 20;
-  private static String TAG = "BeaconConfigHelper";
+  private static final String TAG = "BeaconConfigHelper";
   private final Context mContext;
 
   private BluetoothGatt mBluetoothGatt;
   private Integer mDataLength;
   private byte[] mData;
-  private BeaconConfigCallback mCallback;
+  private final BeaconConfigCallback mCallback;
   private BluetoothGattService mGattService;
-  private Handler mBackgroundHandler;
 
   public BeaconConfigHelper(Context context, BeaconConfigCallback callback) {
     mContext = context;
     mCallback = callback;
-    mBackgroundHandler = new Handler();
   }
 
   /**
@@ -69,7 +66,7 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   /**
    * Connect and read the UriBeacon.
    *
-   * @param device
+   * @param device The associated bluetooth device for this beacon
    */
   public void connectUriBeacon(BluetoothDevice device) {
     mData = null;
@@ -80,11 +77,10 @@ public class BeaconConfigHelper extends BluetoothGattCallback {
   /**
    * Initiate a write and then close the connection.
    *
-   * @param scanRecord
+   * @param scanRecord The byte array to write to the beacon
    */
   public void writeUriBeacon(byte[] scanRecord) {
     mData = scanRecord;
-    BluetoothGattService service = mBluetoothGatt.getService(CONFIG_SERVICE_UUID.getUuid());
     writeCharacteristic(DATA_ONE, mData, 0);
   }
 
