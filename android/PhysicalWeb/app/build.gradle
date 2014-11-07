@@ -19,7 +19,7 @@ android {
             applicationId "org.physical_web.physicalweb"
             minSdkVersion 18
             targetSdkVersion 21
-            versionCode 2
+            versionCode 3
             versionName "${major}.${minor}.${build}"
         }
     }
