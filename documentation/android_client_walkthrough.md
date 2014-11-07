@@ -42,21 +42,6 @@ Please note that this app has been targeting Android L release (21) and has been
 
 
 ##FCC Stuff
-###FCC Part 15.105(b) Warning Statement
-This equipment has been tested and found to comply with the limits for a Class B digital device, pursuant 
-to part 15 of the FCC Rules. These limits are designed to provide reasonable protection against harmful 
-interference in a residential installation. This equipment generates, uses and can radiate radio frequcny 
-energy and, if not installed and used in accordance with the instructions, may cause harful interference to 
-radio communications. However, there is no guarantee that interference will not occur in a particular 
-installation. If this equipment does cause harmful interference to radio or television reception, which can 
-be determined by running the equipment off and on, the user is encouraged to try to correct the 
-interference by one or more of the following measures:
-
-1. Reorient or relocate the receiving antenna
-2. Increase the separation between the equipment and receiver
-3. Connect the equipment into an outlet on a circuit different from that to which the receiver is 
-connected
-4. Consult the dealer or an experience radio/TV technician for help
 
 ###FCC Part 15.19
 This device complies with part 15 of the FCC Rules. Operation is subject to The following two conditions: 
