@@ -32,6 +32,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -310,6 +311,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     mEditCard.clearFocus();
     // Get the current text in the url edit text field.
     String url = mEditCardUrl.getText().toString();
+    // Ensure an http prefix exists in the url
+    if (!URLUtil.isNetworkUrl(url)) {
+      url = "http://" + url;
+    }
     // Write the url to the device
     try {
       byte[] scanResult = BeaconHelper.createAdvertisingPacket(url);
