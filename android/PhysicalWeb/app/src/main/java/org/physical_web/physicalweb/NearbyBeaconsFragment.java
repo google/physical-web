@@ -32,6 +32,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -321,8 +322,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   private void openUrlInBrowser(String url) {
-    // Ensure we have an http prefix
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    // Ensure an http prefix exists in the url
+    if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
     // Open the browser and point it to the given url

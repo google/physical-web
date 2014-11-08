@@ -16,10 +16,10 @@ android {
         properties.store(versionPropertiesFile.newWriter(), null)
 
         defaultConfig {
-            applicationId "org.physical_web.physicalweb"
+            applicationId "physical_web.org.physicalweb"
             minSdkVersion 18
             targetSdkVersion 21
-            versionCode 3
+            versionCode 4
             versionName "${major}.${minor}.${build}"
         }
     }
