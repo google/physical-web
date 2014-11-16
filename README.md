@@ -22,7 +22,14 @@ The number of smart objects is going to explode, both in our homes and in public
 ##Open Design
 The Physical Web must be an open standard that everyone can use. This can’t be a product that is locked down by a single company. Like many web specifications, this is an open source design that is being released early so everyone can experiment and comment on it. There is much to discuss and add to this specification.
 
-##Start Here
-The best place to start is with the [Introduction](http://github.com/google/physical-web/blob/master/documentation/introduction.md) document.
+##Contents
+* [Introduction/FAQ](http://github.com/google/physical-web/blob/master/documentation/introduction.md) Most common questions
+* [Getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md) How you can try it out
+* [Technical Overview](https://github.com/google/physical-web/blob/master/documentation/technical_overview.md)
+* [URI Beacon Spec](https://github.com/google/uribeacon) Partner repo with code/examples for the beacons themselves
 
-If you'd like to jump right in, check out the [Getting started guide](http://github.com/google/physical-web/blob/master/documentation/getting_started.md).
+##Beacons
+Our most common request is how to get URIBeacons. There are a number of firmware examples for Arduino, Raspberry Pi, node and many more in our [firmware folder](https://github.com/google/physical-web/tree/master/firmware) but this is all being moved to the [URI Beacon repo](https://github.com/google/uribeacon) so be sure to check there as well.
+
+A BLE beacon maker is about to sell premade URIbeacons, we hope to announce that soon.
+
