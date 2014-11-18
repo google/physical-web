@@ -35,4 +35,12 @@
 // Favicon.
 @property(nonatomic, copy) NSURL *iconURL;
 
+@property(nonatomic, retain) NSDate *date;
+
+@property(nonatomic, assign) BOOL sortByRange;
+@property(nonatomic, assign) UBUriBeaconRegion region;
+
+- (NSString *)regionName;
+- (NSString *)uriRegionName;
+
 @end

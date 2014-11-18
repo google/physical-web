@@ -60,4 +60,32 @@
   return self;
 }
 
+- (NSString *)regionName {
+  switch ([self region]) {
+    case UBUriBeaconRegionNear:
+      return @"near";
+    case UBUriBeaconRegionMid:
+      return @"mid";
+    case UBUriBeaconRegionFar:
+      return @"far";
+    case UBUriBeaconRegionUnknown:
+    default:
+      return @"unk";
+  }
+}
+
+- (NSString *)uriRegionName {
+  switch ([[self uriBeacon] region]) {
+    case UBUriBeaconRegionNear:
+      return @"near";
+    case UBUriBeaconRegionMid:
+      return @"mid";
+    case UBUriBeaconRegionFar:
+      return @"far";
+    case UBUriBeaconRegionUnknown:
+    default:
+      return @"unk";
+  }
+}
+
 @end
