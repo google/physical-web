@@ -72,7 +72,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
   private AnimationDrawable mScanningAnimationDrawable;
   private boolean mIsDemoMode;
-  private static final int BEACON_EXPIRATION_DURATION = 5;
+  private static final int BEACON_EXPIRATION_DURATION = 120;
 
   public static NearbyBeaconsFragment newInstance(boolean isDemoMode) {
     NearbyBeaconsFragment nearbyBeaconsFragment = new NearbyBeaconsFragment();
