@@ -12,72 +12,72 @@
 
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="11">
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="fill_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="20sp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/header_color"
-                android:maxLines="1"
-                android:ellipsize="end">
+                android:orientation="vertical"
+                android:layout_weight="11">
+            <TextView
+                    android:id="@+id/title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/header_color"
+                    android:maxLines="1"
+                    android:ellipsize="end">
             </TextView>
             <TextView
-                android:id="@+id/url"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:textSize="14sp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/url_color"
-                android:maxLines="1"
-                android:ellipsize="end">
+                    android:id="@+id/url"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/url_color"
+                    android:maxLines="1"
+                    android:ellipsize="end">
             </TextView>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1"
-            android:gravity="end">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:gravity="end">
             <ImageView
-                android:id="@+id/icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="6dp"
-                android:contentDescription="@string/nearby_beacon_favicon_content_description">
+                    android:id="@+id/icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="6dp"
+                    android:contentDescription="@string/nearby_beacon_favicon_content_description">
             </ImageView>
         </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/description"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="wrap_content">
+        <TextView
+                android:id="@+id/description"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
 
-            android:text=""
-            android:textSize="14sp"
-            android:fontFamily="arial-sans-serif"
-            android:textColor="@color/description_color"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:lineSpacingExtra="1.5dp">
+                android:text=""
+                android:textSize="14sp"
+                android:fontFamily="arial-sans-serif"
+                android:textColor="@color/description_color"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:lineSpacingExtra="1.5dp">
         </TextView>
     </LinearLayout>
 
