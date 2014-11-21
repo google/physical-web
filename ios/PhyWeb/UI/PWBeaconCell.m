@@ -191,6 +191,8 @@ typedef struct {
   [self setNeedsLayout];
 }
 
+// We're using formula from
+// http://stackoverflow.com/questions/20416218/understanding-ibeacon-distancing
 static double calculateAccuracy(int txPower, double rssi) {
   if (rssi == 0) {
     return -1.0;  // if we cannot determine accuracy, return -1.
@@ -208,9 +210,9 @@ static double calculateAccuracy(int txPower, double rssi) {
 static NSString *snippetForBeacon(PWBeacon *beacon) {
   if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"]) {
     return [NSString
-        stringWithFormat:@"[%@ %@ %@ rssi:%i tx:%i dist:%.2g] %@",
-                         [beacon sortByRange] ? @"fast" : @"slow",
-                         [beacon regionName], [beacon uriRegionName],
+        stringWithFormat:@"[%@ initial:%@ rt:%@ rssi:%i tx:%i dist:%.2g] %@",
+                         [beacon sortByRegion] ? @"fast" : @"slow",
+                         [beacon debugRegionName], [beacon debugUriRegionName],
                          (int)[[beacon uriBeacon] RSSI],
                          (int)[[beacon uriBeacon] txPowerLevel],
                          calculateAccuracy([[beacon uriBeacon] txPowerLevel],

@@ -234,12 +234,12 @@
   [_beacons addObjectsFromArray:_demoBeacons];
   if (firstUpdate) {
     for (PWBeacon *beacon in _beacons) {
-      [beacon setSortByRange:YES];
+      [beacon setSortByRegion:YES];
       [beacon setRegion:[[beacon uriBeacon] region]];
     }
   } else {
     for (PWBeacon *beacon in _beacons) {
-      if (![beacon sortByRange]) {
+      if (![beacon sortByRegion]) {
         NSDate *date = [NSDate date];
         [beacon setDate:date];
       }
@@ -259,7 +259,7 @@
       PWBeacon *beacon1 = obj1;
       PWBeacon *beacon2 = obj2;
       if (stableMode) {
-        if ([beacon1 sortByRange] && [beacon2 sortByRange]) {
+        if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
           NSInteger regionDifference =
               (NSInteger)[beacon1 region] - (NSInteger)[beacon2 region];
           if (regionDifference > 0) {
@@ -275,9 +275,9 @@
             return [[[beacon1 URL] absoluteString]
                 caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
           }
-        } else if ([beacon1 sortByRange]) {
+        } else if ([beacon1 sortByRegion]) {
           return NSOrderedAscending;
-        } else if ([beacon2 sortByRange]) {
+        } else if ([beacon2 sortByRegion]) {
           return NSOrderedDescending;
         } else {
           NSComparisonResult result = [[beacon1 date] compare:[beacon2 date]];

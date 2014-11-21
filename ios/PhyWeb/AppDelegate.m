@@ -42,7 +42,6 @@
   self.window.backgroundColor = [UIColor whiteColor];
   [self.window makeKeyAndVisible];
 
-  //[[PWBeaconManager sharedManager] start];
   _mainViewController = [[PWBeaconsViewController alloc] init];
   [[self window] setRootViewController:_mainViewController];
 
