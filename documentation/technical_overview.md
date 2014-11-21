@@ -2,35 +2,16 @@
 This is a prototype system being used to understand and explore the issues involved in building the Physical Web.
 
 ###Broadcast
-The current design uses Bluetooth Low Energy (BLE) devices that broadcast the URL in the advertising packet. In this broadcast mode, it doesn't do anything else such as respond to requests. The sole job of the device is to broadcast the URL to the surrounding area.
-
-The reason is to accommodate potentially the worst case scenario of a large number of devices in an area with many people.  A broadcast only approach avoids an n-squared problem of every user connecting to every device. By making each device constantly broadcast, any number of devices can just pick up the information passively with little conflict.
+The current design uses Bluetooth Low Energy (BLE) devices that broadcast the URL in the advertising packet. The sole job of the device is to broadcast the URL to the surrounding area.The reason is to accommodate potentially the worst case scenario of a large number of devices in an area with many people.  A broadcast only approach avoids an n-squared problem of every user connecting to every device. By making each device constantly broadcast, any number of devices can just pick up the information passively with little conflict.
 
 This has another advantage in that it means that a user can walk through a space and leave no trace: the broadcasting devices have no idea who is listening.
 
 The current prototype broadcasts once every second, striking a balance between user response time and battery life. There is nothing stopping a device from broadcasting faster if they wish.
 
 ###BLE Format
-The URL is stored in the advertising packet of a BLE device. The packet identifies itself with a 16 bit Service UUID of 0xFED8 which indicates the beacon is a "URI Device". The exact layout of the packet is:
+The URL is stored in the advertising packet of a BLE device. The packet identifies itself with a 16 bit Service UUID of 0xFED8 which indicates the beacon is a "URIBeacon". The exact format of the packet is described in detail at our sister github rep, [URIBeacon](https://github.com/google/uribeacon)
 
-![Ad Packet layout](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/uribeacon1.png)
-
-The specific fields for this packet are as follows:
-
-| FieldName      | Offset   | Size   | Format      | Description                                                     |
-|----------------|----------|--------|-------------|-----------------------------------------------------------------|
-| **AD Length**  | 0        | 1      | 8-bit value | 5..23                                                           |
-| **AD Type**    | 1        | 1      | 8-bit value | Service Data = 0x16                                             |
-| **Service ID** | 2        | 2      | 16-bit UUID | URI = 0xFED8                                                    |
-| **Flags**      | 4        | 1      | 8-bit value | See spec                                                        |
-| **TX Power**   | 5        | 1      | 8-bit value | See spec                                                        |
-| **URI field**  | 6        | 1..18  | octets      | The US-ASCII text of the URI with embedded Text Expansion Codes |
-
-This does not, however, leave a lot of room for the text of the URL. This is one of tradeoffs that comes from avoiding any connections to the beacon (to ensure no user tracking can occur) URLs are encoded so common patterns like 'http://www.' and '.com' can be compressed into a single character. This is very similar to what QRCodes use to encode their URLs. In addition, we expect initial testers will either use short domains or a URL shortener. Both the android and iOS apps do this automatically when a URL is typed in that is too long to fit.
-
-A GATT service that would allow the URL to be of any arbitrary length, is under consideration. This will be posted shortly for further community discussion.
-
-This is just a quick description to show the structure of the ad packet. It is documented in a related GitHub project, the URIBeacon specification. This repo will go live shortly.
+This small size of the ad packet does not leave a lot of room for the text of the URL. This is one of tradeoffs that comes from avoiding any connections to the beacon (to reduce tracking can advoid conjestion) URLs are encoded so common patterns like 'http://www.' and '.com' can be compressed into a single character. This is very similar to NDEF compression in QRCodes. In addition, we expect initial testers will either use short domains or a URL shortener. Both the android and iOS apps do this automatically when a URL is typed in that is too long to fit.
 
 ###Client
 The current client is an application to prove out the technology. If you open the app, it lists the nearby beacons that it can see, sorted by signal strength. Note the signal strength is a very iffy metric as there many reasons why it can vary. However, if you are standing in front of device and the next device is >5 feet away, it tends to work out well in practice. This is the primary reason we include a TX_POWER byte in the ad packet so it's possible to calculate signal loss and rank different strength beacons.

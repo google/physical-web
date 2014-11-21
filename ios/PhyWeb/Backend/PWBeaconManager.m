@@ -66,6 +66,7 @@
   _httpsServiceBrowser = [[NSNetServiceBrowser alloc] init];
   [_httpsServiceBrowser setDelegate:self];
   _pendingNetServices = [[NSMutableArray alloc] init];
+  _stableMode = YES;
   return self;
 }
 
@@ -111,6 +112,7 @@
 - (void)start {
   _started = YES;
   PWBeaconManager* __weak weakSelf = self;
+  _scanner = [[UBUriBeaconScanner alloc] init];
   [_scanner startScanningWithUpdateBlock:^{
       PWBeaconManager* strongSelf = weakSelf;
       [strongSelf _updateBeacons];
@@ -204,8 +206,6 @@
 - (void)netService:(NSNetService*)netService
      didNotResolve:(NSDictionary*)errorDict {
   _resolving = NO;
-  NSString* name = [NSString
-      stringWithFormat:@"%@:%@", [netService type], [netService name]];
   [_pendingNetServices removeObject:netService];
   [self _resolveNextNetService];
 }
@@ -222,6 +222,11 @@
   NSNetService* netService = [_pendingNetServices objectAtIndex:0];
   [netService setDelegate:self];
   [netService resolveWithTimeout:2.0];
+}
+
+- (void)resetBeacons {
+  [_beaconsDict removeAllObjects];
+  [self _notify];
 }
 
 - (void)_updateBeacons {
@@ -286,17 +291,19 @@
 // Remove expired beacons.
 - (BOOL)_cleanup {
   BOOL hasChange = NO;
-  NSMutableSet* existingUrls = [NSMutableSet set];
-  for (UBUriBeacon* beacon in [_scanner beacons]) {
-    if ([beacon URI] != nil) {
-      [existingUrls addObject:[beacon URI]];
+  if (![self isStableMode]) {
+    NSMutableSet* existingUrls = [NSMutableSet set];
+    for (UBUriBeacon* beacon in [_scanner beacons]) {
+      if ([beacon URI] != nil) {
+        [existingUrls addObject:[beacon URI]];
+      }
     }
-  }
-  [existingUrls addObjectsFromArray:[_discoveredNetServicesURLs allValues]];
-  for (NSURL* key in [_beaconsDict allKeys]) {
-    if (![existingUrls containsObject:key]) {
-      [_beaconsDict removeObjectForKey:key];
-      hasChange = YES;
+    [existingUrls addObjectsFromArray:[_discoveredNetServicesURLs allValues]];
+    for (NSURL* key in [_beaconsDict allKeys]) {
+      if (![existingUrls containsObject:key]) {
+        [_beaconsDict removeObjectForKey:key];
+        hasChange = YES;
+      }
     }
   }
   return hasChange;
@@ -327,7 +334,7 @@
 
 - (void)serializeBeacons:(NSArray*)beacons {
   NSUserDefaults* shared =
-      [[NSUserDefaults alloc] initWithSuiteName:@"org.physical-web.iosapp"];
+      [[NSUserDefaults alloc] initWithSuiteName:@"group.physical-web.iosapp"];
   NSMutableArray* encoded = [[NSMutableArray alloc] init];
   for (PWBeacon* beacon in beacons) {
     NSMutableDictionary* item = [[NSMutableDictionary alloc] init];
@@ -345,7 +352,7 @@
 
 - (NSArray*)unserializedBeacons {
   NSUserDefaults* shared =
-      [[NSUserDefaults alloc] initWithSuiteName:@"org.physical-web.iosapp"];
+      [[NSUserDefaults alloc] initWithSuiteName:@"group.physical-web.iosapp"];
   NSArray* encoded = [shared objectForKey:@"LastSeenBeacons"];
   NSMutableArray* beacons = [[NSMutableArray alloc] init];
   for (NSDictionary* item in encoded) {

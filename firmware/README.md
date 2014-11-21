@@ -4,12 +4,10 @@ In order for the application to show you nearby devices, these devices must be b
 
 * [Bluegiga BLE113][1]
 * [RFduino][2]
-* [NodeJS][3]
-* [Arduino][4]
-* [OpenBeacon][5]
+* [Arduino][3]
+* [OpenBeacon][4]
 
 [1]: BLE113
 [2]: RFduino
-[3]: nodejs
-[4]: arduino
-[5]: OpenBeacon
+[3]: arduino
+[4]: OpenBeacon

@@ -9,37 +9,7 @@ The software is the easiest thing to take care of. The app is on the [Google Pla
 
 The trickier thing is to get a beacon broadcasting a URL. For most BLE beacons on the market today, this is not very easy to do. We're working on getting a much simpler, maker-friendly device released through an online vendor. This beacon will allow you to set the URL easily through the app and should be available in November 2014.
 
-The simplest way, if you're in a hurry, is to get an [RFDuino](http://www.rfduino.com/) as it is available right now and can be programmed to broadcast a URL.  A good starter kit is [this one](http://www.rfduino.com/product/rfd90101-rfduino-2pc-dev-kit/). Once you have the RFduino installed with it's libraries, this  sketch will create a sample beacon, that broadcasts "ABC.com":
-
-    #include <RFduinoBLE.h>
-
-	uint8_t advdata[] =
-	{
-	  0x03,  // length
-	  0x03,  // Param: Service List
-	  0xD8, 0xFE,  // URI Beacon ID
-	  0x0A,  // length
-	  0x16,  // Service Data
-	  0xD8, 0xFE, // URI Beacon ID
-	  0x00,  // flags
-	  0x20,  // power
-	  0x00,  // http://www.
-	  0x41,  // 'A'
-	  0x42,  // 'B'
-	  0x43,  // 'C'
-	  0x07,  // .".com"
-	};
-
-	void setup() {
-	  RFduinoBLE_advdata = advdata;
-	  RFduinoBLE_advdata_len = sizeof(advdata);
-	  RFduinoBLE.advertisementInterval = 1000; // advertise every 1000ms
-	  RFduinoBLE.begin();
-	}
-
-	void loop() {
-	  RFduino_ULPDelay(INFINITE);   // switch to lower power mode
-	}
+The simplest way, if you're in a hurry, is to get an [RFDuino](http://www.rfduino.com/) as it is available right now and can be programmed to broadcast a URL.  A good starter kit is [this one](http://www.rfduino.com/product/rfd90101-rfduino-2pc-dev-kit/). Once you have the RFduino installed with its libraries, [this sketch](https://github.com/google/uribeacon/blob/master/beacons/RFduino/physical_web/physical_web.ino) will create a sample beacon that broadcasts "ABC.com".
 
 Once this is up and running, the Physical Web app will be able to see it.
 

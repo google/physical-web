@@ -81,10 +81,9 @@ typedef struct {
               reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
-  if ([self isDebugModeEnabled]) {
-    _strengthView = [[PWSignalStrengthView alloc] initWithFrame:CGRectZero];
-    [self addSubview:_strengthView];
-  }
+  _strengthView = [[PWSignalStrengthView alloc] initWithFrame:CGRectZero];
+  [_strengthView setHidden:YES];
+  [self addSubview:_strengthView];
   _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   [self addSubview:_titleLabel];
   _urlLabel = [[UILabel alloc] initWithFrame:CGRectZero];
@@ -164,7 +163,7 @@ typedef struct {
 
   [_titleLabel setText:[[self beacon] title]];
   [_urlLabel setText:[[[self beacon] URL] absoluteString]];
-  [_descriptionLabel setText:[[self beacon] snippet]];
+  [_descriptionLabel setText:snippetForBeacon([self beacon])];
 #if !TODAY_EXTENSION
   if ([[self beacon] iconURL] == nil) {
     [_faviconView setImage:nil];
@@ -172,6 +171,8 @@ typedef struct {
     [_faviconView sd_setImageWithURL:[[self beacon] iconURL]];
   }
 #endif
+  [_strengthView setHidden:![[NSUserDefaults standardUserDefaults]
+                               boolForKey:@"DebugMode"]];
 
   NSInteger rssi = [[[self beacon] uriBeacon] RSSI];
   if (rssi == 127) {
@@ -188,6 +189,38 @@ typedef struct {
   [_strengthView setQuality:quality];
 
   [self setNeedsLayout];
+}
+
+// We're using formula from
+// http://stackoverflow.com/questions/20416218/understanding-ibeacon-distancing
+static double calculateAccuracy(int txPower, double rssi) {
+  if (rssi == 0) {
+    return -1.0;  // if we cannot determine accuracy, return -1.
+  }
+
+  double ratio = rssi * 1.0 / txPower;
+  if (ratio < 1.0) {
+    return pow(ratio, 10);
+  } else {
+    double accuracy = (0.89976) * pow(ratio, 7.7095) + 0.111;
+    return accuracy;
+  }
+}
+
+static NSString *snippetForBeacon(PWBeacon *beacon) {
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"]) {
+    return [NSString
+        stringWithFormat:@"[%@ initial:%@ rt:%@ rssi:%i tx:%i dist:%.2g] %@",
+                         [beacon sortByRegion] ? @"fast" : @"slow",
+                         [beacon debugRegionName], [beacon debugUriRegionName],
+                         (int)[[beacon uriBeacon] RSSI],
+                         (int)[[beacon uriBeacon] txPowerLevel],
+                         calculateAccuracy([[beacon uriBeacon] txPowerLevel],
+                                           [[beacon uriBeacon] RSSI]),
+                         [beacon snippet] != nil ? [beacon snippet] : @""];
+  } else {
+    return [beacon snippet];
+  }
 }
 
 static void computeLayout(PWBeacon *beacon, CGFloat containerWidth,
@@ -216,15 +249,16 @@ static void computeLayout(PWBeacon *beacon, CGFloat containerWidth,
 
   [attr setObject:DESC_FONT forKey:NSFontAttributeName];
   size = CGSizeMake(containerWidth - (MARGIN + MARGIN), DESC_MAX_HEIGHT);
-  if ([beacon snippet] == nil) {
+  NSString *snippet = snippetForBeacon(beacon);
+  if (snippet == nil) {
     descriptionRect.size = CGSizeZero;
     descriptionRect.origin = CGPointMake(MARGIN, CGRectGetMaxY(urlRect));
   } else {
-    descriptionRect = [[beacon snippet]
-        boundingRectWithSize:size
-                     options:NSStringDrawingUsesLineFragmentOrigin
-                  attributes:attr
-                     context:nil];
+    descriptionRect =
+        [snippet boundingRectWithSize:size
+                              options:NSStringDrawingUsesLineFragmentOrigin
+                           attributes:attr
+                              context:nil];
     descriptionRect.origin =
         CGPointMake(MARGIN, CGRectGetMaxY(urlRect) + INNER_MARGIN);
     descriptionRect = CGRectIntegral(descriptionRect);

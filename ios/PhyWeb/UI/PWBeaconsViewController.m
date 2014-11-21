@@ -17,6 +17,7 @@
 #import "PWBeaconsViewController.h"
 
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <MBProgressHUD/MBProgressHUD.h>
 
 #import "PWBeaconManager.h"
 #import "PWBeacon.h"
@@ -87,9 +88,7 @@
   [[self view] addSubview:_tableView];
 
   _placeholderView = [[PWPlaceholderView alloc] initWithFrame:CGRectZero];
-  [self performSelector:@selector(_enablePlaceholder)
-             withObject:nil
-             afterDelay:2];
+  [self disablePlaceholder];
 
   _showDemoBeaconsButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [_showDemoBeaconsButton setTitle:@"Show Example Beacons"
@@ -210,8 +209,12 @@
   // be scheduled after 5 sec. If the list was empty, an update will also be
   // scheduled after 1 sec.
   NSTimeInterval delay = 5;
-  if (_firstUpdate || [_beacons count] == 0) {
+  if (_firstUpdate || [_beacons count] == 0 ||
+      [[PWBeaconManager sharedManager] isStableMode]) {
     delay = 1;
+    if ([[PWBeaconManager sharedManager] isStableMode] && _firstUpdate) {
+      delay = 1.5;
+    }
   }
   [self performSelector:@selector(_updateBeaconsNow)
              withObject:nil
@@ -224,8 +227,24 @@
                                            selector:@selector(_updateBeaconsNow)
                                              object:nil];
   _scheduledUpdated = NO;
+  BOOL firstUpdate = ([_beacons count] == 0);
   _beacons = [[[PWBeaconManager sharedManager] beacons] mutableCopy];
   [_beacons addObjectsFromArray:_demoBeacons];
+  if (firstUpdate) {
+    for (PWBeacon *beacon in _beacons) {
+      [beacon setSortByRegion:YES];
+      [beacon setRegion:[[beacon uriBeacon] region]];
+    }
+  } else {
+    NSDate *date = [NSDate date];
+    for (PWBeacon *beacon in _beacons) {
+      if (![beacon sortByRegion]) {
+        if ([beacon date] == nil) {
+          [beacon setDate:date];
+        }
+      }
+    }
+  }
   [self _sort];
   [self _reloadData];
 
@@ -234,17 +253,60 @@
 
 // Sort results by RSSI value.
 - (void)_sort {
+  BOOL stableMode = [[PWBeaconManager sharedManager] isStableMode];
+
   [_beacons sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
       PWBeacon *beacon1 = obj1;
       PWBeacon *beacon2 = obj2;
-      NSInteger regionDifference = (NSInteger)[[beacon1 uriBeacon] region] -
-                                   (NSInteger)[[beacon2 uriBeacon] region];
-      if (regionDifference > 0) {
-        return NSOrderedDescending;
-      } else if (regionDifference < 0) {
-        return NSOrderedAscending;
+      if (stableMode) {
+        if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
+          NSInteger regionDifference =
+              (NSInteger)[beacon1 region] - (NSInteger)[beacon2 region];
+          if (regionDifference > 0) {
+            return NSOrderedDescending;
+          } else if (regionDifference < 0) {
+            return NSOrderedAscending;
+          } else {
+            NSComparisonResult result =
+                [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+            if (result != NSOrderedSame) {
+              return result;
+            }
+            return [[[beacon1 URL] absoluteString]
+                caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
+          }
+        } else if ([beacon1 sortByRegion]) {
+          return NSOrderedAscending;
+        } else if ([beacon2 sortByRegion]) {
+          return NSOrderedDescending;
+        } else {
+          NSComparisonResult result = [[beacon1 date] compare:[beacon2 date]];
+          if (result != NSOrderedSame) {
+            return result;
+          }
+          result = [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+          if (result != NSOrderedSame) {
+            return result;
+          }
+          return [[[beacon1 URL] absoluteString]
+              caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
+        }
       } else {
-        return [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+        NSInteger regionDifference = (NSInteger)[[beacon1 uriBeacon] region] -
+                                     (NSInteger)[[beacon2 uriBeacon] region];
+        if (regionDifference > 0) {
+          return NSOrderedDescending;
+        } else if (regionDifference < 0) {
+          return NSOrderedAscending;
+        } else {
+          NSComparisonResult result =
+              [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+          if (result != NSOrderedSame) {
+            return result;
+          }
+          return [[[beacon1 URL] absoluteString]
+              caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
+        }
       }
   }];
 }
@@ -274,6 +336,20 @@
   [_showDemoBeaconsButton setFrame:frame];
   [_activityView
       setCenter:CGPointMake(bounds.size.width / 2, bounds.size.height - 50)];
+}
+
+- (void)disablePlaceholder {
+  _canShowPlaceholder = NO;
+  [_placeholderView setShowLabel:NO animated:NO];
+  [_showDemoBeaconsButton setAlpha:0.0];
+
+  [NSObject
+      cancelPreviousPerformRequestsWithTarget:self
+                                     selector:@selector(_enablePlaceholder)
+                                       object:nil];
+  [self performSelector:@selector(_enablePlaceholder)
+             withObject:nil
+             afterDelay:2.5];
 }
 
 - (BOOL)canBecomeFirstResponder {
@@ -327,12 +403,27 @@
 #pragma mark scroll view delegate method
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-  [UIView
-      animateWithDuration:0.25
-               animations:^{
-                   [_gradientView
-                       setAlpha:[scrollView contentOffset].y > 0 ? 1.0 : 0.0];
-               }];
+  CGFloat alphaValue = [scrollView contentOffset].y > 0 ? 1.0 : 0.0;
+  if ([_gradientView alpha] != alphaValue) {
+    [UIView animateWithDuration:0.25
+                     animations:^{ [_gradientView setAlpha:alphaValue]; }];
+  }
+}
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
+                     withVelocity:(CGPoint)velocity
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
+  if ([scrollView contentOffset].y < -150) {
+    [[PWBeaconManager sharedManager]
+        setStableMode:![[PWBeaconManager sharedManager] isStableMode]];
+
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    [hud setMode:MBProgressHUDModeText];
+    [hud setLabelText:[[PWBeaconManager sharedManager] isStableMode]
+                          ? @"Stable Mode"
+                          : @"Dynamic Mode"];
+    [hud hide:YES afterDelay:1.5];
+  }
 }
 
 #pragma mark metadata request response
@@ -357,6 +448,10 @@
   [_activityView stopAnimating];
   _demoBeacons = [_demoBeaconsRequest results];
   _demoBeaconsRequest = nil;
+  [self _updateBeaconsNow];
+}
+
+- (void)updateBeaconsNow {
   [self _updateBeaconsNow];
 }
 
