@@ -64,6 +64,7 @@
 // Retrieve the beacons from the defaults.
 - (NSArray*)unserializedBeacons;
 
+// List won't reorder if it's set to YES.
 @property(nonatomic, assign, getter=isStableMode) BOOL stableMode;
 
 @end

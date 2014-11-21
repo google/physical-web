@@ -22,7 +22,9 @@
 #import "PWMetadataRequest.h"
 #import "PWURLShortener.h"
 
-@interface PWBeaconManager () <PWMetadataRequestDelegate>
+@interface PWBeaconManager () <PWMetadataRequestDelegate,
+                               NSNetServiceBrowserDelegate,
+                               NSNetServiceDelegate>
 
 @end
 
@@ -39,7 +41,20 @@
   NSMutableArray* /* PWMetadataRequest */ _requests;
   // Set of URLs that are being requested.
   NSMutableSet* /* NSURL */ _pendingURLRequest;
+  // Whether the beacon manager started.
   BOOL _started;
+  // mDNS browser for http.
+  NSNetServiceBrowser* _httpServiceBrowser;
+  // mDNS browser for https.
+  NSNetServiceBrowser* _httpsServiceBrowser;
+  // mDNS found that we need to resolve.
+  NSMutableArray* _pendingNetServices;
+  // Whether a resolution is in progress.
+  BOOL _resolving;
+  // URL related to a given service.
+  NSMutableDictionary* _discoveredNetServicesURLs;
+  // Names of the discovered services.
+  NSMutableSet* _netServicesNames;
 }
 
 - (id)init {
@@ -53,6 +68,7 @@
   _configurationChangeBlocks = [NSMutableArray array];
   _requests = [NSMutableArray array];
   _pendingURLRequest = [NSMutableSet set];
+  _pendingNetServices = [[NSMutableArray alloc] init];
   _stableMode = YES;
   return self;
 }
@@ -104,6 +120,138 @@
       PWBeaconManager* strongSelf = weakSelf;
       [strongSelf _updateBeacons];
   }];
+  _httpServiceBrowser = [[NSNetServiceBrowser alloc] init];
+  [_httpServiceBrowser setDelegate:self];
+  _httpsServiceBrowser = [[NSNetServiceBrowser alloc] init];
+  [_httpsServiceBrowser setDelegate:self];
+  [_httpServiceBrowser searchForServicesOfType:@"_http._tcp." inDomain:nil];
+  [_httpsServiceBrowser searchForServicesOfType:@"_https._tcp." inDomain:nil];
+  [_pendingNetServices removeAllObjects];
+  _discoveredNetServicesURLs = [NSMutableDictionary dictionary];
+  _netServicesNames = [NSMutableSet set];
+  _resolving = NO;
+}
+
+- (NSURL*)_urlWithNetService:(NSNetService*)service {
+  NSDictionary* txtRecords =
+      [NSNetService dictionaryFromTXTRecordData:[service TXTRecordData]];
+  NSString* path =
+      [[NSString alloc] initWithData:[txtRecords objectForKey:@"path"]
+                            encoding:NSUTF8StringEncoding];
+  NSString* scheme = @"http";
+  if ([[service type] isEqualToString:@"_http._tcp."]) {
+    scheme = @"http";
+  } else if ([[service type] isEqualToString:@"_https._tcp."]) {
+    scheme = @"https";
+  }
+  NSString* hostname = [service hostName];
+  NSString* urlString = nil;
+  if ([hostname hasSuffix:@"."]) {
+    hostname = [hostname substringToIndex:[hostname length] - 1];
+  }
+  if (([scheme isEqualToString:@"http"] && [service port] == 80) ||
+      ([scheme isEqualToString:@"https"] && [service port] == 443)) {
+    urlString = [NSString stringWithFormat:@"%@://%@", scheme, hostname];
+  } else {
+    urlString = [NSString
+        stringWithFormat:@"%@://%@:%i", scheme, hostname, (int)[service port]];
+  }
+  if ([path length] != 0) {
+    if ([path hasPrefix:@"/"]) {
+      urlString = [urlString stringByAppendingString:path];
+    } else {
+      urlString = [urlString stringByAppendingFormat:@"/%@", path];
+    }
+  }
+  return [NSURL URLWithString:urlString];
+}
+
+- (void)netServiceBrowser:(NSNetServiceBrowser*)netServiceBrowser
+           didFindService:(NSNetService*)netService
+               moreComing:(BOOL)moreServicesComing {
+  [_pendingNetServices addObject:netService];
+  NSString* name = [NSString
+      stringWithFormat:@"%@:%@", [netService type], [netService name]];
+  [_netServicesNames addObject:name];
+
+  if (!moreServicesComing) {
+    [self _resolveNextNetService];
+  }
+}
+
+- (void)netServiceBrowser:(NSNetServiceBrowser*)netServiceBrowser
+         didRemoveService:(NSNetService*)netService
+               moreComing:(BOOL)moreServicesComing {
+  NSString* name = [NSString
+      stringWithFormat:@"%@:%@", [netService type], [netService name]];
+  [_netServicesNames removeObject:name];
+  [_discoveredNetServicesURLs removeObjectForKey:name];
+  [self _cleanup];
+}
+
+- (void)_resolveNextNetService {
+  if (_resolving) {
+    return;
+  }
+  if ([_pendingNetServices count] == 0) {
+    return;
+  }
+
+  _resolving = YES;
+
+  NSNetService* netService = [_pendingNetServices objectAtIndex:0];
+  [netService setDelegate:self];
+  [netService resolveWithTimeout:0.5];
+
+  [self performSelector:@selector(_skipResolve) withObject:nil afterDelay:0.5];
+}
+
+- (void)_skipResolve {
+  _resolving = NO;
+  NSNetService* netService = [_pendingNetServices objectAtIndex:0];
+  [netService stop];
+
+  [self _resolveNextNetService];
+}
+
+- (void)netServiceDidResolveAddress:(NSNetService*)netService {
+  [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                           selector:@selector(_skipResolve)
+                                             object:nil];
+  _resolving = NO;
+  NSURL* url = [self _urlWithNetService:netService];
+  NSString* name = [NSString
+      stringWithFormat:@"%@:%@", [netService type], [netService name]];
+  [_discoveredNetServicesURLs setObject:url forKey:name];
+  [netService stop];
+  [_pendingNetServices removeObject:netService];
+  [self _resolveNextNetService];
+
+  PWBeacon* beacon = [_beaconsDict objectForKey:url];
+  if (beacon == nil) {
+    if (![_pendingURLRequest containsObject:url]) {
+      // Request metadata of a new beacon.
+      UBUriBeacon* uriBeacon =
+          [[UBUriBeacon alloc] initWithURI:url txPowerLevel:0];
+      PWMetadataRequest* request = [[PWMetadataRequest alloc] init];
+      [request setUriBeacons:@[ uriBeacon ]];
+      [request setDelegate:self];
+      [request start];
+      [_pendingURLRequest addObject:[uriBeacon URI]];
+      [_requests addObject:request];
+    }
+  }
+}
+
+- (void)netService:(NSNetService*)netService
+     didNotResolve:(NSDictionary*)errorDict {
+  [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                           selector:@selector(_skipResolve)
+                                             object:nil];
+  _resolving = NO;
+  [netService stop];
+  [_pendingNetServices removeObject:netService];
+  [self _resolveNextNetService];
 }
 
 - (void)resetBeacons {
@@ -180,6 +328,7 @@
         [existingUrls addObject:[beacon URI]];
       }
     }
+    [existingUrls addObjectsFromArray:[_discoveredNetServicesURLs allValues]];
     for (NSURL* key in [_beaconsDict allKeys]) {
       if (![existingUrls containsObject:key]) {
         [_beaconsDict removeObjectForKey:key];
@@ -203,6 +352,8 @@
 }
 
 - (void)stop {
+  [_httpServiceBrowser stop];
+  [_httpsServiceBrowser stop];
   [_scanner stopScanning];
   _started = NO;
 }
