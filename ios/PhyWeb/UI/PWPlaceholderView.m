@@ -84,10 +84,18 @@
 }
 
 - (void)setShowLabel:(BOOL)showLabel {
-  [UIView animateWithDuration:0.25
-                   animations:^{
-                       [_placeholderLabel setAlpha:showLabel ? 1.0 : 0.0];
-                   }];
+  [self setShowLabel:showLabel animated:YES];
+}
+
+- (void)setShowLabel:(BOOL)showLabel animated:(BOOL)animated {
+  if (!animated) {
+    [_placeholderLabel setAlpha:showLabel ? 1.0 : 0.0];
+  } else {
+    [UIView animateWithDuration:0.25
+                     animations:^{
+                         [_placeholderLabel setAlpha:showLabel ? 1.0 : 0.0];
+                     }];
+  }
 }
 
 - (void)setBluetoothEnabled:(BOOL)enabled {

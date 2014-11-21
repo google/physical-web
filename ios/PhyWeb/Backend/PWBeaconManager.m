@@ -97,7 +97,6 @@
 }
 
 - (void)start {
-  [_beaconsDict removeAllObjects];
   _started = YES;
   PWBeaconManager* __weak weakSelf = self;
   _scanner = [[UBUriBeaconScanner alloc] init];
@@ -105,6 +104,11 @@
       PWBeaconManager* strongSelf = weakSelf;
       [strongSelf _updateBeacons];
   }];
+}
+
+- (void)resetBeacons {
+  [_beaconsDict removeAllObjects];
+  [self _notify];
 }
 
 - (void)_updateBeacons {

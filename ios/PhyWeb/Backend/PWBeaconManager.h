@@ -50,6 +50,9 @@
 // Stops scanning for beacons.
 - (void)stop;
 
+// Empty the list of beacons.
+- (void)resetBeacons;
+
 // Returns YES is it's scanning for beacons.
 - (BOOL)isStarted;
 

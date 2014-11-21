@@ -32,6 +32,7 @@
     [[PWBeaconManager sharedManager] stop];
   }
   [_mainViewController disablePlaceholder];
+  [[PWBeaconManager sharedManager] resetBeacons];
   [[PWBeaconManager sharedManager] start];
   [_mainViewController updateBeaconsNow];
 }

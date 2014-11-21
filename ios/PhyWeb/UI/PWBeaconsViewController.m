@@ -88,9 +88,7 @@
   [[self view] addSubview:_tableView];
 
   _placeholderView = [[PWPlaceholderView alloc] initWithFrame:CGRectZero];
-  [self performSelector:@selector(_enablePlaceholder)
-             withObject:nil
-             afterDelay:2];
+  [self disablePlaceholder];
 
   _showDemoBeaconsButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
   [_showDemoBeaconsButton setTitle:@"Show Example Beacons"
@@ -238,10 +236,12 @@
       [beacon setRegion:[[beacon uriBeacon] region]];
     }
   } else {
+    NSDate *date = [NSDate date];
     for (PWBeacon *beacon in _beacons) {
       if (![beacon sortByRegion]) {
-        NSDate *date = [NSDate date];
-        [beacon setDate:date];
+        if ([beacon date] == nil) {
+          [beacon setDate:date];
+        }
       }
     }
   }
@@ -340,8 +340,16 @@
 
 - (void)disablePlaceholder {
   _canShowPlaceholder = NO;
-  [_placeholderView setShowLabel:NO];
+  [_placeholderView setShowLabel:NO animated:NO];
   [_showDemoBeaconsButton setAlpha:0.0];
+
+  [NSObject
+      cancelPreviousPerformRequestsWithTarget:self
+                                     selector:@selector(_enablePlaceholder)
+                                       object:nil];
+  [self performSelector:@selector(_enablePlaceholder)
+             withObject:nil
+             afterDelay:2.5];
 }
 
 - (BOOL)canBecomeFirstResponder {
