@@ -119,6 +119,7 @@
   }];
   [_httpServiceBrowser searchForServicesOfType:@"_http._tcp." inDomain:nil];
   [_httpsServiceBrowser searchForServicesOfType:@"_https._tcp." inDomain:nil];
+  [_pendingNetServices removeAllObjects];
   _discoveredNetServicesURLs = [NSMutableDictionary dictionary];
   _netServicesNames = [NSMutableSet set];
 }
