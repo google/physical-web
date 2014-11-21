@@ -18,13 +18,14 @@
 
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <CoreFoundation/CoreFoundation.h>
+#import <MBProgressHUD/MBProgressHUD.h>
 
 #import "PWBeaconManager.h"
 #import "PWConfigureViewController.h"
 #import "PWPlaceholderView.h"
 #import "PWSimpleWebViewController.h"
 
-@interface PWSettingsViewController ()<
+@interface PWSettingsViewController () <
     CBCentralManagerDelegate, UITableViewDataSource, UITableViewDelegate>
 
 @end
@@ -64,6 +65,11 @@
   [_placeholderView setAutoresizingMask:UIViewAutoresizingFlexibleHeight |
                                         UIViewAutoresizingFlexibleWidth];
   [_placeholderView setShowLabel:YES];
+  UITapGestureRecognizer *doubleTapRecognizer = [[UITapGestureRecognizer alloc]
+      initWithTarget:self
+              action:@selector(_enableDebugMode)];
+  [doubleTapRecognizer setNumberOfTapsRequired:2];
+  [_placeholderView addGestureRecognizer:doubleTapRecognizer];
   [self viewWillTransitionToSize:bounds.size withTransitionCoordinator:nil];
 
   [[self view] addSubview:_placeholderView];
@@ -124,6 +130,17 @@
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
   [self _updatedPlaceholderViewState];
+}
+
+- (void)_enableDebugMode {
+  BOOL debugMode =
+      ![[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"];
+  [[NSUserDefaults standardUserDefaults] setBool:debugMode forKey:@"DebugMode"];
+
+  MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+  [hud setMode:MBProgressHUDModeText];
+  [hud setLabelText:debugMode ? @"Debug Mode Enabled" : @"Debug Mode Disabled"];
+  [hud hide:YES afterDelay:1.5];
 }
 
 - (void)_updatedPlaceholderViewState {
@@ -213,8 +230,8 @@
     case 0: {
       PWSimpleWebViewController *controller = [[PWSimpleWebViewController alloc]
           initWithURL:[NSURL URLWithString:@"http://google.github.io/"
-                                           @"physical-web/mobile/ios/"
-                                           @"getting-started.html"]];
+                             @"physical-web/mobile/ios/"
+                             @"getting-started.html"]];
       [controller setTitle:@"Getting Started"];
       [[self navigationController] pushViewController:controller animated:YES];
       break;

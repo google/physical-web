@@ -50,15 +50,20 @@
 // Stops scanning for beacons.
 - (void)stop;
 
+// Empty the list of beacons.
+- (void)resetBeacons;
+
 // Returns YES is it's scanning for beacons.
 - (BOOL)isStarted;
 
 // Store beacons in defaults shared between the today extension and the app.
 // It will save only the URL and the title since it's only what we need to
 // show them in the today extension.
-- (void)serializeBeacons:(NSArray *)beacons;
+- (void)serializeBeacons:(NSArray*)beacons;
 
 // Retrieve the beacons from the defaults.
-- (NSArray *)unserializedBeacons;
+- (NSArray*)unserializedBeacons;
+
+@property(nonatomic, assign, getter=isStableMode) BOOL stableMode;
 
 @end

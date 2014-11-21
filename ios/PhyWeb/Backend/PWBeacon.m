@@ -60,4 +60,26 @@
   return self;
 }
 
+static NSString *regionName(UBUriBeaconRegion region) {
+  switch (region) {
+    case UBUriBeaconRegionNear:
+      return @"near";
+    case UBUriBeaconRegionMid:
+      return @"mid";
+    case UBUriBeaconRegionFar:
+      return @"far";
+    case UBUriBeaconRegionUnknown:
+    default:
+      return @"unk";
+  }
+}
+
+- (NSString *)debugRegionName {
+  return regionName([self region]);
+}
+
+- (NSString *)debugUriRegionName {
+  return regionName([[self uriBeacon] region]);
+}
+
 @end

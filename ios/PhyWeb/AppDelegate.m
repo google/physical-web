@@ -27,13 +27,22 @@
   PWBeaconsViewController *_mainViewController;
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+  if ([[PWBeaconManager sharedManager] isStarted]) {
+    [[PWBeaconManager sharedManager] stop];
+  }
+  [_mainViewController disablePlaceholder];
+  [[PWBeaconManager sharedManager] resetBeacons];
+  [[PWBeaconManager sharedManager] start];
+  [_mainViewController updateBeaconsNow];
+}
+
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   self.window.backgroundColor = [UIColor whiteColor];
   [self.window makeKeyAndVisible];
 
-  [[PWBeaconManager sharedManager] start];
   _mainViewController = [[PWBeaconsViewController alloc] init];
   [[self window] setRootViewController:_mainViewController];
 

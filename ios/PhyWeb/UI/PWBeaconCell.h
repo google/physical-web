@@ -23,9 +23,6 @@
 // Beacon to show.
 @property(nonatomic, retain) PWBeacon *beacon;
 
-// Debug mode enabled.
-@property(nonatomic, assign, getter=isDebugModeEnabled) BOOL debugModeEnabled;
-
 // Initializer.
 - (instancetype)initWithStyle:(UITableViewCellStyle)style
               reuseIdentifier:(NSString *)reuseIdentifier;

@@ -28,4 +28,6 @@
 // Stops animation.
 - (void)stop;
 
+- (void)setShowLabel:(BOOL)showLabel animated:(BOOL)animated;
+
 @end

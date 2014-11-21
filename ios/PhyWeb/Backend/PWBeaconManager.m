@@ -22,7 +22,7 @@
 #import "PWMetadataRequest.h"
 #import "PWURLShortener.h"
 
-@interface PWBeaconManager ()<PWMetadataRequestDelegate>
+@interface PWBeaconManager () <PWMetadataRequestDelegate>
 
 @end
 
@@ -53,6 +53,7 @@
   _configurationChangeBlocks = [NSMutableArray array];
   _requests = [NSMutableArray array];
   _pendingURLRequest = [NSMutableSet set];
+  _stableMode = YES;
   return self;
 }
 
@@ -98,10 +99,16 @@
 - (void)start {
   _started = YES;
   PWBeaconManager* __weak weakSelf = self;
+  _scanner = [[UBUriBeaconScanner alloc] init];
   [_scanner startScanningWithUpdateBlock:^{
       PWBeaconManager* strongSelf = weakSelf;
       [strongSelf _updateBeacons];
   }];
+}
+
+- (void)resetBeacons {
+  [_beaconsDict removeAllObjects];
+  [self _notify];
 }
 
 - (void)_updateBeacons {
@@ -112,9 +119,12 @@
     if ([uriBeacon URI] == nil) {
       continue;
     }
-      if (!([[[[uriBeacon URI] scheme] lowercaseString] isEqualToString:@"http"] || [[[[uriBeacon URI] scheme] lowercaseString] isEqualToString:@"https"])) {
-          continue;
-      }
+    if (!([[[[uriBeacon URI] scheme] lowercaseString]
+              isEqualToString:@"http"] ||
+          [[[[uriBeacon URI] scheme] lowercaseString]
+              isEqualToString:@"https"])) {
+      continue;
+    }
     PWBeacon* beacon = [_beaconsDict objectForKey:[uriBeacon URI]];
     if (beacon == nil) {
       if (![_pendingURLRequest containsObject:[uriBeacon URI]]) {
@@ -163,16 +173,18 @@
 // Remove expired beacons.
 - (BOOL)_cleanup {
   BOOL hasChange = NO;
-  NSMutableSet* existingUrls = [NSMutableSet set];
-  for (UBUriBeacon* beacon in [_scanner beacons]) {
-    if ([beacon URI] != nil) {
-      [existingUrls addObject:[beacon URI]];
+  if (![self isStableMode]) {
+    NSMutableSet* existingUrls = [NSMutableSet set];
+    for (UBUriBeacon* beacon in [_scanner beacons]) {
+      if ([beacon URI] != nil) {
+        [existingUrls addObject:[beacon URI]];
+      }
     }
-  }
-  for (NSURL* key in [_beaconsDict allKeys]) {
-    if (![existingUrls containsObject:key]) {
-      [_beaconsDict removeObjectForKey:key];
-      hasChange = YES;
+    for (NSURL* key in [_beaconsDict allKeys]) {
+      if (![existingUrls containsObject:key]) {
+        [_beaconsDict removeObjectForKey:key];
+        hasChange = YES;
+      }
     }
   }
   return hasChange;
@@ -199,12 +211,12 @@
   return _started;
 }
 
-- (void)serializeBeacons:(NSArray *)beacons {
-  NSUserDefaults *shared =
-      [[NSUserDefaults alloc] initWithSuiteName:@"org.physical-web.iosapp"];
-  NSMutableArray *encoded = [[NSMutableArray alloc] init];
-  for (PWBeacon *beacon in beacons) {
-    NSMutableDictionary *item = [[NSMutableDictionary alloc] init];
+- (void)serializeBeacons:(NSArray*)beacons {
+  NSUserDefaults* shared =
+      [[NSUserDefaults alloc] initWithSuiteName:@"group.physical-web.iosapp"];
+  NSMutableArray* encoded = [[NSMutableArray alloc] init];
+  for (PWBeacon* beacon in beacons) {
+    NSMutableDictionary* item = [[NSMutableDictionary alloc] init];
     if ([beacon URL] != nil) {
       item[@"url"] = [[beacon URL] absoluteString];
     }
@@ -217,13 +229,13 @@
   [shared synchronize];
 }
 
-- (NSArray *)unserializedBeacons {
-  NSUserDefaults *shared =
-      [[NSUserDefaults alloc] initWithSuiteName:@"org.physical-web.iosapp"];
-  NSArray *encoded = [shared objectForKey:@"LastSeenBeacons"];
-  NSMutableArray *beacons = [[NSMutableArray alloc] init];
-  for (NSDictionary *item in encoded) {
-    PWBeacon *beacon = [[PWBeacon alloc] init];
+- (NSArray*)unserializedBeacons {
+  NSUserDefaults* shared =
+      [[NSUserDefaults alloc] initWithSuiteName:@"group.physical-web.iosapp"];
+  NSArray* encoded = [shared objectForKey:@"LastSeenBeacons"];
+  NSMutableArray* beacons = [[NSMutableArray alloc] init];
+  for (NSDictionary* item in encoded) {
+    PWBeacon* beacon = [[PWBeacon alloc] init];
     if (item[@"url"] != nil) {
       [beacon setURL:[NSURL URLWithString:item[@"url"]]];
     }

@@ -19,4 +19,8 @@
 // This part of the UI will show a list of beacons.
 @interface PWBeaconsViewController : UIViewController
 
+- (void)updateBeaconsNow;
+
+- (void)disablePlaceholder;
+
 @end
