@@ -26,6 +26,10 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
+import android.os.SystemClock;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,20 +43,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.uribeacon.beacon.UriBeacon;
-import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
-import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
-import org.uribeacon.scan.compat.ScanCallback;
-import org.uribeacon.scan.compat.ScanFilter;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
-import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.widget.ScanResultAdapter;
 
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class shows the ui list for all
@@ -66,13 +65,29 @@ import java.util.List;
 public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback {
 
   private static final String TAG = "NearbyBeaconsFragment";
+  private static final int BEACON_EXPIRATION_DURATION = Integer.MAX_VALUE;
+  private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
+  private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private LayoutInflater mLayoutInflater;
   private BluetoothAdapter mBluetoothAdapter;
-  private static final int REQUEST_ENABLE_BT = 1;
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
   private AnimationDrawable mScanningAnimationDrawable;
   private boolean mIsDemoMode;
-  private static final int BEACON_EXPIRATION_DURATION = 120;
+  private boolean mIsScanRunning;
+  private Handler mHandler;
+  private NearbyBeaconsAdapter mNearbyDeviceAdapter;
+  private Parcelable[] mScanFilterUuids;
+
+  // Run when the SCAN_TIME_MILLIS has elapsed.
+  private Runnable mScanTimeout = new Runnable() {
+    @Override
+    public void run() {
+      scanLeDevice(false);
+    }
+  };
+
+  public NearbyBeaconsFragment() {
+  }
 
   public static NearbyBeaconsFragment newInstance(boolean isDemoMode) {
     NearbyBeaconsFragment nearbyBeaconsFragment = new NearbyBeaconsFragment();
@@ -82,14 +97,28 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     return nearbyBeaconsFragment;
   }
 
-  public NearbyBeaconsFragment() {
+  private static String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
+    UriBeacon uriBeacon = UriBeacon.parseFromBytes(deviceSighting.scanResult.getScanRecord().getBytes());
+    return uriBeacon.getUriString();
+  }
+
+  private static String generateMockBluetoothAddress(int hashCode) {
+    String mockAddress = "00:11";
+    for (int i = 0; i < 4; i++) {
+      mockAddress += String.format(":%02X", hashCode & 0xFF);
+      hashCode = hashCode >> 8;
+    }
+    return mockAddress;
   }
 
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
+    mHandler = new Handler();
+    mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID};
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
-    setListAdapter(new NearbyBeaconsAdapter());
+    mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
+    setListAdapter(mNearbyDeviceAdapter);
     initializeScanningAnimation(rootView);
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
     // Only scan for beacons when not in demo mode
@@ -115,24 +144,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mScanningAnimationDrawable.start();
   }
 
-
-  /////////////////////////////////
-  // accessors
-  /////////////////////////////////
-
-  private BluetoothLeScannerCompat getLeScanner() {
-    return BluetoothLeScannerCompatProvider.getBluetoothLeScannerCompat(getActivity());
-  }
-
-  private NearbyBeaconsAdapter getNearbyBeaconsAdapter() {
-    return (NearbyBeaconsAdapter)getListAdapter();
-  }
-
-
-  /////////////////////////////////
-  // callbacks
-  /////////////////////////////////
-
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
     mLayoutInflater = layoutInflater;
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
@@ -146,7 +157,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     if (!mIsDemoMode) {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
       getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-      startScanning();
+      scanLeDevice(true);
     } else {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
     }
@@ -156,7 +167,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   public void onPause() {
     super.onPause();
     if (!mIsDemoMode) {
-      stopScanning();
+      scanLeDevice(false);
     }
   }
 
@@ -167,30 +178,17 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       menu.findItem(R.id.action_config).setVisible(false);
       menu.findItem(R.id.action_about).setVisible(false);
       menu.findItem(R.id.action_demo).setVisible(false);
-    }
-    else {
+    } else {
       menu.findItem(R.id.action_config).setVisible(true);
       menu.findItem(R.id.action_about).setVisible(true);
       menu.findItem(R.id.action_demo).setVisible(true);
     }
   }
 
-  private final ScanCallback mScanCallback = new ScanCallback() {
-    @Override
-    public void onScanResult(int callbackType, ScanResult result) {
-      handleScanMatch(result);
-    }
-
-    @Override
-    public void onScanFailed(int errorCode) {
-      handleScanFailed(errorCode);
-    }
-  };
-
   @Override
-  public void onListItemClick (ListView l, View v, int position, long id) {
+  public void onListItemClick(ListView l, View v, int position, long id) {
     // Get the url for the given item
-    String url = getUrlFromDeviceSighting(getNearbyBeaconsAdapter().getItem(position));
+    String url = getUrlFromDeviceSighting(mNearbyDeviceAdapter.getItem(position));
     String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
     if (siteUrl != null) {
       // Open the url in the browser
@@ -204,7 +202,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   public void onUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(id, urlMetadata);
     // If we don't want to wait for another sighting
-    getNearbyBeaconsAdapter().notifyDataSetChanged();
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   @Override
@@ -214,7 +212,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     byte[] byteBufferArray = byteBuffer.array();
 
     String idHash = "https://" +
-        Base64.encodeToString(byteBufferArray, 0, 4, Base64.NO_PADDING).replace("\n","");
+        Base64.encodeToString(byteBufferArray, 0, 4, Base64.NO_PADDING).replace("\n", "");
     mUrlToUrlMetadata.put(idHash, urlMetadata);
 
     byte[] advertisingPacket = new byte[0];
@@ -231,82 +229,45 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     // Build the scan result from the scan record
     ScanResult scanResult = new ScanResult(bluetoothDevice, scanRecord, -20, 0);
     // Add the demo beacon with a very long timeout
-    getNearbyBeaconsAdapter().add(scanResult, 20, Integer.MAX_VALUE);
+    mNearbyDeviceAdapter.add(scanResult, 20, Integer.MAX_VALUE);
     // If we don't want to wait for another sighting
-    getNearbyBeaconsAdapter().notifyDataSetChanged();
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
-  private static String generateMockBluetoothAddress(int hashCode) {
-    String mockAddress = "00:11";
-    for (int i = 0; i < 4; i++) {
-      mockAddress += String.format(":%02X", hashCode & 0xFF);
-      hashCode = hashCode >> 8;
-    }
-    return mockAddress;
-  }
-
-
-  /////////////////////////////////
-  // utilities
-  /////////////////////////////////
-
-  private void startScanning() {
-    Log.v(TAG, "startScanning() called");
-    // Ensures Bluetooth is enabled on the device. If Bluetooth is not currently enabled,
-    // fire an intent to display a dialog asking the user to grant permission to enable it.
-    if (!mBluetoothAdapter.isEnabled()) {
-      Log.v(TAG, "Bluetooth not enabled; asking user to start it");
-      Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-      startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    } else {
-      List<ScanFilter> filters = new ArrayList<>();
-      ScanFilter.Builder builder = new ScanFilter.Builder()
-          .setServiceData(UriBeacon.URI_SERVICE_UUID,
-              new byte[]{},
-              new byte[]{});
-      filters.add(builder.build());
-
-      ScanSettings settings = new ScanSettings.Builder()
-          .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-          .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-          .build();
-      getLeScanner().startScan(filters, settings, mScanCallback);
-    }
-  }
-
-  private void stopScanning() {
-    Log.v(TAG, "stopScanning() called");
-    getLeScanner().stopScan(mScanCallback);
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        getNearbyBeaconsAdapter().clear();
+  @SuppressWarnings("deprecation")
+  private void scanLeDevice(final boolean enable) {
+    if (mIsScanRunning != enable) {
+      mIsScanRunning = enable;
+      if (enable) {
+        // Stops scanning after the predefined scan time has elapsed.
+        mHandler.postDelayed(mScanTimeout, SCAN_TIME_MILLIS);
+        mNearbyDeviceAdapter.clear();
+        mBluetoothAdapter.startLeScan(mLeScanCallback);
+      } else {
+        // Cancel the scan timeout callback if still active or else it may fire later.
+        mHandler.removeCallbacks(mScanTimeout);
+        mBluetoothAdapter.stopLeScan(mLeScanCallback);
       }
-    });
+    }
   }
 
-  private void handleScanMatch(final ScanResult scanResult) {
-    getActivity().runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-        if (uriBeacon != null) {
-          int txPowerLevel = uriBeacon.getTxPowerLevel();
-          String url = uriBeacon.getUriString();
-          if (!mUrlToUrlMetadata.containsKey(url)) {
-            mUrlToUrlMetadata.put(url, null);
-            MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
-          } else if (mUrlToUrlMetadata.get(url) != null) {
-            getNearbyBeaconsAdapter().add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
-          }
+  private boolean leScanMatches(ScanRecord scanRecord) {
+    if (mScanFilterUuids == null) {
+      return true;
+    }
+    List services = scanRecord.getServiceUuids();
+    if (services != null) {
+      for (Parcelable uuid : mScanFilterUuids) {
+        if (services.contains(uuid)) {
+          return true;
         }
-        updateScanningAnimation();
       }
-    });
+    }
+    return false;
   }
 
   private void updateScanningAnimation() {
-    if (getNearbyBeaconsAdapter().getCount() > 0) {
+    if (mNearbyDeviceAdapter.getCount() > 0) {
       if (mScanningAnimationDrawable.isRunning()) {
         mScanningAnimationDrawable.stop();
       }
@@ -315,10 +276,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         mScanningAnimationDrawable.start();
       }
     }
-  }
-
-  private void handleScanFailed(int err) {
-    Log.e(TAG, "onScanFailed: " + err);
   }
 
   private void openUrlInBrowser(String url) {
@@ -332,9 +289,34 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     startActivity(intent);
   }
 
-  private static String getUrlFromDeviceSighting(ScanResultAdapter.DeviceSighting deviceSighting) {
-    UriBeacon uriBeacon = UriBeacon.parseFromBytes(deviceSighting.scanResult.getScanRecord().getBytes());
-    return uriBeacon.getUriString();
+  /**
+   * Callback for LE scan results.
+   */
+  private class LeScanCallback implements BluetoothAdapter.LeScanCallback {
+    @Override
+    public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {
+      ScanRecord scanRecord = ScanRecord.parseFromBytes(scanBytes);
+      if (leScanMatches(scanRecord)) {
+        final ScanResult scanResult = new ScanResult(device, scanRecord, rssi, SystemClock.elapsedRealtimeNanos());
+        getActivity().runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
+            if (uriBeacon != null) {
+              int txPowerLevel = uriBeacon.getTxPowerLevel();
+              String url = uriBeacon.getUriString();
+              if (!mUrlToUrlMetadata.containsKey(url)) {
+                mUrlToUrlMetadata.put(url, null);
+                MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+              } else if (mUrlToUrlMetadata.get(url) != null) {
+                mNearbyDeviceAdapter.add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
+              }
+            }
+            updateScanningAnimation();
+          }
+        });
+      }
+    }
   }
 
   // Adapter for holding beacons found through scanning.
