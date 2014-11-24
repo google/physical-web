@@ -4,24 +4,12 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.0.2"
 
-    //auto versioning logic
-    def versionPropertiesFile = file('version.properties')
-    if (versionPropertiesFile.canRead()) {
-        def Properties properties = new Properties()
-        properties.load(new FileInputStream(versionPropertiesFile))
-        def major = properties['MAJOR'].toInteger()
-        def minor = properties['MINOR'].toInteger()
-        def build = properties['BUILD'].toInteger() + 1
-        properties['BUILD'] = build.toString()
-        properties.store(versionPropertiesFile.newWriter(), null)
-
-        defaultConfig {
-            applicationId "physical_web.org.physicalweb"
-            minSdkVersion 18
-            targetSdkVersion 21
-            versionCode 4
-            versionName "${major}.${minor}.${build}"
-        }
+    defaultConfig {
+        applicationId "physical_web.org.physicalweb"
+        minSdkVersion 18
+        targetSdkVersion 21
+        versionCode 4
+        versionName "0.1.737"
     }
 
     buildTypes {
