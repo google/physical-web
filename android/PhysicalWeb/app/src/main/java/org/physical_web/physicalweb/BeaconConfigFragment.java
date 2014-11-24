@@ -39,8 +39,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.uribeacon.beacon.UriBeacon;
-import org.uribeacon.config.BaseUriBeaconConfig;
+import org.uribeacon.beacon.ConfigUriBeacon;
+import org.uribeacon.config.ProtocolV1;
+import org.uribeacon.config.UriBeaconConfig;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
 import org.uribeacon.scan.compat.ScanCallback;
@@ -88,7 +89,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     }
   };
   // TODO: default value for TxPower should be in another module
-  private static final int TX_POWER_DEFAULT = -63;
+  private static final byte TX_POWER_DEFAULT = -63;
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
   private EditText mEditCardUrl;
@@ -113,7 +114,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mRegionResolver = new RegionResolver();
-    mUriBeaconConfig = new UriBeaconConfig(getActivity());
+    //TODO: Get the config service uuid from the scan activity (to disambiguate V1 vs V2)
+    mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), ProtocolV1.CONFIG_SERVICE_UUID);
     setHasOptionsMenu(true);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
   }
@@ -194,11 +196,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     return false;
   }
 
-  public void onBeaconConfigReadUrlComplete(byte[] scanRecord, int status) {
+  public void onBeaconConfigReadUrlComplete(ConfigUriBeacon uriBeacon, int status) {
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
-      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanRecord);
       String url = (uriBeacon != null) ? uriBeacon.getUriString() : "";
       Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
       if (UrlShortener.isShortUrl(url)) {
@@ -232,7 +233,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     List<ScanFilter> filters = new ArrayList<>();
 
     ScanFilter filter = new ScanFilter.Builder()
-        .setServiceUuid(BaseUriBeaconConfig.CONFIG_SERVICE_UUID)
+        .setServiceUuid(ProtocolV1.CONFIG_SERVICE_UUID)
         .build();
 
     filters.add(filter);
@@ -317,21 +318,19 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     }
     // Write the url to the device
     try {
-      byte[] scanResult = BeaconHelper.createAdvertisingPacket(url);
-      mUriBeaconConfig.writeUriBeacon(scanResult);
+      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().uriString(url).txPowerLevel(TX_POWER_DEFAULT).build();
+      mUriBeaconConfig.writeUriBeacon(configUriBeacon);
     } catch (URISyntaxException e) {
       e.printStackTrace();
     }
   }
 
-  class UriBeaconConfig extends BaseUriBeaconConfig {
-    public UriBeaconConfig(Context context) {
-      super(context);
-    }
+  class UriBeaconConfigCallback implements UriBeaconConfig.UriBeaconCallback {
 
     @Override
-    public void onUriBeaconRead(byte[] bytes, int status) {
-      onBeaconConfigReadUrlComplete(bytes, status);
+    public void onUriBeaconRead(ConfigUriBeacon configUriBeacon, int status) {
+      onBeaconConfigReadUrlComplete(configUriBeacon, status);
+
     }
 
     @Override
