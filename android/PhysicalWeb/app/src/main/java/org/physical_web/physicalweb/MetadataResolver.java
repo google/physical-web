@@ -63,6 +63,8 @@ class MetadataResolver {
     public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
 
     public void onDemoUrlMetadataReceived(String url, UrlMetadata urlMetadata);
+
+    public void onUrlMetadataIconReceived();
   }
 
 
@@ -218,7 +220,7 @@ class MetadataResolver {
                   urlMetadata.iconUrl = iconUrl;
 
                   // Kick off the icon download
-                  downloadIcon(urlMetadata, url);
+                  downloadIcon(urlMetadata);
 
                   if (isDemoRequest) {
                     mMetadataResolverCallback.onDemoUrlMetadataReceived(id, urlMetadata);
@@ -247,14 +249,13 @@ class MetadataResolver {
    * Asynchronously download the image for the url favicon.
    *
    * @param urlMetadata The metadata for the given url
-   * @param url The url for which the icon will be retrieved
    */
-  private static void downloadIcon(final UrlMetadata urlMetadata, final String url) {
+  private static void downloadIcon(final UrlMetadata urlMetadata) {
     ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, new Response.Listener<Bitmap>() {
       @Override
       public void onResponse(Bitmap response) {
         urlMetadata.icon = response;
-        mMetadataResolverCallback.onUrlMetadataReceived(url, urlMetadata);
+        mMetadataResolverCallback.onUrlMetadataIconReceived();
       }
     }, 0, 0, null, null);
     mRequestQueue.add(imageRequest);
