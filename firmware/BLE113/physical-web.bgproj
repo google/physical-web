@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project>
+    <gatt in="gatt.xml" />
+    <hardware in="hardware.xml" />
+    <script in="physical-web.bgs" />
+    <image out="physical-web.hex" />
+    <device type="ble113" />
+    <boot fw="bootuart" />
+</project>

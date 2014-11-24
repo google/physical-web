@@ -1,0 +1,45 @@
+# Physical-Web example for Bluegiga BLE113
+
+dim adv_data(30)	# Advertisement data buffer
+
+# Advertisement configuration
+procedure enable_advertisement()
+  # Set advertisement interval to 1000ms, all advertisement channels
+  # min and max are in 625us intervals
+  call gap_set_adv_parameters(1600, 1600, 7)
+  # Set to advertising mode
+  call gap_set_mode(gap_user_data, gap_undirected_connectable)
+end
+
+# System boot event listener
+event system_boot(major, minor, patch, build, ll_version, protocol_version, hw)
+  # Initialize Advertisement data
+  adv_data(0:1) = $02  # AD field length = 2 bytes
+  adv_data(1:1) = $01  # AD field type = «Flags»
+  adv_data(2:1) = $06  # General Discoverable, no BR/EDR
+
+  adv_data(3:1) = $03  # AD field length = 3 bytes
+  adv_data(4:1) = $03  # AD field type = «Complete List of 16-bit Service Class UUIDs»
+  adv_data(5:1) = $D8  # URI Beacon ID
+  adv_data(6:1) = $FE
+
+  adv_data(7:1) = $0A  # AD field Length = 10 bytes
+  adv_data(8:1) = $16  # AD field type = «Service Data»
+  adv_data(9:1) = $D8  # URI Beacon ID
+  adv_data(10:1) = $FE
+  adv_data(11:1) = $20  # TX power
+  adv_data(12:1) = $00  # flags
+  adv_data(13:1) = $00  # 'http://www.'
+  adv_data(14:1) = $41  # 'A'
+  adv_data(15:1) = $42  # 'B'
+  adv_data(16:1) = $43  # 'C'
+  adv_data(17:1) = $07  # '.com'
+
+  call gap_set_adv_data(0, 18, adv_data(0:18))
+  call enable_advertisement()
+end
+
+# Disconnection event listener
+event connection_disconnected(handle, result)
+  call enable_advertisement()
+end

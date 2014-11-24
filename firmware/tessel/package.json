@@ -1,0 +1,24 @@
+{
+  "name": "tessel-beacon",
+  "version": "0.0.1",
+  "description": "Bluetooth Low Energy Beacon for Physical World",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ble",
+    "bluetooth",
+    "tessel",
+    "beacon",
+    "physical",
+    "world"
+  ],
+  "author": "Nicholas van de Walle",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "ble-ble113a": "^0.1.11",
+    "bleadvertise": "^0.1.1",
+    "tesselate": "0.0.2"
+  }
+}
