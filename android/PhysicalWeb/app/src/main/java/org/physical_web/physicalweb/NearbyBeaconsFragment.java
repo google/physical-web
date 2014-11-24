@@ -77,6 +77,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private Parcelable[] mScanFilterUuids;
+  private HashMap<String, ScanInfo> mUrlToScanInfo;
 
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
@@ -114,6 +115,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
+    mUrlToScanInfo = new HashMap<>();
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID};
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
@@ -201,9 +203,15 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   @Override
   public void onUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(id, urlMetadata);
-    // If we don't want to wait for another sighting
+    ScanInfo scanInfo = mUrlToScanInfo.get(id);
+    mNearbyDeviceAdapter.add(scanInfo.scanResult, scanInfo.txPowerLevel, BEACON_EXPIRATION_DURATION);
+  }
+
+  @Override
+  public void onUrlMetadataIconReceived() {
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
+
 
   @Override
   public void onDemoUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
@@ -307,9 +315,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
               String url = uriBeacon.getUriString();
               if (!mUrlToUrlMetadata.containsKey(url)) {
                 mUrlToUrlMetadata.put(url, null);
+                mUrlToScanInfo.put(url, new ScanInfo(scanResult, txPowerLevel));
                 MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
-              } else if (mUrlToUrlMetadata.get(url) != null) {
-                mNearbyDeviceAdapter.add(scanResult, txPowerLevel, BEACON_EXPIRATION_DURATION);
               }
             }
             updateScanningAnimation();
@@ -363,6 +370,17 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       }
       return view;
     }
+  }
+
+  class ScanInfo {
+    ScanResult scanResult;
+    int txPowerLevel;
+
+    public ScanInfo(ScanResult scanResult, int txPowerLevel) {
+      this.scanResult = scanResult;
+      this.txPowerLevel = txPowerLevel;
+    }
+
   }
 }
 
