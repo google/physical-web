@@ -29,7 +29,8 @@ The Physical Web must be an open standard that everyone can use. This can’t be
 * [URI Beacon Spec](https://github.com/google/uribeacon) Partner repo with code/examples for the beacons themselves
 
 ##Beacons
-Our most common request is how to get URIBeacons. There are a number of firmware examples for Arduino, Raspberry Pi, node and many more in our [firmware folder](https://github.com/google/physical-web/tree/master/firmware) but this is all being moved to the [URI Beacon repo](https://github.com/google/uribeacon) so be sure to check there as well.
+Our most common request is how to get [UriBeacons](http://uribeacon.org). 
+There are a number of firmware examples for Arduino, Raspberry Pi, node and many more on the [Uri Beacon repo](https://github.com/google/uribeacon) so be sure to check there as well.
 
 A BLE beacon maker is about to sell premade URIbeacons, we hope to announce that soon.
 
