@@ -66,7 +66,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   private static final String TAG = "NearbyBeaconsFragment";
   private static final int BEACON_EXPIRATION_DURATION = Integer.MAX_VALUE;
-  private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
+  private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private LayoutInflater mLayoutInflater;
   private BluetoothAdapter mBluetoothAdapter;
@@ -195,6 +195,11 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
+    // If we are scanning
+    if (mIsScanRunning) {
+      // Don't responde to touch events
+      return;
+    }
     // Get the url for the given item
     String url = getUrlFromDeviceSighting(mNearbyDeviceAdapter.getItem(position));
     String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
@@ -256,22 +261,21 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private void scanLeDevice(final boolean enable) {
     if (mIsScanRunning != enable) {
       mIsScanRunning = enable;
-
-      // Cancel the scan timeout callback if still active or else it may fire later.
-      mHandler.removeCallbacks(mScanTimeout);
-
-      // Clear the any stored url data
-      mUrlToUrlMetadata.clear();
-      mUrlToScanInfo.clear();
-
       // If we should start scanning
       if (enable) {
         // Stops scanning after the predefined scan time has elapsed.
         mHandler.postDelayed(mScanTimeout, SCAN_TIME_MILLIS);
+        // Clear any stored url data
+        mUrlToUrlMetadata.clear();
+        mUrlToScanInfo.clear();
         mNearbyDeviceAdapter.clear();
+        // Start the scan
         mBluetoothAdapter.startLeScan(mLeScanCallback);
-        //If we should stop scanning
+        // If we should stop scanning
       } else {
+        // Cancel the scan timeout callback if still active or else it may fire later.
+        mHandler.removeCallbacks(mScanTimeout);
+        // Stop the scan
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
         mSwipeRefreshWidget.setRefreshing(false);
       }

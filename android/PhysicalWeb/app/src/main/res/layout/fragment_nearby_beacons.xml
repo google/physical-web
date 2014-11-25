@@ -8,6 +8,13 @@
                     android:layout_height="match_parent"
                     android:background="#ffffffff">
 
+        <ListView
+            android:id="@android:id/list"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:divider="@null">
+        </ListView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,13 +27,6 @@
             android:layout_marginBottom="260dp"
             android:layout_centerHorizontal="true"
             android:id="@id/android:empty"/>
-
-        <ListView
-            android:id="@android:id/list"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:divider="@null">
-        </ListView>
 
     </RelativeLayout>
 
