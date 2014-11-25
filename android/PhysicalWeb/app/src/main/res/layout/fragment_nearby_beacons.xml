@@ -1,11 +1,14 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:context="org.physical_web.physicalweb.NearbyBeaconsFragment"
-                android:background="#ffffffff">
+<org.physical_web.physicalweb.SwipeRefreshWidget
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/swipe_refresh_widget">
 
-    <TextView
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#ffffffff">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/empty_nearby_beacons_list_text"
@@ -18,11 +21,13 @@
             android:layout_centerHorizontal="true"
             android:id="@id/android:empty"/>
 
-    <ListView
+        <ListView
             android:id="@android:id/list"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:divider="@null">
-    </ListView>
+        </ListView>
 
-</RelativeLayout>
+    </RelativeLayout>
+
+</org.physical_web.physicalweb.SwipeRefreshWidget>

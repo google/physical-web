@@ -62,7 +62,7 @@ import java.util.concurrent.TimeUnit;
  * the browser and point that browser
  * to the given list items url.
  */
-public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback {
+public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback, SwipeRefreshWidget.OnRefreshListener {
 
   private static final String TAG = "NearbyBeaconsFragment";
   private static final int BEACON_EXPIRATION_DURATION = Integer.MAX_VALUE;
@@ -78,6 +78,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private Parcelable[] mScanFilterUuids;
   private HashMap<String, ScanInfo> mUrlToScanInfo;
+  private SwipeRefreshWidget mSwipeRefreshWidget;
 
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
@@ -118,6 +119,11 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mUrlToScanInfo = new HashMap<>();
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID};
+
+    mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
+    mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color, R.color.swipe_refresh_widget_second_color);
+    mSwipeRefreshWidget.setOnRefreshListener(this);
+
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
     setListAdapter(mNearbyDeviceAdapter);
@@ -204,7 +210,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   public void onUrlMetadataReceived(String id, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(id, urlMetadata);
     ScanInfo scanInfo = mUrlToScanInfo.get(id);
-    mNearbyDeviceAdapter.add(scanInfo.scanResult, scanInfo.txPowerLevel, BEACON_EXPIRATION_DURATION);
+    if (scanInfo != null) {
+      mNearbyDeviceAdapter.add(scanInfo.scanResult, scanInfo.txPowerLevel, BEACON_EXPIRATION_DURATION);
+    }
   }
 
   @Override
@@ -240,21 +248,32 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mNearbyDeviceAdapter.add(scanResult, 20, Integer.MAX_VALUE);
     // If we don't want to wait for another sighting
     mNearbyDeviceAdapter.notifyDataSetChanged();
+    // Stop the refresh animation
+    mSwipeRefreshWidget.setRefreshing(false);
   }
 
   @SuppressWarnings("deprecation")
   private void scanLeDevice(final boolean enable) {
     if (mIsScanRunning != enable) {
       mIsScanRunning = enable;
+
+      // Cancel the scan timeout callback if still active or else it may fire later.
+      mHandler.removeCallbacks(mScanTimeout);
+
+      // Clear the any stored url data
+      mUrlToUrlMetadata.clear();
+      mUrlToScanInfo.clear();
+
+      // If we should start scanning
       if (enable) {
         // Stops scanning after the predefined scan time has elapsed.
         mHandler.postDelayed(mScanTimeout, SCAN_TIME_MILLIS);
         mNearbyDeviceAdapter.clear();
         mBluetoothAdapter.startLeScan(mLeScanCallback);
+        //If we should stop scanning
       } else {
-        // Cancel the scan timeout callback if still active or else it may fire later.
-        mHandler.removeCallbacks(mScanTimeout);
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        mSwipeRefreshWidget.setRefreshing(false);
       }
     }
   }
@@ -295,6 +314,17 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
     startActivity(intent);
+  }
+
+  @Override
+  public void onRefresh() {
+    mSwipeRefreshWidget.setRefreshing(true);
+    if (!mIsDemoMode) {
+      scanLeDevice(true);
+    } else {
+      mNearbyDeviceAdapter.clear();
+      MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
+    }
   }
 
   /**
