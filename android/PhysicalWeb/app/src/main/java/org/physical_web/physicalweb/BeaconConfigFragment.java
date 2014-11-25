@@ -200,7 +200,13 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
-      String url = (uriBeacon != null) ? uriBeacon.getUriString() : "";
+      // TODO: Remove this quick fix once scan library handles getUriString errors on invalid beacon data
+      String url = "";
+      try {
+        url = (uriBeacon != null) ? uriBeacon.getUriString() : "";
+      }
+      catch (Exception e) {
+      }
       Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
       if (UrlShortener.isShortUrl(url)) {
         url = UrlShortener.lengthenShortUrl(url);
