@@ -27,6 +27,7 @@
         https://google.github.io/physical-web/mobile/android/getting-started.html
     </string>
     <string name="action_demo">Demo</string>
+    <string name="config_no_beacons_found">No beacons found</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
