@@ -28,6 +28,7 @@
     </string>
     <string name="action_demo">Demo</string>
     <string name="config_no_beacons_found">No beacons found</string>
+    <string name="notification_view_more_beacons">VIEW MORE</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
