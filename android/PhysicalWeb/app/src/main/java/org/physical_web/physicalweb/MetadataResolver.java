@@ -40,7 +40,6 @@ import org.json.JSONObject;
 
 class MetadataResolver {
   private static final String TAG = "MetadataResolver";
-  private static Activity mActivity;
   private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
   private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
   private static RequestQueue mRequestQueue;
@@ -73,17 +72,10 @@ class MetadataResolver {
   /////////////////////////////////
 
   public static void findUrlMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback, final String url) {
-    // Store the context
-    mActivity = (Activity) context;
     // Store the callback so we can call it back later
     mMetadataResolverCallback = metadataResolverCallback;
-    mActivity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        initialize(context);
-        requestUrlMetadata(url);
-      }
-    });
+    initialize(context);
+    requestUrlMetadata(url);
   }
 
   /**
@@ -107,17 +99,10 @@ class MetadataResolver {
   }
 
   public static void findDemoUrlMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback) {
-    // Store the context
-    mActivity = (Activity) context;
     // Store the callback so we can call it back later
     mMetadataResolverCallback = metadataResolverCallback;
-    mActivity.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        initialize(context);
-        requestDemoUrlMetadata();
-      }
-    });
+    initialize(context);
+    requestDemoUrlMetadata();
   }
 
   private static void requestDemoUrlMetadata() {
