@@ -71,6 +71,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   // TODO: default value for TxPower should be in another module
   private static final byte TX_POWER_DEFAULT = -63;
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(15);
+  private static final int MAX_URL_LENGTH = 18;
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
@@ -84,7 +85,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private boolean mIsScanRunning;
   private BluetoothAdapter mBluetoothAdapter;
   private Handler mHandler;
-
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
     @Override
@@ -277,8 +277,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       scanLeDevice(false);
       if (filteredUuid.equals(ProtocolV1.CONFIG_SERVICE_UUID)) {
         mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), ProtocolV1.CONFIG_SERVICE_UUID);
-      }
-      else if (filteredUuid.equals(ProtocolV2.CONFIG_SERVICE_UUID)) {
+      } else if (filteredUuid.equals(ProtocolV2.CONFIG_SERVICE_UUID)) {
         mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), ProtocolV2.CONFIG_SERVICE_UUID);
       }
       if (mUriBeaconConfig != null) {
@@ -334,6 +333,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     // Ensure an http prefix exists in the url
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
+    }
+    // Shorten the url if necessary
+    if (url.length() > MAX_URL_LENGTH) {
+      url = UrlShortener.shortenUrl(url);
     }
     // Write the url to the device
     try {
