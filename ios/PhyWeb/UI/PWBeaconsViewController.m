@@ -18,6 +18,7 @@
 
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <MBProgressHUD/MBProgressHUD.h>
+#import "SVPullToRefresh.h"
 
 #import "PWBeaconManager.h"
 #import "PWBeacon.h"
@@ -49,6 +50,7 @@
   UIActivityIndicatorView *_activityView;
   PWMetadataRequest *_demoBeaconsRequest;
   NSArray *_demoBeacons;
+  BOOL _refreshing;
 }
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil
@@ -84,6 +86,9 @@
   [_tableView setRowHeight:100];
   [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
   [_tableView setScrollsToTop:YES];
+  PWBeaconsViewController *__weak weakSelf = self;
+  [_tableView
+      addPullToRefreshWithActionHandler:^{ [weakSelf _performPullToRefresh]; }];
   [self viewWillTransitionToSize:bounds.size withTransitionCoordinator:nil];
   [[self view] addSubview:_tableView];
 
@@ -162,6 +167,38 @@
   [self _updateBeaconsNow];
 }
 
+- (void)_performPullToRefresh {
+  if (_refreshing) {
+    return;
+  }
+
+  if ([[PWBeaconManager sharedManager] isStarted]) {
+    [[PWBeaconManager sharedManager] stop];
+  }
+  [self disablePlaceholder];
+  [[PWBeaconManager sharedManager] resetBeacons];
+  [[PWBeaconManager sharedManager] start];
+  [self updateBeaconsNow];
+
+  _refreshing = YES;
+  [self performSelector:@selector(_performPullToRefreshDone)
+             withObject:nil
+             afterDelay:2.0];
+}
+
+- (void)_performPullToRefreshDone {
+  if (!_refreshing) {
+    return;
+  }
+  [NSObject
+      cancelPreviousPerformRequestsWithTarget:self
+                                     selector:@selector(
+                                                  _performPullToRefreshDone)
+                                       object:nil];
+  [[_tableView pullToRefreshView] stopAnimating];
+  _refreshing = NO;
+}
+
 - (void)_showDemoBeaconsButtonPressed {
   if (_showDemoBeacons) {
     return;
@@ -223,6 +260,8 @@
 }
 
 - (void)_updateBeaconsNow {
+  [self _performPullToRefreshDone];
+
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(_updateBeaconsNow)
                                              object:nil];
@@ -413,6 +452,7 @@
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
                      withVelocity:(CGPoint)velocity
               targetContentOffset:(inout CGPoint *)targetContentOffset {
+#if 0
   if ([scrollView contentOffset].y < -150) {
     [[PWBeaconManager sharedManager]
         setStableMode:![[PWBeaconManager sharedManager] isStableMode]];
@@ -424,6 +464,7 @@
                           : @"Dynamic Mode"];
     [hud hide:YES afterDelay:1.5];
   }
+#endif
 }
 
 #pragma mark metadata request response

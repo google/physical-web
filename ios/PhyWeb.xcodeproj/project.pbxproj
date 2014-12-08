@@ -22,6 +22,8 @@
 		BDA3FAA619EF329C00CFAA74 /* PWURLShortener.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1E219A7FB4000AA8DFB /* PWURLShortener.m */; };
 		BDA3FAA719EF338F00CFAA74 /* PWBeaconCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1B819A7E46D00AA8DFB /* PWBeaconCell.m */; };
 		BDA3FAA819EF38A600CFAA74 /* PWSignalStrengthView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1C219A7E46D00AA8DFB /* PWSignalStrengthView.m */; };
+		BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */ = {isa = PBXBuildFile; fileRef = BDBFD6701A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m */; };
+		BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */; };
 		BDE4D8A619DE0242007938F0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BDE4D8A519DE0242007938F0 /* LaunchScreen.xib */; };
 		BDE4D8A819DE03F1007938F0 /* LaunchIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = BDE4D8A719DE03F1007938F0 /* LaunchIcon.png */; };
 		BDE4D8B419DE154B007938F0 /* PWPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE4D8B319DE154B007938F0 /* PWPlaceholderView.m */; };
@@ -169,6 +171,11 @@
 		BDA3FA8C19EF2DD700CFAA74 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BDA3FA8D19EF2DD700CFAA74 /* TodayViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TodayViewController.h; sourceTree = "<group>"; };
 		BDA3FA8E19EF2DD700CFAA74 /* TodayViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TodayViewController.m; sourceTree = "<group>"; };
+		BDBFD66E1A2D125700A0B5E0 /* SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVPullToRefresh.h; sourceTree = "<group>"; };
+		BDBFD66F1A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVInfiniteScrolling.h"; sourceTree = "<group>"; };
+		BDBFD6701A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVInfiniteScrolling.m"; sourceTree = "<group>"; };
+		BDBFD6711A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVPullToRefresh.h"; sourceTree = "<group>"; };
+		BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVPullToRefresh.m"; sourceTree = "<group>"; };
 		BDDFE6ED1A0069B700A76255 /* PhyWeb.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PhyWeb.entitlements; sourceTree = "<group>"; };
 		BDDFE6EE1A0069F000A76255 /* today.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = today.entitlements; sourceTree = "<group>"; };
 		BDE4D88519DDF678007938F0 /* icon-29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-29.png"; sourceTree = "<group>"; };
@@ -309,6 +316,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		BDBFD66D1A2D125700A0B5E0 /* SVPullToRefresh */ = {
+			isa = PBXGroup;
+			children = (
+				BDBFD66E1A2D125700A0B5E0 /* SVPullToRefresh.h */,
+				BDBFD66F1A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.h */,
+				BDBFD6701A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m */,
+				BDBFD6711A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.h */,
+				BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */,
+			);
+			name = SVPullToRefresh;
+			path = "third-party/SVPullToRefresh/SVPullToRefresh";
+			sourceTree = "<group>";
+		};
 		BDE9F17F19A7CDF100AA8DFB = {
 			isa = PBXGroup;
 			children = (
@@ -431,6 +451,7 @@
 		BDE9F1CD19A7E68400AA8DFB /* third-party */ = {
 			isa = PBXGroup;
 			children = (
+				BDBFD66D1A2D125700A0B5E0 /* SVPullToRefresh */,
 				BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */,
 				BD039BFA19D0E8BB005A7F37 /* MBProgressHUD.xcodeproj */,
 				BDE9F26E19ABE6DD00AA8DFB /* SDWebImage.xcodeproj */,
@@ -716,7 +737,9 @@
 				BDE9F1C319A7E46D00AA8DFB /* PWMetadataRequest.m in Sources */,
 				BDE9F2A119AD551500AA8DFB /* PWSettingsViewController.m in Sources */,
 				BDE9F18E19A7CDF100AA8DFB /* main.m in Sources */,
+				BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */,
 				BDE9F1DA19A7EAFC00AA8DFB /* PWBeaconManager.m in Sources */,
+				BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */,
 				BDE9F1CC19A7E46D00AA8DFB /* PWSignalStrengthView.m in Sources */,
 				BDE4D8BD19DF65BE007938F0 /* PWActivityIndicator.m in Sources */,
 			);
