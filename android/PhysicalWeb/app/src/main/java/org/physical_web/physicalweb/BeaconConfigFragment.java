@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import org.uribeacon.beacon.ConfigUriBeacon;
 import org.uribeacon.config.ProtocolV1;
+import org.uribeacon.config.ProtocolV2;
 import org.uribeacon.config.UriBeaconConfig;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
@@ -70,6 +71,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   // TODO: default value for TxPower should be in another module
   private static final byte TX_POWER_DEFAULT = -63;
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(15);
+  private static final int MAX_URL_LENGTH = 18;
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
@@ -83,7 +85,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private boolean mIsScanRunning;
   private BluetoothAdapter mBluetoothAdapter;
   private Handler mHandler;
-
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
     @Override
@@ -106,9 +107,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mRegionResolver = new RegionResolver();
-    mScanFilterUuids = new ParcelUuid[]{ProtocolV1.CONFIG_SERVICE_UUID};
-    //TODO: Get the config service uuid from the scan activity (to disambiguate V1 vs V2)
-    mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), ProtocolV1.CONFIG_SERVICE_UUID);
+    mScanFilterUuids = new ParcelUuid[]{ProtocolV1.CONFIG_SERVICE_UUID, ProtocolV2.CONFIG_SERVICE_UUID};
     mHandler = new Handler();
     initializeBluetooth();
     setHasOptionsMenu(true);
@@ -169,7 +168,9 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPause();
     mScanningAnimation.stop();
     scanLeDevice(false);
-    mUriBeaconConfig.closeUriBeacon();
+    if (mUriBeaconConfig != null) {
+      mUriBeaconConfig.closeUriBeacon();
+    }
   }
 
   @Override
@@ -249,22 +250,22 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     }
   }
 
-  private boolean leScanMatches(ScanRecord scanRecord) {
+  private Parcelable leScanMatches(ScanRecord scanRecord) {
     if (mScanFilterUuids == null) {
-      return true;
+      return null;
     }
     List services = scanRecord.getServiceUuids();
     if (services != null) {
       for (Parcelable uuid : mScanFilterUuids) {
         if (services.contains(uuid)) {
-          return true;
+          return uuid;
         }
       }
     }
-    return false;
+    return null;
   }
 
-  private void handleFoundDevice(final ScanResult scanResult) {
+  private void handleFoundDevice(final ScanResult scanResult, Parcelable filteredUuid) {
     final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
     Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
@@ -274,8 +275,15 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (address.equals(nearestAddress)) {
       // Stopping the scan in this thread is important for responsiveness
       scanLeDevice(false);
-      mNearestDevice = scanResult.getDevice();
-      mUriBeaconConfig.connectUriBeacon(mNearestDevice);
+      if (filteredUuid.equals(ProtocolV1.CONFIG_SERVICE_UUID)) {
+        mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), ProtocolV1.CONFIG_SERVICE_UUID);
+      } else if (filteredUuid.equals(ProtocolV2.CONFIG_SERVICE_UUID)) {
+        mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), ProtocolV2.CONFIG_SERVICE_UUID);
+      }
+      if (mUriBeaconConfig != null) {
+        mNearestDevice = scanResult.getDevice();
+        mUriBeaconConfig.connectUriBeacon(mNearestDevice);
+      }
     } else {
       mNearestDevice = null;
     }
@@ -326,9 +334,15 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
+    // Shorten the url if necessary
+    if (url.length() > MAX_URL_LENGTH) {
+      url = UrlShortener.shortenUrl(url);
+    }
     // Write the url to the device
     try {
-      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().uriString(url).txPowerLevel(TX_POWER_DEFAULT).build();
+      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().uriString(url)
+          .txPowerLevel(TX_POWER_DEFAULT)
+          .build();
       mUriBeaconConfig.writeUriBeacon(configUriBeacon);
     } catch (URISyntaxException e) {
       e.printStackTrace();
@@ -342,9 +356,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     @Override
     public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {
       ScanRecord scanRecord = ScanRecord.parseFromBytes(scanBytes);
-      if (leScanMatches(scanRecord)) {
+      Parcelable filteredUuid = leScanMatches(scanRecord);
+      if (filteredUuid != null) {
         final ScanResult scanResult = new ScanResult(device, scanRecord, rssi, SystemClock.elapsedRealtimeNanos());
-        handleFoundDevice(scanResult);
+        handleFoundDevice(scanResult, filteredUuid);
       }
     }
   }

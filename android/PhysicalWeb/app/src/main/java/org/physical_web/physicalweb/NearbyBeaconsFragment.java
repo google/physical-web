@@ -42,6 +42,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.uribeacon.beacon.ConfigUriBeacon;
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
@@ -238,7 +239,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
     byte[] advertisingPacket = new byte[0];
     try {
-      advertisingPacket = BeaconHelper.createAdvertisingPacket(idHash);
+      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().uriString(idHash).build();
+      advertisingPacket = configUriBeacon.toByteArray();
     } catch (URISyntaxException e) {
       e.printStackTrace();
     }
