@@ -19,6 +19,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from google.appengine.ext import ndb
+from google.appengine.api import taskqueue
 from google.appengine.api import urlfetch
 from urlparse import urljoin
 from urlparse import urlparse
@@ -54,6 +55,13 @@ class DemoMetadata(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
         self.response.write(json_data)
+
+class RefreshUrl(webapp2.RequestHandler):
+    def post(self):
+        url = self.request.get('url')
+        #logging.info("refreshing " + url)
+        siteInfo = None
+        siteInfo = FetchAndStoreUrl(siteInfo, url)
 
 class ResolveScan(webapp2.RequestHandler):
     def post(self):
@@ -106,9 +114,14 @@ def BuildResponse(objects):
                 # Really if we don't have the data we should not return it.
                 siteInfo = SiteInformation.get_by_id(url)
 
-                if force or siteInfo is None or siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
+                if force or siteInfo is None:
                     # If we don't have the data or it is older than 5 minutes, fetch.
                     siteInfo = FetchAndStoreUrl(siteInfo, url)
+                if siteInfo is not None and siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
+                    # Updated time to make sure we don't request twice.
+                    siteInfo.put()
+                    # Add request to queue.
+                    taskqueue.add(url='/refresh-url', params={'url': url})
 
             device_data = {};
             if siteInfo is not None:
@@ -135,12 +148,14 @@ def FetchAndStoreUrl(siteInfo, url):
     try:
         result = urlfetch.fetch(url, validate_certificate = True)
     except urlfetch_errors.DeadlineExceededError:
-        return None
+        return StoreInvalidUrl(siteInfo, url)
 
     if result.status_code == 200:
         encoding = GetContentEncoding(result.content)
         final_url = GetExpandedURL(url)
         return StoreUrl(siteInfo, url, final_url, result.content, encoding)
+    else:
+        return StoreInvalidUrl(siteInfo, url)
 
 def GetExpandedURL(url):
     parsed_url = urlparse(url)
@@ -194,6 +209,20 @@ def FlattenString(input):
     while "  " in input:
         input = input.replace("  ", " ");
     return input
+
+def StoreInvalidUrl(siteInfo, url):
+    if siteInfo is None:
+        siteInfo = SiteInformation.get_or_insert(url, 
+            url = url,
+            title = None,
+            favicon_url = None,
+            description = None,
+            jsonlds = None)
+    else:
+        # Don't update if it was already cached.
+        siteInfo.put()
+
+    return siteInfo
 
 def StoreUrl(siteInfo, url, final_url, content, encoding):
     title = None
@@ -300,7 +329,6 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
 
     if (len(jsonlds) > 0):
         jsonlds_data = json.dumps(jsonlds);
-        logging.info(jsonlds_data)
     else:
         jsonlds_data = None
 
@@ -329,5 +357,6 @@ class Index(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', Index),
     ('/resolve-scan', ResolveScan),
+    ('/refresh-url', RefreshUrl),
     ('/demo', DemoMetadata)
 ], debug=True)
