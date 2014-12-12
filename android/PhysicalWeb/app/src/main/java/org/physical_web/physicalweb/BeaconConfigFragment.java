@@ -26,7 +26,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -71,7 +70,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   // TODO: default value for TxPower should be in another module
   private static final byte TX_POWER_DEFAULT = -63;
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(15);
-  private static final Parcelable[] mScanFilterUuids = new ParcelUuid[]{ProtocolV2.CONFIG_SERVICE_UUID, ProtocolV1.CONFIG_SERVICE_UUID};
+  private static final ParcelUuid[] mScanFilterUuids = new ParcelUuid[]{ProtocolV2.CONFIG_SERVICE_UUID, ProtocolV1.CONFIG_SERVICE_UUID};
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
@@ -202,14 +201,19 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
-      String url = uriBeacon.getUriString();
-      Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
-      if (UrlShortener.isShortUrl(url)) {
-        url = UrlShortener.lengthenShortUrl(url);
+      String url = "";
+      if (uriBeacon != null) {
+        url = uriBeacon.getUriString();
+        Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
+        if (UrlShortener.isShortUrl(url)) {
+          url = UrlShortener.lengthenShortUrl(url);
+        }
       }
-      final String urlToDisplay = url;
+      else {
+        Toast.makeText(getActivity(), R.string.config_url_read_error, Toast.LENGTH_SHORT).show();
+      }
       // Update the url edit text field with the given url
-      mEditCardUrl.setText(urlToDisplay);
+      mEditCardUrl.setText(url);
       // Show the beacon configuration card
       showConfigurableBeaconCard();
     }
@@ -244,10 +248,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     }
   }
 
-  private Parcelable leScanMatches(ScanRecord scanRecord) {
+  private ParcelUuid leScanMatches(ScanRecord scanRecord) {
     List services = scanRecord.getServiceUuids();
     if (services != null) {
-      for (Parcelable uuid : mScanFilterUuids) {
+      for (ParcelUuid uuid : mScanFilterUuids) {
         if (services.contains(uuid)) {
           return uuid;
         }
@@ -256,7 +260,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     return null;
   }
 
-  private void handleFoundDevice(final ScanResult scanResult, Parcelable filteredUuid) {
+  private void handleFoundDevice(final ScanResult scanResult, ParcelUuid filteredUuid) {
     final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
     Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
@@ -332,6 +336,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       mUriBeaconConfig.writeUriBeacon(configUriBeacon);
     } catch (URISyntaxException e) {
       e.printStackTrace();
+      Toast.makeText(getActivity(), R.string.config_url_error, Toast.LENGTH_SHORT).show();
     }
   }
 
@@ -342,7 +347,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     @Override
     public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {
       ScanRecord scanRecord = ScanRecord.parseFromBytes(scanBytes);
-      Parcelable filteredUuid = leScanMatches(scanRecord);
+      ParcelUuid filteredUuid = leScanMatches(scanRecord);
       if (filteredUuid != null) {
         final ScanResult scanResult = new ScanResult(device, scanRecord, rssi, SystemClock.elapsedRealtimeNanos());
         handleFoundDevice(scanResult, filteredUuid);

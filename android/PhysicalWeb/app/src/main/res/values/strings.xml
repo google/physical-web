@@ -29,6 +29,7 @@
     <string name="action_demo">Demo</string>
     <string name="config_no_beacons_found">No beacons found</string>
     <string name="notification_view_more_beacons">VIEW MORE</string>
+    <string name="config_url_read_error">Error Reading URL</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
