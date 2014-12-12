@@ -68,7 +68,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
 
   private static final String TAG = "BeaconConfigFragment";
   // TODO: default value for TxPower should be in another module
-  private static final byte TX_POWER_DEFAULT = -63;
+  private static final byte TX_POWER_DEFAULT = -22;
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(15);
   private static final ParcelUuid[] mScanFilterUuids = new ParcelUuid[]{ProtocolV2.CONFIG_SERVICE_UUID, ProtocolV1.CONFIG_SERVICE_UUID};
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
@@ -264,6 +264,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
     Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
+    // TODO: Better handle tx power across devices (especially wrt ranging)
     mRegionResolver.onUpdate(address, rxPower, TX_POWER_DEFAULT);
     final String nearestAddress = mRegionResolver.getNearestAddress();
     // When the current sighting comes from the nearest device...
