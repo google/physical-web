@@ -4,7 +4,7 @@ jdk: oraclejdk7
 android:
   components:
     # The BuildTools version used by your project
-    - build-tools-21.0.2
+    - build-tools-21.1.2
 
     # The SDK version used to compile your project
     - android-21
