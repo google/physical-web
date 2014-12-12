@@ -270,7 +270,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (address.equals(nearestAddress)) {
       // Stopping the scan in this thread is important for responsiveness
       scanLeDevice(false);
-      mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), (ParcelUuid) filteredUuid);
+      mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), filteredUuid);
       if (mUriBeaconConfig != null) {
         mNearestDevice = scanResult.getDevice();
         mUriBeaconConfig.connectUriBeacon(mNearestDevice);
