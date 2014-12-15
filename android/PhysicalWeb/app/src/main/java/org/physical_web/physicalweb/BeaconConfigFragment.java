@@ -263,9 +263,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private void handleFoundDevice(final ScanResult scanResult, ParcelUuid filteredUuid) {
     final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
+    int txPower = scanResult.getScanRecord().getTxPowerLevel();
     Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
     // TODO: Better handle tx power across devices (especially wrt ranging)
-    mRegionResolver.onUpdate(address, rxPower, TX_POWER_DEFAULT);
+    mRegionResolver.onUpdate(address, rxPower, txPower);
     final String nearestAddress = mRegionResolver.getNearestAddress();
     // When the current sighting comes from the nearest device...
     if (address.equals(nearestAddress)) {
@@ -333,7 +334,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     }
     // Write the url to the device
     try {
-      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().uriString(url).build();
+      // Note: setting txPower here only really updates txPower for v1 beacons
+      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().txPowerLevel(TX_POWER_DEFAULT).uriString(url).build();
       mUriBeaconConfig.writeUriBeacon(configUriBeacon);
     } catch (URISyntaxException e) {
       e.printStackTrace();
