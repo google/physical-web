@@ -264,12 +264,12 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     final String address = scanResult.getDevice().getAddress();
     int rxPower = scanResult.getRssi();
     int txPower = scanResult.getScanRecord().getTxPowerLevel();
-    Log.i(TAG, String.format("handleFoundDevice: %s, RSSI: %d", address, rxPower));
-    // TODO: Better handle tx power across devices (especially wrt ranging)
     mRegionResolver.onUpdate(address, rxPower, txPower);
     final String nearestAddress = mRegionResolver.getNearestAddress();
+    // TODO: re-implement nearest address methodology once ranging bug is fixed
     // When the current sighting comes from the nearest device...
-    if (address.equals(nearestAddress)) {
+    //if (address.equals(nearestAddress)) {
+    if (true) {
       // Stopping the scan in this thread is important for responsiveness
       scanLeDevice(false);
       mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), filteredUuid);
@@ -277,7 +277,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
         mNearestDevice = scanResult.getDevice();
         mUriBeaconConfig.connectUriBeacon(mNearestDevice);
       }
-
     } else {
       mNearestDevice = null;
     }
