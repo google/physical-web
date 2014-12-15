@@ -191,20 +191,11 @@ typedef struct {
   [self setNeedsLayout];
 }
 
-// We're using formula from
-// http://stackoverflow.com/questions/20416218/understanding-ibeacon-distancing
-static double calculateAccuracy(int txPower, double rssi) {
-  if (rssi == 0) {
-    return -1.0;  // if we cannot determine accuracy, return -1.
-  }
+#define FREE_SPACE_PATH_LOSS_CONSTANT_FOR_BLE 41
 
-  double ratio = rssi * 1.0 / txPower;
-  if (ratio < 1.0) {
-    return pow(ratio, 10);
-  } else {
-    double accuracy = (0.89976) * pow(ratio, 7.7095) + 0.111;
-    return accuracy;
-  }
+static double distanceFromRSSI(int txPower, double rssi) {
+  int pathLoss = txPower - rssi;
+  return pow(10.0, (pathLoss - FREE_SPACE_PATH_LOSS_CONSTANT_FOR_BLE) / 20.0);
 }
 
 static NSString *snippetForBeacon(PWBeacon *beacon) {
@@ -215,8 +206,8 @@ static NSString *snippetForBeacon(PWBeacon *beacon) {
                          [beacon debugRegionName], [beacon debugUriRegionName],
                          (int)[[beacon uriBeacon] RSSI],
                          (int)[[beacon uriBeacon] txPowerLevel],
-                         calculateAccuracy([[beacon uriBeacon] txPowerLevel],
-                                           [[beacon uriBeacon] RSSI]),
+                         distanceFromRSSI([[beacon uriBeacon] txPowerLevel],
+                                          [[beacon uriBeacon] RSSI]),
                          [beacon snippet] != nil ? [beacon snippet] : @""];
   } else {
     return [beacon snippet];

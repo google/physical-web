@@ -21,7 +21,7 @@
 
 #import "PWURLShortener.h"
 
-#define POWERLEVEL -63
+#define DEFAULT_TX_POWER_LEVEL -22
 
 @interface PWConfigureViewController ()<UITextFieldDelegate>
 
@@ -137,7 +137,7 @@
   }
   if (url != nil) {
     UBUriBeacon *beacon =
-        [[UBUriBeacon alloc] initWithURI:url txPowerLevel:POWERLEVEL];
+        [[UBUriBeacon alloc] initWithURI:url txPowerLevel:DEFAULT_TX_POWER_LEVEL];
     if ([beacon isValid]) {
       [_shortenerLabel
           setTextColor:[UIColor colorWithRed:0.3 green:0.6 blue:0.3 alpha:1.0]];
@@ -179,7 +179,7 @@
   [self _startProgress];
 
   UBUriBeacon *beaconData =
-      [[UBUriBeacon alloc] initWithURI:url txPowerLevel:POWERLEVEL];
+      [[UBUriBeacon alloc] initWithURI:url txPowerLevel:DEFAULT_TX_POWER_LEVEL];
   if (![beaconData isValid]) {
     [PWURLShortener shortenURL:url
                     completion:^(NSError *error, NSURL *resultURL) {
@@ -194,7 +194,7 @@
 
 - (void)_validateWithURL:(NSURL *)url {
   UBUriBeacon *beaconData =
-      [[UBUriBeacon alloc] initWithURI:url txPowerLevel:POWERLEVEL];
+      [[UBUriBeacon alloc] initWithURI:url txPowerLevel:DEFAULT_TX_POWER_LEVEL];
   if (![beaconData isValid]) {
     [self _performSelectorAfterWaitDelay:@selector(_showLongURLError)
                                   object:nil];
@@ -259,7 +259,7 @@
 
 - (void)_reallyWriteBeaconWithURL:(NSURL *)url {
   UBUriBeacon *beaconData =
-      [[UBUriBeacon alloc] initWithURI:url txPowerLevel:POWERLEVEL];
+      [[UBUriBeacon alloc] initWithURI:url txPowerLevel:DEFAULT_TX_POWER_LEVEL];
   PWConfigureViewController *__weak weakSelf = self;
   [[self beacon]
           writeBeacon:beaconData

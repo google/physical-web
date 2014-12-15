@@ -27,10 +27,12 @@
 #import "PWMetadataRequest.h"
 #import "PWPlaceholderView.h"
 #import "PWSettingsViewController.h"
+#import "PWSimpleWebViewController.h"
 
 @interface PWBeaconsViewController () <
     UITableViewDataSource, UITableViewDelegate, UITextViewDelegate,
-    CBCentralManagerDelegate, PWMetadataRequestDelegate>
+    CBCentralManagerDelegate, PWMetadataRequestDelegate,
+    PWSimpleWebViewControllerDelegate>
 
 @end
 
@@ -139,6 +141,37 @@
       [[CBCentralManager alloc] initWithDelegate:self queue:nil options:nil];
 
   [self _reloadData];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+  [self _showGettingStartedDialog];
+}
+
+- (void)_showGettingStartedDialog {
+  if ([[NSUserDefaults standardUserDefaults]
+          boolForKey:@"GettingStartedDialogShown"]) {
+    return;
+  }
+
+  PWSimpleWebViewController *controller = [[PWSimpleWebViewController alloc]
+      initWithURL:[NSURL URLWithString:@"http://google.github.io/"
+                         @"physical-web/mobile/ios/" @"getting-started.html"]];
+  [controller setTitle:@"Getting Started"];
+  [controller setProceedButtonVisible:YES];
+  [controller setDelegate:self];
+
+  UINavigationController *navigationController =
+      [[UINavigationController alloc] initWithRootViewController:controller];
+  [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)simpleWebViewControllerProceedPressed:
+            (PWSimpleWebViewController *)controller {
+  [[NSUserDefaults standardUserDefaults] setBool:YES
+                                          forKey:@"GettingStartedDialogShown"];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+  [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size
