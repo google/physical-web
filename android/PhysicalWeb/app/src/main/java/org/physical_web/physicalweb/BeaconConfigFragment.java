@@ -334,7 +334,10 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     // Write the url to the device
     try {
       // Note: setting txPower here only really updates txPower for v1 beacons
-      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder().txPowerLevel(TX_POWER_DEFAULT).uriString(url).build();
+      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder()
+          .txPowerLevel(TX_POWER_DEFAULT)
+          .uriString(url)
+          .build();
       mUriBeaconConfig.writeUriBeacon(configUriBeacon);
     } catch (URISyntaxException e) {
       e.printStackTrace();
