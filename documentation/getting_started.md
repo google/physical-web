@@ -13,4 +13,4 @@ The simplest way, if you're in a hurry, is to get an [RFDuino](http://www.rfduin
 
 Once this is up and running, the Physical Web app will be able to see it.
 
-There is also a growing list of other devices that support the broadcasting of URLs in [this directory](https://github.com/google/physical-web/tree/master/firmware)
+There is also a growing list of other devices that support the broadcasting of URLs in [this directory](https://github.com/google/uribeacon/tree/master/beacons)
