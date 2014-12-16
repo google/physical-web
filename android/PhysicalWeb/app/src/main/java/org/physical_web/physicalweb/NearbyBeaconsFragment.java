@@ -25,11 +25,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -41,6 +44,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.uribeacon.beacon.ConfigUriBeacon;
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
@@ -66,6 +70,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   private static final String TAG = "NearbyBeaconsFragment";
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(3);
+  private static final String MDNS_SERVICE_TYPE = "_http._tcp.";
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothAdapter mBluetoothAdapter;
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
@@ -76,13 +81,15 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
-
+  private NsdManager mNsdManager;
+  private NsdManager.DiscoveryListener mDiscoveryListener;
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
     @Override
     public void run() {
       mScanningAnimationDrawable.stop();
       scanLeDevice(false);
+      mNsdManager.stopServiceDiscovery(mDiscoveryListener);
       mNearbyDeviceAdapter.notifyDataSetChanged();
     }
   };
@@ -114,6 +121,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color, R.color.swipe_refresh_widget_second_color);
     mSwipeRefreshWidget.setOnRefreshListener(this);
 
+    initializeNetworkServiceDiscovery();
+
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
     setListAdapter(mNearbyDeviceAdapter);
@@ -125,6 +134,69 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
     } else {
       initializeBluetooth();
+    }
+  }
+
+  public void initializeNetworkServiceDiscovery() {
+    mNsdManager = (NsdManager) getActivity().getSystemService(Context.NSD_SERVICE);
+
+    mDiscoveryListener = new NsdManager.DiscoveryListener() {
+
+      @Override
+      public void onDiscoveryStarted(String regType) {
+        Log.d(TAG, "Service discovery started");
+      }
+
+      @Override
+      public void onServiceFound(NsdServiceInfo service) {
+        Log.d(TAG, "Service discovery success" + service);
+        String name = service.getServiceName();
+        if (URLUtil.isNetworkUrl(name)) {
+          onNsdUrlFound(name);
+        }
+      }
+
+      @Override
+      public void onServiceLost(NsdServiceInfo service) {
+        Log.e(TAG, "service lost" + service);
+      }
+
+      @Override
+      public void onDiscoveryStopped(String serviceType) {
+        Log.i(TAG, "Discovery stopped: " + serviceType);
+      }
+
+      @Override
+      public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+        Log.e(TAG, "Discovery failed: Error code:" + errorCode);
+        mNsdManager.stopServiceDiscovery(this);
+      }
+
+      @Override
+      public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+        Log.e(TAG, "Discovery failed: Error code:" + errorCode);
+        mNsdManager.stopServiceDiscovery(this);
+      }
+    };
+  }
+
+  private void onNsdUrlFound(String url) {
+    // Check for mDns urls that are greater than the max allowed
+    if (url.length() > ConfigUriBeacon.MAX_URI_LENGTH) {
+      url = UrlShortener.shortenUrl(url);
+    }
+
+    if (!mUrlToUrlMetadata.containsKey(url)) {
+      mUrlToUrlMetadata.put(url, null);
+      MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+      // Fabricate the adapter values so that we can show these ersatz beacons
+      String mockAddress = generateMockBluetoothAddress(url.hashCode());
+      int mockRssi = 0;
+      int mockTxPower = 0;
+      // Update the ranging info
+      mNearbyDeviceAdapter.update(url, mockAddress, mockRssi, mockTxPower);
+      // Force the device to be added to the listview (since it has no metadata)
+      mNearbyDeviceAdapter.add(url, mockAddress);
     }
   }
 
@@ -156,6 +228,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
       mScanningAnimationDrawable.start();
       scanLeDevice(true);
+      mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
     } else {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
     }
@@ -165,7 +238,10 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   public void onPause() {
     super.onPause();
     if (!mIsDemoMode) {
-      scanLeDevice(false);
+      if (mIsScanRunning) {
+        scanLeDevice(false);
+        mNsdManager.stopServiceDiscovery(mDiscoveryListener);
+      }
     }
   }
 
@@ -203,6 +279,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   @Override
   public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
+    Log.d(TAG, "onUrlMetadataReceived:  " + url);
     mUrlToUrlMetadata.put(url, urlMetadata);
   }
 
@@ -281,6 +358,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     if (!mIsDemoMode) {
       mScanningAnimationDrawable.start();
       scanLeDevice(true);
+      mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
     } else {
       mNearbyDeviceAdapter.clear();
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
@@ -359,8 +437,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       // if the metadata for this url has already been fetched
       if ((mUrlToDeviceAddress.get(url) == null) && (mUrlToUrlMetadata.get(url) != null)) {
         // Update the url/device hash table
-        mUrlToDeviceAddress.put(url, address);
+        add(url, address);
       }
+    }
+
+    public void add(String url, String address) {
+      mUrlToDeviceAddress.put(url, address);
     }
 
     @Override
