@@ -153,13 +153,13 @@ def FetchAndStoreUrl(siteInfo, url):
     # Index the page
     try:
         result = urlfetch.fetch(url, validate_certificate = True)
-    except urlfetch_errors.DeadlineExceededError:
+    except:
         return StoreInvalidUrl(siteInfo, url)
 
     if result.status_code == 200:
         encoding = GetContentEncoding(result.content)
         final_url = GetExpandedURL(url)
-        return StoreUrl(siteInfo, url, final_url, result.content, encoding)
+        return StoreUrl(siteInfo, url, final_url, result.final_url, result.content, encoding)
     else:
         return StoreInvalidUrl(siteInfo, url)
 
@@ -230,7 +230,7 @@ def StoreInvalidUrl(siteInfo, url):
 
     return siteInfo
 
-def StoreUrl(siteInfo, url, final_url, content, encoding):
+def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     title = None
     description = None
     icon = None
@@ -314,13 +314,21 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
             icon = value[0]
     
     if icon is not None:
-        icon = urljoin(final_url, icon)
+        if icon.startswith("./"):
+            icon = icon[2:len(icon)]
+        icon = urljoin(real_final_url, icon)
     if icon is None:
-        icon = urljoin(final_url, "/favicon.ico")
+        icon = urljoin(real_final_url, "/favicon.ico")
     # make sure the icon exists
     result = urlfetch.fetch(icon, method = 'HEAD')
     if result.status_code != 200:
         icon = None
+    else:
+        contentType = result.headers['Content-Type']
+        if contentType is None:
+            icon = None
+        elif not contentType.startswith('image/'):
+            icon = None
 
     jsonlds = []
     value = htmltree.xpath("//head//script[@type='application/ld+json']/text()");
