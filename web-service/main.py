@@ -81,6 +81,12 @@ class ResolveScan(webapp2.RequestHandler):
         json_data = json.dumps(output);
         self.response.write(json_data)
 
+class GoUrl(webapp2.RequestHandler):
+    def get(self):
+        url = self.request.get('url')
+        url = url.encode('ascii','ignore')
+        self.redirect(url)
+
 def BuildResponse(objects):
         metadata_output = []
         
@@ -358,5 +364,6 @@ app = webapp2.WSGIApplication([
     ('/', Index),
     ('/resolve-scan', ResolveScan),
     ('/refresh-url', RefreshUrl),
+    ('/go', GoUrl),
     ('/demo', DemoMetadata)
 ], debug=True)
