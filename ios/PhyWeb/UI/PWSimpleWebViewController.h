@@ -16,11 +16,23 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol PWSimpleWebViewControllerDelegate;
+
 @interface PWSimpleWebViewController : UIViewController
 
 @property(nonatomic, copy) NSString *title;
+@property(nonatomic, assign) id<PWSimpleWebViewControllerDelegate> delegate;
+@property(nonatomic, assign) BOOL proceedButtonVisible;
 
 - (instancetype)initWithURL:(NSURL *)url;
 - (instancetype)initWithHTMLString:(NSString *)htmlString;
+
+@end
+
+@protocol PWSimpleWebViewControllerDelegate<NSObject>
+
+@optional
+- (void)simpleWebViewControllerProceedPressed:
+        (PWSimpleWebViewController *)controller;
 
 @end

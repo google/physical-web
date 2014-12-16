@@ -18,6 +18,7 @@
 
 #import <CoreBluetooth/CoreBluetooth.h>
 #import <MBProgressHUD/MBProgressHUD.h>
+#import "SVPullToRefresh.h"
 
 #import "PWBeaconManager.h"
 #import "PWBeacon.h"
@@ -26,10 +27,12 @@
 #import "PWMetadataRequest.h"
 #import "PWPlaceholderView.h"
 #import "PWSettingsViewController.h"
+#import "PWSimpleWebViewController.h"
 
 @interface PWBeaconsViewController () <
     UITableViewDataSource, UITableViewDelegate, UITextViewDelegate,
-    CBCentralManagerDelegate, PWMetadataRequestDelegate>
+    CBCentralManagerDelegate, PWMetadataRequestDelegate,
+    PWSimpleWebViewControllerDelegate>
 
 @end
 
@@ -49,6 +52,7 @@
   UIActivityIndicatorView *_activityView;
   PWMetadataRequest *_demoBeaconsRequest;
   NSArray *_demoBeacons;
+  BOOL _refreshing;
 }
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil
@@ -84,6 +88,9 @@
   [_tableView setRowHeight:100];
   [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
   [_tableView setScrollsToTop:YES];
+  PWBeaconsViewController *__weak weakSelf = self;
+  [_tableView
+      addPullToRefreshWithActionHandler:^{ [weakSelf _performPullToRefresh]; }];
   [self viewWillTransitionToSize:bounds.size withTransitionCoordinator:nil];
   [[self view] addSubview:_tableView];
 
@@ -136,6 +143,37 @@
   [self _reloadData];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+  [self _showGettingStartedDialog];
+}
+
+- (void)_showGettingStartedDialog {
+  if ([[NSUserDefaults standardUserDefaults]
+          boolForKey:@"GettingStartedDialogShown"]) {
+    return;
+  }
+
+  PWSimpleWebViewController *controller = [[PWSimpleWebViewController alloc]
+      initWithURL:[NSURL URLWithString:@"http://google.github.io/"
+                         @"physical-web/mobile/ios/" @"getting-started.html"]];
+  [controller setTitle:@"Getting Started"];
+  [controller setProceedButtonVisible:YES];
+  [controller setDelegate:self];
+
+  UINavigationController *navigationController =
+      [[UINavigationController alloc] initWithRootViewController:controller];
+  [self presentViewController:navigationController animated:YES completion:nil];
+}
+
+- (void)simpleWebViewControllerProceedPressed:
+            (PWSimpleWebViewController *)controller {
+  [[NSUserDefaults standardUserDefaults] setBool:YES
+                                          forKey:@"GettingStartedDialogShown"];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+  [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 - (void)viewWillTransitionToSize:(CGSize)size
        withTransitionCoordinator:
            (id<UIViewControllerTransitionCoordinator>)coordinator {
@@ -160,6 +198,38 @@
   _showDemoBeacons = NO;
   _demoBeacons = nil;
   [self _updateBeaconsNow];
+}
+
+- (void)_performPullToRefresh {
+  if (_refreshing) {
+    return;
+  }
+
+  if ([[PWBeaconManager sharedManager] isStarted]) {
+    [[PWBeaconManager sharedManager] stop];
+  }
+  [self disablePlaceholder];
+  [[PWBeaconManager sharedManager] resetBeacons];
+  [[PWBeaconManager sharedManager] start];
+  [self updateBeaconsNow];
+
+  _refreshing = YES;
+  [self performSelector:@selector(_performPullToRefreshDone)
+             withObject:nil
+             afterDelay:2.0];
+}
+
+- (void)_performPullToRefreshDone {
+  if (!_refreshing) {
+    return;
+  }
+  [NSObject
+      cancelPreviousPerformRequestsWithTarget:self
+                                     selector:@selector(
+                                                  _performPullToRefreshDone)
+                                       object:nil];
+  [[_tableView pullToRefreshView] stopAnimating];
+  _refreshing = NO;
 }
 
 - (void)_showDemoBeaconsButtonPressed {
@@ -223,6 +293,8 @@
 }
 
 - (void)_updateBeaconsNow {
+  [self _performPullToRefreshDone];
+
   [NSObject cancelPreviousPerformRequestsWithTarget:self
                                            selector:@selector(_updateBeaconsNow)
                                              object:nil];
@@ -413,6 +485,7 @@
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
                      withVelocity:(CGPoint)velocity
               targetContentOffset:(inout CGPoint *)targetContentOffset {
+#if 0
   if ([scrollView contentOffset].y < -150) {
     [[PWBeaconManager sharedManager]
         setStableMode:![[PWBeaconManager sharedManager] isStableMode]];
@@ -424,6 +497,7 @@
                           : @"Dynamic Mode"];
     [hud hide:YES afterDelay:1.5];
   }
+#endif
 }
 
 #pragma mark metadata request response

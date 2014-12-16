@@ -18,7 +18,7 @@
 
 #import <WebKit/WebKit.h>
 
-@interface PWSimpleWebViewController ()<WKNavigationDelegate>
+@interface PWSimpleWebViewController () <WKNavigationDelegate>
 
 @end
 
@@ -56,6 +56,15 @@
     [_webView loadHTMLString:_htmlString baseURL:nil];
   }
   [[self view] addSubview:_webView];
+
+  if ([self proceedButtonVisible]) {
+    UIBarButtonItem *button =
+        [[UIBarButtonItem alloc] initWithTitle:@"Proceed"
+                                         style:UIBarButtonItemStyleDone
+                                        target:self
+                                        action:@selector(_proceed:)];
+    [[self navigationItem] setRightBarButtonItem:button];
+  }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -71,6 +80,14 @@
 - (void)webView:(WKWebView *)webView
     didFinishNavigation:(WKNavigation *)navigation {
   [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+}
+
+- (void)_proceed:(id)sender {
+  if ([[self delegate]
+          respondsToSelector:@selector(
+                                 simpleWebViewControllerProceedPressed:)]) {
+    [[self delegate] simpleWebViewControllerProceedPressed:self];
+  }
 }
 
 @end
