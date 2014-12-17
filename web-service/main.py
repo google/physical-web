@@ -60,7 +60,7 @@ class RefreshUrl(webapp2.RequestHandler):
     def post(self):
         url = self.request.get('url')
         #logging.info("refreshing " + url)
-        siteInfo = None
+        siteInfo = SiteInformation.get_by_id(url)
         siteInfo = FetchAndStoreUrl(siteInfo, url)
 
 class ResolveScan(webapp2.RequestHandler):
@@ -80,6 +80,12 @@ class ResolveScan(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
         self.response.write(json_data)
+
+class GoUrl(webapp2.RequestHandler):
+    def get(self):
+        url = self.request.get('url')
+        url = url.encode('ascii','ignore')
+        self.redirect(url)
 
 def BuildResponse(objects):
         metadata_output = []
@@ -147,13 +153,16 @@ def FetchAndStoreUrl(siteInfo, url):
     # Index the page
     try:
         result = urlfetch.fetch(url, validate_certificate = True)
-    except urlfetch_errors.DeadlineExceededError:
+    except:
         return StoreInvalidUrl(siteInfo, url)
 
     if result.status_code == 200:
         encoding = GetContentEncoding(result.content)
         final_url = GetExpandedURL(url)
-        return StoreUrl(siteInfo, url, final_url, result.content, encoding)
+        real_final_url = result.final_url
+        if real_final_url is None:
+            real_final_url = final_url
+        return StoreUrl(siteInfo, url, final_url, real_final_url, result.content, encoding)
     else:
         return StoreInvalidUrl(siteInfo, url)
 
@@ -224,7 +233,7 @@ def StoreInvalidUrl(siteInfo, url):
 
     return siteInfo
 
-def StoreUrl(siteInfo, url, final_url, content, encoding):
+def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     title = None
     description = None
     icon = None
@@ -308,12 +317,36 @@ def StoreUrl(siteInfo, url, final_url, content, encoding):
             icon = value[0]
     
     if icon is not None:
-        icon = urljoin(final_url, icon)
+        if icon.startswith("./"):
+            icon = icon[2:len(icon)]
+        icon = urljoin(real_final_url, icon)
     if icon is None:
-        icon = urljoin(final_url, "/favicon.ico")
+        icon = urljoin(real_final_url, "/favicon.ico")
     # make sure the icon exists
-    result = urlfetch.fetch(icon, method = 'HEAD')
-    if result.status_code != 200:
+    try:
+        result = urlfetch.fetch(icon, method = 'HEAD')
+        if result.status_code != 200:
+            icon = None
+        else:
+            contentType = result.headers['Content-Type']
+            if contentType is None:
+                icon = None
+            elif not contentType.startswith('image/'):
+                icon = None
+    except:
+        s_url = url
+        s_final_url = final_url
+        s_real_final_url = real_final_url
+        s_icon = icon
+        if s_url is None:
+            s_url = "[none]"
+        if s_final_url is None:
+            s_final_url = "[none]"
+        if s_real_final_url is None:
+            s_real_final_url = "[none]"
+        if s_icon is None:
+            s_icon = "[none]"
+        logging.warning("icon error with " + s_url + " " + s_final_url + " " + s_real_final_url + " -> " + s_icon)
         icon = None
 
     jsonlds = []
@@ -358,5 +391,6 @@ app = webapp2.WSGIApplication([
     ('/', Index),
     ('/resolve-scan', ResolveScan),
     ('/refresh-url', RefreshUrl),
+    ('/go', GoUrl),
     ('/demo', DemoMetadata)
 ], debug=True)

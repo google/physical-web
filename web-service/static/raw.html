@@ -32,9 +32,8 @@ limitations under the License.
         }
       };
 
-      query = {"objects":[{"url":resolveQuery.value}]};
       request.open("POST", "/resolve-scan");
-      request.send(JSON.stringify(query));
+      request.send(resolveQuery.value);
     };
 
     window.onload = function() {
@@ -42,7 +41,6 @@ limitations under the License.
       var resolveResponseOutput = document.getElementById("resolveResponse");
       resolveScanButton.onclick = function() {
         resolveScan(function(data) {
-          document.querySelector("#response-header").style.display = "inline";
           resolveResponseOutput.innerText = JSON.stringify(data, undefined, 2);
         });
       };
@@ -52,15 +50,49 @@ limitations under the License.
   </head>
   <body>
     <h2>/resolve-scan</h2>
-    <p>
-    <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com">
-    </p>
-    <div>
+    <h3>Request Data</h3>
+    <textarea id="resolvequery" cols=40 style="width: 400px; height: 200px;">{
+  "objects": [{
+      "url": "http://example.com",
+      "rssi": -93
+    },
+    {
+      "url": "http://jenson.org/iot/3",
+      "rssi": -50
+    },
+    {
+      "url": "http://z3.ca/01",
+      "rssi": -50,
+      "force": true
+    },
+    {
+      "url": "http://z3.ca/02",
+      "rssi": -50,
+      "force": true
+    },
+    {
+      "url": "http://z3.ca/03",
+      "rssi": -50,
+      "force": true
+    },
+    {
+      "url": "http://z3.ca/04",
+      "rssi": -50,
+      "force": true
+    },
+    {
+      "url": "http://z3.ca/05",
+      "rssi": -50,
+      "force": true
+    },
+    {
+      "url": "http://z3.ca/06",
+      "rssi": -50
+    }
+    ]
+}</textarea>
+    <h3>Request Data</h3>
+    <pre id="resolveResponse"></pre>
     <button id="resolveScanButton">Run</button>
-    </div>
-    <p>
-    <b id="response-header" style="display: none;">Response</b>
-    <pre id="resolveResponse" style="word-wrap: break-word;"></pre>
-    </p>
   </body>
 </html>
