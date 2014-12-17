@@ -212,7 +212,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   @Override
   public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
-    Log.d(TAG, "onUrlMetadataReceived:  " + url);
     mUrlToUrlMetadata.put(url, urlMetadata);
   }
 
