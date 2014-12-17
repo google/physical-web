@@ -466,7 +466,7 @@
 - (void)tableView:(UITableView *)tableView
     didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
   PWBeacon *beacon = [_beacons objectAtIndex:[indexPath row]];
-  NSURL *url = [beacon URL];
+  NSURL *url = [[beacon uriBeacon] URI];
   NSString *unescaped = [url absoluteString];
   NSString *escapedString =
       [unescaped stringByAddingPercentEncodingWithAllowedCharacters:
