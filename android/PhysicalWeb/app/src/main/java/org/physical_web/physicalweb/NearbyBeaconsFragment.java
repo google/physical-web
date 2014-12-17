@@ -1,5 +1,3 @@
-package org.physical_web.physicalweb;
-
 /*
  * Copyright 2014 Google Inc. All rights reserved.
  *
@@ -15,6 +13,8 @@ package org.physical_web.physicalweb;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.physical_web.physicalweb;
 
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
