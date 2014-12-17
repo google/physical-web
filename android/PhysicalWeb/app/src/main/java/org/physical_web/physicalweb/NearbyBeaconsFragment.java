@@ -30,7 +30,6 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -42,7 +41,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.uribeacon.beacon.ConfigUriBeacon;
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
