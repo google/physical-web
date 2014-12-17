@@ -34,6 +34,7 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
 
+import org.uribeacon.beacon.ConfigUriBeacon;
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
@@ -50,22 +51,20 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * This is the services that scans for beacons.
- * When the application loads, it checks
- * if the service is running and if it is not,
- * the applications creates the service (from MainActivity).
- * The service finds nearby ble beacons,
+ * This is a service that scans for nearby uriBeacons.
+ * It is created by MainActivity.
+ * It finds nearby ble beacons,
  * and stores a count of them.
- * Also, the service listens for screen on/off events
+ * It also listens for screen on/off events
  * and start/stops the scanning accordingly.
- * Also, this service issues a notification
+ * It also silently issues a notification
  * informing the user of nearby beacons.
  * As beacons are found and lost,
  * the notification is updated to reflect
  * the current number of nearby beacons.
  */
 
-public class UriBeaconDiscoveryService extends Service implements MetadataResolver.MetadataResolverCallback {
+public class UriBeaconDiscoveryService extends Service implements MetadataResolver.MetadataResolverCallback, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback {
 
   private static final String TAG = "UriBeaconDiscoveryService";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -98,6 +97,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
   private List<String> mSortedDevices;
   private HashMap<String, String> mUrlToDeviceAddress;
+  private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   private Comparator<String> mComparator = new Comparator<String>() {
     @Override
     public int compare(String address, String otherAddress) {
@@ -123,14 +123,25 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   public UriBeaconDiscoveryService() {
   }
 
+  private static String generateMockBluetoothAddress(int hashCode) {
+    String mockAddress = "00:11";
+    for (int i = 0; i < 4; i++) {
+      mockAddress += String.format(":%02X", hashCode & 0xFF);
+      hashCode = hashCode >> 8;
+    }
+    return mockAddress;
+  }
+
   private void initialize() {
     mRegionResolver = new RegionResolver();
     mNotificationManager = NotificationManagerCompat.from(this);
     mUrlToUrlMetadata = new HashMap<>();
     mSortedDevices = null;
     mUrlToDeviceAddress = new HashMap<>();
+    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     initializeScreenStateBroadcastReceiver();
-    startSearchingForBeacons();
+    startSearchingForUriBeacons();
+    mMdnsUrlDiscoverer.startScanning();
   }
 
   /**
@@ -170,7 +181,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   @Override
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
-    stopSearchingForBeacons();
+    stopSearchingForUriBeacons();
+    mMdnsUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
     mUrlToUrlMetadata = new HashMap<>();
     cancelNotifications();
@@ -178,7 +190,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
   @Override
   public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
-    Log.d(TAG, "service onUrlMetadataReceived:  " + url);
     mUrlToUrlMetadata.put(url, urlMetadata);
     updateNotifications();
   }
@@ -193,7 +204,22 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     updateNotifications();
   }
 
-  private void startSearchingForBeacons() {
+  @Override
+  public void onMdnsUrlFound(String url) {
+    Log.d(TAG, "uribeacondiscoveryservice onMdnsUrlFound:  " + url);
+    if (!mUrlToUrlMetadata.containsKey(url)) {
+      // Fabricate the device values so that we can show these ersatz beacons
+      String mockAddress = generateMockBluetoothAddress(url.hashCode());
+      int mockRssi = 0;
+      int mockTxPower = 0;
+      mUrlToUrlMetadata.put(url, null);
+      mUrlToDeviceAddress.put(url, mockAddress);
+      mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
+      MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+    }
+  }
+
+  private void startSearchingForUriBeacons() {
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
@@ -213,7 +239,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
   }
 
-  private void stopSearchingForBeacons() {
+  private void stopSearchingForUriBeacons() {
     getLeScanner().stopScan(mScanCallback);
   }
 
@@ -252,12 +278,14 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // If at least one beacon has been found
     if (mSortedDevices.size() > 0) {
       // Create or update a notification for this beacon
-      updateNearbyBeaconNotification(getUrlForGivenDeviceAddress(mSortedDevices.get(0)), NEAREST_BEACON_NOTIFICATION_ID);
+      updateNearbyBeaconNotification(getUrlForGivenDeviceAddress(mSortedDevices.get(0)),
+          NEAREST_BEACON_NOTIFICATION_ID);
     }
     // If at least two beacons have been found
     if (mSortedDevices.size() > 1) {
       // Create or update a notification for this beacon
-      updateNearbyBeaconNotification(mSortedDevices.get(0), SECOND_NEAREST_BEACON_NOTIFICATION_ID);
+      updateNearbyBeaconNotification(getUrlForGivenDeviceAddress(mSortedDevices.get(1)),
+          SECOND_NEAREST_BEACON_NOTIFICATION_ID);
       // Create a summary notification for both beacon notifications
       updateSummaryNotification();
     }
@@ -427,9 +455,11 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     public void onReceive(Context context, Intent intent) {
       boolean isScreenOn = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
       if (isScreenOn) {
-        startSearchingForBeacons();
+        startSearchingForUriBeacons();
+        mMdnsUrlDiscoverer.startScanning();
       } else {
-        stopSearchingForBeacons();
+        stopSearchingForUriBeacons();
+        mMdnsUrlDiscoverer.stopScanning();
       }
     }
   }

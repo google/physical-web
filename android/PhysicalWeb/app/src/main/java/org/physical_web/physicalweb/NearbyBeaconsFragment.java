@@ -300,11 +300,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   @Override
   public void onMdnsUrlFound(String url) {
-    // Check for mDns urls that are greater than the max allowed
-    if (url.length() > ConfigUriBeacon.MAX_URI_LENGTH) {
-      url = UrlShortener.shortenUrl(url);
-    }
-
     if (!mUrlToUrlMetadata.containsKey(url)) {
       mUrlToUrlMetadata.put(url, null);
       MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
