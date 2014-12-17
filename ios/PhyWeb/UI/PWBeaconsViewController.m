@@ -467,7 +467,15 @@
     didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
   PWBeacon *beacon = [_beacons objectAtIndex:[indexPath row]];
   NSURL *url = [beacon URL];
-  [[UIApplication sharedApplication] openURL:url];
+  NSString *unescaped = [url absoluteString];
+  NSString *escapedString =
+      [unescaped stringByAddingPercentEncodingWithAllowedCharacters:
+                     [NSCharacterSet URLHostAllowedCharacterSet]];
+  NSString *goURLString =
+      [NSString stringWithFormat:@"http://url-caster.appspot.com/go?url=%@",
+                                 escapedString];
+  NSURL *goURL = [NSURL URLWithString:goURLString];
+  [[UIApplication sharedApplication] openURL:goURL];
 
   [_tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
