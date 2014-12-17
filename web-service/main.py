@@ -60,7 +60,7 @@ class RefreshUrl(webapp2.RequestHandler):
     def post(self):
         url = self.request.get('url')
         #logging.info("refreshing " + url)
-        siteInfo = None
+        siteInfo = SiteInformation.get_by_id(url)
         siteInfo = FetchAndStoreUrl(siteInfo, url)
 
 class ResolveScan(webapp2.RequestHandler):
@@ -159,7 +159,10 @@ def FetchAndStoreUrl(siteInfo, url):
     if result.status_code == 200:
         encoding = GetContentEncoding(result.content)
         final_url = GetExpandedURL(url)
-        return StoreUrl(siteInfo, url, final_url, result.final_url, result.content, encoding)
+        real_final_url = result.final_url
+        if real_final_url is None:
+            real_final_url = final_url
+        return StoreUrl(siteInfo, url, final_url, real_final_url, result.content, encoding)
     else:
         return StoreInvalidUrl(siteInfo, url)
 
@@ -320,15 +323,31 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     if icon is None:
         icon = urljoin(real_final_url, "/favicon.ico")
     # make sure the icon exists
-    result = urlfetch.fetch(icon, method = 'HEAD')
-    if result.status_code != 200:
+    try:
+        result = urlfetch.fetch(icon, method = 'HEAD')
+        if result.status_code != 200:
+            icon = None
+        else:
+            contentType = result.headers['Content-Type']
+            if contentType is None:
+                icon = None
+            elif not contentType.startswith('image/'):
+                icon = None
+    except:
+        s_url = url
+        s_final_url = final_url
+        s_real_final_url = real_final_url
+        s_icon = icon
+        if s_url is None:
+            s_url = "[none]"
+        if s_final_url is None:
+            s_final_url = "[none]"
+        if s_real_final_url is None:
+            s_real_final_url = "[none]"
+        if s_icon is None:
+            s_icon = "[none]"
+        logging.warning("icon error with " + s_url + " " + s_final_url + " " + s_real_final_url + " -> " + s_icon)
         icon = None
-    else:
-        contentType = result.headers['Content-Type']
-        if contentType is None:
-            icon = None
-        elif not contentType.startswith('image/'):
-            icon = None
 
     jsonlds = []
     value = htmltree.xpath("//head//script[@type='application/ld+json']/text()");
