@@ -41,12 +41,13 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    if (!checkIfUserHasOptedIn()) {
+      showOobActivity();
+    }
+
     if (savedInstanceState == null) {
       showNearbyBeaconsFragment(false);
     }
-    ensureBluetoothIsEnabled();
-
-    initializeOob();
   }
 
   /**
@@ -59,12 +60,6 @@ public class MainActivity extends Activity {
     if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
       startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    }
-  }
-
-  private void initializeOob() {
-    if (!checkIfUserHasOptedIn()) {
-      showOobActivity();
     }
   }
 
@@ -113,13 +108,16 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    // The service pauses while the app is running since the app does it's own scans or
-    // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
-    stopUriBeaconDiscoveryService();
-    // Check if the intent was from the discovery service
-    if (getIntent().getBooleanExtra("isFromUriBeaconDiscoveryService", false)) {
-      // Ensure the default view is visible
-      showNearbyBeaconsFragment(false);
+    if (checkIfUserHasOptedIn()) {
+      ensureBluetoothIsEnabled();
+      // The service pauses while the app is running since the app does it's own scans or
+      // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
+      stopUriBeaconDiscoveryService();
+      // Check if the intent was from the discovery service
+      if (getIntent().getBooleanExtra("isFromUriBeaconDiscoveryService", false)) {
+        // Ensure the default view is visible
+        showNearbyBeaconsFragment(false);
+      }
     }
   }
 
