@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +34,7 @@ import android.view.MenuItem;
 public class MainActivity extends Activity {
   private static final int REQUEST_ENABLE_BT = 0;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
+  private static final int OPT_IN_REQUEST_CODE = 1;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainActivity extends Activity {
       showNearbyBeaconsFragment(false);
     }
     ensureBluetoothIsEnabled();
+
+    initializeOob();
   }
 
   /**
@@ -55,6 +59,12 @@ public class MainActivity extends Activity {
     if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
       startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+    }
+  }
+
+  private void initializeOob() {
+    if (!checkIfUserHasOptedIn()) {
+      showOobActivity();
     }
   }
 
@@ -139,7 +149,7 @@ public class MainActivity extends Activity {
   private void showNearbyBeaconsFragment(boolean isDemoMode) {
     if (!isDemoMode) {
       // Look for an instance of the nearby beacons fragment
-      Fragment nearbyBeaconsFragment =  getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
+      Fragment nearbyBeaconsFragment = getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
       // If the fragment does not exist
       if (nearbyBeaconsFragment == null) {
         // Create the fragment
@@ -154,8 +164,7 @@ public class MainActivity extends Activity {
           getFragmentManager().popBackStack();
         }
       }
-    }
-    else {
+    } else {
       getFragmentManager().beginTransaction()
           .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
           .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
@@ -186,5 +195,42 @@ public class MainActivity extends Activity {
         .replace(R.id.main_activity_container, aboutFragment)
         .addToBackStack(null)
         .commit();
+  }
+
+  private void showOobActivity() {
+    Intent intent = new Intent(this, OobActivity.class);
+    startActivityForResult(intent, OPT_IN_REQUEST_CODE);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    if (requestCode == OPT_IN_REQUEST_CODE) {
+      if (resultCode == RESULT_OK) {
+        // Get the flag from the intent
+        boolean userOptedIn = intent.getBooleanExtra("userOptedIn", false);
+        // If the user did opt in
+        if (userOptedIn) {
+          // Save the opt in preference
+          SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+          SharedPreferences.Editor editor = sharedPreferences.edit();
+          editor.putBoolean(getString(R.string.user_opted_in_flag), true);
+          editor.commit();
+          // If the user did not opt in
+        } else {
+          // Exit the app
+          finish();
+        }
+      }
+      // If no result was returned (e.g. the user pressed the home button)
+      else {
+        // Surface the oob activity again
+        showOobActivity();
+      }
+    }
+  }
+
+  private boolean checkIfUserHasOptedIn() {
+    SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+    return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
 }

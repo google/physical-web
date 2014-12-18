@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.physical_web.physicalweb" >
+<manifest
+    package="org.physical_web.physicalweb"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
-        android:required="true" />
+        android:required="true"/>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <!-- This is required for the scan library. -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:allowBackup="true"
@@ -18,22 +19,22 @@
         android:label="@string/app_name"
         android:theme="@style/CustomAppTheme">
         <activity
-            android:name="org.physical_web.physicalweb.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <service
-            android:name="org.physical_web.physicalweb.UriBeaconDiscoveryService"
+            android:name=".UriBeaconDiscoveryService"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
         </service>
 
         <!-- This is required for the scan library. -->
@@ -41,16 +42,21 @@
             android:name="org.uribeacon.scan.compat.ScanWakefulService"
             android:exported="false">
         </service>
-
         <service
             android:name="org.uribeacon.config.GattService"
             android:exported="false">
         </service>
 
         <!-- This is required for the scan library. -->
-        <receiver android:name="org.uribeacon.scan.compat.ScanWakefulBroadcastReceiver" >
+        <receiver android:name="org.uribeacon.scan.compat.ScanWakefulBroadcastReceiver">
         </receiver>
 
+        <activity
+            android:name=".OobActivity"
+            android:label="@string/title_activity_oob"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>
