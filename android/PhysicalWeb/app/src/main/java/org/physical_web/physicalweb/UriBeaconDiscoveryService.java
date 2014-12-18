@@ -93,9 +93,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
-  private static final int KITKAT_NOTIFCATION_TITLE_COLOR = Color.parseColor("#ffffff");
-  private static final int KITKAT_NOTIFCATION_URL_COLOR = Color.parseColor("#999999");
-  private static final int KITKAT_NOTIFCATION_SNIPPET_COLOR = Color.parseColor("#999999");
+  private static final int NON_LOLLIPOP_NOTIFCATION_TITLE_COLOR = Color.parseColor("#ffffff");
+  private static final int NON_LOLLIPOP_NOTIFCATION_URL_COLOR = Color.parseColor("#999999");
+  private static final int NON_LOLLIPOP_NOTIFCATION_SNIPPET_COLOR = Color.parseColor("#999999");
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
@@ -397,9 +397,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       remoteViews.setTextViewText(R.id.description_firstBeacon, description);
       // Recolor notifications to have light text for non-Lollipop devices
       if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
-        remoteViews.setTextColor(R.id.title_firstBeacon, KITKAT_NOTIFCATION_TITLE_COLOR);
-        remoteViews.setTextColor(R.id.url_firstBeacon, KITKAT_NOTIFCATION_URL_COLOR);
-        remoteViews.setTextColor(R.id.description_firstBeacon, KITKAT_NOTIFCATION_SNIPPET_COLOR);
+        remoteViews.setTextColor(R.id.title_firstBeacon, NON_LOLLIPOP_NOTIFCATION_TITLE_COLOR);
+        remoteViews.setTextColor(R.id.url_firstBeacon, NON_LOLLIPOP_NOTIFCATION_URL_COLOR);
+        remoteViews.setTextColor(R.id.description_firstBeacon, NON_LOLLIPOP_NOTIFCATION_SNIPPET_COLOR);
       }
 
       // Create an intent that will open the browser to the beacon's url
@@ -430,9 +430,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       remoteViews.setTextViewText(R.id.description_secondBeacon, description);
       // Recolor notifications to have light text for non-Lollipop devices
       if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
-        remoteViews.setTextColor(R.id.title_secondBeacon, KITKAT_NOTIFCATION_TITLE_COLOR);
-        remoteViews.setTextColor(R.id.url_secondBeacon, KITKAT_NOTIFCATION_URL_COLOR);
-        remoteViews.setTextColor(R.id.description_secondBeacon, KITKAT_NOTIFCATION_SNIPPET_COLOR);
+        remoteViews.setTextColor(R.id.title_secondBeacon, NON_LOLLIPOP_NOTIFCATION_TITLE_COLOR);
+        remoteViews.setTextColor(R.id.url_secondBeacon, NON_LOLLIPOP_NOTIFCATION_URL_COLOR);
+        remoteViews.setTextColor(R.id.description_secondBeacon, NON_LOLLIPOP_NOTIFCATION_SNIPPET_COLOR);
       }
 
       // Create an intent that will open the browser to the beacon's url
