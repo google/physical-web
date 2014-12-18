@@ -35,13 +35,20 @@
 // Favicon.
 @property(nonatomic, copy) NSURL *iconURL;
 
+// Date of discovery of the beacon.
 @property(nonatomic, retain) NSDate *date;
 
 // The beacon is in the first batch. We should sort it by region.
 @property(nonatomic, assign) BOOL sortByRegion;
 
-// The range of
+// Region of the beacon.
 @property(nonatomic, assign) UBUriBeaconRegion region;
+
+// Score of the beacon, computed by the metadata server.
+@property(nonatomic, assign) double score;
+
+// Returns YES if the score has been computed by the metadata server.
+@property(nonatomic, assign) BOOL hasScore;
 
 // Returns the region name of the beacon when it was created.
 - (NSString *)debugRegionName;

@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <UriBeacon/UriBeacon.h>
 
+#define METADATA_SERVER_HOSTNAME @"url-caster.appspot.com"
+
 @protocol PWMetadataRequestDelegate;
 
 // This class will request to the metadata server the information about a
