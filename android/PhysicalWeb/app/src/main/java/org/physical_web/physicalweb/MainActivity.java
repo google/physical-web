@@ -34,16 +34,11 @@ import android.view.MenuItem;
 public class MainActivity extends Activity {
   private static final int REQUEST_ENABLE_BT = 0;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
-  private static final int OPT_IN_REQUEST_CODE = 1;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
-    if (!checkIfUserHasOptedIn()) {
-      showOobActivity();
-    }
 
     if (savedInstanceState == null) {
       showNearbyBeaconsFragment(false);
@@ -118,6 +113,11 @@ public class MainActivity extends Activity {
         // Ensure the default view is visible
         showNearbyBeaconsFragment(false);
       }
+    }
+    else {
+      // Show the oob activity
+      Intent intent = new Intent(this, OobActivity.class);
+      startActivity(intent);
     }
   }
 
@@ -197,43 +197,8 @@ public class MainActivity extends Activity {
         .commit();
   }
 
-  private void showOobActivity() {
-    Intent intent = new Intent(this, OobActivity.class);
-    //startActivityForResult(intent, OPT_IN_REQUEST_CODE);
-    startActivity(intent);
-  }
-
-  /*
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    if (requestCode == OPT_IN_REQUEST_CODE) {
-      if (resultCode == RESULT_OK) {
-        // Get the flag from the intent
-        boolean userOptedIn = intent.getBooleanExtra("userOptedIn", false);
-        // If the user did opt in
-        if (userOptedIn) {
-          // Save the opt in preference
-          SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
-          SharedPreferences.Editor editor = sharedPreferences.edit();
-          editor.putBoolean(getString(R.string.user_opted_in_flag), true);
-          editor.commit();
-          // If the user did not opt in
-        } else {
-          // Exit the app
-          finish();
-        }
-      }
-      // If no result was returned (e.g. the user pressed the home button)
-      else {
-        // Surface the oob activity again
-        showOobActivity();
-      }
-    }
-  }
-  */
-
   private boolean checkIfUserHasOptedIn() {
-    SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+    SharedPreferences sharedPreferences = getSharedPreferences("physical_web_preferences", Context.MODE_PRIVATE);
     return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
 }

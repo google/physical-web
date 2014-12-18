@@ -38,5 +38,6 @@
     <string name="action_settings">Settings</string>
     <string name="oob_accept_and_continue">ACCEPT &amp; CONTINUE</string>
     <string name="user_opted_in_flag">userOptedIn</string>
+    <string name="physical_web_preference_file_name">physical_web_preferences</string>
 
 </resources>
