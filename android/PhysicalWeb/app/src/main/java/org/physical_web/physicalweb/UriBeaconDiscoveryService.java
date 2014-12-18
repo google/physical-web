@@ -27,6 +27,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -139,8 +140,16 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     mDeviceAddressToUrl = new HashMap<>();
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     initializeScreenStateBroadcastReceiver();
-    startSearchingForUriBeacons();
-    mMdnsUrlDiscoverer.startScanning();
+    tryToStartScanning();
+  }
+
+  private void tryToStartScanning() {
+    PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    boolean isScreenOn = powerManager.isScreenOn();
+    if (isScreenOn) {
+      startSearchingForUriBeacons();
+      mMdnsUrlDiscoverer.startScanning();
+    }
   }
 
   /**
