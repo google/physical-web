@@ -27,6 +27,8 @@ import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -49,7 +51,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -73,7 +74,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private boolean mIsScanRunning;
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
-  private UUID[] mScanFilterUuids = new UUID[]{UriBeacon.URI_SERVICE_UUID.getUuid()};
+  private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   // Run when the SCAN_TIME_MILLIS has elapsed.
@@ -108,6 +109,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
     mHandler = new Handler();
+    mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID};
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color, R.color.swipe_refresh_widget_second_color);
@@ -242,7 +244,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         mUrlToUrlMetadata.clear();
         mNearbyDeviceAdapter.clear();
         // Start the scan
-        mBluetoothAdapter.startLeScan(mScanFilterUuids, mLeScanCallback);
+        mBluetoothAdapter.startLeScan(mLeScanCallback);
         // If we should stop scanning
       } else {
         // Cancel the scan timeout callback if still active or else it may fire later.
@@ -252,6 +254,21 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         mSwipeRefreshWidget.setRefreshing(false);
       }
     }
+  }
+
+  private boolean leScanMatches(ScanRecord scanRecord) {
+    if (mScanFilterUuids == null) {
+      return true;
+    }
+    List services = scanRecord.getServiceUuids();
+    if (services != null) {
+      for (Parcelable uuid : mScanFilterUuids) {
+        if (services.contains(uuid)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private void openUrlInBrowser(String url) {
@@ -301,25 +318,27 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     @Override
     public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {
       ScanRecord scanRecord = ScanRecord.parseFromBytes(scanBytes);
-      final ScanResult scanResult = new ScanResult(device, scanRecord, rssi, SystemClock.elapsedRealtimeNanos());
-      getActivity().runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-          if (uriBeacon != null) {
-            int txPowerLevel = uriBeacon.getTxPowerLevel();
-            String url = uriBeacon.getUriString();
-            // If we haven't yet seen this url
-            if (!mUrlToUrlMetadata.containsKey(url)) {
-              mUrlToUrlMetadata.put(url, null);
-              // Fetch the metadata for this url
-              MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+      if (leScanMatches(scanRecord)) {
+        final ScanResult scanResult = new ScanResult(device, scanRecord, rssi, SystemClock.elapsedRealtimeNanos());
+        getActivity().runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
+            if (uriBeacon != null) {
+              int txPowerLevel = uriBeacon.getTxPowerLevel();
+              String url = uriBeacon.getUriString();
+              // If we haven't yet seen this url
+              if (!mUrlToUrlMetadata.containsKey(url)) {
+                mUrlToUrlMetadata.put(url, null);
+                // Fetch the metadata for this url
+                MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+              }
+              // Tell the adapter to update stored data for this url
+              mNearbyDeviceAdapter.update(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPowerLevel);
             }
-            // Tell the adapter to update stored data for this url
-            mNearbyDeviceAdapter.update(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPowerLevel);
           }
-        }
-      });
+        });
+      }
     }
   }
 
