@@ -34,7 +34,6 @@
     </plurals>
 
     <string name="title_activity_oob">OobActivity</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="oob_accept_and_continue">ACCEPT &amp; CONTINUE</string>
     <string name="user_opted_in_flag">userOptedIn</string>
