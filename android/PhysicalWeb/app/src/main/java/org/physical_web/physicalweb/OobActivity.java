@@ -57,7 +57,6 @@ public class OobActivity extends ActionBarActivity {
   public void onBackPressed() {
     super.onBackPressed();
     // Make sure that the back button brings the user to the home screen
-    moveTaskToBack(true);
     Intent intent = new Intent(Intent.ACTION_MAIN);
     intent.addCategory(Intent.CATEGORY_HOME);
     startActivity(intent);
