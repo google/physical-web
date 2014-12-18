@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,7 +43,6 @@ public class MainActivity extends Activity {
     if (savedInstanceState == null) {
       showNearbyBeaconsFragment(false);
     }
-    ensureBluetoothIsEnabled();
   }
 
   /**
@@ -94,20 +94,30 @@ public class MainActivity extends Activity {
   @Override
   protected void onPause() {
     super.onPause();
-    // The service runs when the app isn't running.
-    startUriBeaconDiscoveryService();
+    if (checkIfUserHasOptedIn()) {
+      // The service runs when the app isn't running.
+      startUriBeaconDiscoveryService();
+    }
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    // The service pauses while the app is running since the app does it's own scans or
-    // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
-    stopUriBeaconDiscoveryService();
-    // Check if the intent was from the discovery service
-    if (getIntent().getBooleanExtra("isFromUriBeaconDiscoveryService", false)) {
-      // Ensure the default view is visible
-      showNearbyBeaconsFragment(false);
+    if (checkIfUserHasOptedIn()) {
+      ensureBluetoothIsEnabled();
+      // The service pauses while the app is running since the app does it's own scans or
+      // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
+      stopUriBeaconDiscoveryService();
+      // Check if the intent was from the discovery service
+      if (getIntent().getBooleanExtra("isFromUriBeaconDiscoveryService", false)) {
+        // Ensure the default view is visible
+        showNearbyBeaconsFragment(false);
+      }
+    }
+    else {
+      // Show the oob activity
+      Intent intent = new Intent(this, OobActivity.class);
+      startActivity(intent);
     }
   }
 
@@ -139,7 +149,7 @@ public class MainActivity extends Activity {
   private void showNearbyBeaconsFragment(boolean isDemoMode) {
     if (!isDemoMode) {
       // Look for an instance of the nearby beacons fragment
-      Fragment nearbyBeaconsFragment =  getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
+      Fragment nearbyBeaconsFragment = getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
       // If the fragment does not exist
       if (nearbyBeaconsFragment == null) {
         // Create the fragment
@@ -154,8 +164,7 @@ public class MainActivity extends Activity {
           getFragmentManager().popBackStack();
         }
       }
-    }
-    else {
+    } else {
       getFragmentManager().beginTransaction()
           .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
           .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
@@ -186,5 +195,10 @@ public class MainActivity extends Activity {
         .replace(R.id.main_activity_container, aboutFragment)
         .addToBackStack(null)
         .commit();
+  }
+
+  private boolean checkIfUserHasOptedIn() {
+    SharedPreferences sharedPreferences = getSharedPreferences("physical_web_preferences", Context.MODE_PRIVATE);
+    return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
 }
