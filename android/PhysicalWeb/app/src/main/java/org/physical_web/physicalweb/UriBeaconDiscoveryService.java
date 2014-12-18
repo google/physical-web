@@ -145,8 +145,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
   private void tryToStartScanning() {
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    boolean isScreenOn = powerManager.isScreenOn();
-    if (isScreenOn) {
+    if (powerManager.isScreenOn()) {
       startSearchingForUriBeacons();
       mMdnsUrlDiscoverer.startScanning();
     }
