@@ -45,7 +45,8 @@
     for (UBUriBeacon *beacon in [self uriBeacons]) {
       NSDictionary *jsonPeripheral = @{
         @"url" : [[beacon URI] absoluteString],
-        @"rssi" : [NSString stringWithFormat:@"%li", (long)[beacon RSSI]]
+        @"rssi" : [NSString stringWithFormat:@"%li", (long)[beacon RSSI]],
+        @"tx": [NSString stringWithFormat:@"%li", (long)[beacon txPowerLevel]]
       };
       [jsonPeripherals addObject:jsonPeripheral];
     }
