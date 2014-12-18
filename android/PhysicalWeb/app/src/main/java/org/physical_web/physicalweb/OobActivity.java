@@ -11,12 +11,12 @@ import android.webkit.WebViewClient;
 
 public class OobActivity extends ActionBarActivity {
 
-  private boolean mUserOptedIn;
+  //private boolean mUserOptedIn;
   View.OnClickListener mAcceptButtonOnClickListener = new View.OnClickListener() {
 
     @Override
     public void onClick(View v) {
-      mUserOptedIn = true;
+      //mUserOptedIn = true;
       finish();
     }
   };
@@ -35,7 +35,7 @@ public class OobActivity extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_oob);
-    mUserOptedIn = false;
+    //mUserOptedIn = false;
     findViewById(R.id.oob_accept_button).setOnClickListener(mAcceptButtonOnClickListener);
     initializeWebView();
   }
@@ -47,6 +47,7 @@ public class OobActivity extends ActionBarActivity {
     return true;
   }
 
+  /*
   @Override
   public void finish() {
     // Return the result to the calling activity
@@ -55,4 +56,5 @@ public class OobActivity extends ActionBarActivity {
     setResult(RESULT_OK, intent);
     super.finish();
   }
+  */
 }

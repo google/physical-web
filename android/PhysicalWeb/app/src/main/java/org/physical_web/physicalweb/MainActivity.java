@@ -199,9 +199,11 @@ public class MainActivity extends Activity {
 
   private void showOobActivity() {
     Intent intent = new Intent(this, OobActivity.class);
-    startActivityForResult(intent, OPT_IN_REQUEST_CODE);
+    //startActivityForResult(intent, OPT_IN_REQUEST_CODE);
+    startActivity(intent);
   }
 
+  /*
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     if (requestCode == OPT_IN_REQUEST_CODE) {
@@ -228,6 +230,7 @@ public class MainActivity extends Activity {
       }
     }
   }
+  */
 
   private boolean checkIfUserHasOptedIn() {
     SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
