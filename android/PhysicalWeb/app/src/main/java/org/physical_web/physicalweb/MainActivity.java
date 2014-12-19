@@ -39,10 +39,6 @@ public class MainActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
-    if (savedInstanceState == null) {
-      showNearbyBeaconsFragment(false);
-    }
   }
 
   /**
@@ -108,11 +104,7 @@ public class MainActivity extends Activity {
       // The service pauses while the app is running since the app does it's own scans or
       // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
       stopUriBeaconDiscoveryService();
-      // Check if the intent was from the discovery service
-      if (getIntent().getBooleanExtra("isFromUriBeaconDiscoveryService", false)) {
-        // Ensure the default view is visible
-        showNearbyBeaconsFragment(false);
-      }
+      showNearbyBeaconsFragment(false);
     }
     else {
       // Show the oob activity

@@ -377,7 +377,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // if the user taps the notification
     // TODO: Use a clickListener on the VIEW MORE button to do this
     Intent intent_returnToApp = new Intent(this, MainActivity.class);
-    intent_returnToApp.putExtra("isFromUriBeaconDiscoveryService", true);
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_returnToApp, 0);
     remoteViews.setOnClickPendingIntent(R.id.otherBeaconsLayout, pendingIntent);
