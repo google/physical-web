@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is a service that scans for nearby uriBeacons.
@@ -133,15 +134,17 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void initialize() {
-    mRegionResolver = new RegionResolver();
     mNotificationManager = NotificationManagerCompat.from(this);
+    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
+    initializeCleanVariables();
+    initializeScreenStateBroadcastReceiver();
+  }
+  private void initializeCleanVariables() {
+    mRegionResolver = new RegionResolver();
     mUrlToUrlMetadata = new HashMap<>();
     mSortedDevices = null;
     mDeviceAddressToUrl = new HashMap<>();
-    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
-    initializeScreenStateBroadcastReceiver();
   }
-
   /**
    * Create the broadcast receiver that will listen
    * for screen on/off events
@@ -190,7 +193,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     mMdnsUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
     mUrlToUrlMetadata = new HashMap<>();
-    cancelNotifications();
+    mNotificationManager.cancelAll();
   }
 
   @Override
@@ -248,21 +251,25 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void handleFoundDevice(ScanResult scanResult) {
-    UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-    if (uriBeacon != null) {
-      String address = scanResult.getDevice().getAddress();
-      int rssi = scanResult.getRssi();
-      int txPowerLevel = uriBeacon.getTxPowerLevel();
-      String url = uriBeacon.getUriString();
-      // If we haven't yet seen this url
-      if (!mUrlToUrlMetadata.containsKey(url)) {
-        mUrlToUrlMetadata.put(url, null);
-        mDeviceAddressToUrl.put(address, url);
-        // Fetch the metadata for this url
-        MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+    long timeStamp = scanResult.getTimestampNanos();
+    long now = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
+    if (now - timeStamp < TimeUnit.SECONDS.toNanos(2)) {
+      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
+      if (uriBeacon != null) {
+        String address = scanResult.getDevice().getAddress();
+        int rssi = scanResult.getRssi();
+        int txPowerLevel = uriBeacon.getTxPowerLevel();
+        String url = uriBeacon.getUriString();
+        // If we haven't yet seen this url
+        if (!mUrlToUrlMetadata.containsKey(url)) {
+          mUrlToUrlMetadata.put(url, null);
+          mDeviceAddressToUrl.put(address, url);
+          // Fetch the metadata for this url
+          MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+        }
+        // Update the ranging data
+        mRegionResolver.onUpdate(address, rssi, txPowerLevel);
       }
-      // Update the ranging data
-      mRegionResolver.onUpdate(address, rssi, txPowerLevel);
     }
   }
 
@@ -276,7 +283,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // If no beacons have been found
     if (mSortedDevices.size() == 0) {
       // Remove all existing notifications
-      cancelNotifications();
+      mNotificationManager.cancelAll();
       return;
     }
     // If at least one beacon has been found
@@ -436,12 +443,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     }
   }
 
-  private void cancelNotifications() {
-    mNotificationManager.cancel(SUMMARY_NOTIFICATION_ID);
-    mNotificationManager.cancel(SECOND_NEAREST_BEACON_NOTIFICATION_ID);
-    mNotificationManager.cancel(NEAREST_BEACON_NOTIFICATION_ID);
-  }
-
   /**
    * This is the class that listens for screen on/off events
    */
@@ -453,6 +454,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         startSearchingForUriBeacons();
         mMdnsUrlDiscoverer.startScanning();
       } else {
+        initializeCleanVariables();
+        mNotificationManager.cancelAll();
         stopSearchingForUriBeacons();
         mMdnsUrlDiscoverer.stopScanning();
       }
