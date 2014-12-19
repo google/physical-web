@@ -25,7 +25,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
@@ -92,6 +94,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
+  private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
+  private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
+  private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
@@ -379,7 +384,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // if the user taps the notification
     // TODO: Use a clickListener on the VIEW MORE button to do this
     Intent intent_returnToApp = new Intent(this, MainActivity.class);
-    intent_returnToApp.putExtra("isFromUriBeaconDiscoveryService", true);
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_returnToApp, 0);
     remoteViews.setOnClickPendingIntent(R.id.otherBeaconsLayout, pendingIntent);
@@ -397,6 +401,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       remoteViews.setTextViewText(R.id.title_firstBeacon, title);
       remoteViews.setTextViewText(R.id.url_firstBeacon, url);
       remoteViews.setTextViewText(R.id.description_firstBeacon, description);
+      // Recolor notifications to have light text for non-Lollipop devices
+      if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+        remoteViews.setTextColor(R.id.title_firstBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
+        remoteViews.setTextColor(R.id.url_firstBeacon, NON_LOLLIPOP_NOTIFICATION_URL_COLOR);
+        remoteViews.setTextColor(R.id.description_firstBeacon, NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR);
+      }
 
       // Create an intent that will open the browser to the beacon's url
       // if the user taps the notification
@@ -408,7 +418,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       int requestID = (int) System.currentTimeMillis();
       PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_firstBeacon, 0);
       remoteViews.setOnClickPendingIntent(R.id.first_beacon_main_layout, pendingIntent);
-
       remoteViews.setViewVisibility(R.id.firstBeaconLayout, View.VISIBLE);
     } else {
       remoteViews.setViewVisibility(R.id.firstBeaconLayout, View.GONE);
@@ -425,6 +434,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       remoteViews.setTextViewText(R.id.title_secondBeacon, title);
       remoteViews.setTextViewText(R.id.url_secondBeacon, url);
       remoteViews.setTextViewText(R.id.description_secondBeacon, description);
+      // Recolor notifications to have light text for non-Lollipop devices
+      if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+        remoteViews.setTextColor(R.id.title_secondBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
+        remoteViews.setTextColor(R.id.url_secondBeacon, NON_LOLLIPOP_NOTIFICATION_URL_COLOR);
+        remoteViews.setTextColor(R.id.description_secondBeacon, NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR);
+      }
 
       // Create an intent that will open the browser to the beacon's url
       // if the user taps the notification
@@ -436,7 +451,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       int requestID = (int) System.currentTimeMillis();
       PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_secondBeacon, 0);
       remoteViews.setOnClickPendingIntent(R.id.second_beacon_main_layout, pendingIntent);
-
       remoteViews.setViewVisibility(R.id.secondBeaconLayout, View.VISIBLE);
     } else {
       remoteViews.setViewVisibility(R.id.secondBeaconLayout, View.GONE);
