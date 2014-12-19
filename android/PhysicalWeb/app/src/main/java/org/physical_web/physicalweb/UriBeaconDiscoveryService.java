@@ -199,7 +199,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     stopSearchingForUriBeacons();
     mMdnsUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
-    mUrlToUrlMetadata = new HashMap<>();
     mNotificationManager.cancelAll();
   }
 
