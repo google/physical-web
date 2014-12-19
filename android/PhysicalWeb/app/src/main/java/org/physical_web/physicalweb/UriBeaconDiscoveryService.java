@@ -300,7 +300,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private ArrayList<String> getSortedBeaconsWithMetadata() {
-    ArrayList<String> unSorted = new ArrayList<>();
+    ArrayList<String> unSorted = new ArrayList<>(mDeviceAddressToUrl.size());
     for (String key : mDeviceAddressToUrl.keySet()) {
       if (mUrlToUrlMetadata.get(mDeviceAddressToUrl.get(key)) != null) {
         unSorted.add(key);
