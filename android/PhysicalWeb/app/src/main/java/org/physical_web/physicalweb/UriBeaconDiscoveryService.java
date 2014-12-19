@@ -142,10 +142,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
-    initializeCleanVariables();
     initializeScreenStateBroadcastReceiver();
   }
-  private void initializeCleanVariables() {
+  private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToUrlMetadata = new HashMap<>();
     mSortedDevices = null;
@@ -175,6 +174,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
+    // Since sometimes the lists have values when onStartCommand gets called
+    initializeLists();
     // Start scanning only if the screen is on
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
     if (powerManager.isScreenOn()) {
@@ -326,7 +327,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     }
     navigateToBeaconUrlIntent.setData(Uri.parse(url));
     int requestID = (int) System.currentTimeMillis();
-    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, navigateToBeaconUrlIntent, 0);
+    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID,
+        navigateToBeaconUrlIntent, 0);
 
     String title = urlMetadata.title;
     String description = urlMetadata.description;
@@ -465,12 +467,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     @Override
     public void onReceive(Context context, Intent intent) {
       boolean isScreenOn = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
+      initializeLists();
+      mNotificationManager.cancelAll();
       if (isScreenOn) {
         startSearchingForUriBeacons();
         mMdnsUrlDiscoverer.startScanning();
       } else {
-        initializeCleanVariables();
-        mNotificationManager.cancelAll();
         stopSearchingForUriBeacons();
         mMdnsUrlDiscoverer.stopScanning();
       }
