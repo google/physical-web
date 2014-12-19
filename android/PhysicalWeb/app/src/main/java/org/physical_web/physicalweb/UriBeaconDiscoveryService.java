@@ -94,6 +94,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
+  private static final int TIMEOUT_FOR_OLD_BEACONS = 2;
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
@@ -258,7 +259,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void handleFoundDevice(ScanResult scanResult) {
     long timeStamp = scanResult.getTimestampNanos();
     long now = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
-    if (now - timeStamp < TimeUnit.SECONDS.toNanos(2)) {
+    if (now - timeStamp < TimeUnit.SECONDS.toNanos(TIMEOUT_FOR_OLD_BEACONS)) {
       UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
       if (uriBeacon != null) {
         String address = scanResult.getDevice().getAddress();
