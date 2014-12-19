@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is a service that scans for nearby uriBeacons.
@@ -93,6 +94,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
+  private static final int TIMEOUT_FOR_OLD_BEACONS = 2;
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
@@ -138,15 +140,16 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void initialize() {
-    mRegionResolver = new RegionResolver();
     mNotificationManager = NotificationManagerCompat.from(this);
-    mUrlToUrlMetadata = new HashMap<>();
-    mSortedDevices = null;
-    mDeviceAddressToUrl = new HashMap<>();
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     initializeScreenStateBroadcastReceiver();
   }
-
+  private void initializeLists() {
+    mRegionResolver = new RegionResolver();
+    mUrlToUrlMetadata = new HashMap<>();
+    mSortedDevices = null;
+    mDeviceAddressToUrl = new HashMap<>();
+  }
   /**
    * Create the broadcast receiver that will listen
    * for screen on/off events
@@ -171,6 +174,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
+    // Since sometimes the lists have values when onStartCommand gets called
+    initializeLists();
     // Start scanning only if the screen is on
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
     if (powerManager.isScreenOn()) {
@@ -194,8 +199,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     stopSearchingForUriBeacons();
     mMdnsUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
-    mUrlToUrlMetadata = new HashMap<>();
-    cancelNotifications();
+    mNotificationManager.cancelAll();
   }
 
   @Override
@@ -253,21 +257,25 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void handleFoundDevice(ScanResult scanResult) {
-    UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-    if (uriBeacon != null) {
-      String address = scanResult.getDevice().getAddress();
-      int rssi = scanResult.getRssi();
-      int txPowerLevel = uriBeacon.getTxPowerLevel();
-      String url = uriBeacon.getUriString();
-      // If we haven't yet seen this url
-      if (!mUrlToUrlMetadata.containsKey(url)) {
-        mUrlToUrlMetadata.put(url, null);
-        mDeviceAddressToUrl.put(address, url);
-        // Fetch the metadata for this url
-        MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+    long timeStamp = scanResult.getTimestampNanos();
+    long now = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
+    if (now - timeStamp < TimeUnit.SECONDS.toNanos(TIMEOUT_FOR_OLD_BEACONS)) {
+      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
+      if (uriBeacon != null) {
+        String address = scanResult.getDevice().getAddress();
+        int rssi = scanResult.getRssi();
+        int txPowerLevel = uriBeacon.getTxPowerLevel();
+        String url = uriBeacon.getUriString();
+        // If we haven't yet seen this url
+        if (!mUrlToUrlMetadata.containsKey(url)) {
+          mUrlToUrlMetadata.put(url, null);
+          mDeviceAddressToUrl.put(address, url);
+          // Fetch the metadata for this url
+          MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+        }
+        // Update the ranging data
+        mRegionResolver.onUpdate(address, rssi, txPowerLevel);
       }
-      // Update the ranging data
-      mRegionResolver.onUpdate(address, rssi, txPowerLevel);
     }
   }
 
@@ -280,7 +288,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // If no beacons have been found
     if (mSortedDevices.size() == 0) {
       // Remove all existing notifications
-      cancelNotifications();
+      mNotificationManager.cancelAll();
       return;
     }
     // If at least one beacon has been found
@@ -328,7 +336,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     }
     navigateToBeaconUrlIntent.setData(Uri.parse(url));
     int requestID = (int) System.currentTimeMillis();
-    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, navigateToBeaconUrlIntent, 0);
+    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID,
+        navigateToBeaconUrlIntent, 0);
 
     String title = urlMetadata.title;
     String description = urlMetadata.description;
@@ -460,12 +469,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     }
   }
 
-  private void cancelNotifications() {
-    mNotificationManager.cancel(SUMMARY_NOTIFICATION_ID);
-    mNotificationManager.cancel(SECOND_NEAREST_BEACON_NOTIFICATION_ID);
-    mNotificationManager.cancel(NEAREST_BEACON_NOTIFICATION_ID);
-  }
-
   /**
    * This is the class that listens for screen on/off events
    */
@@ -473,6 +476,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     @Override
     public void onReceive(Context context, Intent intent) {
       boolean isScreenOn = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
+      initializeLists();
+      mNotificationManager.cancelAll();
       if (isScreenOn) {
         startSearchingForUriBeacons();
         mMdnsUrlDiscoverer.startScanning();
