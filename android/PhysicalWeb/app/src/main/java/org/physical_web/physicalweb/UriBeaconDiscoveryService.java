@@ -275,8 +275,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
    * Create a new set of notifications or update those existing
    */
   private void updateNotifications() {
-    mSortedDevices = new ArrayList<>(mDeviceAddressToUrl.keySet());
-    Collections.sort(mSortedDevices, mComparator);
+    mSortedDevices = getSortedBeaconsWithMetadata();
 
     // If no beacons have been found
     if (mSortedDevices.size() == 0) {
@@ -298,6 +297,17 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       // Create a summary notification for both beacon notifications
       updateSummaryNotification();
     }
+  }
+
+  private ArrayList<String> getSortedBeaconsWithMetadata() {
+    ArrayList<String> unSorted = new ArrayList<>(mDeviceAddressToUrl.size());
+    for (String key : mDeviceAddressToUrl.keySet()) {
+      if (mUrlToUrlMetadata.get(mDeviceAddressToUrl.get(key)) != null) {
+        unSorted.add(key);
+      }
+    }
+    Collections.sort(unSorted, mComparator);
+    return unSorted;
   }
 
   /**
