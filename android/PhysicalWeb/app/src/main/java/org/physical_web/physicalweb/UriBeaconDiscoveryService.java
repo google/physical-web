@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
@@ -90,6 +91,31 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       Log.d(TAG, "onScanFailed  " + "errorCode: " + errorCode);
     }
   };
+  private static final Handler mHandler = new Handler();
+  // Run when the SCAN_TIME_MILLIS has elapsed
+  private Runnable mScanTimeout = new Runnable() {
+    @Override
+    public void run() {
+      getLeScanner().stopScan(mScanCallback);
+      ScanSettings settings = new ScanSettings.Builder()
+          .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+          .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+          .build();
+
+      List<ScanFilter> filters = new ArrayList<>();
+
+      ScanFilter filter = new ScanFilter.Builder()
+          .setServiceData(UriBeacon.URI_SERVICE_UUID,
+              new byte[]{},
+              new byte[]{})
+          .build();
+
+      filters.add(filter);
+
+      getLeScanner().startScan(filters, settings, mScanCallback);
+    }
+  };
+  private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
   private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
@@ -235,7 +261,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void startSearchingForUriBeacons() {
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
         .build();
 
     List<ScanFilter> filters = new ArrayList<>();
@@ -250,9 +276,11 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
     boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
+    mHandler.postDelayed(mScanTimeout, SCAN_TIME_MILLIS);
   }
 
   private void stopSearchingForUriBeacons() {
+    mHandler.removeCallbacks(mScanTimeout);
     getLeScanner().stopScan(mScanCallback);
   }
 
