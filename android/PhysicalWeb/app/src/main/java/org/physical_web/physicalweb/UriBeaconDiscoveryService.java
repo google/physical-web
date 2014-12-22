@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
@@ -91,15 +90,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       Log.d(TAG, "onScanFailed  " + "errorCode: " + errorCode);
     }
   };
-  private Runnable mFirstUriBeaconScanTimeout = new Runnable() {
-    @Override
-    public void run() {
-      // Stop low latency scanning
-      getLeScanner().stopScan(mScanCallback);
-      // Start low power scanning
-      startUriBeaconScan(ScanSettings.SCAN_MODE_LOW_POWER);
-    }
-  };
   private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
@@ -108,7 +98,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
-  private static final long DURATION_FIRST_URI_BEACON_SCAN = TimeUnit.SECONDS.toMillis(2);
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
@@ -116,7 +105,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
-  private Handler mHandler;
   private Comparator<String> mComparator = new Comparator<String>() {
     @Override
     public int compare(String address, String otherAddress) {
@@ -152,19 +140,16 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void initialize() {
-    mHandler = new Handler();
     mNotificationManager = NotificationManagerCompat.from(this);
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     initializeScreenStateBroadcastReceiver();
   }
-
   private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToUrlMetadata = new HashMap<>();
     mSortedDevices = null;
     mDeviceAddressToUrl = new HashMap<>();
   }
-
   /**
    * Create the broadcast receiver that will listen
    * for screen on/off events
@@ -194,10 +179,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // Start scanning only if the screen is on
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
     if (powerManager.isScreenOn()) {
-      // Start a brief low latency scan
-      startUriBeaconScan(ScanSettings.SCAN_MODE_LOW_LATENCY);
-      mHandler.postDelayed(mFirstUriBeaconScanTimeout, DURATION_FIRST_URI_BEACON_SCAN);
-      // Start mdns discovery
+      startSearchingForUriBeacons();
       mMdnsUrlDiscoverer.startScanning();
     }
 
@@ -214,8 +196,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   @Override
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
-    getLeScanner().stopScan(mScanCallback);
-    mHandler.removeCallbacks(mFirstUriBeaconScanTimeout);
+    stopSearchingForUriBeacons();
     mMdnsUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
     mNotificationManager.cancelAll();
@@ -251,10 +232,10 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     }
   }
 
-  private void startUriBeaconScan(int scanMode) {
+  private void startSearchingForUriBeacons() {
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-        .setScanMode(scanMode)
+        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
         .build();
 
     List<ScanFilter> filters = new ArrayList<>();
@@ -267,7 +248,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
     filters.add(filter);
 
-    getLeScanner().startScan(filters, settings, mScanCallback);
+    boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
+    Log.v(TAG, started ? "... scan started" : "... scan NOT started");
+  }
+
+  private void stopSearchingForUriBeacons() {
+    getLeScanner().stopScan(mScanCallback);
   }
 
   private void handleFoundDevice(ScanResult scanResult) {
@@ -493,15 +479,10 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       initializeLists();
       mNotificationManager.cancelAll();
       if (isScreenOn) {
-        // Start a brief low latency scan
-        startUriBeaconScan(ScanSettings.SCAN_MODE_LOW_LATENCY);
-        mHandler.postDelayed(mFirstUriBeaconScanTimeout, DURATION_FIRST_URI_BEACON_SCAN);
-        // Start mdns discovery
+        startSearchingForUriBeacons();
         mMdnsUrlDiscoverer.startScanning();
       } else {
-        // Stop all scanning and service discovery
-        getLeScanner().stopScan(mScanCallback);
-        mHandler.removeCallbacks(mFirstUriBeaconScanTimeout);
+        stopSearchingForUriBeacons();
         mMdnsUrlDiscoverer.stopScanning();
       }
     }
