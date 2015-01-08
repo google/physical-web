@@ -290,7 +290,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private String createUrlProxyGoLink(String url) {
     try {
       url = getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
-      Log.d(TAG, "url: " + url);
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
