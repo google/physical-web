@@ -19,8 +19,8 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "PWBeacon.h"
 
-@interface PWMetadataRequest ()<NSURLConnectionDataDelegate,
-                                NSURLConnectionDelegate>
+@interface PWMetadataRequest () <NSURLConnectionDataDelegate,
+                                 NSURLConnectionDelegate>
 
 @end
 
@@ -38,7 +38,8 @@
 
 - (void)start {
   if ([self isDemo]) {
-    NSURL *url = [NSURL URLWithString:@"http://url-caster.appspot.com/demo"];
+    NSURL *url =
+        [NSURL URLWithString:@"http://@" METADATA_SERVER_HOSTNAME @"/demo"];
     _request = [[NSMutableURLRequest alloc] initWithURL:url];
   } else {
     NSMutableArray *jsonPeripherals = [[NSMutableArray alloc] init];
@@ -46,14 +47,14 @@
       NSDictionary *jsonPeripheral = @{
         @"url" : [[beacon URI] absoluteString],
         @"rssi" : [NSString stringWithFormat:@"%li", (long)[beacon RSSI]],
-        @"tx": [NSString stringWithFormat:@"%li", (long)[beacon txPowerLevel]]
+        @"tx" : [NSString stringWithFormat:@"%li", (long)[beacon txPowerLevel]]
       };
       [jsonPeripherals addObject:jsonPeripheral];
     }
     NSDictionary *jsonBody = @{ @"objects" : jsonPeripherals };
 
-    NSURL *url =
-        [NSURL URLWithString:@"http://url-caster.appspot.com/resolve-scan"];
+    NSURL *url = [NSURL
+        URLWithString:@"http://" METADATA_SERVER_HOSTNAME @"/resolve-scan"];
     _request = [[NSMutableURLRequest alloc] initWithURL:url];
     [_request setHTTPMethod:@"POST"];
     [_request setHTTPBody:[NSJSONSerialization dataWithJSONObject:jsonBody

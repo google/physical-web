@@ -331,7 +331,25 @@
       PWBeacon *beacon1 = obj1;
       PWBeacon *beacon2 = obj2;
       if (stableMode) {
-        if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
+        if ([beacon1 hasScore]) {
+          PWBeacon *beacon1 = obj1;
+          PWBeacon *beacon2 = obj2;
+          double diff = [beacon1 score] - [beacon2 score];
+          if (diff > 0) {
+            return NSOrderedAscending;
+          } else if (diff < 0) {
+            return NSOrderedDescending;
+          } else {
+            NSComparisonResult result =
+            [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+            if (result != NSOrderedSame) {
+              return result;
+            }
+            return [[[beacon1 URL] absoluteString]
+                    caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
+          }
+        }
+        else if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
           NSInteger regionDifference =
               (NSInteger)[beacon1 region] - (NSInteger)[beacon2 region];
           if (regionDifference > 0) {
@@ -472,7 +490,7 @@
       [unescaped stringByAddingPercentEncodingWithAllowedCharacters:
                      [NSCharacterSet URLHostAllowedCharacterSet]];
   NSString *goURLString =
-      [NSString stringWithFormat:@"http://url-caster.appspot.com/go?url=%@",
+      [NSString stringWithFormat:@"http://" METADATA_SERVER_HOSTNAME @"/go?url=%@",
                                  escapedString];
   NSURL *goURL = [NSURL URLWithString:goURLString];
   [[UIApplication sharedApplication] openURL:goURL];

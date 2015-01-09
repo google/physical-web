@@ -36,6 +36,10 @@
   if (urlString == (NSString *)[NSNull null]) {
     urlString = nil;
   }
+  NSString *scoreString = info[@"score"];
+  if (scoreString == (NSString *)[NSNull null]) {
+    scoreString = nil;
+  }
 
   if ([title length] == 0) {
     title = nil;
@@ -56,6 +60,10 @@
   [self setTitle:title];
   [self setSnippet:desc];
   [self setIconURL:[NSURL URLWithString:icon]];
+  if (scoreString != nil) {
+    [self setHasScore:YES];
+    [self setScore:[scoreString doubleValue]];
+  }
 
   return self;
 }
