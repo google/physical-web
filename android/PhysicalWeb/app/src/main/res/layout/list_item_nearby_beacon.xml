@@ -74,7 +74,7 @@
                 android:textSize="14sp"
                 android:fontFamily="arial-sans-serif"
                 android:textColor="@color/description_color"
-                android:lines="3"
+                android:lines="2"
                 android:ellipsize="end"
                 android:lineSpacingExtra="1.5dp">
         </TextView>

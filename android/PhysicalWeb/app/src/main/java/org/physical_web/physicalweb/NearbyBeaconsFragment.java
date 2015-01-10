@@ -411,15 +411,11 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon, viewGroup, false);
       }
 
-      // Clear the children views content (in case this is a recycled list item view)
+      // Reference the list item views
       TextView titleTextView = (TextView) view.findViewById(R.id.title);
-      titleTextView.setText("");
       TextView urlTextView = (TextView) view.findViewById(R.id.url);
-      urlTextView.setText("");
       TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
-      descriptionTextView.setText("");
       ImageView iconImageView = (ImageView) view.findViewById(R.id.icon);
-      iconImageView.setImageDrawable(null);
 
       // Get the url for the given position
       String url = getUrlForListItem(i);
@@ -439,6 +435,11 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       }
       // If metadata does not yet exist
       else {
+        // Clear the children views content (in case this is a recycled list item view)
+        titleTextView.setText("");
+        urlTextView.setText("");
+        descriptionTextView.setText("");
+        iconImageView.setImageDrawable(null);
         // Set the url text to be the beacon's advertised url
         urlTextView.setText(url);
         // Set the description text to show loading status
