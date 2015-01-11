@@ -31,7 +31,8 @@ The Physical Web must be an open standard that everyone can use. This can’t be
 
 ##Beacons
 Our most common request is how to get [UriBeacons](http://uribeacon.org). 
-There are a number of firmware examples for Arduino, Raspberry Pi, node and many more on the [Uri Beacon repo](https://github.com/google/uribeacon) so be sure to check there as well.
+There are a number of firmware examples for Arduino, Raspberry Pi, node and many more on the [Uri Beacon repo](https://github.com/google/uribeacon).
 
-A BLE beacon maker is about to sell premade URIbeacons, we hope to announce that soon.
+The following companies now sell premade URIbeacons:
+* [Blesh](https://www.blesh.com/physical-web/)
 
