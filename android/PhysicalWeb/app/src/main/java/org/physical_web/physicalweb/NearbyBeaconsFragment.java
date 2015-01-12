@@ -329,7 +329,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
           @Override
           public void run() {
             UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-            if (uriBeacon != null) {
+            if ((uriBeacon != null) && (uriBeacon.getUriString() != null)) {
               int txPowerLevel = uriBeacon.getTxPowerLevel();
               String url = uriBeacon.getUriString();
               // If we haven't yet seen this url
