@@ -25,4 +25,6 @@ You'll then place a '.service' file into the /etc/avahi/services directory. Our 
       </service>
     </service-group>
 
-Then `<name>` tag must be unique on your network. We are suggesting that you use the URL as your name to be safe. That should be it. If you have the latest client on your phone, the web page http://www.mycompany.com/xyz.html will now show up in your list of nearby devices. Note: the iOS app supports mDNS, but not the Android app yet. It will be updated within a few days for Android 5.0 devices. If people are stuck on older versions, please let us know (or feel free add it yourself ;-)
+Then `<name>` tag must be unique on your network. We are suggesting that you use the URL as your name to be safe. That should be it. If you have the latest client on your phone, the web page http://www.mycompany.com/xyz.html will now show up in your list of nearby devices.
+
+Note: if the URL is global, it shows up just like a BLE beacon with Title, Description, and favicon information. If the URL is local (e.g. 192.x.x.x) the meta data isn't supported yet, only the URL itself will be displayed. We're working on adding the meta data.
