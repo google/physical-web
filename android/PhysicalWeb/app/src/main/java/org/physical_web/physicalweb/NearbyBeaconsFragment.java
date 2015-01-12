@@ -84,6 +84,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mScanningAnimationDrawable.stop();
       scanLeDevice(false);
       mMdnsUrlDiscoverer.stopScanning();
+      mNearbyDeviceAdapter.sortDevices();
       mNearbyDeviceAdapter.notifyDataSetChanged();
     }
   };
@@ -211,12 +212,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   @Override
   public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(url, urlMetadata);
-    mNearbyDeviceAdapter.redrawListView();
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   @Override
   public void onUrlMetadataIconReceived() {
-    mNearbyDeviceAdapter.redrawListView();
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   @Override
@@ -437,8 +438,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       else {
         // Clear the children views content (in case this is a recycled list item view)
         titleTextView.setText("");
-        urlTextView.setText("");
-        descriptionTextView.setText("");
         iconImageView.setImageDrawable(null);
         // Set the url text to be the beacon's advertised url
         urlTextView.setText(url);
@@ -459,20 +458,14 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       return null;
     }
 
-    @Override
-    public void notifyDataSetChanged() {
+    public void sortDevices() {
       mSortedDevices = new ArrayList<>(mUrlToDeviceAddress.values());
       Collections.sort(mSortedDevices, mComparator);
-      super.notifyDataSetChanged();
     }
 
     public void clear() {
       mUrlToDeviceAddress.clear();
       notifyDataSetChanged();
-    }
-
-    public void redrawListView() {
-      super.notifyDataSetChanged();
     }
   }
 }
