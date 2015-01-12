@@ -98,6 +98,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
+  private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_LOW;
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
@@ -347,7 +348,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         .setLargeIcon(icon)
         .setContentTitle(title)
         .setContentText(description)
-        .setPriority(NotificationCompat.PRIORITY_MIN)
+        .setPriority(NOTIFICATION_PRIORITY)
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setContentIntent(pendingIntent);
     Notification notification = builder.build();
@@ -372,7 +373,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         .setSmallIcon(R.drawable.ic_notification)
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setGroupSummary(true)
-        .setPriority(NotificationCompat.PRIORITY_MIN)
+        .setPriority(NOTIFICATION_PRIORITY)
         .build();
 
     // Create the big view for the notification (viewed by pulling down)
