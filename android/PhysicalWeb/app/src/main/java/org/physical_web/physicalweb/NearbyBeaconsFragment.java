@@ -46,6 +46,8 @@ import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.util.RegionResolver;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -281,10 +283,21 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
+    // Route through the proxy server go link
+    url = createUrlProxyGoLink(url);
     // Open the browser and point it to the given url
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
     startActivity(intent);
+  }
+
+  private String createUrlProxyGoLink(String url) {
+    try {
+      url = getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return url;
   }
 
   @Override
