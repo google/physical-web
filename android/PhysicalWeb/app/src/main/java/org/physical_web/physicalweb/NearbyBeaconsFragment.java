@@ -231,6 +231,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mNearbyDeviceAdapter.addItem(url, mockAddress);
     mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
     // Inform the list adapter of the new data
+    mNearbyDeviceAdapter.sortDevices();
     mNearbyDeviceAdapter.notifyDataSetChanged();
     // Stop the refresh animation
     mSwipeRefreshWidget.setRefreshing(false);
@@ -464,6 +465,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     }
 
     public void clear() {
+      mSortedDevices.clear();
       mUrlToDeviceAddress.clear();
       notifyDataSetChanged();
     }
