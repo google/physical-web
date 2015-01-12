@@ -84,6 +84,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mScanningAnimationDrawable.stop();
       scanLeDevice(false);
       mMdnsUrlDiscoverer.stopScanning();
+      mNearbyDeviceAdapter.sortDevices();
       mNearbyDeviceAdapter.notifyDataSetChanged();
     }
   };
@@ -211,10 +212,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   @Override
   public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(url, urlMetadata);
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   @Override
   public void onUrlMetadataIconReceived() {
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   @Override
@@ -225,8 +228,10 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     String mockAddress = generateMockBluetoothAddress(url.hashCode());
     int mockRssi = 0;
     int mockTxPower = 0;
-    mNearbyDeviceAdapter.update(url, mockAddress, mockRssi, mockTxPower);
+    mNearbyDeviceAdapter.addItem(url, mockAddress);
+    mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
     // Inform the list adapter of the new data
+    mNearbyDeviceAdapter.sortDevices();
     mNearbyDeviceAdapter.notifyDataSetChanged();
     // Stop the refresh animation
     mSwipeRefreshWidget.setRefreshing(false);
@@ -305,9 +310,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       int mockRssi = 0;
       int mockTxPower = 0;
       // Update the ranging info
-      mNearbyDeviceAdapter.update(url, mockAddress, mockRssi, mockTxPower);
+      mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Force the device to be added to the listview (since it has no metadata)
-      mNearbyDeviceAdapter.add(url, mockAddress);
+      mNearbyDeviceAdapter.addItem(url, mockAddress);
     }
   }
 
@@ -330,11 +335,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
               // If we haven't yet seen this url
               if (!mUrlToUrlMetadata.containsKey(url)) {
                 mUrlToUrlMetadata.put(url, null);
+                mNearbyDeviceAdapter.addItem(url, scanResult.getDevice().getAddress());
                 // Fetch the metadata for this url
                 MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
               }
               // Tell the adapter to update stored data for this url
-              mNearbyDeviceAdapter.update(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPowerLevel);
+              mNearbyDeviceAdapter.updateItem(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPowerLevel);
             }
           }
         });
@@ -373,35 +379,24 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();
       mRegionResolver = new RegionResolver();
-      mSortedDevices = null;
+      mSortedDevices = new ArrayList<>();
     }
 
-    public void update(String url, String address, int rssi, int txPower) {
-      // Always update the ranging data for the given device
+    public void updateItem(String url, String address, int rssi, int txPower) {
       mRegionResolver.onUpdate(address, rssi, txPower);
-      // If we haven't yet stored this url and device AND
-      // if the metadata for this url has already been fetched
-      if ((mUrlToDeviceAddress.get(url) == null) && (mUrlToUrlMetadata.get(url) != null)) {
-        // Update the url/device hash table
-        add(url, address);
-      }
     }
 
-    public void add(String url, String address) {
+    public void addItem(String url, String address) {
       mUrlToDeviceAddress.put(url, address);
     }
 
     @Override
     public int getCount() {
-      return mUrlToDeviceAddress.size();
+      return mSortedDevices.size();
     }
 
     @Override
     public String getItem(int i) {
-      if (mSortedDevices == null) {
-        mSortedDevices = new ArrayList<>(mUrlToDeviceAddress.values());
-        Collections.sort(mSortedDevices, mComparator);
-      }
       return mSortedDevices.get(i);
     }
 
@@ -418,29 +413,37 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon, viewGroup, false);
       }
 
+      // Reference the list item views
+      TextView titleTextView = (TextView) view.findViewById(R.id.title);
+      TextView urlTextView = (TextView) view.findViewById(R.id.url);
+      TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
+      ImageView iconImageView = (ImageView) view.findViewById(R.id.icon);
+
       // Get the url for the given position
       String url = getUrlForListItem(i);
 
       // Get the metadata for this url
       MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
-
       // If the metadata exists
       if (urlMetadata != null) {
         // Set the title text
-        TextView infoView = (TextView) view.findViewById(R.id.title);
-        infoView.setText(urlMetadata.title);
-
-        // Set the site url text
-        infoView = (TextView) view.findViewById(R.id.url);
-        infoView.setText(urlMetadata.siteUrl);
-
+        titleTextView.setText(urlMetadata.title);
+        // Set the url text
+        urlTextView.setText(urlMetadata.siteUrl);
         // Set the description text
-        infoView = (TextView) view.findViewById(R.id.description);
-        infoView.setText(urlMetadata.description);
-
+        descriptionTextView.setText(urlMetadata.description);
         // Set the favicon image
-        ImageView iconView = (ImageView) view.findViewById(R.id.icon);
-        iconView.setImageBitmap(urlMetadata.icon);
+        iconImageView.setImageBitmap(urlMetadata.icon);
+      }
+      // If metadata does not yet exist
+      else {
+        // Clear the children views content (in case this is a recycled list item view)
+        titleTextView.setText("");
+        iconImageView.setImageDrawable(null);
+        // Set the url text to be the beacon's advertised url
+        urlTextView.setText(url);
+        // Set the description text to show loading status
+        descriptionTextView.setText(R.string.metadata_loading);
       }
 
       return view;
@@ -456,13 +459,13 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       return null;
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-      mSortedDevices = null;
-      super.notifyDataSetChanged();
+    public void sortDevices() {
+      mSortedDevices = new ArrayList<>(mUrlToDeviceAddress.values());
+      Collections.sort(mSortedDevices, mComparator);
     }
 
     public void clear() {
+      mSortedDevices.clear();
       mUrlToDeviceAddress.clear();
       notifyDataSetChanged();
     }
