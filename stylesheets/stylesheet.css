@@ -74,9 +74,9 @@ header {
 
 header h1 {
   letter-spacing: -1px;
-  font-size: 48px;
+  font-size: 42px;
   color: #fff;
-  line-height: 1;
+  line-height: 1.2;
   margin-bottom: 0.2em;
   width: 640px;
 }
@@ -419,7 +419,7 @@ footer a:hover {
     width: 100%;
   }
   header h1 {
-    font-size: 48px;
+    font-size: 42px;
   }
   header h2 {
     font-size: 24px;
