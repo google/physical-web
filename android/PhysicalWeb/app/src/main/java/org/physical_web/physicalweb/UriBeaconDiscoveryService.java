@@ -145,12 +145,14 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     initializeScreenStateBroadcastReceiver();
   }
+
   private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToUrlMetadata = new HashMap<>();
     mSortedDevices = null;
     mDeviceAddressToUrl = new HashMap<>();
   }
+
   /**
    * Create the broadcast receiver that will listen
    * for screen on/off events
@@ -292,19 +294,22 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       mNotificationManager.cancelAll();
       return;
     }
+
+    // If at least two beacons have been found
+    if (mSortedDevices.size() > 1) {
+      // Create a summary notification for both beacon notifications.
+      // Do this first so that we don't first show the individual notifications
+      updateSummaryNotification();
+      // Create or update a notification for this beacon
+      updateNearbyBeaconNotification(mDeviceAddressToUrl.get(mSortedDevices.get(1)),
+          SECOND_NEAREST_BEACON_NOTIFICATION_ID);
+    }
+
     // If at least one beacon has been found
     if (mSortedDevices.size() > 0) {
       // Create or update a notification for this beacon
       updateNearbyBeaconNotification(mDeviceAddressToUrl.get(mSortedDevices.get(0)),
           NEAREST_BEACON_NOTIFICATION_ID);
-    }
-    // If at least two beacons have been found
-    if (mSortedDevices.size() > 1) {
-      // Create or update a notification for this beacon
-      updateNearbyBeaconNotification(mDeviceAddressToUrl.get(mSortedDevices.get(1)),
-          SECOND_NEAREST_BEACON_NOTIFICATION_ID);
-      // Create a summary notification for both beacon notifications
-      updateSummaryNotification();
     }
   }
 
