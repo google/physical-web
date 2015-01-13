@@ -46,8 +46,6 @@ import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.scan.util.RegionResolver;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -339,7 +337,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       url = "http://" + url;
     }
     // Route through the proxy server go link
-    url = createUrlProxyGoLink(url);
+    url = MetadataResolver.createUrlProxyGoLink(url);
     navigateToBeaconUrlIntent.setData(Uri.parse(url));
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID,
@@ -432,7 +430,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         url = "http://" + url;
       }
       // Route through the proxy server go link
-      url = createUrlProxyGoLink(url);
+      url = MetadataResolver.createUrlProxyGoLink(url);
 
       Intent intent_firstBeacon = new Intent(Intent.ACTION_VIEW);
       intent_firstBeacon.setData(Uri.parse(url));
@@ -468,7 +466,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         url = "http://" + url;
       }
       // Route through the proxy server go link
-      url = createUrlProxyGoLink(url);
+      url = MetadataResolver.createUrlProxyGoLink(url);
 
       Intent intent_secondBeacon = new Intent(Intent.ACTION_VIEW);
       intent_secondBeacon.setData(Uri.parse(url));
@@ -479,15 +477,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     } else {
       remoteViews.setViewVisibility(R.id.secondBeaconLayout, View.GONE);
     }
-  }
-
-  private String createUrlProxyGoLink(String url) {
-    try {
-      url = getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-    }
-    return url;
   }
 
   /**
