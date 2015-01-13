@@ -16,20 +16,24 @@
 
 package org.physical_web.physicalweb;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Class for resolving url metadata.
@@ -45,12 +49,14 @@ class MetadataResolver {
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
   private static MetadataResolverCallback mMetadataResolverCallback;
+  private static Context mContext;
 
   private static void initialize(Context context) {
     if (mRequestQueue == null) {
       mRequestQueue = Volley.newRequestQueue(context);
     }
     mIsInitialized = true;
+    mContext = context;
   }
 
 
@@ -162,7 +168,7 @@ class MetadataResolver {
               // Loop through the metadata for each url
               if (foundMetaData.length() > 0) {
 
-                for (int i=0; i<foundMetaData.length(); i++) {
+                for (int i = 0; i < foundMetaData.length(); i++) {
 
                   JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(i);
 
@@ -244,6 +250,15 @@ class MetadataResolver {
       }
     }, 0, 0, null, null);
     mRequestQueue.add(imageRequest);
+  }
+
+  public static String createUrlProxyGoLink(String url) {
+    try {
+      url = mContext.getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return url;
   }
 
   /**

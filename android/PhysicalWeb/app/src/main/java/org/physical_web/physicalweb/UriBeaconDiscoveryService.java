@@ -340,6 +340,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
+    // Route through the proxy server go link
+    url = MetadataResolver.createUrlProxyGoLink(url);
     navigateToBeaconUrlIntent.setData(Uri.parse(url));
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID,
@@ -431,6 +433,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       if (!URLUtil.isNetworkUrl(url)) {
         url = "http://" + url;
       }
+      // Route through the proxy server go link
+      url = MetadataResolver.createUrlProxyGoLink(url);
+
       Intent intent_firstBeacon = new Intent(Intent.ACTION_VIEW);
       intent_firstBeacon.setData(Uri.parse(url));
       int requestID = (int) System.currentTimeMillis();
@@ -464,6 +469,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       if (!URLUtil.isNetworkUrl(url)) {
         url = "http://" + url;
       }
+      // Route through the proxy server go link
+      url = MetadataResolver.createUrlProxyGoLink(url);
+
       Intent intent_secondBeacon = new Intent(Intent.ACTION_VIEW);
       intent_secondBeacon.setData(Uri.parse(url));
       int requestID = (int) System.currentTimeMillis();

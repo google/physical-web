@@ -281,6 +281,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
+    // Route through the proxy server go link
+    url = MetadataResolver.createUrlProxyGoLink(url);
     // Open the browser and point it to the given url
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
