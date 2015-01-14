@@ -40,5 +40,9 @@
     <string name="physical_web_preference_file_name">physical_web_preferences</string>
     <string name="metadata_loading">loading...</string>
     <string name="proxy_go_link_base_url">http://url-caster.appspot.com/go?url=</string>
+    <string name="ranging_debug_tx_power_prefix">tx: </string>
+    <string name="ranging_debug_rssi_prefix">rssi: </string>
+    <string name="ranging_debug_distance_prefix">distance: </string>
+    <string name="ranging_debug_region_prefix">region: </string>
 
 </resources>

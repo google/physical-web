@@ -35,6 +35,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.URLUtil;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -44,8 +45,10 @@ import android.widget.Toast;
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
+import org.uribeacon.scan.util.RangingUtils;
 import org.uribeacon.scan.util.RegionResolver;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -77,6 +80,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
+  private boolean mDebugRangingViewEnabled = false;
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
     @Override
@@ -86,6 +90,13 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mMdnsUrlDiscoverer.stopScanning();
       mNearbyDeviceAdapter.sortDevices();
       mNearbyDeviceAdapter.notifyDataSetChanged();
+    }
+  };
+  private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+    public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
+      mDebugRangingViewEnabled = !mDebugRangingViewEnabled;
+      mNearbyDeviceAdapter.notifyDataSetChanged();
+      return true;
     }
   };
 
@@ -122,6 +133,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
     setListAdapter(mNearbyDeviceAdapter);
     initializeScanningAnimation(rootView);
+    ListView listView = (ListView) rootView.findViewById(android.R.id.list);
+    listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
+
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
     // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
@@ -228,7 +242,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     String mockAddress = generateMockBluetoothAddress(url.hashCode());
     int mockRssi = 0;
     int mockTxPower = 0;
-    mNearbyDeviceAdapter.addItem(url, mockAddress);
+    mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
     mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
     // Inform the list adapter of the new data
     mNearbyDeviceAdapter.sortDevices();
@@ -314,7 +328,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       // Update the ranging info
       mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Force the device to be added to the listview (since it has no metadata)
-      mNearbyDeviceAdapter.addItem(url, mockAddress);
+      mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
     }
   }
 
@@ -332,17 +346,17 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
           public void run() {
             UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
             if ((uriBeacon != null) && (uriBeacon.getUriString() != null)) {
-              int txPowerLevel = uriBeacon.getTxPowerLevel();
+              int txPower = uriBeacon.getTxPowerLevel();
               String url = uriBeacon.getUriString();
               // If we haven't yet seen this url
               if (!mUrlToUrlMetadata.containsKey(url)) {
                 mUrlToUrlMetadata.put(url, null);
-                mNearbyDeviceAdapter.addItem(url, scanResult.getDevice().getAddress());
+                mNearbyDeviceAdapter.addItem(url, scanResult.getDevice().getAddress(), txPower);
                 // Fetch the metadata for this url
                 MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
               }
               // Tell the adapter to update stored data for this url
-              mNearbyDeviceAdapter.updateItem(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPowerLevel);
+              mNearbyDeviceAdapter.updateItem(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPower);
             }
           }
         });
@@ -356,6 +370,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     public final RegionResolver mRegionResolver;
     private final HashMap<String, String> mUrlToDeviceAddress;
     private List<String> mSortedDevices;
+    private final HashMap<String, Integer> mUrlToTxPower;
     private Comparator<String> mComparator = new Comparator<String>() {
       @Override
       public int compare(String address, String otherAddress) {
@@ -380,6 +395,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();
+      mUrlToTxPower = new HashMap<>();
       mRegionResolver = new RegionResolver();
       mSortedDevices = new ArrayList<>();
     }
@@ -388,8 +404,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mRegionResolver.onUpdate(address, rssi, txPower);
     }
 
-    public void addItem(String url, String address) {
+    public void addItem(String url, String address, int txPower) {
       mUrlToDeviceAddress.put(url, address);
+      mUrlToTxPower.put(url, txPower);
     }
 
     @Override
@@ -448,7 +465,41 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         descriptionTextView.setText(R.string.metadata_loading);
       }
 
+      // If we should show the ranging data
+      if (mDebugRangingViewEnabled) {
+        updateRangingDebugView(url, view);
+        view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
+      }
+      // Otherwise ensure it is not shown
+      else {
+        view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
+      }
+
       return view;
+    }
+
+    private void updateRangingDebugView(String url, View view) {
+      String deviceAddress = mUrlToDeviceAddress.get(url);
+
+      int txPower = mUrlToTxPower.get(url);
+      String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + String.valueOf(txPower);
+      TextView txPowerView = (TextView) view.findViewById(R.id.ranging_debug_tx_power);
+      txPowerView.setText(txPowerString);
+
+      int rssi = mRegionResolver.getSmoothedRssi(deviceAddress);
+      String rssiString = getString(R.string.ranging_debug_rssi_prefix) + String.valueOf(rssi);
+      TextView rssiView = (TextView) view.findViewById(R.id.ranging_debug_rssi);
+      rssiView.setText(rssiString);
+
+      double distance = mRegionResolver.getDistance(deviceAddress);
+      String distanceString = getString(R.string.ranging_debug_distance_prefix) + new DecimalFormat("##.##").format(distance);
+      TextView distanceView = (TextView) view.findViewById(R.id.ranging_debug_distance);
+      distanceView.setText(distanceString);
+
+      int region = mRegionResolver.getRegion(deviceAddress);
+      String regionString = getString(R.string.ranging_debug_region_prefix) + RangingUtils.toString(region);
+      TextView regionView = (TextView) view.findViewById(R.id.ranging_debug_region);
+      regionView.setText(regionString);
     }
 
     public String getUrlForListItem(int i) {
