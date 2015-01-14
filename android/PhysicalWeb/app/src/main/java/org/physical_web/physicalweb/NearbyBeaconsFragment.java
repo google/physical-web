@@ -133,6 +133,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
     setListAdapter(mNearbyDeviceAdapter);
     initializeScanningAnimation(rootView);
+    ListView listView = (ListView) rootView.findViewById(android.R.id.list);
+    listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
+
     mIsDemoMode = getArguments().getBoolean("isDemoMode");
     // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
@@ -161,12 +164,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
     initialize(rootView);
     return rootView;
-  }
-
-  @Override
-  public void onActivityCreated(Bundle savedState) {
-    super.onActivityCreated(savedState);
-    getListView().setOnItemLongClickListener(mAdapterViewItemLongClickListener);
   }
 
   @Override
