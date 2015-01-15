@@ -44,5 +44,6 @@
     <string name="ranging_debug_rssi_prefix">rssi: </string>
     <string name="ranging_debug_distance_prefix">distance: </string>
     <string name="ranging_debug_region_prefix">region: </string>
+    <string name="summary_notification_pull_down">Pull down to see them.</string>
 
 </resources>
