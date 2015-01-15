@@ -7,6 +7,6 @@
     <color name="menu_item_text_color">#333333</color>
     <color name="action_bar_title_text_color">#5A5A5A</color>
     <color name="action_bar_background_color">#FFFFFF</color>
-    <color name="swipe_refresh_widget_first_color">#4285f4</color>
+    <color name="swipe_refresh_widget_first_color">#8BAEE4</color>
     <color name="swipe_refresh_widget_second_color">#D7D7D7</color>
 </resources>
