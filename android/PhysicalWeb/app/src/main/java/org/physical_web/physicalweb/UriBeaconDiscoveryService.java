@@ -373,6 +373,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     Resources resources = getResources();
     contentTitle += " " + resources.getQuantityString(R.plurals.numFoundBeacons, numNearbyBeacons, numNearbyBeacons);
     String contentText = "Pull down to see them.";
+    PendingIntent pendingIntent = createReturnToAppPendingIntent();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     Notification notification = builder.setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(contentTitle)
@@ -381,6 +382,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setGroupSummary(true)
         .setPriority(NOTIFICATION_PRIORITY)
+        .setContentIntent(pendingIntent)
         .build();
 
     // Create the big view for the notification (viewed by pulling down)
@@ -400,12 +402,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     updateSummaryNotificationRemoteViewsFirstBeacon(mDeviceAddressToUrl.get(mSortedDevices.get(0)), remoteViews);
     updateSummaryNotificationRemoteViewsSecondBeacon(mDeviceAddressToUrl.get(mSortedDevices.get(1)), remoteViews);
 
-    // Create an intent that will open the browser to the beacon's url
-    // if the user taps the notification
+    // Create an pending intent that will open the physical web app
     // TODO: Use a clickListener on the VIEW MORE button to do this
-    Intent intent_returnToApp = new Intent(this, MainActivity.class);
-    int requestID = (int) System.currentTimeMillis();
-    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_returnToApp, 0);
+    PendingIntent pendingIntent = createReturnToAppPendingIntent();
     remoteViews.setOnClickPendingIntent(R.id.otherBeaconsLayout, pendingIntent);
 
     return remoteViews;
@@ -430,16 +429,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
       // Create an intent that will open the browser to the beacon's url
       // if the user taps the notification
-      if (!URLUtil.isNetworkUrl(url)) {
-        url = "http://" + url;
-      }
-      // Route through the proxy server go link
-      url = MetadataResolver.createUrlProxyGoLink(url);
-
-      Intent intent_firstBeacon = new Intent(Intent.ACTION_VIEW);
-      intent_firstBeacon.setData(Uri.parse(url));
-      int requestID = (int) System.currentTimeMillis();
-      PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_firstBeacon, 0);
+      PendingIntent pendingIntent = createNavigateToUrlPendingIntent(url);
       remoteViews.setOnClickPendingIntent(R.id.first_beacon_main_layout, pendingIntent);
       remoteViews.setViewVisibility(R.id.firstBeaconLayout, View.VISIBLE);
     } else {
@@ -466,21 +456,31 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
       // Create an intent that will open the browser to the beacon's url
       // if the user taps the notification
-      if (!URLUtil.isNetworkUrl(url)) {
-        url = "http://" + url;
-      }
-      // Route through the proxy server go link
-      url = MetadataResolver.createUrlProxyGoLink(url);
-
-      Intent intent_secondBeacon = new Intent(Intent.ACTION_VIEW);
-      intent_secondBeacon.setData(Uri.parse(url));
-      int requestID = (int) System.currentTimeMillis();
-      PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent_secondBeacon, 0);
+      PendingIntent pendingIntent = createNavigateToUrlPendingIntent(url);
       remoteViews.setOnClickPendingIntent(R.id.second_beacon_main_layout, pendingIntent);
       remoteViews.setViewVisibility(R.id.secondBeaconLayout, View.VISIBLE);
     } else {
       remoteViews.setViewVisibility(R.id.secondBeaconLayout, View.GONE);
     }
+  }
+
+  private PendingIntent createReturnToAppPendingIntent() {
+    Intent intent = new Intent(this, MainActivity.class);
+    int requestID = (int) System.currentTimeMillis();
+    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent, 0);
+    return pendingIntent;
+  }
+
+  private PendingIntent createNavigateToUrlPendingIntent(String url) {
+    if (!URLUtil.isNetworkUrl(url)) {
+      url = "http://" + url;
+    }
+    url = MetadataResolver.createUrlProxyGoLink(url);
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setData(Uri.parse(url));
+    int requestID = (int) System.currentTimeMillis();
+    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent, 0);
+    return pendingIntent;
   }
 
   /**
