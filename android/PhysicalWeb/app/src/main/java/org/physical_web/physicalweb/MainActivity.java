@@ -158,7 +158,7 @@ public class MainActivity extends Activity {
       }
     } else {
       getFragmentManager().beginTransaction()
-          .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
+          .setCustomAnimations(R.anim.slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
           .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
           .addToBackStack(null)
           .commit();

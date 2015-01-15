@@ -252,6 +252,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mNearbyDeviceAdapter.notifyDataSetChanged();
     // Stop the refresh animation
     mSwipeRefreshWidget.setRefreshing(false);
+    fadeInListView();
   }
 
   @SuppressWarnings("deprecation")
