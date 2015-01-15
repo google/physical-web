@@ -131,6 +131,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       return address.compareTo(otherAddress);
     }
   };
+  // TODO: consider a more elegant solution for preventing notification conflicts
   private Runnable mNotificationUpdateGateTimeout = new Runnable() {
     @Override
     public void run() {
