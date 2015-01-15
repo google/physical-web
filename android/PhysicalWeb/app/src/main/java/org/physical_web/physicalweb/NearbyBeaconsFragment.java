@@ -16,6 +16,7 @@
 
 package org.physical_web.physicalweb;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
 import android.bluetooth.BluetoothAdapter;
@@ -34,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -90,6 +92,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mMdnsUrlDiscoverer.stopScanning();
       mNearbyDeviceAdapter.sortDevices();
       mNearbyDeviceAdapter.notifyDataSetChanged();
+      fadeInListView();
     }
   };
   private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener = new AdapterView.OnItemLongClickListener() {
@@ -362,6 +365,13 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         });
       }
     }
+  }
+
+  private void fadeInListView() {
+    ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(getListView(), "alpha", 0, 1);
+    alphaAnimation.setDuration(400);
+    alphaAnimation.setInterpolator(new DecelerateInterpolator());
+    alphaAnimation.start();
   }
 
   // Adapter for holding beacons found through scanning.
