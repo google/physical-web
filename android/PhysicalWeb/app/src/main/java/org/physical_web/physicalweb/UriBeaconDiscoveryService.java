@@ -402,7 +402,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     updateSummaryNotificationRemoteViewsFirstBeacon(mDeviceAddressToUrl.get(mSortedDevices.get(0)), remoteViews);
     updateSummaryNotificationRemoteViewsSecondBeacon(mDeviceAddressToUrl.get(mSortedDevices.get(1)), remoteViews);
 
-    // Create an pending intent that will open the physical web app
+    // Create a pending intent that will open the physical web app
     // TODO: Use a clickListener on the VIEW MORE button to do this
     PendingIntent pendingIntent = createReturnToAppPendingIntent();
     remoteViews.setOnClickPendingIntent(R.id.otherBeaconsLayout, pendingIntent);
