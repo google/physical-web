@@ -336,16 +336,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
     // Create an intent that will open the browser to the beacon's url
     // if the user taps on the notification
-    Intent navigateToBeaconUrlIntent = new Intent(Intent.ACTION_VIEW);
-    if (!URLUtil.isNetworkUrl(url)) {
-      url = "http://" + url;
-    }
-    // Route through the proxy server go link
-    url = MetadataResolver.createUrlProxyGoLink(url);
-    navigateToBeaconUrlIntent.setData(Uri.parse(url));
-    int requestID = (int) System.currentTimeMillis();
-    PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID,
-        navigateToBeaconUrlIntent, 0);
+    PendingIntent pendingIntent = createNavigateToUrlPendingIntent(url);
 
     String title = urlMetadata.title;
     String description = urlMetadata.description;
