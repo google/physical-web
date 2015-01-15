@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
@@ -99,6 +100,9 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
   private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_LOW;
+  private static final long NOTIFICATION_UPDATE_GATE_DURATION = 1000;
+  private boolean mCanUpdateNotifications = false;
+  private Handler mHandler;
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
@@ -127,6 +131,13 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       return address.compareTo(otherAddress);
     }
   };
+  private Runnable mNotificationUpdateGateTimeout = new Runnable() {
+    @Override
+    public void run() {
+      mCanUpdateNotifications = true;
+      updateNotifications();
+    }
+  };
 
   public UriBeaconDiscoveryService() {
   }
@@ -143,6 +154,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
+    mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
   }
 
@@ -182,6 +194,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     // Start scanning only if the screen is on
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
     if (powerManager.isScreenOn()) {
+      mCanUpdateNotifications = false;
+      mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
       startSearchingForUriBeacons();
       mMdnsUrlDiscoverer.startScanning();
     }
@@ -199,6 +213,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   @Override
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
+    mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
     stopSearchingForUriBeacons();
     mMdnsUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
@@ -286,6 +301,10 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
    * Create a new set of notifications or update those existing
    */
   private void updateNotifications() {
+    if (!mCanUpdateNotifications) {
+      return;
+    }
+
     mSortedDevices = getSortedBeaconsWithMetadata();
 
     // If no beacons have been found
@@ -493,9 +512,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       initializeLists();
       mNotificationManager.cancelAll();
       if (isScreenOn) {
+        mCanUpdateNotifications = false;
+        mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
         startSearchingForUriBeacons();
         mMdnsUrlDiscoverer.startScanning();
       } else {
+        mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
         stopSearchingForUriBeacons();
         mMdnsUrlDiscoverer.stopScanning();
       }
