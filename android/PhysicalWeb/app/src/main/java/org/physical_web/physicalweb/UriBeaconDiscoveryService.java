@@ -372,7 +372,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     String contentTitle = String.valueOf(numNearbyBeacons) + " ";
     Resources resources = getResources();
     contentTitle += " " + resources.getQuantityString(R.plurals.numFoundBeacons, numNearbyBeacons, numNearbyBeacons);
-    String contentText = "Pull down to see them.";
+    String contentText = getString(R.string.summary_notification_pull_down);
     PendingIntent pendingIntent = createReturnToAppPendingIntent();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     Notification notification = builder.setSmallIcon(R.drawable.ic_notification)
