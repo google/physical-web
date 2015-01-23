@@ -324,11 +324,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   public void onMdnsUrlFound(String url) {
     if (!mUrlToUrlMetadata.containsKey(url)) {
       mUrlToUrlMetadata.put(url, null);
-      MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
       // Fabricate the adapter values so that we can show these ersatz beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
       int mockRssi = 0;
       int mockTxPower = 0;
+      // Fetch the metadata for the given url
+      MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url, mockTxPower, mockRssi);
       // Update the ranging info
       mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Force the device to be added to the listview (since it has no metadata)
@@ -357,7 +358,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
                 mUrlToUrlMetadata.put(url, null);
                 mNearbyDeviceAdapter.addItem(url, scanResult.getDevice().getAddress(), txPower);
                 // Fetch the metadata for this url
-                MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+                MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url, txPower, rssi);
               }
               // Tell the adapter to update stored data for this url
               mNearbyDeviceAdapter.updateItem(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPower);
@@ -382,6 +383,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     private final HashMap<String, String> mUrlToDeviceAddress;
     private List<String> mSortedDevices;
     private final HashMap<String, Integer> mUrlToTxPower;
+    /*
     private Comparator<String> mComparator = new Comparator<String>() {
       @Override
       public int compare(String address, String otherAddress) {
@@ -403,6 +405,48 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         return address.compareTo(otherAddress);
       }
     };
+    */
+    private Comparator<String> mComparator = new Comparator<String>() {
+      @Override
+      public int compare(String addressA, String addressB) {
+        String urlA = findUrlForGivenDeviceAddress(addressA);
+        String urlB = findUrlForGivenDeviceAddress(addressB);
+        MetadataResolver.UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
+        MetadataResolver.UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
+
+        if ((urlMetadataA != null) && (urlMetadataB != null)) {
+          float scoreA = urlMetadataA.score;
+          float scoreB = urlMetadataB.score;
+
+          if (scoreA != scoreB) {
+            return ((Float) scoreA).compareTo(scoreB);
+          }
+
+          // The scores are equal so sort by metadata title
+          String titleA = urlMetadataA.title;
+          String titleB = urlMetadataB.title;
+          return titleA.compareTo(titleB);
+        }
+
+        if (urlMetadataA == null) {
+          return 1;
+        }
+        else if (urlMetadataB == null) {
+          return -1;
+        }
+
+        return -1;
+      }
+    };
+
+    private String findUrlForGivenDeviceAddress(String addressToMatch) {
+      for (String url : mUrlToDeviceAddress.keySet()) {
+        if (mUrlToDeviceAddress.get(url) == addressToMatch) {
+          return url;
+        }
+      }
+      return null;
+    }
 
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();

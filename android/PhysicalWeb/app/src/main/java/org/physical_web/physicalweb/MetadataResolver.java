@@ -44,7 +44,8 @@ import java.net.URLEncoder;
 
 class MetadataResolver {
   private static final String TAG = "MetadataResolver";
-  private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
+  //private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
+  private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
   private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
@@ -77,11 +78,15 @@ class MetadataResolver {
   // utilities
   /////////////////////////////////
 
-  public static void findUrlMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback, final String url) {
+  public static void findUrlMetadata(Context context,
+                                     MetadataResolverCallback metadataResolverCallback,
+                                     String url,
+                                     int txPower,
+                                     int rssi) {
     // Store the callback so we can call it back later
     mMetadataResolverCallback = metadataResolverCallback;
     initialize(context);
-    requestUrlMetadata(url);
+    requestUrlMetadata(url, txPower, rssi);
   }
 
   /**
@@ -90,13 +95,13 @@ class MetadataResolver {
    *
    * @param url The url for which to request data
    */
-  private static void requestUrlMetadata(String url) {
+  private static void requestUrlMetadata(String url, int txPower, int rssi) {
     if (!mIsInitialized) {
       Log.e(TAG, "Not initialized.");
       return;
     }
     // Create the json request object
-    JSONObject jsonObj = createUrlMetadataRequestObject(url);
+    JSONObject jsonObj = createUrlMetadataRequestObject(url, txPower, rssi);
     // Create the metadata request
     // for the given json request object
     JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj, false);
@@ -131,12 +136,14 @@ class MetadataResolver {
    * @param url The url for which the request data will be created
    * @return The constructed json object
    */
-  private static JSONObject createUrlMetadataRequestObject(String url) {
+  private static JSONObject createUrlMetadataRequestObject(String url, int txPower, int rssi) {
     JSONObject jsonObject = new JSONObject();
     try {
       JSONArray urlJsonArray = new JSONArray();
       JSONObject urlJsonObject = new JSONObject();
       urlJsonObject.put("url", url);
+      urlJsonObject.put("txpower", txPower);
+      urlJsonObject.put("rssi", rssi);
       urlJsonArray.put(urlJsonObject);
       jsonObject.put("objects", urlJsonArray);
     } catch (JSONException ex) {
@@ -177,6 +184,7 @@ class MetadataResolver {
                   String description = "";
                   String iconUrl = "/favicon.ico";
                   String id = jsonUrlMetadata.getString("id");
+                  float score = 0;
 
                   if (jsonUrlMetadata.has("title")) {
                     title = jsonUrlMetadata.getString("title");
@@ -190,6 +198,10 @@ class MetadataResolver {
                   if (jsonUrlMetadata.has("icon")) {
                     // We might need to do some magic here.
                     iconUrl = jsonUrlMetadata.getString("icon");
+                  }
+                  if (jsonUrlMetadata.has("score")) {
+                    score = Float.parseFloat(jsonUrlMetadata.getString("score"));
+                    Log.d(TAG, "url: " + url + "   score: " + score);
                   }
 
                   // TODO: Eliminate this fallback since we expect the server to always return an icon.
@@ -209,6 +221,7 @@ class MetadataResolver {
                   urlMetadata.description = description;
                   urlMetadata.siteUrl = url;
                   urlMetadata.iconUrl = iconUrl;
+                  urlMetadata.score = score;
 
                   // Kick off the icon download
                   downloadIcon(urlMetadata);
@@ -274,6 +287,7 @@ class MetadataResolver {
     public String description;
     public String iconUrl;
     public Bitmap icon;
+    public float score;
 
     public UrlMetadata() {
     }
