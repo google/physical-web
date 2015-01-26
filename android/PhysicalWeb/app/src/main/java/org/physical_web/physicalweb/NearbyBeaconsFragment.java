@@ -309,6 +309,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   @Override
   public void onRefresh() {
+    if (mIsScanRunning) {
+      return;
+    }
     mSwipeRefreshWidget.setRefreshing(true);
     if (!mIsDemoMode) {
       mScanningAnimationDrawable.start();
