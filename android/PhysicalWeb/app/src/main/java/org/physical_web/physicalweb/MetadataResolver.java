@@ -35,7 +35,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.HashMap;
 
 /**
  * Class for resolving url metadata.
@@ -203,7 +202,6 @@ class MetadataResolver {
                   }
                   if (jsonUrlMetadata.has("score")) {
                     score = Float.parseFloat(jsonUrlMetadata.getString("score"));
-                    Log.d(TAG, "url: " + url + " score: " + score);
                   }
 
                   // TODO: Eliminate this fallback since we expect the server to always return an icon.
@@ -253,8 +251,10 @@ class MetadataResolver {
 
   public static boolean checkIfMetadataContainsSortingScores(Collection<UrlMetadata> urlMetadataCollection) {
     for (UrlMetadata urlMetadata : urlMetadataCollection) {
-      if (urlMetadata.score == 0) {
-        return false;
+      if (urlMetadata != null) {
+        if (urlMetadata.score == 0) {
+          return false;
+        }
       }
     }
     return true;

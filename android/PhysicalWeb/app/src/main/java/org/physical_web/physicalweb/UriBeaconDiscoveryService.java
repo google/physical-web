@@ -146,7 +146,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         float scoreB = urlMetadataB.score;
         // If the scores are not equal
         if (scoreA != scoreB) {
-          return ((Float) scoreA).compareTo(scoreB);
+          // Sort so that higher scores show up higher in the list
+          return ((Float) scoreB).compareTo(scoreA);
         }
         // The scores are equal so sort by metadata title
         String titleA = urlMetadataA.title;
