@@ -45,8 +45,8 @@ import java.util.Collection;
 
 class MetadataResolver {
   private static final String TAG = "MetadataResolver";
-  //private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
-  private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
+  private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
+  //private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
   private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
