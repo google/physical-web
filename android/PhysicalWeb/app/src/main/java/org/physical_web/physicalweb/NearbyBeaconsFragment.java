@@ -409,10 +409,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     private Comparator<String> mSortByProxyServerScoreComparator = new Comparator<String>() {
       @Override
       public int compare(String addressA, String addressB) {
-        String urlA = findUrlForGivenDeviceAddress(addressA);
-        String urlB = findUrlForGivenDeviceAddress(addressB);
-        MetadataResolver.UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
-        MetadataResolver.UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
+        MetadataResolver.UrlMetadata urlMetadataA = getUrlMetadataFromDeviceAddress(addressA);
+        MetadataResolver.UrlMetadata urlMetadataB = getUrlMetadataFromDeviceAddress(addressB);
 
         // If metadata exists for both urls
         if ((urlMetadataA != null) && (urlMetadataB != null)) {
@@ -437,6 +435,14 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       }
     };
 
+    private MetadataResolver.UrlMetadata getUrlMetadataFromDeviceAddress(String addressToMatch) {
+      for (String url : mUrlToDeviceAddress.keySet()) {
+        if (mUrlToDeviceAddress.get(url).equals(addressToMatch)) {
+          return mUrlToUrlMetadata.get(url);
+        }
+      }
+      return null;
+    }
     private String findUrlForGivenDeviceAddress(String addressToMatch) {
       for (String url : mUrlToDeviceAddress.keySet()) {
         if (mUrlToDeviceAddress.get(url) == addressToMatch) {

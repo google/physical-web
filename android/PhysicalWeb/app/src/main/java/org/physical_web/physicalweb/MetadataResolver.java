@@ -250,6 +250,7 @@ class MetadataResolver {
     );
   }
 
+  // TODO: this method will become moot once the proxy server scores all requested urls
   public static boolean checkIfMetadataContainsSortingScores(Collection<UrlMetadata> urlMetadataCollection) {
     for (UrlMetadata urlMetadata : urlMetadataCollection) {
       if (urlMetadata != null) {
