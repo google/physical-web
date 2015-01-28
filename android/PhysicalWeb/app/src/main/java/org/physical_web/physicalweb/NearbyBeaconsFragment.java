@@ -327,11 +327,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   public void onMdnsUrlFound(String url) {
     if (!mUrlToUrlMetadata.containsKey(url)) {
       mUrlToUrlMetadata.put(url, null);
-      MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
       // Fabricate the adapter values so that we can show these ersatz beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
       int mockRssi = 0;
       int mockTxPower = 0;
+      // Fetch the metadata for the given url
+      MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url, mockTxPower, mockRssi);
       // Update the ranging info
       mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Force the device to be added to the listview (since it has no metadata)
@@ -360,7 +361,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
                 mUrlToUrlMetadata.put(url, null);
                 mNearbyDeviceAdapter.addItem(url, scanResult.getDevice().getAddress(), txPower);
                 // Fetch the metadata for this url
-                MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url);
+                MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url, txPower, rssi);
               }
               // Tell the adapter to update stored data for this url
               mNearbyDeviceAdapter.updateItem(url, scanResult.getDevice().getAddress(), scanResult.getRssi(), txPower);
@@ -385,11 +386,11 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     private final HashMap<String, String> mUrlToDeviceAddress;
     private List<String> mSortedDevices;
     private final HashMap<String, Integer> mUrlToTxPower;
-    private Comparator<String> mComparator = new Comparator<String>() {
+    // Sort using local region-resolver regions
+    private Comparator<String> mSortByRegionResolverRegionComparator = new Comparator<String>() {
       @Override
       public int compare(String address, String otherAddress) {
-        // Sort by the stabilized region of the device, unless
-        // they are the same, in which case sort by distance.
+        // Check if one of the addresses is the nearest
         final String nearest = mRegionResolver.getNearestAddress();
         if (address.equals(nearest)) {
           return -1;
@@ -397,6 +398,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         if (otherAddress.equals(nearest)) {
           return 1;
         }
+        // Otherwise sort by region
         int r1 = mRegionResolver.getRegion(address);
         int r2 = mRegionResolver.getRegion(otherAddress);
         if (r1 != r2) {
@@ -406,6 +408,44 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
         return address.compareTo(otherAddress);
       }
     };
+    // Sort using local proxy server scores
+    private Comparator<String> mSortByProxyServerScoreComparator = new Comparator<String>() {
+      @Override
+      public int compare(String addressA, String addressB) {
+        MetadataResolver.UrlMetadata urlMetadataA = getUrlMetadataFromDeviceAddress(addressA);
+        MetadataResolver.UrlMetadata urlMetadataB = getUrlMetadataFromDeviceAddress(addressB);
+
+        // If metadata exists for both urls
+        if ((urlMetadataA != null) && (urlMetadataB != null)) {
+          float scoreA = urlMetadataA.score;
+          float scoreB = urlMetadataB.score;
+          // If the scores are not equal
+          if (scoreA != scoreB) {
+            // Sort so that higher scores show up higher in the list
+            return ((Float) scoreB).compareTo(scoreA);
+          }
+          // The scores are equal so sort by metadata title
+          String titleA = urlMetadataA.title;
+          String titleB = urlMetadataB.title;
+          return titleA.compareTo(titleB);
+        }
+
+        // Sort the url with metadata to be first
+        if (urlMetadataA == null) {
+          return 1;
+        }
+        return -1;
+      }
+    };
+
+    private MetadataResolver.UrlMetadata getUrlMetadataFromDeviceAddress(String addressToMatch) {
+      for (String url : mUrlToDeviceAddress.keySet()) {
+        if (mUrlToDeviceAddress.get(url).equals(addressToMatch)) {
+          return mUrlToUrlMetadata.get(url);
+        }
+      }
+      return null;
+    }
 
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();
@@ -528,7 +568,16 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
     public void sortDevices() {
       mSortedDevices = new ArrayList<>(mUrlToDeviceAddress.values());
-      Collections.sort(mSortedDevices, mComparator);
+      // If there are scores in the metadata
+      if (MetadataResolver.checkIfMetadataContainsSortingScores(mUrlToUrlMetadata.values())) {
+        // Sort using those scores
+        Collections.sort(mSortedDevices, mSortByProxyServerScoreComparator);
+      }
+      // If there are not scores in the metadata
+      else {
+        // Sort using the region resolver regions
+        Collections.sort(mSortedDevices, mSortByRegionResolverRegionComparator);
+      }
     }
 
     public void clear() {

@@ -110,11 +110,11 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
-  private Comparator<String> mComparator = new Comparator<String>() {
+  // Sort using local region-resolver regions
+  private Comparator<String> mSortByRegionResolverRegionComparator = new Comparator<String>() {
     @Override
     public int compare(String address, String otherAddress) {
-      // Sort by the stabilized region of the device, unless
-      // they are the same, in which case sort by distance.
+      // Check if one of the addresses is the nearest
       final String nearest = mRegionResolver.getNearestAddress();
       if (address.equals(nearest)) {
         return -1;
@@ -122,6 +122,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       if (otherAddress.equals(nearest)) {
         return 1;
       }
+      // Otherwise sort by region
       int r1 = mRegionResolver.getRegion(address);
       int r2 = mRegionResolver.getRegion(otherAddress);
       if (r1 != r2) {
@@ -131,6 +132,36 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       return address.compareTo(otherAddress);
     }
   };
+  // Sort using local proxy server scores
+  private Comparator<String> mSortByProxyServerScoreComparator = new Comparator<String>() {
+    @Override
+    public int compare(String addressA, String addressB) {
+      String urlA = mDeviceAddressToUrl.get(addressA);
+      String urlB = mDeviceAddressToUrl.get(addressB);
+      MetadataResolver.UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
+      MetadataResolver.UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
+      // If metadata exists for both urls
+      if ((urlMetadataA != null) && (urlMetadataB != null)) {
+        float scoreA = urlMetadataA.score;
+        float scoreB = urlMetadataB.score;
+        // If the scores are not equal
+        if (scoreA != scoreB) {
+          // Sort so that higher scores show up higher in the list
+          return ((Float) scoreB).compareTo(scoreA);
+        }
+        // The scores are equal so sort by metadata title
+        String titleA = urlMetadataA.title;
+        String titleB = urlMetadataB.title;
+        return titleA.compareTo(titleB);
+      }
+      // Sort the url with metadata to be first
+      if (urlMetadataA == null) {
+        return 1;
+      }
+      return -1;
+    }
+  };
+
   // TODO: consider a more elegant solution for preventing notification conflicts
   private Runnable mNotificationUpdateGateTimeout = new Runnable() {
     @Override
@@ -247,7 +278,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       mUrlToUrlMetadata.put(url, null);
       mDeviceAddressToUrl.put(mockAddress, url);
       mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
-      MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+      MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, mockTxPower, mockRssi);
     }
   }
 
@@ -283,17 +314,17 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       if (uriBeacon != null) {
         String address = scanResult.getDevice().getAddress();
         int rssi = scanResult.getRssi();
-        int txPowerLevel = uriBeacon.getTxPowerLevel();
+        int txPower = uriBeacon.getTxPowerLevel();
         String url = uriBeacon.getUriString();
         // If we haven't yet seen this url
         if (!mUrlToUrlMetadata.containsKey(url)) {
           mUrlToUrlMetadata.put(url, null);
           mDeviceAddressToUrl.put(address, url);
           // Fetch the metadata for this url
-          MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url);
+          MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, txPower, rssi);
         }
         // Update the ranging data
-        mRegionResolver.onUpdate(address, rssi, txPowerLevel);
+        mRegionResolver.onUpdate(address, rssi, txPower);
       }
     }
   }
@@ -340,7 +371,16 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         unSorted.add(key);
       }
     }
-    Collections.sort(unSorted, mComparator);
+    // If there are scores in the metadata
+    if (MetadataResolver.checkIfMetadataContainsSortingScores(mUrlToUrlMetadata.values())) {
+      // Sort using those scores
+      Collections.sort(unSorted, mSortByProxyServerScoreComparator);
+    }
+    // If there are not scores in the metadata
+    else {
+      // Sort using the region resolver regions
+      Collections.sort(unSorted, mSortByRegionResolverRegionComparator);
+    }
     return unSorted;
   }
 
