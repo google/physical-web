@@ -48,6 +48,7 @@ class MetadataResolver {
   private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
   //private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
   private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
+  private static final int UNDEFINED_SCORE = -1;
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
   private static MetadataResolverCallback mMetadataResolverCallback;
@@ -185,7 +186,7 @@ class MetadataResolver {
                   String description = "";
                   String iconUrl = "/favicon.ico";
                   String id = jsonUrlMetadata.getString("id");
-                  float score = 0;
+                  float score = UNDEFINED_SCORE;
 
                   if (jsonUrlMetadata.has("title")) {
                     title = jsonUrlMetadata.getString("title");
@@ -252,7 +253,7 @@ class MetadataResolver {
   public static boolean checkIfMetadataContainsSortingScores(Collection<UrlMetadata> urlMetadataCollection) {
     for (UrlMetadata urlMetadata : urlMetadataCollection) {
       if (urlMetadata != null) {
-        if (urlMetadata.score == 0) {
+        if (urlMetadata.score == UNDEFINED_SCORE) {
           return false;
         }
       }
