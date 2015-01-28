@@ -443,14 +443,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       }
       return null;
     }
-    private String findUrlForGivenDeviceAddress(String addressToMatch) {
-      for (String url : mUrlToDeviceAddress.keySet()) {
-        if (mUrlToDeviceAddress.get(url) == addressToMatch) {
-          return url;
-        }
-      }
-      return null;
-    }
 
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();
