@@ -343,24 +343,20 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     if (mSortedDevices.size() == 0) {
       // Remove all existing notifications
       mNotificationManager.cancelAll();
-      return;
-    }
-
-    // If at least two beacons have been found
-    if (mSortedDevices.size() > 1) {
+    } else if (mSortedDevices.size() == 1) {
+      updateNearbyBeaconNotification(true, mDeviceAddressToUrl.get(mSortedDevices.get(0)),
+          NEAREST_BEACON_NOTIFICATION_ID);
+    } else {
       // Create a summary notification for both beacon notifications.
       // Do this first so that we don't first show the individual notifications
       updateSummaryNotification();
-      // Create or update a notification for this beacon
-      updateNearbyBeaconNotification(mDeviceAddressToUrl.get(mSortedDevices.get(1)),
+      // Create or update a notification for second beacon
+      updateNearbyBeaconNotification(false, mDeviceAddressToUrl.get(mSortedDevices.get(1)),
           SECOND_NEAREST_BEACON_NOTIFICATION_ID);
-    }
-
-    // If at least one beacon has been found
-    if (mSortedDevices.size() > 0) {
-      // Create or update a notification for this beacon
-      updateNearbyBeaconNotification(mDeviceAddressToUrl.get(mSortedDevices.get(0)),
+      // Create or update a notification for first beacon. Needs to be added last to show up top
+      updateNearbyBeaconNotification(false, mDeviceAddressToUrl.get(mSortedDevices.get(0)),
           NEAREST_BEACON_NOTIFICATION_ID);
+
     }
   }
 
@@ -388,7 +384,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
    * Create or update a notification with the given id
    * for the beacon with the given address
    */
-  private void updateNearbyBeaconNotification(String url, int notificationId) {
+  private void updateNearbyBeaconNotification(boolean single, String url, int notificationId) {
     MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata == null) {
       return;
@@ -407,8 +403,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         .setContentTitle(title)
         .setContentText(description)
         .setPriority(NOTIFICATION_PRIORITY)
-        .setGroup(NOTIFICATION_GROUP_KEY)
         .setContentIntent(pendingIntent);
+    // For some reason if there is only one notification and you call setGroup
+    // the notification doesn't show up on the N7 running kit kat
+    if (!single) {
+      builder = builder.setGroup(NOTIFICATION_GROUP_KEY);
+    }
     Notification notification = builder.build();
 
     mNotificationManager.notify(notificationId, notification);
