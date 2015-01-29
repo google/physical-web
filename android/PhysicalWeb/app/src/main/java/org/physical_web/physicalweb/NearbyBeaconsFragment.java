@@ -217,13 +217,16 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     }
     // Get the url for the given item
     String url = mNearbyDeviceAdapter.getUrlForListItem(position);
-    String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
-    if (siteUrl != null) {
-      // Open the url in the browser
-      openUrlInBrowser(siteUrl);
-    } else {
-      Toast.makeText(getActivity(), "No URL found.", Toast.LENGTH_SHORT).show();
+    String urlToNavigateTo = url;
+    // If this url has metadata
+    if (mUrlToUrlMetadata.get(url) != null) {
+      String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
+      // If the metadata has a siteUrl
+      if (siteUrl != null) {
+        urlToNavigateTo = siteUrl;
+      }
     }
+    openUrlInBrowser(urlToNavigateTo);
   }
 
   @Override
