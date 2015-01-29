@@ -523,12 +523,21 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private PendingIntent createNavigateToUrlPendingIntent(String url) {
-    if (!URLUtil.isNetworkUrl(url)) {
-      url = "http://" + url;
+    String urlToNavigateTo = url;
+    // If this url has metadata
+    if (mUrlToUrlMetadata.get(url) != null) {
+      String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
+      // If this metadata has a siteUrl
+      if (siteUrl != null) {
+        urlToNavigateTo = siteUrl;
+      }
     }
-    url = MetadataResolver.createUrlProxyGoLink(url);
+    if (!URLUtil.isNetworkUrl(urlToNavigateTo)) {
+      urlToNavigateTo = "http://" + urlToNavigateTo;
+    }
+    urlToNavigateTo = MetadataResolver.createUrlProxyGoLink(urlToNavigateTo);
     Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(Uri.parse(url));
+    intent.setData(Uri.parse(urlToNavigateTo));
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent, 0);
     return pendingIntent;
