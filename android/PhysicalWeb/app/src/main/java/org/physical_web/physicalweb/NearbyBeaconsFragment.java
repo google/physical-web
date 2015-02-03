@@ -67,7 +67,7 @@ import java.util.concurrent.TimeUnit;
  * the browser and point that browser
  * to the given list items url.
  */
-public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback, SwipeRefreshWidget.OnRefreshListener, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback {
+public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback, SwipeRefreshWidget.OnRefreshListener, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "NearbyBeaconsFragment";
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(3);
@@ -82,6 +82,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
+  private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
   private boolean mDebugRangingViewEnabled = false;
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
@@ -90,6 +91,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mScanningAnimationDrawable.stop();
       scanLeDevice(false);
       mMdnsUrlDiscoverer.stopScanning();
+      mSsdpUrlDiscoverer.stopScanning();
       mNearbyDeviceAdapter.sortDevices();
       mNearbyDeviceAdapter.notifyDataSetChanged();
       fadeInListView();
@@ -131,6 +133,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mSwipeRefreshWidget.setOnRefreshListener(this);
 
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(getActivity(), NearbyBeaconsFragment.this);
+    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(getActivity(),NearbyBeaconsFragment.this);
 
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
@@ -178,6 +181,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mScanningAnimationDrawable.start();
       scanLeDevice(true);
       mMdnsUrlDiscoverer.startScanning();
+      mSsdpUrlDiscoverer.startScanning();
     } else {
       getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
     }
@@ -190,6 +194,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       if (mIsScanRunning) {
         scanLeDevice(false);
         mMdnsUrlDiscoverer.stopScanning();
+        mSsdpUrlDiscoverer.stopScanning();
       }
     }
   }
@@ -320,6 +325,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mScanningAnimationDrawable.start();
       scanLeDevice(true);
       mMdnsUrlDiscoverer.startScanning();
+      mSsdpUrlDiscoverer.startScanning();
     } else {
       mNearbyDeviceAdapter.clear();
       MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
@@ -343,7 +349,12 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     }
   }
 
-  /**
+  @Override
+  public void onSsdpUrlFound(String url) {
+      onMdnsUrlFound(url);
+  }
+
+    /**
    * Callback for LE scan results.
    */
   private class LeScanCallback implements BluetoothAdapter.LeScanCallback {
