@@ -1,14 +1,14 @@
 ##The Physical Web Kit 
-If you are reading this, you’ve received one of our tech packs with several bluetooth beacons and some intel edison boards. This page will help you get setup.
+If you are reading this, you’ve received one of our tech packs with several bluetooth beacons (URIBeacons) and some Intel Edison boards. This page will help you get setup.
 
 The reason for this project is to get people to try out the Physical Web, prototype something and give us feedback. We’re looking for things that are missing or need to be improved. We’ve already received quite a bit of feedback on our github but we’re now trying to encourage more active projects. Please play around and give us feedback. Either go to the issues page of our github or just send an email to scottj@google.com
 
-##Setting up the bluetooth beacons
-In order to use the beacons, you need to have the Physical Web app installed on your phone. It currently works on Android 4.4 and iOS 8 devices. Just to their app stores, search for “Physical Web” and download the app.
+##Setting up the URIBeacons 
+In order to use the beacons, you need to have the Physical Web app installed on your phone. It currently works on Android 4.4 and iOS 8 devices. Just go to their app stores, search for “Physical Web” and download the app.
 
 The beacons can be set to any URL. When you pull down the notifications tray in Android or the TodayView in iOS, you’ll see a list of nearby beacons. Picking any one will open that URL in Chrome.
 
-To change the URL you need to first go to the “Change URL” section of the app and then push the button on the beacon. This will allow you to type in a new URL. Beacons like this are clearly not secure, these are ‘testing beacons’ that are meant to be easily sent for prototyping purposes. 
+To change the URL you need to first go to the “Change URL” section of the app and then push the button on the beacon. This will allow you to type in a new URL. Beacons like this are clearly not secure, these are ‘testing beacons’ that are meant to be easily set for prototyping purposes.
 
 ##Setting up the Edison boards
 This document describes how to set up the Intel Edison Mini Breakout Kit and install a Physical Web HelloWorld app. The HelloWorld app, aka helloEdison will broadcast a url over Bluetooth Low Energy and mDNS. Additionally, helloEdison will connect via WebSocket to a remote server at the broadcasted url. That remote server also serves up an html client to mobile devices that navigate to the given url. The html client also connects via WebSocket to the remote server. This allows for communication to travel from helloEdison to the remote server to the html Client. The idea is that when you press the tiny white button on the Intel Edison, the helloEdison sends a message to the remote server, which then sends a message to the html client, which then indicates that the button has been pressed.
@@ -32,7 +32,7 @@ Your assembly should now look like this:
 Note: The instructions on the page show the Intel Edison Arduino kit, but the same instructions apply to the Intel Edison Mini-Breakout kit. Also, please ignore the micro-switch instruction as it applies only to the Arduino kit.
 
 ##Configure your Edison
-Ssh into your Edison (using PuTTY for Windows, or terminal “screen /dev/...” command for Mac and Linux).
+SSH into your Edison (using PuTTY for Windows, or terminal “screen /dev/...” command for Mac and Linux).
 To setup login, password, and wifi connection, run (and follow the onscreen instructions):
 
     configure_edison --setup
