@@ -22,6 +22,7 @@ This document describes how to set up the Intel Edison Mini Breakout Kit and ins
 * Fasten the board with the accompanying small nuts that came in a small plastic bag. Be careful not to screw them too tight.
 
 Your assembly should now look like this:
+![Intel Edison](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/IntelEdison.jpg)
 
 ##Flash your Intel Edison
 * Go to the appropriate link below depending on your computer’s operating system.
