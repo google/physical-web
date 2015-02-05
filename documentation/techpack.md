@@ -1,7 +1,8 @@
 ##The Physical Web Kit 
 If you are reading this, you’ve received one of our tech packs with several bluetooth beacons (URIBeacons) and some Intel Edison boards. This page will help you get setup.
 
-The reason for this project is to get people to try out the Physical Web, prototype something and give us feedback. We’re looking for things that are missing or need to be improved. We’ve already received quite a bit of feedback on our github but we’re now trying to encourage more active projects. Please play around and give us feedback. Either go to the issues page of our github or just send an email to scottj@google.com
+The reason for this project is to get people to try out the Physical Web, prototype something that represents a 
+real scenario and give us feedback. We’ve already received quite a bit of feedback on our github but we’re now trying to encourage more active projects. Please beat on it and let us know: either go to the issues page of our github or just send an email to scottj@google.com.
 
 ##Setting up the URIBeacons 
 In order to use the beacons, you need to have the Physical Web app installed on your phone. It currently works on Android 4.4 and iOS 8 devices. Just go to their app stores, search for “Physical Web” and download the app.
