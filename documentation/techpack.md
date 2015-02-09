@@ -57,7 +57,7 @@ To install the latest bluetooth stack, run:
 
 
 ##Install “helloEdison” project
-Download and extract helloEdisonPackage.zip from:
+Download and extract helloEdisonPackage.zip from the following url (by clicking "View Raw"):
 
 https://github.com/google/physical-web/blob/master/documentation/development_resources/helloEdisonPackage.zip
 
