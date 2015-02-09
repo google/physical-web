@@ -57,6 +57,10 @@ To install the latest bluetooth stack, run:
 
 
 ##Install “helloEdison” project
+Download and extract helloEdisonPackage.zip from:
+
+    https://github.com/google/physical-web/blob/master/documentation/development_resources/helloEdisonPackage.zip
+
 To stop the power button handler service, run:
 
     systemctl stop pwr-button-handler.service
