@@ -34,6 +34,16 @@ body[data-state=scanning]{
     animation: scanning 4s infinite;
 }
 
+body[data-state=scanning]::after{
+	content: "Searching ...";
+	position: absolute;
+	top: 50%;
+	padding-top: 100px;
+	text-align: center;
+	width: 100%;
+	color: #545454;
+}
+
 @keyframes scanning {
     0% {background-image: url(../img/ic_scanning_1.png);}
 	33% {background-image: url(../img/ic_scanning_2.png);}

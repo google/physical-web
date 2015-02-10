@@ -16,6 +16,7 @@
 * Click on the `Physical Web App` icon. 
 * The Physical Web App starts scanning immediately after start.
 * Reload the results by clicking on the refresh icon &#8634; in the top right corner of the App window or by selecting the `Refresh` item in the context menu.
+* Click on any link from the result list if not empty to open it in Chrome Browser in a new tab.
 * `NOTE`: The Physical Web Chrome App supports currently only [SSDP protocol](../documentation/ssdp_support.md) `TODO`: support [mDNS](mDNS_Support.md) and [URIBeacon](https://github.com/google/uribeacon).   
 
 ## Load and Launch from Command Line
@@ -42,5 +43,15 @@ google-chrome --load-and-launch-app=<absolute path to physical-web/chrome folder
 ```
 
 `google-chrome` is the alias to chrome binary
-   
+
+## Screenshots 
+
+* **Screenshot 1**: Physical Web Chrome App is searching for URLs
+	![Physical Web Chrome App is searching for URLs](img/chrome_app_1.png)
+
+* **Screenshot 2**: Physical Web Chrome App displays found URLs
+	![Physical Web Chrome App displays found URLs](img/chrome_app_2.png)
+
+* **Screenshot 3**: Physical Web Chrome App cannot find any URL. Click on `Refresh` menu item to search again.
+	![Physical Web Chrome App cannot find any URL](img/chrome_app_3.png)
 
