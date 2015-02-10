@@ -1,0 +1,153 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	font-family: sans-serif;
+	font-size: 100%;
+	overflow: auto;
+}
+
+body{
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+body[data-result="0"]{
+	background-image: url(../img/ic_scanning_0.png);
+}
+
+body[data-result="0"]::after{
+	content: "no results found";
+	position: absolute;
+	top: 50%;
+	padding-top: 100px;
+	text-align: center;
+	width: 100%;
+	color: #545454;
+}
+
+body[data-state=scanning]{
+	background-image: url(../img/ic_scanning_1.png);
+	-webkit-animation: scanning 4s infinite;
+    animation: scanning 4s infinite;
+}
+
+@keyframes scanning {
+    0% {background-image: url(../img/ic_scanning_1.png);}
+	33% {background-image: url(../img/ic_scanning_2.png);}
+	66% {background-image: url(../img/ic_scanning_3.png);}
+}
+
+@-webkit-keyframes scanning {
+    0% {background-image: url(../img/ic_scanning_1.png);}
+	33% {background-image: url(../img/ic_scanning_2.png);}
+	66% {background-image: url(../img/ic_scanning_3.png);}
+}
+
+#title-bar {
+    position: relative;
+    padding: 5px;
+    -webkit-app-region: drag;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    background: #41413e;
+}
+
+#title-bar img {
+    position: absolute;
+    width: 20px;
+}
+
+#title {
+    display: -webkit-flex;
+    display: flex;
+    margin-left: 25px;
+    margin-top: 1px;
+    color: white;
+    text-shadow: #000 1px 1px 0;
+    height: 20px;
+}
+
+#title-bar button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    line-height: 0;
+    background: #6e6e6b;
+    border: 1px solid grey;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -webkit-app-region: no-drag;
+    text-align: center;
+    color: white;
+    border-radius: 3px;
+}
+
+#title-bar button:hover {
+    background: #a5a5a2;
+}
+
+#list {
+	padding:0;
+	margin: 0;
+}
+#list > div{
+	padding:10px;
+}
+
+#list  > div > h3 {
+	color: #1C47C1;
+	margin: 1px;
+	font-size: 18px;
+	background-repeat: no-repeat;
+	background-size: 20px;
+	background-position: right top;
+	overflow: hidden;
+    text-overflow: ellipsis;
+	white-space: nowrap;
+	padding-right: 20px;
+	
+}
+#list > div > cite {
+	color: #006621;
+	font-style: normal;
+	font-size: 14px;
+	overflow: hidden;
+    text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#list > div > p {
+	font-family: arial,sans-serif;
+	font-size: small;
+	color: #545454;
+	margin: 1px;
+	min-height: 36px;
+	max-height: 54px;
+	line-height: 18px;
+	overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+	border-radius: 6px;
+	background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar
+{
+	width: 8px;
+	background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 6px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.4);
+}
