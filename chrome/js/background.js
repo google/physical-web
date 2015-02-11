@@ -32,9 +32,19 @@ var openWin = function(settings){
 		id: "index",
 		state: "normal",
 		alwaysOnTop: true,
-		resizable: false,
+		resizable: true,
 		focused: true,
-		frame: "none"
+		frame: "none",
+		innerBounds: {
+			left: 100,
+			top: 100,
+			width: 400,
+			height: 500,
+			minWidth: 300,
+			minHeight: 400,
+			maxWidth: 500,
+			maxHeight: 600
+		}
 	},function(win){
 		var contentWin = win.contentWindow;
 		contentWin.phyweb = phyweb;

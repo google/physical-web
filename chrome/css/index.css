@@ -6,7 +6,7 @@ html, body {
 	border: 0;
 	font-family: sans-serif;
 	font-size: 100%;
-	overflow: auto;
+	/*overflow: auto;*/
 }
 
 body{
@@ -104,6 +104,14 @@ body[data-state=scanning]::after{
 #list {
 	padding:0;
 	margin: 0;
+	top: 30px;
+	bottom: 0px;
+	left:0px;
+	right: 0px;
+	border: 4px solid #41413e;
+	position: absolute;
+	overflow: auto;
+	
 }
 #list > div{
 	padding:10px;
@@ -145,19 +153,19 @@ body[data-state=scanning]::after{
 
 ::-webkit-scrollbar-track
 {
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
-	border-radius: 6px;
+	-webkit-box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+	border-radius: 8px;
 	background-color: #F5F5F5;
 }
 
 ::-webkit-scrollbar
 {
-	width: 8px;
+	width: 10px;
 	background-color: #F5F5F5;
 }
 
 ::-webkit-scrollbar-thumb
 {
-	border-radius: 6px;
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.4);
+	border-radius: 8px;
+	-webkit-box-shadow: inset 0 0 8px rgba(0,0,0,.4);
 }
