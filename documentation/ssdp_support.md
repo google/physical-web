@@ -2,8 +2,8 @@
 
 [UPnP/SSDP][upnp-ssdp] Support in Physical Web addresses the same use cases as for [mDNS Support](mDNS_Support.md),
 but uses a different protocol to advertise and receive URLs. There are different options to support UPnP or 
-SSDP in Physical Web as described in the subsections below. The current Android implementation supports the [SSDP Only](ssdp-only) option (please refer to the
-[Discussion](discussion) section for more details about this decision). The [Physical Web Advertiser](https://github.com/fraunhoferfokus/phyweb)
+SSDP in Physical Web as described in the subsections below. The current Android implementation supports the [SSDP Only](#ssdp-only) option (please refer to the
+[Discussion](#discussion) section for more details about this decision). The [Physical Web Advertiser](https://github.com/fraunhoferfokus/phyweb)
 is a cross platform command line tool based on [Node.js](http://nodejs.org/) that can be used to advertise URLs over SSDP. The new [Physical Web Chrome App](../chrome) supports also SSDP. 
 
 > SSDP support for iOS is work in progress
