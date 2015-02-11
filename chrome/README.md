@@ -47,11 +47,14 @@ google-chrome --load-and-launch-app=<absolute path to physical-web/chrome folder
 ## Screenshots 
 
 * **Screenshot 1**: Physical Web Chrome App is searching for URLs
+	
 	![Physical Web Chrome App is searching for URLs](img/chrome_app_1.png)
 
 * **Screenshot 2**: Physical Web Chrome App displays found URLs
+	
 	![Physical Web Chrome App displays found URLs](img/chrome_app_2.png)
 
 * **Screenshot 3**: Physical Web Chrome App cannot find any URL. Click on `Refresh` menu item to search again.
+	
 	![Physical Web Chrome App cannot find any URL](img/chrome_app_3.png)
 
