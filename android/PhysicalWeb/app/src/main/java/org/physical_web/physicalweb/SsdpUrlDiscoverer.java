@@ -28,28 +28,32 @@ public class SsdpUrlDiscoverer implements Ssdp.SsdpCallback {
             @Override
             public void run() {
                 try {
-                    getSsdp().start();
+                    // TODO: set timeout using getSsdp().start(NearbyBeaconsFragment.SCAN_TIME_MILLIS) 
+                    // to ensure that SSDP scan thread is stopped automatically after timeout. 
+                    // In this case there is no need to call stop().
+                    getSsdp().start(null);
+                    Thread.sleep(200);
                     getSsdp().search(PHYSICAL_WEB_SSDP_TYPE);
                 }
-                catch (IOException e){
-                    e.printStackTrace();
+                catch (Exception e){
+                    Log.e(TAG,e.getMessage(),e);
                 }
             }
         }).start();
     }
 
     public void stopScanning() {
-        /*new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     getSsdp().stop();
                 }
                 catch (IOException e){
-                    e.printStackTrace();
+                    Log.e(TAG,e.getMessage(),e);
                 }
             }
-        }).start();*/
+        }).start();
     }
 
     public synchronized Ssdp getSsdp() throws IOException{

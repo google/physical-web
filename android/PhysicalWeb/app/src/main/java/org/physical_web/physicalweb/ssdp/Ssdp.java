@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by lba on 29.01.2015.
@@ -36,24 +37,30 @@ public class Ssdp implements Runnable {
     public Ssdp(SsdpCallback ssdpCallback) throws IOException{
         mSsdpCallback = ssdpCallback;
         mMulticastGroup = new InetSocketAddress(SSDP_ADDRESS,SSDP_PORT);
-        mMulticastSocket = new MulticastSocket(SSDP_PORT);
-        //mMulticastSocket = new DatagramSocket(SSDP_PORT);
-        //mMulticastSocket.setSoTimeout((MX+1)*1000);
     }
 
-    public synchronized void start() throws IOException{
-        //stop();
+    public synchronized boolean start(Integer timeout) throws IOException{
         if (mThread == null){
+            mMulticastSocket = new MulticastSocket(SSDP_PORT);
+            if (timeout != null && timeout>0){
+                mMulticastSocket.setSoTimeout(timeout);
+            }
             mThread = new Thread(this);
             mThread.start();
+            return true;
         }
+        return false;
     }
 
-    public synchronized void stop() throws IOException{
+    public synchronized boolean stop() throws IOException{
         if(mThread != null){
             mThread.interrupt();
+            mMulticastSocket.close();
             mThread = null;
+            mMulticastSocket = null;
+            return true;
         }
+        return false;
     }
 
     public void search(SsdpMessage msg) throws IOException{
@@ -78,8 +85,8 @@ public class Ssdp implements Runnable {
     public void run() {
         Thread currentThread = Thread.currentThread();
         byte[] buf = new byte[1024];
-        Log.i(TAG,"SSDP Thread started");
-        while (!currentThread.isInterrupted()){
+        Log.i(TAG,"SSDP Scan Thread started");
+        while (!currentThread.isInterrupted() && mMulticastSocket!=null){
             try {
                 DatagramPacket dp = new DatagramPacket(buf, buf.length);
                 mMulticastSocket.receive(dp);
@@ -87,11 +94,25 @@ public class Ssdp implements Runnable {
                 SsdpMessage msg = new SsdpMessage(txt);
                 mSsdpCallback.onSsdpMessageReceived(msg);
             }
+            catch (SocketTimeoutException e){
+                // leave loop on socket timeout
+                break;
+            }
             catch (IOException e){
-                Log.e(TAG,"SSDP Thread socket timeout");
+                Log.e(TAG,"SSDP Scan Thread: Socket timeout or closed manually");
             }
         }
-        Log.i(TAG,"SSDP Thread terminated");
+        // cleanup if needed
+        synchronized (this){
+            if (mThread == currentThread){
+                mThread = null;
+                if (mMulticastSocket != null){
+                    mMulticastSocket.close();
+                    mMulticastSocket = null;
+                }
+            }
+        }
+        Log.i(TAG,"SSDP Scan Thread terminated");
 
     }
 
