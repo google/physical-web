@@ -54,7 +54,7 @@ document.addEventListener("receiveUrl",function(evt){
 	};
 });
 document.addEventListener("requestRefresh",function(evt){
-	console.log("receiveUrl",evt);
+	console.log("requestRefresh",evt);
 	startScan(SCAN_TIMEOUT);
 });
 var requestUrlMetaData = function(urls){
@@ -92,7 +92,7 @@ var addUrlMetaData = function(array){
 		tmpl.querySelector('a').onclick = function(){
 			console.log(this);
 		};
-		tmpl.querySelector('a').innerText = title || "";
+		tmpl.querySelector('a').innerText = title || url || "";
 		tmpl.querySelector('cite').innerText = url || "";
 		tmpl.querySelector('p').innerHTML = desc || "";
 		var copy = document.importNode(tmpl, true);
@@ -100,7 +100,20 @@ var addUrlMetaData = function(array){
 			chrome.app.window.current().minimize();
 		};
 		document.querySelector('#list').appendChild(copy);
-		
+	}
+};
+
+var addUrls = function(urls){
+	for(var i in urls){
+		var url = urls[i];
+		var tmpl = document.querySelector('#listItemTemplate').content;
+		tmpl.querySelector('a').innerText = url || "";
+		tmpl.querySelector('cite').innerText = url || "";
+		var copy = document.importNode(tmpl, true);
+		copy.querySelector('a').onclick = function(){
+			chrome.app.window.current().minimize();
+		};
+		document.querySelector('#list').appendChild(copy);
 	}
 };
 
@@ -121,6 +134,8 @@ var startScan = function(timeout){
 			document.body.dataset.result = data.metadata.length;
 		}).fail(function(){
 			console.error("error on request url meta data",arguments);
+			addUrls(urls);
+			document.body.dataset.result = Object.keys(urls).length;
 		}).always(function(){
 			urls = {};
 			scanning = false;

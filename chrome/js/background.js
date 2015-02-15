@@ -18,10 +18,11 @@
  */
 var peer = null;
 var phyweb = {};
-phyweb.startScan = function(){
+phyweb.startScan = function(timeout){
+	var MX = parseInt(timeout/1000);
 	peer && peer.search({
 		ST: "urn:physical-web-org:device:Basic:1",
-		MX: "4"
+		MX: MX+""
 	},function(info){
 		console.log("search callback",info);
 	});

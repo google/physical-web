@@ -59,7 +59,7 @@ public class Ssdp implements Runnable {
 
     public synchronized boolean start(Integer timeout) throws IOException{
         if (mThread == null){
-            mMulticastSocket = new MulticastSocket(SSDP_PORT);
+            mMulticastSocket = new DatagramSocket(SSDP_PORT);
             if (timeout != null && timeout>0){
                 mMulticastSocket.setSoTimeout(timeout);
             }
