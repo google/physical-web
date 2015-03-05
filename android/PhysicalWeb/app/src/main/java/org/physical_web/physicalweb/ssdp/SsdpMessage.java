@@ -1,28 +1,28 @@
+
+
+package org.physical_web.physicalweb.ssdp;
 /*
- * Copyright 2014 Fraunhofer FOKUS
+ * Copyright 2014 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * AUTHOR: Louay Bassbouss <louay.bassbouss@fokus.fraunhofer.de>
- *
  */
-package org.physical_web.physicalweb.ssdp;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by lba on 29.01.2015.
+ * This class is the Java representation of SSDP messages.
+ * It creates SsdpMessage instances from a text representation 
+ * of a SSDP message or converts a SsdpMessage instance to text
  */
 public class SsdpMessage {
     public static int TYPE_SEARCH = 0;

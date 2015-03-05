@@ -1,21 +1,19 @@
 /*
- * Copyright 2014 Fraunhofer FOKUS
+ * Copyright 2014 Google Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * AUTHOR: Louay Bassbouss <louay.bassbouss@fokus.fraunhofer.de>
- *
  */
+
 package org.physical_web.physicalweb;
 
 import android.content.Context;
@@ -27,10 +25,10 @@ import org.physical_web.physicalweb.ssdp.SsdpMessage;
 import java.io.IOException;
 
 /**
- * Created by lba on 03.02.2015.
+ * This class discovers Physical Web URI/URLs over SSDP.
  */
 public class SsdpUrlDiscoverer implements Ssdp.SsdpCallback {
-    private static final String TAG = "SSDP";
+    private static final String TAG = "SsdpUrlDiscoverer";
     private static final String PHYSICAL_WEB_SSDP_TYPE = "urn:physical-web-org:device:Basic:1";
     private Context mContext;
     private SsdpUrlDiscovererCallback mSsdpUrlDiscovererCallback;
@@ -86,7 +84,7 @@ public class SsdpUrlDiscoverer implements Ssdp.SsdpCallback {
         final String url = ssdpMessage.get("LOCATION");
         final String st = ssdpMessage.get("ST");
         if(url!=null && PHYSICAL_WEB_SSDP_TYPE.equals(st)){
-            Log.i(TAG, "ssdp url received "+url);
+            Log.d(TAG, "SSDP url received: "+url);
             new Thread(new Runnable() {
                 @Override
                 public void run() {

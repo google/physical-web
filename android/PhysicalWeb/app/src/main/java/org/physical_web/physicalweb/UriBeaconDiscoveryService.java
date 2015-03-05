@@ -187,7 +187,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
-    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this,UriBeaconDiscoveryService.this);
+    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
   }
@@ -274,21 +274,25 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
   @Override
   public void onMdnsUrlFound(String url) {
-    if (!mUrlToUrlMetadata.containsKey(url)) {
-      // Fabricate the device values so that we can show these ersatz beacons
-      String mockAddress = generateMockBluetoothAddress(url.hashCode());
-      int mockRssi = 0;
-      int mockTxPower = 0;
-      mUrlToUrlMetadata.put(url, null);
-      mDeviceAddressToUrl.put(mockAddress, url);
-      mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
-      MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, mockTxPower, mockRssi);
-    }
+    onLanUrlFound(url);
   }
 
     @Override
     public void onSsdpUrlFound(String url) {
-        onMdnsUrlFound(url);
+      onLanUrlFound(url);
+    }
+    
+    private void onLanUrlFound(String url){
+      if (!mUrlToUrlMetadata.containsKey(url)) {
+        // Fabricate the device values so that we can show these ersatz beacons
+        String mockAddress = generateMockBluetoothAddress(url.hashCode());
+        int mockRssi = 0;
+        int mockTxPower = 0;
+        mUrlToUrlMetadata.put(url, null);
+        mDeviceAddressToUrl.put(mockAddress, url);
+        mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
+        MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, mockTxPower, mockRssi);
+      }
     }
 
     private void startSearchingForUriBeacons() {

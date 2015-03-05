@@ -133,7 +133,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mSwipeRefreshWidget.setOnRefreshListener(this);
 
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(getActivity(), NearbyBeaconsFragment.this);
-    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(getActivity(),NearbyBeaconsFragment.this);
+    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(getActivity(), NearbyBeaconsFragment.this);
 
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
@@ -334,6 +334,15 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
 
   @Override
   public void onMdnsUrlFound(String url) {
+    onLanUrlFound(url);
+  }
+
+  @Override
+  public void onSsdpUrlFound(String url) {
+    onLanUrlFound(url);
+  }
+
+  private void onLanUrlFound(String url){
     if (!mUrlToUrlMetadata.containsKey(url)) {
       mUrlToUrlMetadata.put(url, null);
       // Fabricate the adapter values so that we can show these ersatz beacons
@@ -347,11 +356,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       // Force the device to be added to the listview (since it has no metadata)
       mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
     }
-  }
-
-  @Override
-  public void onSsdpUrlFound(String url) {
-      onMdnsUrlFound(url);
   }
 
     /**
