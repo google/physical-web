@@ -358,9 +358,9 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     }
   }
 
-    /**
-   * Callback for LE scan results.
-   */
+  /**
+  * Callback for LE scan results.
+  */
   private class LeScanCallback implements BluetoothAdapter.LeScanCallback {
     @Override
     public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {

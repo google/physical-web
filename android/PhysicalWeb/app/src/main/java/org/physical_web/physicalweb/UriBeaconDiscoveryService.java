@@ -277,25 +277,25 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     onLanUrlFound(url);
   }
 
-    @Override
-    public void onSsdpUrlFound(String url) {
-      onLanUrlFound(url);
-    }
-    
-    private void onLanUrlFound(String url){
-      if (!mUrlToUrlMetadata.containsKey(url)) {
-        // Fabricate the device values so that we can show these ersatz beacons
-        String mockAddress = generateMockBluetoothAddress(url.hashCode());
-        int mockRssi = 0;
-        int mockTxPower = 0;
-        mUrlToUrlMetadata.put(url, null);
-        mDeviceAddressToUrl.put(mockAddress, url);
-        mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
-        MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, mockTxPower, mockRssi);
-      }
-    }
+  @Override
+  public void onSsdpUrlFound(String url) {
+    onLanUrlFound(url);
+  }
 
-    private void startSearchingForUriBeacons() {
+  private void onLanUrlFound(String url){
+    if (!mUrlToUrlMetadata.containsKey(url)) {
+      // Fabricate the device values so that we can show these ersatz beacons
+      String mockAddress = generateMockBluetoothAddress(url.hashCode());
+      int mockRssi = 0;
+      int mockTxPower = 0;
+      mUrlToUrlMetadata.put(url, null);
+      mDeviceAddressToUrl.put(mockAddress, url);
+      mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
+      MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, mockTxPower, mockRssi);
+    }
+  }
+
+  private void startSearchingForUriBeacons() {
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
         .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
