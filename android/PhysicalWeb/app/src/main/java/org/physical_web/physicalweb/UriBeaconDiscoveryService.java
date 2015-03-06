@@ -68,7 +68,7 @@ import java.util.concurrent.TimeUnit;
  * the current number of nearby beacons.
  */
 
-public class UriBeaconDiscoveryService extends Service implements MetadataResolver.MetadataResolverCallback, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback {
+public class UriBeaconDiscoveryService extends Service implements MetadataResolver.MetadataResolverCallback, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback, SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "UriBeaconDiscoveryService";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -110,6 +110,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
+  private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
   // Sort using local region-resolver regions
   private Comparator<String> mSortByRegionResolverRegionComparator = new Comparator<String>() {
     @Override
@@ -186,6 +187,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
+    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, UriBeaconDiscoveryService.this);
     mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
   }
@@ -230,6 +232,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
       startSearchingForUriBeacons();
       mMdnsUrlDiscoverer.startScanning();
+      mSsdpUrlDiscoverer.startScanning();
     }
 
     //make sure the service keeps running
@@ -248,6 +251,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
     stopSearchingForUriBeacons();
     mMdnsUrlDiscoverer.stopScanning();
+    mSsdpUrlDiscoverer.stopScanning();
     unregisterReceiver(mScreenStateBroadcastReceiver);
     mNotificationManager.cancelAll();
   }
@@ -270,6 +274,15 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
 
   @Override
   public void onMdnsUrlFound(String url) {
+    onLanUrlFound(url);
+  }
+
+  @Override
+  public void onSsdpUrlFound(String url) {
+    onLanUrlFound(url);
+  }
+
+  private void onLanUrlFound(String url){
     if (!mUrlToUrlMetadata.containsKey(url)) {
       // Fabricate the device values so that we can show these ersatz beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
@@ -557,10 +570,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
         startSearchingForUriBeacons();
         mMdnsUrlDiscoverer.startScanning();
+        mSsdpUrlDiscoverer.startScanning();
       } else {
         mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
         stopSearchingForUriBeacons();
         mMdnsUrlDiscoverer.stopScanning();
+        mSsdpUrlDiscoverer.stopScanning();
       }
     }
   }
