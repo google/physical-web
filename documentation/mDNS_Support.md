@@ -1,6 +1,6 @@
 ## mDNS Support
 
-The Physical Web is about getting URLs into the physical world. However, this isn't limited to just Bluetooth Low Energy (BLE) beacons. [mDNS](http://en.wikipedia.org/wiki/Multicast_DNS) is a service broadcast technique used in Wifi networks. It has a two advantages over BLE: 
+The Physical Web is about getting URLs into the physical world. However, this isn't limited to just Bluetooth Low Energy (BLE) beacons. [mDNS](http://en.wikipedia.org/wiki/Multicast_DNS) is a service broadcast technique used in Wifi networks. It has two advantages over BLE: 
 
 1. Only people logged into your wifi can see the mDNS URLs. This means that in an appartment, your neighbors can't see your devices.
 2. It doesn't have the length restrictions of BLE has so a URL can be along as you'd like (well, at least up to 100 characters).
