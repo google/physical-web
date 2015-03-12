@@ -36,4 +36,6 @@ There are a number of firmware examples for Arduino, Raspberry Pi, node and many
 
 The following companies now sell premade URIbeacons:
 * [Blesh](https://www.blesh.com/physical-web/)
+* [KST](https://kstechnologies.com/particle/)
+* [Accent Systems](http://ibeacon.accent-systems.com/)
 
