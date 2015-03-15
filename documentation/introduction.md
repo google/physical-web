@@ -6,7 +6,7 @@ The Physical Web extends the web we know into the physical world around us. This
 * The user picks one.
 * The URL is opened in a full screen browser window.
 
-![Example interaction](https://raw.githubusercontent.com/google/physical-web/master/documentation/images/example.png)
+<img src="https://raw.githubusercontent.com/google/physical-web/master/documentation/images/example.png" width="60%">
 
 Even though this is a fairly simple idea, it immediately generates lots of questions:
 
@@ -37,6 +37,18 @@ The value of a URL is that it is a known part of the web, very flexible, and mos
 
 That being said, we completely expect others to experiment with a url+ID model that goes through their server (e.g. safeurls.com/?id=12345). That is perfectly acceptable and to be encouraged. Systems like that are likely to provide much better security and vetting of sites. But that is the beauty of URLs, there can be as many of these as you'd like and the system still works seamlessly.
 
+##5.5 Why the web?
+The Physical Web’s primary value is to enable a device to place at users’ fingertips anything from a tiny piece of location-based information to a full blown web app.
+
+* A dog collar could let you call a service to find the owner.
+* A bus could tell you its next stop.
+* A city rent-a-bike service could let you sign up on the spot.
+* A home appliance could offer an interactive tutorial.
+* An industrial robot could display diagnostic information.
+* A mall could offer a map.
+
+Each of these examples, taken by itself, is modestly useful. Taken as a whole, however, they imply a vast “long tail” where anything can offer information and utility. Native apps are great for high frequency usage. The web enables people to walk up and use something once with hardly any friction.
+
 ##6. Which platforms will you support?
 This is meant to be an extension of the web so it should work on every platform. We expect that each platform will experiment with a different UX to show the nearby devices. For example, the current Android app uses notifications while the iOS app will use lock screen notifications. We hope to see lots of experimentation here on how various platforms choose to show and rank this information.
 
@@ -48,7 +60,7 @@ Our current URL broadcast method involves a bluetooth broadcast from each beacon
 The search agent on the phone may keep track of which devices the user taps on so they can improve the ranking in the future. Of course, this too needs to be discussed and then possibly offered to the user as an option so they are in control of how this information is stored.
 
 ##8. Why Bluetooth Low Energy?
-There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones and tablets today. This should not be the only wireless solution but it is the easiest to use at the moment so we can experiment and prototype this system.
+There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones and tablets today. In addition, it is very energy efficient. There are tiny BLE devices that can broadcast for nearly 2 years on a single coin cell. We are using the standard BLE 'ad packet' to broadcast out this URL so every device that supports bluetooth can receive it.
 
 ##Next
 The next suggested document to read would be the technical [overview](http://github.com/google/physical-web/blob/master/documentation/technical_overview.md) document
