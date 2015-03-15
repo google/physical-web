@@ -28,4 +28,12 @@ In order to use URLs, the system expects those URLs to point to a web page, whic
 As more devices are found, the importance of ranking the devices becomes more valuable. Sorting only by signal strength is a good start but the server could do a much better job in two ways. The first would be to track which URLs are clicked as that implies value, so higher used URLs could be ranked higher. In addition, the server could track personal use so if you tend to pick the same device at work, it would be sure to rank the device higher as well.
 
 ### Security
-At this point, the URL is broadcast as plain text so it is not really viable for personal use (as neighbors could know what devices you have in your home) However, the advantage of URLs is that there are several potential solutions that would help this. There is nothing stopping a beacon from delivering an obfuscated URL or even a URL that requires login in order to see the information.
+At this point, the URL is broadcast as plain text so we must be careful recommending this for personal use (as neighbors could know what devices you have in your home) However, there are many possible solutions:
+
+* Turn down the transmit power so the range is quite small
+* Use obfuscated URLs
+* Web-Cookie solutions that block casual users
+* A rotating key at the end of a dynamic URL
+* Use mDNS on a wifi network
+
+The advantage of URLs is that there are several potential solutions that would help this. We expect the discussion on this topic to continue and more robust solutions to be proposed.
