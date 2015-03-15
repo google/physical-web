@@ -38,4 +38,5 @@ The following companies now sell premade URIbeacons:
 * [Blesh](https://www.blesh.com/physical-web/)
 * [KST](https://kstechnologies.com/particle/)
 * [Accent Systems](http://ibeacon.accent-systems.com/)
+* [iBlio](https://sites.google.com/site/iblionet/beacons)
 
