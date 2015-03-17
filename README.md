@@ -39,4 +39,5 @@ The following companies now sell premade URIbeacons:
 * [KST](https://kstechnologies.com/particle/)
 * [Accent Systems](http://ibeacon.accent-systems.com/)
 * [iBlio](https://sites.google.com/site/iblionet/beacons)
+* [LilyPad-nano51822](http://www.embeda.com.tw/ucxpresso/?article=2-3-google-uribeacon-project)
 
