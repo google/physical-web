@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -100,6 +101,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
   private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_LOW;
+  private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static final long NOTIFICATION_UPDATE_GATE_DURATION = 1000;
   private boolean mCanUpdateNotifications = false;
   private Handler mHandler;
@@ -107,6 +109,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
+  private HashSet<String> mPublicUrls;
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
@@ -195,6 +198,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToUrlMetadata = new HashMap<>();
+    mPublicUrls = new HashSet<>();
     mSortedDevices = null;
     mDeviceAddressToUrl = new HashMap<>();
   }
@@ -332,6 +336,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         // If we haven't yet seen this url
         if (!mUrlToUrlMetadata.containsKey(url)) {
           mUrlToUrlMetadata.put(url, null);
+          mPublicUrls.add(url);
           mDeviceAddressToUrl.put(address, url);
           // Fetch the metadata for this url
           MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, txPower, rssi);
@@ -417,6 +422,11 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         .setContentText(description)
         .setPriority(NOTIFICATION_PRIORITY)
         .setContentIntent(pendingIntent);
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      if (mPublicUrls.contains(url)) {
+        builder.setVisibility(NOTIFICATION_VISIBILITY);
+      }
+    }
     // For some reason if there is only one notification and you call setGroup
     // the notification doesn't show up on the N7 running kit kat
     if (!single) {
@@ -439,15 +449,18 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     String contentText = getString(R.string.summary_notification_pull_down);
     PendingIntent pendingIntent = createReturnToAppPendingIntent();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-    Notification notification = builder.setSmallIcon(R.drawable.ic_notification)
+    builder.setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(contentTitle)
         .setContentText(contentText)
         .setSmallIcon(R.drawable.ic_notification)
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setGroupSummary(true)
         .setPriority(NOTIFICATION_PRIORITY)
-        .setContentIntent(pendingIntent)
-        .build();
+        .setContentIntent(pendingIntent);
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      builder.setVisibility(NOTIFICATION_VISIBILITY);
+    }
+    Notification notification = builder.build();
 
     // Create the big view for the notification (viewed by pulling down)
     RemoteViews remoteViews = updateSummaryNotificationRemoteViews();
