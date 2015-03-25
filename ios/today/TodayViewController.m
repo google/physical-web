@@ -223,15 +223,9 @@
       UILabel *label = [[UILabel alloc]
           initWithFrame:CGRectMake(50, 0, [_tableView frame].size.width - 50,
                                    30)];
+      [label setTag:150];
       [cell addSubview:label];
       [label setTextColor:[UIColor colorWithWhite:0.5 alpha:1.0]];
-      NSString *noBeaconText = nil;
-      if (_requestedOnce) {
-        noBeaconText = [NSString stringWithFormat:@"No beacon nearby"];
-      } else {
-        noBeaconText = [NSString stringWithFormat:@"Scanning..."];
-      }
-      [label setText:noBeaconText];
       [label setFont:[UIFont systemFontOfSize:14]];
       UIView *selectedBackgroundView = [[UIView alloc]
           initWithFrame:CGRectMake(0, 0, [_tableView frame].size.width, 30)];
@@ -240,6 +234,14 @@
       [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
       [cell setSelectedBackgroundView:selectedBackgroundView];
     }
+    UILabel *label = (UILabel *) [cell viewWithTag:150];
+    NSString *noBeaconText = nil;
+    if (_requestedOnce) {
+      noBeaconText = [NSString stringWithFormat:@"No beacon nearby"];
+    } else {
+      noBeaconText = [NSString stringWithFormat:@"Scanning..."];
+    }
+    [label setText:noBeaconText];
     return cell;
   } else if ([indexPath row] == 3) {
     UITableViewCell *cell =
