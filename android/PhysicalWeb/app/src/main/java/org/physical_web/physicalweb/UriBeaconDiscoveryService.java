@@ -475,15 +475,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void updateSummaryNotificationRemoteViewsFirstBeacon(String url, RemoteViews remoteViews) {
-    MetadataResolver.UrlMetadata urlMetadata_firstBeacon = mUrlToUrlMetadata.get(url);
-    if (urlMetadata_firstBeacon != null) {
-      String title = mUrlToUrlMetadata.get(url).title;
-      String description = mUrlToUrlMetadata.get(url).description;
-      Bitmap icon = mUrlToUrlMetadata.get(url).icon;
-      remoteViews.setImageViewBitmap(R.id.icon_firstBeacon, icon);
-      remoteViews.setTextViewText(R.id.title_firstBeacon, title);
-      remoteViews.setTextViewText(R.id.url_firstBeacon, url);
-      remoteViews.setTextViewText(R.id.description_firstBeacon, description);
+    MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    if (urlMetadata != null) {
+      remoteViews.setImageViewBitmap(R.id.icon_firstBeacon, urlMetadata.icon);
+      remoteViews.setTextViewText(R.id.title_firstBeacon, urlMetadata.title);
+      remoteViews.setTextViewText(R.id.url_firstBeacon, urlMetadata.siteUrl);
+      remoteViews.setTextViewText(R.id.description_firstBeacon, urlMetadata.description);
       // Recolor notifications to have light text for non-Lollipop devices
       if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
         remoteViews.setTextColor(R.id.title_firstBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
@@ -502,15 +499,12 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void updateSummaryNotificationRemoteViewsSecondBeacon(String url, RemoteViews remoteViews) {
-    MetadataResolver.UrlMetadata urlMetadata_secondBeacon = mUrlToUrlMetadata.get(url);
-    if (urlMetadata_secondBeacon != null) {
-      String title = mUrlToUrlMetadata.get(url).title;
-      String description = mUrlToUrlMetadata.get(url).description;
-      Bitmap icon = mUrlToUrlMetadata.get(url).icon;
-      remoteViews.setImageViewBitmap(R.id.icon_secondBeacon, icon);
-      remoteViews.setTextViewText(R.id.title_secondBeacon, title);
-      remoteViews.setTextViewText(R.id.url_secondBeacon, url);
-      remoteViews.setTextViewText(R.id.description_secondBeacon, description);
+    MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    if (urlMetadata != null) {
+      remoteViews.setImageViewBitmap(R.id.icon_secondBeacon, urlMetadata.icon);
+      remoteViews.setTextViewText(R.id.title_secondBeacon, urlMetadata.title);
+      remoteViews.setTextViewText(R.id.url_secondBeacon, urlMetadata.siteUrl);
+      remoteViews.setTextViewText(R.id.description_secondBeacon, urlMetadata.description);
       // Recolor notifications to have light text for non-Lollipop devices
       if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
         remoteViews.setTextColor(R.id.title_secondBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
