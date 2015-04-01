@@ -83,6 +83,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private boolean mIsScanRunning;
   private BluetoothAdapter mBluetoothAdapter;
   private Handler mHandler;
+  private UrlShortener.ShortenUrlTask mShortenUrlTask;
+  private UrlShortener.LengthenShortUrlTask mLengthenShortUrlTask;
 
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
@@ -166,6 +168,12 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPause();
     mScanningAnimation.stop();
     scanLeDevice(false);
+    if (mShortenUrlTask != null) {
+      mShortenUrlTask.cancel(true);
+    }
+    if (mLengthenShortUrlTask != null) {
+      mLengthenShortUrlTask.cancel(true);
+    }
     if (mUriBeaconConfig != null) {
       mUriBeaconConfig.closeUriBeacon();
     }
@@ -201,21 +209,38 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "onUriBeaconRead - error " + status);
     } else {
+      // Create the callback object to set the url
+      UrlShortener.ModifiedUrlCallback urlSetter = new UrlShortener.ModifiedUrlCallback() {
+        public void setUrl(String urlToSet) {
+          // Update the url edit text field with the given url
+          mEditCardUrl.setText(urlToSet);
+          // Show the beacon configuration card
+          showConfigurableBeaconCard();
+        }
+        @Override
+        public void onNewUrl(String newUrl){
+          setUrl(newUrl);
+        }
+        @Override
+        public void onError(String oldUrl) {
+          setUrl(oldUrl);
+        }
+      };
+
       String url = "";
       if (uriBeacon != null) {
         url = uriBeacon.getUriString();
         Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
         if (UrlShortener.isShortUrl(url)) {
-          url = UrlShortener.lengthenShortUrl(url);
+          mLengthenShortUrlTask = new UrlShortener.LengthenShortUrlTask(urlSetter);
+          mLengthenShortUrlTask.execute(url);
+        } else {
+          urlSetter.onNewUrl(url);
         }
-      }
-      else {
+      } else {
         Toast.makeText(getActivity(), R.string.config_url_read_error, Toast.LENGTH_SHORT).show();
+        urlSetter.onNewUrl(url);
       }
-      // Update the url edit text field with the given url
-      mEditCardUrl.setText(url);
-      // Show the beacon configuration card
-      showConfigurableBeaconCard();
     }
   }
 
@@ -314,6 +339,23 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   }
 
   /**
+   * Write a beacon url to the beacon.
+   */
+  private void setUriBeaconUrl(String url) {
+    try {
+      // Note: setting txPower here only really updates txPower for v1 beacons
+      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder()
+          .txPowerLevel(TX_POWER_DEFAULT)
+          .uriString(url)
+          .build();
+      mUriBeaconConfig.writeUriBeacon(configUriBeacon);
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+      Toast.makeText(getActivity(), R.string.config_url_error, Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  /**
    * This is called when the user taps the write-to-beacon button.
    */
   private void saveEditCardUrlToBeacon() {
@@ -327,26 +369,23 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
+    // Create the callback object to set the url
+    UrlShortener.ModifiedUrlCallback urlSetter = new UrlShortener.ModifiedUrlCallback() {
+      @Override
+      public void onNewUrl(String newUrl){
+        setUriBeaconUrl(newUrl);
+      }
+      @Override
+      public void onError(String oldUrl) {
+        Toast.makeText(getActivity(), R.string.url_shortening_error, Toast.LENGTH_SHORT).show();
+      }
+    };
     // Shorten the url if necessary
     if (ConfigUriBeacon.uriLength(url) > ConfigUriBeacon.MAX_URI_LENGTH) {
-      url = UrlShortener.shortenUrl(url);
-      // If url shortening failed
-      if (url == null) {
-        Toast.makeText(getActivity(), R.string.url_shortening_error, Toast.LENGTH_SHORT).show();
-        return;
-      }
-    }
-    // Write the url to the device
-    try {
-      // Note: setting txPower here only really updates txPower for v1 beacons
-      ConfigUriBeacon configUriBeacon = new ConfigUriBeacon.Builder()
-          .txPowerLevel(TX_POWER_DEFAULT)
-          .uriString(url)
-          .build();
-      mUriBeaconConfig.writeUriBeacon(configUriBeacon);
-    } catch (URISyntaxException e) {
-      e.printStackTrace();
-      Toast.makeText(getActivity(), R.string.config_url_error, Toast.LENGTH_SHORT).show();
+      mShortenUrlTask = new UrlShortener.ShortenUrlTask(urlSetter);
+      mShortenUrlTask.execute(url);
+    } else {
+      setUriBeaconUrl(url);
     }
   }
 
