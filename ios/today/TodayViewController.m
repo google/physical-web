@@ -121,7 +121,7 @@
   // The first update will be scheduled after 1 sec, the subsequent updates will
   // be scheduled after 5 sec. If the list was empty, an update will also be
   // scheduled after 1 sec.
-  NSTimeInterval delay = 5;
+  NSTimeInterval delay = 1;
   if (_firstUpdate || [_beacons count] == 0) {
     delay = 1;
   }
@@ -187,6 +187,9 @@
 
   _completionHandler = completionHandler;
 
+  _firstUpdate = YES;
+  _requestedOnce = NO;
+  [[PWBeaconManager sharedManager] resetBeacons];
   [[PWBeaconManager sharedManager] start];
   [self _updateViewAfterDelay];
 
