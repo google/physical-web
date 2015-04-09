@@ -84,6 +84,35 @@ def BuildResponse(objects):
 
         metadata_output.append(device_data)
 
+    return RankedResponse(metadata_output)
+
+################################################################################
+
+def RankedResponse(metadata_output):
+    def ComputeDistance(obj):
+        try:
+            rssi = int(obj["rssi"])
+            tx = int(obj["tx"])
+            if rssi == 127:
+                # TODO: What does rssi 127 mean, compared to no value?
+                return None
+            path_loss = tx - rssi
+            distance = pow(10.0, path_loss - 41)
+            return distance
+        except:
+            return None
+
+    def SortByDistanceCmp(a, b):
+        dista, distb = ComputeDistance(a), ComputeDistance(b)
+        if dista is None and distb is None:
+            return 0 # No winner
+        if dista is None:
+            return -1 # assume b is closer
+        if distb is None:
+            return 1 # assume a is closer
+        return distb - dista # We want smaller distance first
+
+    metadata_output.sort(SortByDistanceCmp)
     return metadata_output
 
 ################################################################################
