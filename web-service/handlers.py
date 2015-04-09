@@ -48,12 +48,11 @@ class RefreshUrl(webapp2.RequestHandler):
 class ResolveScan(webapp2.RequestHandler):
     def post(self):
         input_data = self.request.body
-        input_object = json.loads(input_data) # TODO: Data is not sanitised.
 
-        # TODO: should we be flexible with inputs here, or firm?
-        if "objects" in input_object:
-            objects = input_object["objects"]
-        else:
+        try:
+            input_object = json.loads(input_data) # TODO: Data is not sanitised.
+            objects = input_object.get("objects", [])
+        except:
             objects = []
 
         metadata_output = helpers.BuildResponse(objects)
