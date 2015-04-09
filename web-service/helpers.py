@@ -35,6 +35,8 @@ def BuildResponse(objects):
         force = False
         valid = True
         siteInfo = None
+        rssi = None
+        tx = None
 
         if "id" in obj:
             key_id = obj["id"]
@@ -50,8 +52,11 @@ def BuildResponse(objects):
 
         # We need to go and fetch.  We probably want to asyncly fetch.
 
-        # We don't need RSSI yet.
-        #rssi = obj["rssi"]
+        try:
+            rssi = float(obj["rssi"])
+            tx = float(obj["tx"])
+        except:
+            pass
 
         if valid:
             # Really if we don't have the data we should not return it.
@@ -81,20 +86,26 @@ def BuildResponse(objects):
         else:
             device_data["id"] = url
             device_data["url"] = url
+        device_data["rssi"] = rssi
+        device_data["tx"] = tx
 
         metadata_output.append(device_data)
 
-    return RankedResponse(metadata_output)
+    metadata_output = RankedResponse(metadata_output)
+    # TODO: remove tx and rssi keys
+    return metadata_output
 
 ################################################################################
 
 def RankedResponse(metadata_output):
     def ComputeDistance(obj):
         try:
-            rssi = int(obj["rssi"])
-            tx = int(obj["tx"])
-            if rssi == 127:
+            rssi = float(obj["rssi"])
+            tx = float(obj["tx"])
+            if rssi == 127 or rssi == 128:
                 # TODO: What does rssi 127 mean, compared to no value?
+                # According to wiki, 127 is MAX and 128 is INVALID.
+                # I think we should just leave 127 to calc distance as usual, so it sorts to the end but before the unknowns
                 return None
             path_loss = tx - rssi
             distance = pow(10.0, path_loss - 41)
@@ -110,7 +121,7 @@ def RankedResponse(metadata_output):
             return -1 # assume b is closer
         if distb is None:
             return 1 # assume a is closer
-        return distb - dista # We want smaller distance first
+        return int(distb - dista) # We want smaller distance first
 
     metadata_output.sort(SortByDistanceCmp)
     return metadata_output

@@ -15,16 +15,21 @@
 # limitations under the License.
 #
 import json
-import urllib
 import urllib2
 
 ################################################################################
 
-ENDPOINT = 'http://localhost:8080/resolve-scan'
+LOCAL_ENDPOINT = 'http://localhost:8080/resolve-scan'
+REMOTE_ENDPOINT = 'http://url-caster.appspot.com/resolve-scan'
 
 ################################################################################
 
-def test1():
+def resolveScanForValues(endpoint, values):
+    req = urllib2.Request(endpoint, json.dumps(values))
+    response = urllib2.urlopen(req)
+    return json.loads(response.read())
+
+def testDemoData():
     values = {
         "objects": [
             {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
@@ -34,10 +39,38 @@ def test1():
         ]
     }
 
-    req = urllib2.Request(ENDPOINT, json.dumps(values))
-    response = urllib2.urlopen(req)
-    the_page = response.read()
-    print json.dumps(json.loads(the_page), indent=4)
+    result = resolveScanForValues(LOCAL_ENDPOINT, values)
+    print json.dumps(result, indent=4)
+
+def testRssiRanking():
+    values = {
+        "objects": [
+            {
+                'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html',
+                'rssi': 50,
+                'tx': 50,
+            },
+            {
+                'url': 'http://benfry.com/distellamap/',
+                'rssi': 40,
+                'tx': 50,
+            },
+            {
+                'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe',
+                'rssi': 30,
+                'tx': 50,
+            },
+            {
+                'url': 'http://sfmoma.org',
+                'rssi': 20,
+                'tx': 50,
+            },
+        ]
+    }
+
+    result = resolveScanForValues(LOCAL_ENDPOINT, values)
+    print json.dumps(result, indent=4)
 
 if __name__ == '__main__':
-    test1()
+    testDemoData()
+    testRssiRanking()
