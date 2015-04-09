@@ -333,7 +333,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       // If url shortening failed
       if (url == null) {
         Toast.makeText(getActivity(), R.string.url_shortening_error, Toast.LENGTH_SHORT).show();
-        // Exit here
         return;
       }
     }
