@@ -330,6 +330,11 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     // Shorten the url if necessary
     if (ConfigUriBeacon.uriLength(url) > ConfigUriBeacon.MAX_URI_LENGTH) {
       url = UrlShortener.shortenUrl(url);
+      // If url shortening failed
+      if (url == null) {
+        Toast.makeText(getActivity(), R.string.url_shortening_error, Toast.LENGTH_SHORT).show();
+        return;
+      }
     }
     // Write the url to the device
     try {

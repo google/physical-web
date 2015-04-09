@@ -45,5 +45,6 @@
     <string name="ranging_debug_distance_prefix">distance: </string>
     <string name="ranging_debug_region_prefix">region: </string>
     <string name="summary_notification_pull_down">Pull down to see them.</string>
+    <string name="url_shortening_error">URL is too long. Please use a shortener.</string>
 
 </resources>
