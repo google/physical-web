@@ -34,7 +34,7 @@ handlers:
   upload: static/index\.html
 
 - url: .*
-  script: main.app
+  script: handlers.app
 
 libraries:
 - name: webapp2

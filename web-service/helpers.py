@@ -14,140 +14,79 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import webapp2
+from datetime import datetime, timedelta
+from google.appengine.api import taskqueue, urlfetch
+from lxml import etree
+from urlparse import urljoin, urlparse
+import cgi
 import json
 import logging
-from datetime import datetime, timedelta
-from google.appengine.ext import ndb
-from google.appengine.api import taskqueue
-from google.appengine.api import urlfetch
-from urlparse import urljoin
-from urlparse import urlparse
-import os
-import re
-from lxml import etree
-import cgi
-from google.appengine.api import urlfetch_errors
+import models
 
-class BaseModel(ndb.Model):
-    added_on = ndb.DateTimeProperty(auto_now_add = True)
-    updated_on = ndb.DateTimeProperty(auto_now = True)
-
-class SiteInformation(BaseModel):
-    url = ndb.TextProperty()
-    favicon_url = ndb.TextProperty()
-    title = ndb.TextProperty()
-    description = ndb.TextProperty()
-    jsonlds = ndb.TextProperty()
-
-class DemoMetadata(webapp2.RequestHandler):
-    def get(self):
-        objects = [
-            {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
-            {'url': 'http://benfry.com/distellamap/'},
-            {'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe'},
-            {'url': 'http://sfmoma.org'}
-        ]
-        metadata_output = BuildResponse(objects)
-        output = {
-          "metadata": metadata_output
-        }
-        self.response.headers['Content-Type'] = 'application/json'
-        json_data = json.dumps(output);
-        self.response.write(json_data)
-
-class RefreshUrl(webapp2.RequestHandler):
-    def post(self):
-        url = self.request.get('url')
-        #logging.info("refreshing " + url)
-        siteInfo = SiteInformation.get_by_id(url)
-        siteInfo = FetchAndStoreUrl(siteInfo, url)
-
-class ResolveScan(webapp2.RequestHandler):
-    def post(self):
-        input_data = self.request.body
-        input_object = json.loads(input_data) # Data is not sanitised.
-        
-        if "objects" in input_object:
-            objects = input_object["objects"]
-        else:
-            objects = []
-        
-        metadata_output = BuildResponse(objects)
-        output = {
-          "metadata": metadata_output
-        }
-        self.response.headers['Content-Type'] = 'application/json'
-        json_data = json.dumps(output);
-        self.response.write(json_data)
-
-class GoUrl(webapp2.RequestHandler):
-    def get(self):
-        url = self.request.get('url')
-        url = url.encode('ascii','ignore')
-        self.redirect(url)
+################################################################################
 
 def BuildResponse(objects):
-        metadata_output = []
-        
-        # Resolve the devices
-        
-        for obj in objects:
-            key_id = None
-            url = None
-            force = False
-            valid = True
-            siteInfo = None
+    metadata_output = []
 
-            if "id" in obj:
-                key_id = obj["id"]
-            elif "url" in obj:
-                key_id = obj["url"]
-                url = obj["url"]
-                parsed_url = urlparse(url)
-                if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
-                    valid = False
+    # Resolve the devices
+    for obj in objects:
+        key_id = None
+        url = None
+        force = False
+        valid = True
+        siteInfo = None
 
-            if "force" in obj:
-                force = True
-                
-            # We need to go and fetch.  We probably want to asyncly fetch.
+        if "id" in obj:
+            key_id = obj["id"]
+        elif "url" in obj:
+            key_id = obj["url"]
+            url = obj["url"]
+            parsed_url = urlparse(url)
+            if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
+                valid = False
 
-            # We don't need RSSI yet.
-            #rssi = obj["rssi"]
+        if "force" in obj:
+            force = True
 
-            if valid:
-                # Really if we don't have the data we should not return it.
-                siteInfo = SiteInformation.get_by_id(url)
+        # We need to go and fetch.  We probably want to asyncly fetch.
 
-                if force or siteInfo is None:
-                    # If we don't have the data or it is older than 5 minutes, fetch.
-                    siteInfo = FetchAndStoreUrl(siteInfo, url)
-                if siteInfo is not None and siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
-                    # Updated time to make sure we don't request twice.
-                    siteInfo.put()
-                    # Add request to queue.
-                    taskqueue.add(url='/refresh-url', params={'url': url})
+        # We don't need RSSI yet.
+        #rssi = obj["rssi"]
 
-            device_data = {};
-            if siteInfo is not None:
-                device_data["id"] = url
-                device_data["url"] = siteInfo.url
-                if siteInfo.title is not None:
-                    device_data["title"] = siteInfo.title
-                if siteInfo.description is not None:
-                    device_data["description"] = siteInfo.description
-                if siteInfo.favicon_url is not None:
-                    device_data["icon"] = siteInfo.favicon_url
-                if siteInfo.jsonlds is not None:
-                    device_data["json-ld"] = json.loads(siteInfo.jsonlds)
-            else:
-                device_data["id"] = url
-                device_data["url"] = url
+        if valid:
+            # Really if we don't have the data we should not return it.
+            siteInfo = models.SiteInformation.get_by_id(url)
 
-            metadata_output.append(device_data)
+            if force or siteInfo is None:
+                # If we don't have the data or it is older than 5 minutes, fetch.
+                siteInfo = FetchAndStoreUrl(siteInfo, url)
+            if siteInfo is not None and siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
+                # Updated time to make sure we don't request twice.
+                siteInfo.put()
+                # Add request to queue.
+                taskqueue.add(url='/refresh-url', params={'url': url})
 
-        return metadata_output
+        device_data = {};
+        if siteInfo is not None:
+            device_data["id"] = url
+            device_data["url"] = siteInfo.url
+            if siteInfo.title is not None:
+                device_data["title"] = siteInfo.title
+            if siteInfo.description is not None:
+                device_data["description"] = siteInfo.description
+            if siteInfo.favicon_url is not None:
+                device_data["icon"] = siteInfo.favicon_url
+            if siteInfo.jsonlds is not None:
+                device_data["json-ld"] = json.loads(siteInfo.jsonlds)
+        else:
+            device_data["id"] = url
+            device_data["url"] = url
+
+        metadata_output.append(device_data)
+
+    return metadata_output
+
+################################################################################
 
 def FetchAndStoreUrl(siteInfo, url):
     # Index the page
@@ -166,6 +105,8 @@ def FetchAndStoreUrl(siteInfo, url):
     else:
         return StoreInvalidUrl(siteInfo, url)
 
+################################################################################
+
 def GetExpandedURL(url):
     parsed_url = urlparse(url)
     final_url = url
@@ -181,6 +122,8 @@ def GetExpandedURL(url):
             final_url = result.headers['location']
     return final_url
 
+################################################################################
+
 def GetContentEncoding(content):
     encoding = None
     parser = etree.HTMLParser(encoding='iso-8859-1')
@@ -192,12 +135,12 @@ def GetContentEncoding(content):
             _, params = cgi.parse_header(content_type)
             if 'charset' in params:
                 encoding = params['charset']
-    
+
     if encoding is None:
         value = htmltree.xpath("//head//meta/attribute::charset")
         if (len(value) > 0):
             encoding = value[0]
-    
+
     if encoding is None:
         try:
             encoding = 'utf-8'
@@ -205,8 +148,10 @@ def GetContentEncoding(content):
         except UnicodeDecodeError:
             encoding = 'iso-8859-1'
             u_value = unicode(content, 'iso-8859-1')
-    
+
     return encoding
+
+################################################################################
 
 def FlattenString(input):
     input = input.strip()
@@ -219,9 +164,11 @@ def FlattenString(input):
         input = input.replace("  ", " ");
     return input
 
+################################################################################
+
 def StoreInvalidUrl(siteInfo, url):
     if siteInfo is None:
-        siteInfo = SiteInformation.get_or_insert(url, 
+        siteInfo = models.SiteInformation.get_or_insert(url, 
             url = url,
             title = None,
             favicon_url = None,
@@ -233,13 +180,14 @@ def StoreInvalidUrl(siteInfo, url):
 
     return siteInfo
 
+################################################################################
+
 def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     title = None
     description = None
     icon = None
-    
+
     # parse the content
-    
     parser = etree.HTMLParser(encoding=encoding)
     htmltree = etree.fromstring(content, parser)
     value = htmltree.xpath("//head//title/text()");
@@ -251,7 +199,7 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
             title = value[0]
     if title is not None:
         title = FlattenString(title)
-    
+
     # Try to use <meta name="description" content="...">.
     value = htmltree.xpath("//head//meta[@name='description']/attribute::content")
     if (len(value) > 0):
@@ -260,41 +208,41 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
         description = None
     if description == title:
         description = None
-    
+
     # Try to use <meta property="og:description" content="...">.
     if description is None:
         value = htmltree.xpath("//head//meta[@property='og:description']/attribute::content")
         description = ' '.join(value)
         if len(description) == 0:
             description = None
-    
+
     # Try to use <div class="content">...</div>.
     if description is None:
         value = htmltree.xpath("//body//*[@class='content']//*[not(*|self::script|self::style)]/text()")
         description = ' '.join(value)
         if len(description) == 0:
             description = None
-    
+
     # Try to use <div id="content">...</div>.
     if description is None:
         value = htmltree.xpath("//body//*[@id='content']//*[not(*|self::script|self::style)]/text()")
         description = ' '.join(value)
         if len(description) == 0:
             description = None
-    
+
     # Fallback on <body>...</body>.
     if description is None:
         value = htmltree.xpath("//body//*[not(*|self::script|self::style)]/text()")
         description = ' '.join(value)
         if len(description) == 0:
             description = None
-    
+
     # Cleanup.
     if description is not None:
         description = FlattenString(description)
         if len(description) > 500:
             description = description[:500]
-    
+
     if icon is None:
         value = htmltree.xpath("//head//link[@rel='shortcut icon']/attribute::href");
         if (len(value) > 0):
@@ -315,7 +263,7 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
         value = htmltree.xpath("//head//meta[@property='og:image']/attribute::content");
         if (len(value) > 0):
             icon = value[0]
-    
+
     if icon is not None:
         if icon.startswith("./"):
             icon = icon[2:len(icon)]
@@ -366,7 +314,7 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
         jsonlds_data = None
 
     if siteInfo is None:
-        siteInfo = SiteInformation.get_or_insert(url, 
+        siteInfo = models.SiteInformation.get_or_insert(url, 
             url = final_url,
             title = title,
             favicon_url = icon,
@@ -380,17 +328,8 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
         siteInfo.description = description
         siteInfo.jsonlds = jsonlds_data
         siteInfo.put()
-    
+
     return siteInfo
 
-class Index(webapp2.RequestHandler):
-    def get(self):
-        self.response.out.write("")
+################################################################################
 
-app = webapp2.WSGIApplication([
-    ('/', Index),
-    ('/resolve-scan', ResolveScan),
-    ('/refresh-url', RefreshUrl),
-    ('/go', GoUrl),
-    ('/demo', DemoMetadata)
-], debug=True)
