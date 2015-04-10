@@ -47,23 +47,23 @@ def testRssiRanking():
         "objects": [
             {
                 'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html',
-                'rssi': 50,
-                'tx': 50,
+                'rssi': -75,
+                'txpower': -22,
             },
             {
                 'url': 'http://benfry.com/distellamap/',
-                'rssi': 40,
-                'tx': 50,
+                'rssi': -95,
+                'txpower': -63,
             },
             {
                 'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe',
-                'rssi': 30,
-                'tx': 50,
+                'rssi': -61,
+                'txpower': -22,
             },
             {
                 'url': 'http://sfmoma.org',
-                'rssi': 20,
-                'tx': 50,
+                'rssi': -74,
+                'txpower': -22,
             },
         ]
     }
