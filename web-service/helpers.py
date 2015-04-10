@@ -32,29 +32,26 @@ def BuildResponse(objects):
     for obj in objects:
         key_id = None
         url = None
-        force = False
+        force = obj.get('force', False)
         valid = True
         siteInfo = None
         rssi = None
         txpower = None
 
-        if "id" in obj:
-            key_id = obj["id"]
-        elif "url" in obj:
-            key_id = obj["url"]
-            url = obj["url"]
+        if 'id' in obj:
+            key_id = obj['id']
+        elif 'url' in obj:
+            key_id = obj['url']
+            url = obj['url']
             parsed_url = urlparse(url)
             if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
                 valid = False
 
-        if "force" in obj:
-            force = True
-
         # We need to go and fetch.  We probably want to asyncly fetch.
 
         try:
-            rssi = float(obj["rssi"])
-            txpower = float(obj["txpower"])
+            rssi = float(obj['rssi'])
+            txpower = float(obj['txpower'])
         except:
             pass
 
@@ -73,21 +70,21 @@ def BuildResponse(objects):
 
         device_data = {};
         if siteInfo is not None:
-            device_data["id"] = url
-            device_data["url"] = siteInfo.url
+            device_data['id'] = url
+            device_data['url'] = siteInfo.url
             if siteInfo.title is not None:
-                device_data["title"] = siteInfo.title
+                device_data['title'] = siteInfo.title
             if siteInfo.description is not None:
-                device_data["description"] = siteInfo.description
+                device_data['description'] = siteInfo.description
             if siteInfo.favicon_url is not None:
-                device_data["icon"] = siteInfo.favicon_url
+                device_data['icon'] = siteInfo.favicon_url
             if siteInfo.jsonlds is not None:
-                device_data["json-ld"] = json.loads(siteInfo.jsonlds)
+                device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         else:
-            device_data["id"] = url
-            device_data["url"] = url
-        device_data["rssi"] = rssi
-        device_data["txpower"] = txpower
+            device_data['id'] = url
+            device_data['url'] = url
+        device_data['rssi'] = rssi
+        device_data['txpower'] = txpower
 
         metadata_output.append(device_data)
 
@@ -100,8 +97,8 @@ def BuildResponse(objects):
 def RankedResponse(metadata_output):
     def ComputeDistance(obj):
         try:
-            rssi = float(obj["rssi"])
-            txpower = float(obj["txpower"])
+            rssi = float(obj['rssi'])
+            txpower = float(obj['txpower'])
             if rssi == 127 or rssi == 128:
                 # TODO: What does rssi 127 mean, compared to no value?
                 # According to wiki, 127 is MAX and 128 is INVALID.
@@ -177,7 +174,7 @@ def GetContentEncoding(content):
                 encoding = params['charset']
 
     if encoding is None:
-        value = htmltree.xpath("//head//meta/attribute::charset")
+        value = htmltree.xpath('//head//meta/attribute::charset')
         if (len(value) > 0):
             encoding = value[0]
 
@@ -195,13 +192,13 @@ def GetContentEncoding(content):
 
 def FlattenString(input):
     input = input.strip()
-    input = input.replace("\r", " ");
-    input = input.replace("\n", " ");
-    input = input.replace("\t", " ");
-    input = input.replace("\v", " ");
-    input = input.replace("\f", " ");
-    while "  " in input:
-        input = input.replace("  ", " ");
+    input = input.replace('\r', ' ');
+    input = input.replace('\n', ' ');
+    input = input.replace('\t', ' ');
+    input = input.replace('\v', ' ');
+    input = input.replace('\f', ' ');
+    while '  ' in input:
+        input = input.replace('  ', ' ');
     return input
 
 ################################################################################
@@ -230,7 +227,7 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     # parse the content
     parser = etree.HTMLParser(encoding=encoding)
     htmltree = etree.fromstring(content, parser)
-    value = htmltree.xpath("//head//title/text()");
+    value = htmltree.xpath('//head//title/text()');
     if (len(value) > 0):
         title = value[0]
     if title is None:
@@ -305,11 +302,11 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
             icon = value[0]
 
     if icon is not None:
-        if icon.startswith("./"):
+        if icon.startswith('./'):
             icon = icon[2:len(icon)]
         icon = urljoin(real_final_url, icon)
     if icon is None:
-        icon = urljoin(real_final_url, "/favicon.ico")
+        icon = urljoin(real_final_url, '/favicon.ico')
     # make sure the icon exists
     try:
         result = urlfetch.fetch(icon, method = 'HEAD')
@@ -327,14 +324,14 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
         s_real_final_url = real_final_url
         s_icon = icon
         if s_url is None:
-            s_url = "[none]"
+            s_url = '[none]'
         if s_final_url is None:
-            s_final_url = "[none]"
+            s_final_url = '[none]'
         if s_real_final_url is None:
-            s_real_final_url = "[none]"
+            s_real_final_url = '[none]'
         if s_icon is None:
-            s_icon = "[none]"
-        logging.warning("icon error with " + s_url + " " + s_final_url + " " + s_real_final_url + " -> " + s_icon)
+            s_icon = '[none]'
+        logging.warning('icon error with ' + s_url + ' ' + s_final_url + ' ' + s_real_final_url + ' -> ' + s_icon)
         icon = None
 
     jsonlds = []

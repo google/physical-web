@@ -24,14 +24,12 @@ import webapp2
 
 class Index(webapp2.RequestHandler):
     def get(self):
-        self.response.out.write("")
-
-################################################################################
+        self.response.out.write('')
 
 class GoUrl(webapp2.RequestHandler):
     def get(self):
         url = self.request.get('url')
-        url = url.encode('ascii','ignore')
+        url = url.encode('ascii', 'ignore')
         self.redirect(url)
 
 ################################################################################
@@ -39,7 +37,7 @@ class GoUrl(webapp2.RequestHandler):
 class RefreshUrl(webapp2.RequestHandler):
     def post(self):
         url = self.request.get('url')
-        #logging.info("refreshing " + url)
+        #logging.info('refreshing ' + url)
         siteInfo = models.SiteInformation.get_by_id(url)
         siteInfo = helpers.FetchAndStoreUrl(siteInfo, url)
 
@@ -51,13 +49,13 @@ class ResolveScan(webapp2.RequestHandler):
 
         try:
             input_object = json.loads(input_data) # TODO: Data is not sanitised.
-            objects = input_object.get("objects", [])
+            objects = input_object.get('objects', [])
         except:
             objects = []
 
         metadata_output = helpers.BuildResponse(objects)
         output = {
-          "metadata": metadata_output
+          'metadata': metadata_output
         }
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
@@ -75,7 +73,7 @@ class DemoMetadata(webapp2.RequestHandler):
         ]
         metadata_output = helpers.BuildResponse(objects)
         output = {
-          "metadata": metadata_output
+          'metadata': metadata_output
         }
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);

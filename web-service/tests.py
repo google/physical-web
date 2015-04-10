@@ -31,7 +31,7 @@ def resolveScanForValues(endpoint, values):
 
 def testDemoData():
     values = {
-        "objects": [
+        'objects': [
             {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
             {'url': 'http://benfry.com/distellamap/'},
             {'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe'},
@@ -44,7 +44,7 @@ def testDemoData():
 
 def testRssiRanking():
     values = {
-        "objects": [
+        'objects': [
             {
                 'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html',
                 'rssi': -75,
