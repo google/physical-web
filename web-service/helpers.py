@@ -93,7 +93,11 @@ def BuildResponse(objects):
             path_loss = device_data['txpower'] - device_data['rssi']
             device_data['rank'] = path_loss
         except:
-            # TODO: We could leave rank off, but this makes clients job easier
+            # This fallback case is for requests which did not include rssi
+            # and txpower. We could just not return any rank in this case,
+            # but we may have other signals to use in the future, and always
+            # returning some rank value for any request type could make client
+            # implementations easier.  So lets just return a high fake value.
             device_data['rank'] = 1000.0
         finally:
             del device_data['txpower']
