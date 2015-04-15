@@ -88,8 +88,19 @@ def BuildResponse(objects):
 
         metadata_output.append(device_data)
 
-    metadata_output = RankedResponse(metadata_output)
-    # TODO: remove txpower and rssi keys
+    def ReplaceRssiTxPowerWithPathLossAsRank(device_data):
+        try:
+            path_loss = device_data['txpower'] - device_data['rssi']
+            device_data['rank'] = path_loss
+        except:
+            # TODO: We could leave rank off, but this makes clients job easier
+            device_data['rank'] = 1000.0
+        finally:
+            del device_data['txpower']
+            del device_data['rssi']
+        return device_data
+
+    metadata_output = map(ReplaceRssiTxPowerWithPathLossAsRank, RankedResponse(metadata_output))
     return metadata_output
 
 ################################################################################
