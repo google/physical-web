@@ -1,2 +1,6 @@
+# Common Nonsense
 **/*.pyc
 **/.DS_Store
+
+# Do not commit this file
+/API_KEYS.json

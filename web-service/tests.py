@@ -19,14 +19,14 @@ import urllib2
 
 ################################################################################
 
-LOCAL_ENDPOINT = 'http://localhost:8080/resolve-scan'
-REMOTE_ENDPOINT = 'http://url-caster.appspot.com/resolve-scan'
-REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com/resolve-scan'
+LOCAL_ENDPOINT = 'http://localhost:8080'
+REMOTE_ENDPOINT = 'http://url-caster.appspot.com'
+REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com'
 
 ################################################################################
 
 def resolveScanForValues(endpoint, values):
-    req = urllib2.Request(endpoint, json.dumps(values))
+    req = urllib2.Request(endpoint + '/resolve-scan', json.dumps(values))
     response = urllib2.urlopen(req)
     return json.loads(response.read())
 
@@ -72,6 +72,14 @@ def testRssiRanking(endpoint):
     result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
 
+def testUrlShortener(endpoint):
+    values = {"longUrl": "www.github.com/Google/physical-web"}
+    req = urllib2.Request(endpoint + '/shorten-url', json.dumps(values))
+    response = urllib2.urlopen(req)
+    ret = json.loads(response.read())
+    print ret
+
 if __name__ == '__main__':
     testDemoData(LOCAL_ENDPOINT)
     testRssiRanking(LOCAL_ENDPOINT)
+    testUrlShortener(LOCAL_ENDPOINT)
