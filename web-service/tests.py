@@ -21,6 +21,7 @@ import urllib2
 
 LOCAL_ENDPOINT = 'http://localhost:8080/resolve-scan'
 REMOTE_ENDPOINT = 'http://url-caster.appspot.com/resolve-scan'
+REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com/resolve-scan'
 
 ################################################################################
 
@@ -29,7 +30,7 @@ def resolveScanForValues(endpoint, values):
     response = urllib2.urlopen(req)
     return json.loads(response.read())
 
-def testDemoData():
+def testDemoData(endpoint):
     values = {
         'objects': [
             {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
@@ -39,10 +40,10 @@ def testDemoData():
         ]
     }
 
-    result = resolveScanForValues(LOCAL_ENDPOINT, values)
+    result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
 
-def testRssiRanking():
+def testRssiRanking(endpoint):
     values = {
         'objects': [
             {
@@ -68,9 +69,9 @@ def testRssiRanking():
         ]
     }
 
-    result = resolveScanForValues(LOCAL_ENDPOINT, values)
+    result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
 
 if __name__ == '__main__':
-    testDemoData()
-    testRssiRanking()
+    testDemoData(LOCAL_ENDPOINT)
+    testRssiRanking(LOCAL_ENDPOINT)
