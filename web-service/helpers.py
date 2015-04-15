@@ -127,13 +127,7 @@ def RankedResponse(metadata_output):
 
     def SortByDistanceCmp(a, b):
         dista, distb = ComputeDistance(a), ComputeDistance(b)
-        if dista is None and distb is None:
-            return 0 # No winner
-        if dista is None:
-            return -1 # assume b is closer
-        if distb is None:
-            return 1 # assume a is closer
-        return int(dista - distb)
+        return cmp(dista, distb)
 
     metadata_output.sort(SortByDistanceCmp)
     return metadata_output
