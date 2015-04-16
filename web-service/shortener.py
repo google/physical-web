@@ -14,17 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from google.appengine.api import urlfetch
+import helpers
 import json
 import webapp2
-from google.appengine.api import urlfetch
 
 ################################################################################
 
 class ShortURL(webapp2.RequestHandler):
     def post(self):
         input_data = self.request.body
-        with open('API_KEYS.json') as keysfile:
-            apikey = json.load(keysfile)["goo.gl"]
+        config = helpers.GetConfig()
+        apikey = config['oauth_keys']['goo.gl']
         url = 'https://www.googleapis.com/urlshortener/v1/url?key=' + apikey
         referer = 'url-cast.physical-web.org'
         result = urlfetch.fetch(url,

@@ -1,0 +1,5 @@
+{
+    "oauth_keys": {
+        "goo.gl": "Insert OAuth key here, by following these docs: https://developers.google.com/url-shortener/v1/getting_started"
+    }
+}

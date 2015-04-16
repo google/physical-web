@@ -30,18 +30,22 @@ def resolveScanForValues(endpoint, values):
     response = urllib2.urlopen(req)
     return json.loads(response.read())
 
+################################################################################
+
 def testDemoData(endpoint):
     values = {
         'objects': [
-            {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
-            {'url': 'http://benfry.com/distellamap/'},
-            {'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe'},
-            {'url': 'http://sfmoma.org'}
+            { 'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html' },
+            { 'url': 'http://benfry.com/distellamap/' },
+            { 'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe' },
+            { 'url': 'http://sfmoma.org' }
         ]
     }
 
     result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
+
+################################################################################
 
 def testRssiRanking(endpoint):
     values = {
@@ -72,12 +76,19 @@ def testRssiRanking(endpoint):
     result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
 
+################################################################################
+
 def testUrlShortener(endpoint):
-    values = {"longUrl": "www.github.com/Google/physical-web"}
+    values = {
+        'longUrl': 'www.github.com/Google/physical-web'
+    }
     req = urllib2.Request(endpoint + '/shorten-url', json.dumps(values))
     response = urllib2.urlopen(req)
     ret = json.loads(response.read())
     print ret
+
+################################################################################
+################################################################################
 
 if __name__ == '__main__':
     testDemoData(LOCAL_ENDPOINT)
