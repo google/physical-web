@@ -20,9 +20,11 @@ We would like to grab a nice Title / Icon from the actual content of the page --
 
 ## What does a Physical Web Service do?
 
-Unlike a UriBeacon, a Physical Web Service does not have a specific protocol which must be followed (though perhaps an ad-hoc format will arise one day?), nor is it a mandatory piece of the Physical Web.  It was just the only & best way we could solve a fundamental problem (see above).
+At the very simplest, it fetches, parses, and presents the content of UriBeacon URL's on behalf of a client, but without using the clients identity in any way.  Its a middleman added for safety and efficiency.
 
-Over time, we've found this Service to all solve a bunch of other problems for us:
+Unlike a UriBeacon, a Physical Web Service is not a core part of the Physical Web, is not mandatory, and does not have a specific protocol which must be followed (though perhaps an ad-hoc format will arise one day).  It was just the only & best way we could solve a fundamental problem for our apps (see above).
+
+Over time, we've found this to be an elegant way to solve a bunch of other problems for us as well:
 * Faster, because we offload the heavy task for content parsing to the server.
 * Cheaper, because we offload the network request costs to the server.
 * Safer, because we can introduce safe-search filtering of inappropriate content.
@@ -30,9 +32,9 @@ Over time, we've found this Service to all solve a bunch of other problems for u
 
 ## How to run your own Physical Web Service
 
-You can run your own Service by taking a look at the [source code](https://github.com/google/physical-web/tree/master/web-service) and following typical [App Engine deployment documents](https://cloud.google.com/appengine/docs/python/gettingstartedpython27/uploading), or try it locally first by using a [development server](https://cloud.google.com/appengine/docs/python/tools/devserver).
+You can run your own Service by taking a look at the [source code](https://github.com/google/physical-web/tree/master/web-service) and following typical [App Engine deployment documents](https://cloud.google.com/appengine/docs/python/gettingstartedpython27/uploading), or try it locally first by using a [development server](https://cloud.google.com/appengine/docs/python/tools/devserver).  Eventually, you will want to update the `app.yaml` to create a new application ID, and take a look at `config.SAMPLE.json`.
 
-If you are building one of our sample apps and would like to use your own Physical Web Service, you can change the endpoint by modifying a single URL:
+If you are building one of our sample apps and would like to use your own Physical Web Service, you can change the endpoint by modifying:
 
 * Android: Update the `METADATA_URL` in [`MetadataResolver.java`](https://github.com/google/physical-web/blob/master/android/PhysicalWeb/app/src/main/java/org/physical_web/physicalweb/MetadataResolver.java) and `proxy_go_link_base_url` in [`strings.xml`](https://github.com/google/physical-web/blob/0bcd438bb3f6f7ef7ff593fd4fed987daa07ed37/android/PhysicalWeb/app/src/main/res/values/strings.xml)
 * iOS: Update the `METADATA_SERVER_HOSTNAME` in [`PWMetadataRequest.h`](https://github.com/google/physical-web/blob/04f88137a67488b17e30beefb1ffcafe7242c7f2/ios/PhyWeb/Backend/PWMetadataRequest.h)
