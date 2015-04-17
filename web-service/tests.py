@@ -80,7 +80,7 @@ def testRssiRanking(endpoint):
 
 def testUrlShortener(endpoint):
     values = {
-        'longUrl': 'www.github.com/Google/physical-web'
+        'longUrl': 'http://www.github.com/Google/physical-web'
     }
     req = urllib2.Request(endpoint + '/shorten-url', json.dumps(values))
     response = urllib2.urlopen(req)
