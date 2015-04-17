@@ -13,14 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-from datetime import datetime, timedelta
+
 from google.appengine.api import taskqueue, urlfetch
-from lxml import etree
 from urlparse import urljoin, urlparse
 import cgi
+import datetime
 import json
 import logging
+import lxml.etree
 import models
 
 ################################################################################
@@ -62,7 +62,7 @@ def BuildResponse(objects):
             if force or siteInfo is None:
                 # If we don't have the data or it is older than 5 minutes, fetch.
                 siteInfo = FetchAndStoreUrl(siteInfo, url)
-            if siteInfo is not None and siteInfo.updated_on < datetime.now() - timedelta(minutes=5):
+            if siteInfo is not None and siteInfo.updated_on < datetime.datetime.now() - datetime.timedelta(minutes=5):
                 # Updated time to make sure we don't request twice.
                 siteInfo.put()
                 # Add request to queue.
@@ -172,8 +172,8 @@ def GetExpandedURL(url):
 
 def GetContentEncoding(content):
     encoding = None
-    parser = etree.HTMLParser(encoding='iso-8859-1')
-    htmltree = etree.fromstring(content, parser)
+    parser = lxml.etree.HTMLParser(encoding='iso-8859-1')
+    htmltree = lxml.etree.fromstring(content, parser)
     value = htmltree.xpath("//head//meta[@http-equiv='Content-Type']/attribute::content")
     if encoding is None:
         if (len(value) > 0):
@@ -234,8 +234,8 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     icon = None
 
     # parse the content
-    parser = etree.HTMLParser(encoding=encoding)
-    htmltree = etree.fromstring(content, parser)
+    parser = lxml.etree.HTMLParser(encoding=encoding)
+    htmltree = lxml.etree.fromstring(content, parser)
     value = htmltree.xpath('//head//title/text()');
     if (len(value) > 0):
         title = value[0]
@@ -379,3 +379,13 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
 
 ################################################################################
 
+def GetConfig():
+    import os.path
+    if os.path.isfile('config.SECRET.json'):
+        fname = 'config.SECRET.json'
+    else:
+        fname = 'config.SAMPLE.json'
+    with open(fname) as configfile:
+        return json.load(configfile)
+
+################################################################################

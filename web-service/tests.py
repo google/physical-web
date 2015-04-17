@@ -19,29 +19,33 @@ import urllib2
 
 ################################################################################
 
-LOCAL_ENDPOINT = 'http://localhost:8080/resolve-scan'
-REMOTE_ENDPOINT = 'http://url-caster.appspot.com/resolve-scan'
-REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com/resolve-scan'
+LOCAL_ENDPOINT = 'http://localhost:8080'
+REMOTE_ENDPOINT = 'http://url-caster.appspot.com'
+REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com'
 
 ################################################################################
 
 def resolveScanForValues(endpoint, values):
-    req = urllib2.Request(endpoint, json.dumps(values))
+    req = urllib2.Request(endpoint + '/resolve-scan', json.dumps(values))
     response = urllib2.urlopen(req)
     return json.loads(response.read())
+
+################################################################################
 
 def testDemoData(endpoint):
     values = {
         'objects': [
-            {'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html'},
-            {'url': 'http://benfry.com/distellamap/'},
-            {'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe'},
-            {'url': 'http://sfmoma.org'}
+            { 'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html' },
+            { 'url': 'http://benfry.com/distellamap/' },
+            { 'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe' },
+            { 'url': 'http://sfmoma.org' }
         ]
     }
 
     result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
+
+################################################################################
 
 def testRssiRanking(endpoint):
     values = {
@@ -72,6 +76,21 @@ def testRssiRanking(endpoint):
     result = resolveScanForValues(endpoint, values)
     print json.dumps(result, indent=4)
 
+################################################################################
+
+def testUrlShortener(endpoint):
+    values = {
+        'longUrl': 'http://www.github.com/Google/physical-web'
+    }
+    req = urllib2.Request(endpoint + '/shorten-url', json.dumps(values))
+    response = urllib2.urlopen(req)
+    ret = json.loads(response.read())
+    print ret
+
+################################################################################
+################################################################################
+
 if __name__ == '__main__':
     testDemoData(LOCAL_ENDPOINT)
     testRssiRanking(LOCAL_ENDPOINT)
+    testUrlShortener(LOCAL_ENDPOINT)

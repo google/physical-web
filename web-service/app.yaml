@@ -24,7 +24,7 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
-  
+
 - url: /webui
   static_files: static/index.html
   upload: static/index\.html
@@ -32,6 +32,9 @@ handlers:
 - url: /webui.raw
   static_files: static/raw.html
   upload: static/index\.html
+
+- url: /shorten-url
+  script: shortener.app
 
 - url: .*
   script: handlers.app
