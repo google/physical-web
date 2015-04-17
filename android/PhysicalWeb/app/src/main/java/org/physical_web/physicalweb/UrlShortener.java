@@ -42,34 +42,32 @@ class UrlShortener {
   private static final String TAG = "UrlShortener";
 
   /**
-   * Create the shortened form
-   * of the given url.
-   *
-   * @param longUrl The url that will be shortened
-   * @return The short url for the given longUrl
+   * A callback to be invoked when done lengthening or shortening a url
    */
-  // TODO: make sure this network operation is off the ui thread
-  public static String shortenUrl(String longUrl) {
-    String shortUrl = null;
-    try {
-      shortUrl = new ShortenUrlTask().execute(longUrl).get();
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-    return shortUrl;
+  interface ModifiedUrlCallback {
+    void onNewUrl(String newUrl);
+    void onError(String oldUrl);
   }
 
   /**
+   * Create the shortened form of the given url.
    * Create a google url shortener interface object
    * and make a request to shorten the given url
    */
-  private static class ShortenUrlTask extends AsyncTask<String, Void, String> {
+  public static class ShortenUrlTask extends AsyncTask<String, Void, String> {
+    private ModifiedUrlCallback mCallback;
+    private String mLongUrl;
+
+    ShortenUrlTask(ModifiedUrlCallback callback) {
+      mCallback = callback;
+    }
+
     @Override
     protected String doInBackground(String[] params) {
-      String longUrl = params[0];
+      mLongUrl = params[0];
       Urlshortener urlshortener = createGoogleUrlShortener();
       Url url = new Url();
-      url.setLongUrl(longUrl);
+      url.setLongUrl(mLongUrl);
       try {
         Url response = urlshortener.url().insert(url).execute();
         //avoid possible NPE
@@ -80,6 +78,15 @@ class UrlShortener {
         e.printStackTrace();
       }
       return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+      if (result == null) {
+        mCallback.onError(mLongUrl);
+      } else {
+        mCallback.onNewUrl(result);
+      }
     }
   }
 
@@ -113,37 +120,39 @@ class UrlShortener {
    * Takes any short url and converts it to the long url that is being pointed to.
    * Note: this method will work for all types of shortened urls as it inspect the
    * returned headers for the location.
-   *
-   * @param shortUrl The short url that will be lengthened
-   * @return The lengthened url for the given short url
    */
-  // TODO: make sure this network operation is off the ui thread
-  public static String lengthenShortUrl(String shortUrl) {
-    String longUrl = null;
-    try {
-      longUrl = new LengthenShortUrlTask().execute(shortUrl).get();
-    } catch (InterruptedException | ExecutionException e) {
-      e.printStackTrace();
-    }
-    return longUrl;
-  }
+  public static class LengthenShortUrlTask extends AsyncTask<String, Void, String> {
+    private ModifiedUrlCallback mCallback;
+    private String mShortUrl;
 
-  private static class LengthenShortUrlTask extends AsyncTask<String, Void, String> {
+    LengthenShortUrlTask(ModifiedUrlCallback callback) {
+      mCallback = callback;
+    }
+
     @Override
     protected String doInBackground(String[] params) {
-      String shortUrl = params[0];
+      mShortUrl = params[0];
       try {
-        URL url = new URL(shortUrl);
+        URL url = new URL(mShortUrl);
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setInstanceFollowRedirects(false);
         String longUrl = httpURLConnection.getHeaderField("location");
-        return (longUrl != null) ? longUrl : shortUrl;
+        return (longUrl != null) ? longUrl : mShortUrl;
       } catch (MalformedURLException e) {
-        Log.w(TAG, "Malformed URL: " + shortUrl);
+        Log.w(TAG, "Malformed URL: " + mShortUrl);
       } catch (IOException e) {
         e.printStackTrace();
       }
       return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+      if (result == null) {
+        mCallback.onError(mShortUrl);
+      } else {
+        mCallback.onNewUrl(result);
+      }
     }
   }
 }
