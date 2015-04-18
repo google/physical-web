@@ -306,14 +306,16 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
         .build();
 
     List<ScanFilter> filters = new ArrayList<>();
-
-    ScanFilter filter = new ScanFilter.Builder()
+    filters.add(new ScanFilter.Builder()
         .setServiceData(UriBeacon.URI_SERVICE_UUID,
             new byte[]{},
             new byte[]{})
-        .build();
-
-    filters.add(filter);
+        .build());
+    filters.add(new ScanFilter.Builder()
+        .setServiceData(UriBeacon.TEST_SERVICE_UUID,
+            new byte[]{},
+            new byte[]{})
+        .build());
 
     boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
     Log.v(TAG, started ? "... scan started" : "... scan NOT started");
@@ -329,20 +331,23 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     if (now - timeStamp < TimeUnit.SECONDS.toNanos(TIMEOUT_FOR_OLD_BEACONS)) {
       UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
       if (uriBeacon != null) {
-        String address = scanResult.getDevice().getAddress();
-        int rssi = scanResult.getRssi();
-        int txPower = uriBeacon.getTxPowerLevel();
         String url = uriBeacon.getUriString();
-        // If we haven't yet seen this url
-        if (!mUrlToUrlMetadata.containsKey(url)) {
-          mUrlToUrlMetadata.put(url, null);
-          mPublicUrls.add(url);
-          mDeviceAddressToUrl.put(address, url);
-          // Fetch the metadata for this url
-          MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, txPower, rssi);
+        if (url != null && url.isEmpty()) {
+          String address = scanResult.getDevice().getAddress();
+          int rssi = scanResult.getRssi();
+          int txPower = uriBeacon.getTxPowerLevel();
+          // If we haven't yet seen this url
+          if (!mUrlToUrlMetadata.containsKey(url)) {
+            mUrlToUrlMetadata.put(url, null);
+            mPublicUrls.add(url);
+            mDeviceAddressToUrl.put(address, url);
+            // Fetch the metadata for this url
+            MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url,
+                                             txPower, rssi);
+          }
+          // Update the ranging data
+          mRegionResolver.onUpdate(address, rssi, txPower);
         }
-        // Update the ranging data
-        mRegionResolver.onUpdate(address, rssi, txPower);
       }
     }
   }
