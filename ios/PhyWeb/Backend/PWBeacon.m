@@ -36,9 +36,9 @@
   if (urlString == (NSString *)[NSNull null]) {
     urlString = nil;
   }
-  NSNumber *scoreNumber = info[@"rank"];
-  if (scoreNumber == (NSNumber *)[NSNull null]) {
-    scoreNumber = nil;
+  NSNumber *rankNumber = info[@"rank"];
+  if (rankNumber == (NSNumber *)[NSNull null]) {
+    rankNumber = nil;
   }
 
   if ([title length] == 0) {
@@ -60,9 +60,9 @@
   [self setTitle:title];
   [self setSnippet:desc];
   [self setIconURL:[NSURL URLWithString:icon]];
-  if (scoreNumber != nil) {
-    [self setHasScore:YES];
-    [self setScore:[scoreNumber doubleValue]];
+  if (rankNumber != nil) {
+    [self setHasRank:YES];
+    [self setRank:[rankNumber doubleValue]];
   }
 
   return self;

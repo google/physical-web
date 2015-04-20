@@ -333,10 +333,10 @@
     PWBeacon *beacon1 = obj1;
     PWBeacon *beacon2 = obj2;
     if (stableMode) {
-      if ([beacon1 hasScore]) {
+      if ([beacon1 hasRank]) {
         PWBeacon *beacon1 = obj1;
         PWBeacon *beacon2 = obj2;
-        double diff = [beacon1 score] - [beacon2 score];
+        double diff = [beacon1 rank] - [beacon2 rank];
         if (diff > 0) {
           return NSOrderedDescending;
         } else if (diff < 0) {
