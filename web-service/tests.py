@@ -91,6 +91,7 @@ def testUrlShortener(endpoint):
 ################################################################################
 
 if __name__ == '__main__':
-    testDemoData(LOCAL_ENDPOINT)
-    testRssiRanking(LOCAL_ENDPOINT)
-    testUrlShortener(LOCAL_ENDPOINT)
+    endpoint = LOCAL_ENDPOINT
+    testDemoData(endpoint)
+    testRssiRanking(endpoint)
+    testUrlShortener(endpoint)
