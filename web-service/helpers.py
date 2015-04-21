@@ -30,63 +30,61 @@ def BuildResponse(objects):
 
     # Resolve the devices
     for obj in objects:
-        key_id = None
-        url = None
+        url = obj.get('url', None)
         force = obj.get('force', False)
-        valid = True
-        siteInfo = None
-        rssi = None
-        txpower = None
-
-        if 'id' in obj:
-            key_id = obj['id']
-        elif 'url' in obj:
-            key_id = obj['url']
-            url = obj['url']
-            parsed_url = urlparse(url)
-            if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
-                valid = False
-
-        # We need to go and fetch.  We probably want to asyncly fetch.
-
         try:
             rssi = float(obj['rssi'])
             txpower = float(obj['txpower'])
         except:
-            pass
+            rssi = None
+            txpower = None
 
-        if valid:
-            # Really if we don't have the data we should not return it.
-            siteInfo = models.SiteInformation.get_by_id(url)
+        def append_invalid():
+            metadata_output.append({
+                'id': url,
+                'url': url
+            })
 
-            if force or siteInfo is None:
-                # If we don't have the data or it is older than 5 minutes, fetch.
-                siteInfo = FetchAndStoreUrl(siteInfo, url)
-            if siteInfo is not None and siteInfo.updated_on < datetime.datetime.now() - datetime.timedelta(minutes=5):
-                # Updated time to make sure we don't request twice.
-                siteInfo.put()
-                # Add request to queue.
-                taskqueue.add(url='/refresh-url', params={'url': url})
+        if url is None:
+            append_invalid()
+            continue
 
-        device_data = {};
-        if siteInfo is not None:
-            device_data['id'] = url
-            device_data['url'] = siteInfo.url
-            if siteInfo.title is not None:
-                device_data['title'] = siteInfo.title
-            if siteInfo.description is not None:
-                device_data['description'] = siteInfo.description
-            if siteInfo.favicon_url is not None:
-                device_data['icon'] = siteInfo.favicon_url
-            if siteInfo.jsonlds is not None:
-                device_data['json-ld'] = json.loads(siteInfo.jsonlds)
-        else:
-            device_data['id'] = url
-            device_data['url'] = url
+        parsed_url = urlparse(url)
+        if parsed_url.scheme != 'http' and parsed_url.scheme != 'https':
+            append_invalid()
+            continue
+
+        siteInfo = models.SiteInformation.get_by_id(url)
+
+        if force or siteInfo is None:
+            siteInfo = FetchAndStoreUrl(siteInfo, url)
+
+        if siteInfo is None:
+            append_invalid()
+            continue
+
+        # If the cache is older than 5 minutes, queue a refresh
+        if siteInfo.updated_on < datetime.datetime.now() - datetime.timedelta(minutes=5):
+            # Updated time to make sure we don't request twice.
+            siteInfo.put()
+            # Add request to queue.
+            taskqueue.add(url='/refresh-url', params={'url': url})
+
+        device_data = {}
+        device_data['id'] = url
+        device_data['url'] = siteInfo.url
+        if siteInfo.title is not None:
+            device_data['title'] = siteInfo.title
+        if siteInfo.description is not None:
+            device_data['description'] = siteInfo.description
+        if siteInfo.favicon_url is not None:
+            device_data['icon'] = siteInfo.favicon_url
+        if siteInfo.jsonlds is not None:
+            device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         device_data['rssi'] = rssi
         device_data['txpower'] = txpower
-
         metadata_output.append(device_data)
+
 
     def ReplaceRssiTxPowerWithPathLossAsRank(device_data):
         try:
