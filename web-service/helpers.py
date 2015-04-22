@@ -377,6 +377,22 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
 
 ################################################################################
 
+def RefreshUrl(url):
+    siteInfo = models.SiteInformation.get_by_id(url)
+
+    # If we've done an update within the last 5 seconds, don't do another one.
+    # This is just to prevent abuse, accidental or otherwise
+    if siteInfo.updated_on > datetime.datetime.now() - datetime.timedelta(seconds=5):
+        logging.info('Skipping RefreshUrl for url: ' + url)
+        return
+
+    # Update the timestamp before starting the request
+    siteInfo.put()
+
+    siteInfo = FetchAndStoreUrl(siteInfo, url)
+
+################################################################################
+
 def GetConfig():
     import os.path
     if os.path.isfile('config.SECRET.json'):
