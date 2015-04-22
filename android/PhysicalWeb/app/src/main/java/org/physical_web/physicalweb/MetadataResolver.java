@@ -181,18 +181,14 @@ class MetadataResolver {
 
                   JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(i);
 
+                  String url = jsonUrlMetadata.getString("url");
                   String title = "";
-                  String url = "";
                   String description = "";
                   String iconUrl = "/favicon.ico";
-                  String id = jsonUrlMetadata.getString("id");
                   float score = UNDEFINED_SCORE;
 
                   if (jsonUrlMetadata.has("title")) {
                     title = jsonUrlMetadata.getString("title");
-                  }
-                  if (jsonUrlMetadata.has("url")) {
-                    url = jsonUrlMetadata.getString("url");
                   }
                   if (jsonUrlMetadata.has("description")) {
                     description = jsonUrlMetadata.getString("description");
@@ -228,9 +224,9 @@ class MetadataResolver {
                   downloadIcon(urlMetadata);
 
                   if (isDemoRequest) {
-                    mMetadataResolverCallback.onDemoUrlMetadataReceived(id, urlMetadata);
+                    mMetadataResolverCallback.onDemoUrlMetadataReceived(url, urlMetadata);
                   } else {
-                    mMetadataResolverCallback.onUrlMetadataReceived(id, urlMetadata);
+                    mMetadataResolverCallback.onUrlMetadataReceived(url, urlMetadata);
                   }
                 }
 

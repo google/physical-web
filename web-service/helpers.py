@@ -41,7 +41,6 @@ def BuildResponse(objects):
 
         def append_invalid():
             metadata_output.append({
-                'id': url,
                 'url': url
             })
 
@@ -71,7 +70,6 @@ def BuildResponse(objects):
             taskqueue.add(url='/refresh-url', params={'url': url})
 
         device_data = {}
-        device_data['id'] = url
         device_data['url'] = siteInfo.url
         if siteInfo.title is not None:
             device_data['title'] = siteInfo.title
