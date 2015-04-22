@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import json
+import urllib
 import urllib2
 
 ################################################################################
@@ -88,6 +89,15 @@ def testUrlShortener(endpoint):
     print ret
 
 ################################################################################
+
+def testRefreshUrl(endpoint):
+    params = { 'url': 'https://github.com/google/physical-web' }
+    req = urllib2.Request(endpoint + '/refresh-url?' + urllib.urlencode(params), '')
+    response = urllib2.urlopen(req)
+    ret = response.read()
+    print ret
+
+################################################################################
 ################################################################################
 
 if __name__ == '__main__':
@@ -95,3 +105,4 @@ if __name__ == '__main__':
     testDemoData(endpoint)
     testRssiRanking(endpoint)
     testUrlShortener(endpoint)
+    testRefreshUrl(endpoint)
