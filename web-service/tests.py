@@ -79,6 +79,20 @@ def testRssiRanking(endpoint):
 
 ################################################################################
 
+def testUrlWhichRedirects(endpoint):
+    values = {
+        'objects': [
+            {
+                'url': 'http://goo.gl/KYvLwO',
+            },
+        ]
+    }
+
+    result = resolveScanForValues(endpoint, values)
+    print json.dumps(result, indent=4)
+
+################################################################################
+
 def testUrlShortener(endpoint):
     values = {
         'longUrl': 'http://www.github.com/Google/physical-web'
@@ -104,5 +118,6 @@ if __name__ == '__main__':
     endpoint = LOCAL_ENDPOINT
     testDemoData(endpoint)
     testRssiRanking(endpoint)
+    testUrlWhichRedirects(endpoint)
     testUrlShortener(endpoint)
     testRefreshUrl(endpoint)
