@@ -332,7 +332,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
       if (uriBeacon != null) {
         String url = uriBeacon.getUriString();
-        if (url != null && url.isEmpty()) {
+        if (url != null && !url.isEmpty()) {
           String address = scanResult.getDevice().getAddress();
           int rssi = scanResult.getRssi();
           int txPower = uriBeacon.getTxPowerLevel();
