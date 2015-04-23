@@ -45,3 +45,6 @@ libraries:
 
 - name: lxml
   version: "2.3.5"
+
+builtins:
+- appstats: on
