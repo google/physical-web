@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- This is required for the scan library. -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
@@ -36,6 +37,13 @@
             android:enabled="true"
             android:exported="false">
         </service>
+
+        <receiver
+            android:name=".AutostartUriBeaconDiscoveryServiceReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- This is required for the scan library. -->
         <service
