@@ -1,0 +1,15 @@
+{
+  "name": "uri-beacon-scanner-example",
+  "version": "1.0.0",
+  "description": "UriBeacon Scanner Example",
+  "author": "Sandeep Mistry",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "uri-beacon-scanner": "~1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/physical-web.git"
+  },
+  "private": true
+}
