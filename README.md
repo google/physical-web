@@ -29,6 +29,10 @@ The Physical Web must be an open standard that everyone can use. This can’t be
 * [URI Beacon Spec](https://github.com/google/uribeacon) Partner repo with code/examples for the beacons themselves
 * [mDNS support](https://github.com/google/physical-web/blob/master/documentation/mDNS_Support.md) How to use mDNS instead of Bluetooth to broadcast URLs
 * [SSDP support](documentation/ssdp_support.md) How to use SSDP instead of Bluetooth to broadcast URLs
+* Different Physical Web clients
+    * [Android](android)  
+    * [IOS](ios)  
+    * [Node](nodejs)  This is a minimal client meant for building utilities
 
 ##Beacons
 Our most common request is how to get [UriBeacons](http://uribeacon.org). 
