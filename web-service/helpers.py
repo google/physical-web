@@ -130,6 +130,8 @@ def RankedResponse(metadata_output):
 
 ################################################################################
 
+# This is used to recursively look up in cache after each redirection.
+# We don't cache the redirection itself, but we always want to cache the final destination.
 def GetSiteInfoForUrl(url, rssi=None, txpower=None, force_update=False):
     siteInfo = models.SiteInformation.get_by_id(url)
 
