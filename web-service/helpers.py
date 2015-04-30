@@ -218,7 +218,7 @@ def FlattenString(input):
 
 def StoreInvalidUrl(siteInfo, url):
     if siteInfo is None:
-        siteInfo = models.SiteInformation.get_or_insert(url, 
+        siteInfo = models.SiteInformation.get_or_insert(url,
             url = url,
             title = None,
             favicon_url = None,

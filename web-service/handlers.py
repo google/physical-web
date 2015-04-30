@@ -26,11 +26,30 @@ class Index(webapp2.RequestHandler):
     def get(self):
         self.response.out.write('')
 
+################################################################################
+
 class GoUrl(webapp2.RequestHandler):
     def get(self):
         url = self.request.get('url')
         url = url.encode('ascii', 'ignore')
         self.redirect(url)
+
+################################################################################
+
+class GooglRedirect(webapp2.RequestHandler):
+    def get(self, path):
+        try:
+            rssi = float(self.request.headers['X-PhysicalWeb-Rssi'])
+            txpower = float(self.request.headers['X-PhysicalWeb-TxPower'])
+            path_loss = txpower - rssi;
+        except:
+            path_loss = None
+
+        if path_loss > 50:
+            self.status_code(204)
+            return
+
+        self.redirect('http://goo.gl/{0}'.format(path))
 
 ################################################################################
 
@@ -84,5 +103,6 @@ app = webapp2.WSGIApplication([
     ('/resolve-scan', ResolveScan),
     ('/refresh-url', RefreshUrl),
     ('/go', GoUrl),
+    ('/googl/(.*)', GooglRedirect),
     ('/demo', DemoMetadata)
 ], debug=True)

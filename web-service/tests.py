@@ -117,8 +117,14 @@ def testRedirectWithRssiTxPower(endpoint):
     values = {
         'objects': [
             {
-                'url': 'http://localhost:8800/KYvLwO',
+                'url': endpoint + '/googl/KYvLwO',
                 'rssi': -41,
+                'txpower': -22,
+                'force': True
+            },
+            {
+                'url': endpoint + '/googl/r8iJqW',
+                'rssi': -91,
                 'txpower': -22,
                 'force': True
             },
