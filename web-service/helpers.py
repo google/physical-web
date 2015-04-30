@@ -31,7 +31,7 @@ def BuildResponse(objects):
     # Resolve the devices
     for obj in objects:
         url = obj.get('url', None)
-        force = obj.get('force', False)
+        force_update = obj.get('force', False)
         try:
             rssi = float(obj['rssi'])
             txpower = float(obj['txpower'])
@@ -54,10 +54,7 @@ def BuildResponse(objects):
             append_invalid()
             continue
 
-        siteInfo = models.SiteInformation.get_by_id(url)
-
-        if force or siteInfo is None:
-            siteInfo = FetchAndStoreUrl(siteInfo, url)
+        siteInfo = GetSiteInfoForUrl(url, force_update)
 
         if siteInfo is None:
             append_invalid()
@@ -98,10 +95,12 @@ def BuildResponse(objects):
             # implementations easier.  So lets just return a high fake value.
             device_data['rank'] = 1000.0
         finally:
-            del device_data['txpower']
-            del device_data['rssi']
+            # Delete these keys, without error if they don't exist
+            device_data.pop('txpower', None)
+            device_data.pop('rssi', None)
         return device_data
 
+    print metadata_output
     metadata_output = map(ReplaceRssiTxPowerWithPathLossAsRank, RankedResponse(metadata_output))
     return metadata_output
 
@@ -132,39 +131,37 @@ def RankedResponse(metadata_output):
 
 ################################################################################
 
-def FetchAndStoreUrl(siteInfo, url):
-    # Index the page
-    try:
-        result = urlfetch.fetch(url, validate_certificate = True)
-    except:
-        return StoreInvalidUrl(siteInfo, url)
+def GetSiteInfoForUrl(url, force_update):
+    siteInfo = models.SiteInformation.get_by_id(url)
 
-    if result.status_code == 200:
-        encoding = GetContentEncoding(result.content)
-        final_url = GetExpandedURL(url)
-        real_final_url = result.final_url
-        if real_final_url is None:
-            real_final_url = final_url
-        return StoreUrl(siteInfo, url, final_url, real_final_url, result.content, encoding)
-    else:
-        return StoreInvalidUrl(siteInfo, url)
+    if force_update or siteInfo is None:
+        siteInfo = FetchAndStoreUrl(siteInfo, url, force_update)
+
+    return siteInfo
 
 ################################################################################
 
-def GetExpandedURL(url):
-    parsed_url = urlparse(url)
-    final_url = url
-    url_shorteners = ['t.co', 'goo.gl', 'bit.ly', 'j.mp', 'bitly.com',
-        'amzn.to', 'fb.com', 'bit.do', 'adf.ly', 'u.to', 'tinyurl.com',
-        'buzurl.com', 'yourls.org', 'qr.net']
-    url_shorteners_set = set(url_shorteners)
-    if parsed_url.netloc in url_shorteners_set and (parsed_url.path != '/' or
-        parsed_url.path != ''):
-        # expand
-        result = urlfetch.fetch(url, method = 'HEAD', follow_redirects = False)
-        if result.status_code == 301:
-            final_url = result.headers['location']
-    return final_url
+def FetchAndStoreUrl(siteInfo, url, force_update):
+    # Index the page
+    try:
+        result = urlfetch.fetch(url, follow_redirects = False, validate_certificate = True)
+    except:
+        return StoreInvalidUrl(siteInfo, url)
+
+    if result.status_code == 200: # OK
+        encoding = GetContentEncoding(result.content)
+        assert result.final_url is None
+        # TODO: Use the cache-content headers for storeUrl!
+        return StoreUrl(siteInfo, url, result.content, encoding)
+    elif result.status_code == 204: # No Content
+        # TODO: What do we return?  we want to filter this result out
+        pass
+    elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
+        final_url = result.headers['location']
+        # TODO: Most redirects should not be cached, but we should still check!
+        return GetSiteInfoForUrl(final_url, force_update)
+    else:
+        return StoreInvalidUrl(siteInfo, url)
 
 ################################################################################
 
@@ -226,7 +223,7 @@ def StoreInvalidUrl(siteInfo, url):
 
 ################################################################################
 
-def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
+def StoreUrl(siteInfo, url, content, encoding):
     title = None
     description = None
     icon = None
@@ -311,9 +308,9 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
     if icon is not None:
         if icon.startswith('./'):
             icon = icon[2:len(icon)]
-        icon = urljoin(real_final_url, icon)
+        icon = urljoin(url, icon)
     if icon is None:
-        icon = urljoin(real_final_url, '/favicon.ico')
+        icon = urljoin(url, '/favicon.ico')
     # make sure the icon exists
     try:
         result = urlfetch.fetch(icon, method = 'HEAD')
@@ -327,18 +324,12 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
                 icon = None
     except:
         s_url = url
-        s_final_url = final_url
-        s_real_final_url = real_final_url
         s_icon = icon
         if s_url is None:
             s_url = '[none]'
-        if s_final_url is None:
-            s_final_url = '[none]'
-        if s_real_final_url is None:
-            s_real_final_url = '[none]'
         if s_icon is None:
             s_icon = '[none]'
-        logging.warning('icon error with ' + s_url + ' ' + s_final_url + ' ' + s_real_final_url + ' -> ' + s_icon)
+        logging.warning('icon error with ' + s_url + ' -> ' + s_icon)
         icon = None
 
     jsonlds = []
@@ -358,15 +349,15 @@ def StoreUrl(siteInfo, url, final_url, real_final_url, content, encoding):
         jsonlds_data = None
 
     if siteInfo is None:
-        siteInfo = models.SiteInformation.get_or_insert(url, 
-            url = final_url,
+        siteInfo = models.SiteInformation.get_or_insert(url,
+            url = url,
             title = title,
             favicon_url = icon,
             description = description,
             jsonlds = jsonlds_data)
     else:
         # update the data because it already exists
-        siteInfo.url = final_url
+        siteInfo.url = url
         siteInfo.title = title
         siteInfo.favicon_url = icon
         siteInfo.description = description
@@ -390,7 +381,7 @@ def RefreshUrl(url):
         # Update the timestamp before starting the request
         siteInfo.put()
 
-    siteInfo = FetchAndStoreUrl(siteInfo, url)
+    siteInfo = FetchAndStoreUrl(siteInfo, url, force_update=False)
 
 ################################################################################
 
