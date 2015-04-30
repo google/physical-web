@@ -112,6 +112,22 @@ def testRefreshUrl(endpoint):
     print ret
 
 ################################################################################
+
+def testRedirectWithRssiTxPower(endpoint):
+    values = {
+        'objects': [
+            {
+                'url': 'http://localhost:8800/KYvLwO',
+                'rssi': -41,
+                'txpower': -22,
+                'force': True
+            },
+        ]
+    }
+
+    result = resolveScanForValues(endpoint, values)
+    print json.dumps(result, indent=4)
+
 ################################################################################
 
 if __name__ == '__main__':
@@ -121,3 +137,4 @@ if __name__ == '__main__':
     testUrlWhichRedirects(endpoint)
     testUrlShortener(endpoint)
     testRefreshUrl(endpoint)
+    testRedirectWithRssiTxPower(endpoint)

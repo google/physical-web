@@ -57,7 +57,7 @@ def BuildResponse(objects):
         siteInfo = GetSiteInfoForUrl(url, rssi, txpower, force_update)
 
         if siteInfo is None:
-            append_invalid()
+            #append_invalid()
             continue
 
         # If the cache is older than 5 minutes, queue a refresh
@@ -100,7 +100,6 @@ def BuildResponse(objects):
             device_data.pop('rssi', None)
         return device_data
 
-    print metadata_output
     metadata_output = map(ReplaceRssiTxPowerWithPathLossAsRank, RankedResponse(metadata_output))
     return metadata_output
 
@@ -163,7 +162,7 @@ def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False)
         return StoreUrl(siteInfo, url, result.content, encoding)
     elif result.status_code == 204: # No Content
         # TODO: What do we return?  we want to filter this result out
-        pass
+        return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = result.headers['location']
         # TODO: Most redirects should not be cached, but we should still check!
