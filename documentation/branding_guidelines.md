@@ -1,6 +1,6 @@
 
-![](documentation/images/logo/logo-black.png)
-# Physical Web™
+<img src="https://raw.githubusercontent.com/google/physical-web/master/documentation/images/logo/logo-black.png" width="100px">
+#Physical Web™
 
 ##Branding Guidelines
 
