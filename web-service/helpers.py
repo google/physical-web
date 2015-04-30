@@ -54,7 +54,7 @@ def BuildResponse(objects):
             append_invalid()
             continue
 
-        siteInfo = GetSiteInfoForUrl(url, force_update)
+        siteInfo = GetSiteInfoForUrl(url, rssi, txpower, force_update)
 
         if siteInfo is None:
             append_invalid()
@@ -131,20 +131,28 @@ def RankedResponse(metadata_output):
 
 ################################################################################
 
-def GetSiteInfoForUrl(url, force_update):
+def GetSiteInfoForUrl(url, rssi=None, txpower=None, force_update=False):
     siteInfo = models.SiteInformation.get_by_id(url)
 
     if force_update or siteInfo is None:
-        siteInfo = FetchAndStoreUrl(siteInfo, url, force_update)
+        siteInfo = FetchAndStoreUrl(siteInfo, url, rssi, txpower, force_update)
 
     return siteInfo
 
 ################################################################################
 
-def FetchAndStoreUrl(siteInfo, url, force_update):
+def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False):
     # Index the page
     try:
-        result = urlfetch.fetch(url, follow_redirects = False, validate_certificate = True)
+        headers = {}
+        if rssi is not None and txpower is not None:
+            headers['X-PhysicalWeb-Rssi'] = rssi
+            headers['X-PhysicalWeb-TxPower'] = txpower
+
+        result = urlfetch.fetch(url,
+                                follow_redirects=False,
+                                validate_certificate=True,
+                                headers=headers)
     except:
         return StoreInvalidUrl(siteInfo, url)
 
@@ -159,7 +167,7 @@ def FetchAndStoreUrl(siteInfo, url, force_update):
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = result.headers['location']
         # TODO: Most redirects should not be cached, but we should still check!
-        return GetSiteInfoForUrl(final_url, force_update)
+        return GetSiteInfoForUrl(final_url, rssi, txpower, force_update)
     else:
         return StoreInvalidUrl(siteInfo, url)
 
@@ -381,7 +389,7 @@ def RefreshUrl(url):
         # Update the timestamp before starting the request
         siteInfo.put()
 
-    siteInfo = FetchAndStoreUrl(siteInfo, url, force_update=False)
+    siteInfo = FetchAndStoreUrl(siteInfo, url)
 
 ################################################################################
 
