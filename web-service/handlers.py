@@ -45,8 +45,10 @@ class GooglRedirect(webapp2.RequestHandler):
         except:
             path_loss = None
 
-        if path_loss > 50:
-            self.status_code(204)
+        logging.info('GoogleRedirect with rssi:{0} and txpower:{1}'.format(rssi, txpower))
+
+        if path_loss > 40:
+            self.response.set_status(204)
             return
 
         self.redirect('http://goo.gl/{0}'.format(path))
