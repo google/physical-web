@@ -43,11 +43,13 @@ class GooglRedirect(webapp2.RequestHandler):
             txpower = float(self.request.headers['X-PhysicalWeb-TxPower'])
             path_loss = txpower - rssi;
         except:
+            rssi = None
+            txpower = None
             path_loss = None
 
         logging.info('GoogleRedirect with rssi:{0} and txpower:{1}'.format(rssi, txpower))
 
-        if path_loss > 40:
+        if path_loss > 60:
             self.response.set_status(204)
             return
 
