@@ -26,10 +26,19 @@ class Index(webapp2.RequestHandler):
     def get(self):
         self.response.out.write('')
 
+    def head(self):
+        pass
+
 ################################################################################
 
 class GoUrl(webapp2.RequestHandler):
     def get(self):
+        return self._redirect(self)
+
+    def head(self):
+        return self._redirect(self)
+
+    def _redirect(self):
         url = self.request.get('url')
         url = url.encode('ascii', 'ignore')
         self.redirect(url)
@@ -38,6 +47,12 @@ class GoUrl(webapp2.RequestHandler):
 
 class GooglRedirect(webapp2.RequestHandler):
     def get(self, path):
+        return self._redirect(path);
+
+    def head(self, path):
+        return self._redirect(path);
+
+    def _redirect(self, path):
         try:
             rssi = float(self.request.headers['X-PhysicalWeb-Rssi'])
             txpower = float(self.request.headers['X-PhysicalWeb-TxPower'])
@@ -99,6 +114,9 @@ class DemoMetadata(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
         self.response.write(json_data)
+
+    def head(self):
+        pass
 
 ################################################################################
 
