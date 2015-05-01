@@ -46,7 +46,6 @@ def BuildResponse(objects):
             })
 
         if url is None:
-            append_invalid()
             continue
 
         parsed_url = urlparse(url)
@@ -57,7 +56,6 @@ def BuildResponse(objects):
         siteInfo = GetSiteInfoForUrl(url, rssi, txpower, force_update)
 
         if siteInfo is None:
-            #append_invalid()
             continue
 
         # If the cache is older than 5 minutes, queue a refresh
@@ -133,6 +131,8 @@ def RankedResponse(metadata_output):
 # This is used to recursively look up in cache after each redirection.
 # We don't cache the redirection itself, but we always want to cache the final destination.
 def GetSiteInfoForUrl(url, rssi=None, txpower=None, force_update=False):
+    logging.info('GetSiteInfoForUrl url:{0}, rssi:{1}, txpower:{2}'.format(url, rssi, txpower))
+
     siteInfo = models.SiteInformation.get_by_id(url)
 
     if force_update or siteInfo is None:
@@ -155,8 +155,9 @@ def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False)
                                 validate_certificate=True,
                                 headers=headers)
     except:
-        return StoreInvalidUrl(siteInfo, url)
+        return None
 
+    logging.info('FetchAndStoreUrl url:{0}, status_code:{1}'.format(url, result.status_code))
     if result.status_code == 200: # OK
         encoding = GetContentEncoding(result.content)
         assert result.final_url is None
@@ -170,7 +171,7 @@ def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False)
         # TODO: Most redirects should not be cached, but we should still check!
         return GetSiteInfoForUrl(final_url, rssi, txpower, force_update)
     else:
-        return StoreInvalidUrl(siteInfo, url)
+        return None
 
 ################################################################################
 
@@ -213,22 +214,6 @@ def FlattenString(input):
     while '  ' in input:
         input = input.replace('  ', ' ');
     return input
-
-################################################################################
-
-def StoreInvalidUrl(siteInfo, url):
-    if siteInfo is None:
-        siteInfo = models.SiteInformation.get_or_insert(url,
-            url = url,
-            title = None,
-            favicon_url = None,
-            description = None,
-            jsonlds = None)
-    else:
-        # Don't update if it was already cached.
-        siteInfo.put()
-
-    return siteInfo
 
 ################################################################################
 
