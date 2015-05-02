@@ -32,12 +32,9 @@ def BuildResponse(objects):
     for obj in objects:
         url = obj.get('url', None)
         force_update = obj.get('force', False)
-        try:
-            rssi = float(obj['rssi'])
-            txpower = float(obj['txpower'])
-        except:
-            rssi = None
-            txpower = None
+        rssi = obj.get('rssi', None)
+        txpower = obj.get('txpower', None)
+        distance = ComputeDistance(rssi, txpower)
 
         def append_invalid():
             metadata_output.append({
@@ -53,7 +50,7 @@ def BuildResponse(objects):
             append_invalid()
             continue
 
-        siteInfo = GetSiteInfoForUrl(url, rssi, txpower, force_update)
+        siteInfo = GetSiteInfoForUrl(url, distance, force_update)
 
         if siteInfo is None:
             continue
@@ -76,11 +73,10 @@ def BuildResponse(objects):
             device_data['icon'] = siteInfo.favicon_url
         if siteInfo.jsonlds is not None:
             device_data['json-ld'] = json.loads(siteInfo.jsonlds)
-        device_data['rssi'] = rssi
-        device_data['txpower'] = txpower
+        device_data['distance'] = distance
         metadata_output.append(device_data)
 
-    metadata_output = map(ReplaceRssiTxPowerWithDistanceAsRank, RankedResponse(metadata_output))
+    metadata_output = map(ReplaceDistanceWithRank, RankedResponse(metadata_output))
     return metadata_output
 
 ################################################################################
@@ -100,43 +96,40 @@ def ComputeDistance(rssi, txpower):
 
 def RankedResponse(metadata_output):
     def SortByDistanceCmp(a, b):
-        dista, distb = ComputeDistance(a['rssi'], a['txpower']), ComputeDistance(b['rssi'], b['txpower'])
-        return cmp(dista, distb)
+        return cmp(a['distance'], b['distance'])
 
     metadata_output.sort(SortByDistanceCmp)
     return metadata_output
 
-def ReplaceRssiTxPowerWithDistanceAsRank(device_data):
-    distance = ComputeDistance(device_data['rssi'], device_data['txpower'])
+def ReplaceDistanceWithRank(device_data):
+    distance = device_data['distance']
     distance = distance if distance is not None else 1000
     device_data['rank'] = distance
-    device_data.pop('txpower', None)
-    device_data.pop('rssi', None)
+    device_data.pop('distance', None)
     return device_data
 
 ################################################################################
 
 # This is used to recursively look up in cache after each redirection.
 # We don't cache the redirection itself, but we always want to cache the final destination.
-def GetSiteInfoForUrl(url, rssi=None, txpower=None, force_update=False):
-    logging.info('GetSiteInfoForUrl url:{0}, rssi:{1}, txpower:{2}'.format(url, rssi, txpower))
+def GetSiteInfoForUrl(url, distance=None, force_update=False):
+    logging.info('GetSiteInfoForUrl url:{0}, distance:{1}'.format(url, distance))
 
     siteInfo = models.SiteInformation.get_by_id(url)
 
     if force_update or siteInfo is None:
-        siteInfo = FetchAndStoreUrl(siteInfo, url, rssi, txpower, force_update)
+        siteInfo = FetchAndStoreUrl(siteInfo, url, distance, force_update)
 
     return siteInfo
 
 ################################################################################
 
-def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False):
+def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     # Index the page
     try:
         headers = {}
-        if rssi is not None and txpower is not None:
-            headers['X-PhysicalWeb-Rssi'] = rssi
-            headers['X-PhysicalWeb-TxPower'] = txpower
+        if distance is not None:
+            headers['X-PhysicalWeb-Distance'] = distance
 
         result = urlfetch.fetch(url,
                                 follow_redirects=False,
@@ -158,7 +151,7 @@ def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False)
         final_url = result.headers['location']
         logging.info('FetchAndStoreUrl url:{0}, redirects_to:{1}'.format(url, final_url))
         # TODO: Most redirects should not be cached, but we should still check!
-        return GetSiteInfoForUrl(final_url, rssi, txpower, force_update)
+        return GetSiteInfoForUrl(final_url, distance, force_update)
     else:
         return None
 
