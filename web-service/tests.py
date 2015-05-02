@@ -130,16 +130,16 @@ def testRedirectWithRssiTxPower(endpoint):
     values = {
         'objects': [
             {
-                'url': endpoint + '/googl/KYvLwO',
+                'url': endpoint + '/experimental/googl/KYvLwO',
                 'rssi': -41,
                 'txpower': -22,
-                'force': True
+                'force': True,
             },
             {
-                'url': endpoint + '/googl/r8iJqW',
+                'url': endpoint + '/experimental/googl/r8iJqW',
                 'rssi': -91,
                 'txpower': -22,
-                'force': True
+                'force': True,
             },
         ]
     }
