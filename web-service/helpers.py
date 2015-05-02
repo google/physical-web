@@ -14,14 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.appengine.api import taskqueue, urlfetch
+try:
+    from google.appengine.api import taskqueue, urlfetch, app_identity
+    import models
+except Exception as e:
+    if __name__ != '__main__':
+        raise e
+    else:
+        print "Warning: import exception '{0}'".format(e)
+
 from urlparse import urljoin, urlparse
 import cgi
 import datetime
 import json
 import logging
 import lxml.etree
-import models
+
+################################################################################
+
+ENABLE_EXPERIMENTAL = app_identity.get_application_id().endswith('-dev')
 
 ################################################################################
 
@@ -128,7 +139,7 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     # Index the page
     try:
         headers = {}
-        if distance is not None:
+        if ENABLE_EXPERIMENTAL and distance is not None:
             headers['X-PhysicalWeb-Distance'] = distance
 
         result = urlfetch.fetch(url,
@@ -371,3 +382,7 @@ def GetConfig():
         return json.load(configfile)
 
 ################################################################################
+
+if __name__ == '__main__':
+    for i in range(-22,-100,-1):
+        print i, ComputeDistance(i, -22)

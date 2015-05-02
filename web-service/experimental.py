@@ -48,3 +48,6 @@ class GooglRedirect(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/experimental/googl/(.*)', GooglRedirect),
 ], debug=True)
+
+if not helpers.ENABLE_EXPERIMENTAL:
+    app = webapp2.WSGIApplication([], debug=True)
