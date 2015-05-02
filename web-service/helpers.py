@@ -80,51 +80,39 @@ def BuildResponse(objects):
         device_data['txpower'] = txpower
         metadata_output.append(device_data)
 
-
-    def ReplaceRssiTxPowerWithPathLossAsRank(device_data):
-        try:
-            path_loss = device_data['txpower'] - device_data['rssi']
-            device_data['rank'] = path_loss
-        except:
-            # This fallback case is for requests which did not include rssi
-            # and txpower. We could just not return any rank in this case,
-            # but we may have other signals to use in the future, and always
-            # returning some rank value for any request type could make client
-            # implementations easier.  So lets just return a high fake value.
-            device_data['rank'] = 1000.0
-        finally:
-            # Delete these keys, without error if they don't exist
-            device_data.pop('txpower', None)
-            device_data.pop('rssi', None)
-        return device_data
-
-    metadata_output = map(ReplaceRssiTxPowerWithPathLossAsRank, RankedResponse(metadata_output))
+    metadata_output = map(ReplaceRssiTxPowerWithDistanceAsRank, RankedResponse(metadata_output))
     return metadata_output
 
 ################################################################################
 
-def RankedResponse(metadata_output):
-    def ComputeDistance(obj):
-        try:
-            rssi = float(obj['rssi'])
-            txpower = float(obj['txpower'])
-            if rssi == 127 or rssi == 128:
-                # TODO: What does rssi 127 mean, compared to no value?
-                # According to wiki, 127 is MAX and 128 is INVALID.
-                # I think we should just leave 127 to calc distance as usual, so it sorts to the end but before the unknowns
-                return None
-            path_loss = txpower - rssi
-            distance = pow(10.0, path_loss - 41) # TODO: Took this from Hoa's patch, but should confirm accuracy
-            return distance
-        except:
+def ComputeDistance(rssi, txpower):
+    try:
+        rssi = float(rssi)
+        txpower = float(txpower)
+        if rssi == 128:
+            # According to wiki, 127 is MAX and 128 is INVALID.
             return None
+        path_loss = txpower - rssi
+        distance = pow(10.0, (path_loss - 41) / 20)
+        return distance
+    except:
+        return None
 
+def RankedResponse(metadata_output):
     def SortByDistanceCmp(a, b):
-        dista, distb = ComputeDistance(a), ComputeDistance(b)
+        dista, distb = ComputeDistance(a['rssi'], a['txpower']), ComputeDistance(b['rssi'], b['txpower'])
         return cmp(dista, distb)
 
     metadata_output.sort(SortByDistanceCmp)
     return metadata_output
+
+def ReplaceRssiTxPowerWithDistanceAsRank(device_data):
+    distance = ComputeDistance(device_data['rssi'], device_data['txpower'])
+    distance = distance if distance is not None else 1000
+    device_data['rank'] = distance
+    device_data.pop('txpower', None)
+    device_data.pop('rssi', None)
+    return device_data
 
 ################################################################################
 
@@ -168,6 +156,7 @@ def FetchAndStoreUrl(siteInfo, url, rssi=None, txpower=None, force_update=False)
         return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = result.headers['location']
+        logging.info('FetchAndStoreUrl url:{0}, redirects_to:{1}'.format(url, final_url))
         # TODO: Most redirects should not be cached, but we should still check!
         return GetSiteInfoForUrl(final_url, rssi, txpower, force_update)
     else:
