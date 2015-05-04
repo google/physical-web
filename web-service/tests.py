@@ -149,6 +149,14 @@ def testRedirectWithRssiTxPower(endpoint):
 
 ################################################################################
 
+def testGoLink(endpoint):
+    params = { 'url': 'https://github.com/google/physical-web' }
+    req = urllib2.Request(endpoint + '/go?' + urllib.urlencode(params))
+    response = urllib2.urlopen(req)
+    print response.getcode()
+
+################################################################################
+
 if __name__ == '__main__':
     endpoint = LOCAL_ENDPOINT
     testDemoData(endpoint)
@@ -158,3 +166,4 @@ if __name__ == '__main__':
     testUrlShortener(endpoint)
     testRefreshUrl(endpoint)
     testRedirectWithRssiTxPower(endpoint)
+    testGoLink(endpoint)
