@@ -67,7 +67,9 @@ def BuildResponse(objects):
             continue
 
         # If the cache is older than 5 minutes, queue a refresh
-        if siteInfo.updated_on < datetime.datetime.now() - datetime.timedelta(minutes=5):
+        updated_ago = datetime.datetime.now() - siteInfo.updated_on
+        if updated_ago > datetime.timedelta(minutes=5):
+            logging.info('Queue RefreshUrl for url: {0}, which was updated {1} ago'.format(url, updated_ago))
             # Updated time to make sure we don't request twice.
             siteInfo.put()
             # Add request to queue.
@@ -362,8 +364,8 @@ def RefreshUrl(url):
         # If we've done an update within the last 5 seconds, don't do another one.
         # This is just to prevent abuse, accidental or otherwise
         updated_ago = datetime.datetime.now() - siteInfo.updated_on
-        if datetime.timedelta(seconds=5) < updated_ago:
-            logging.info('Skipping RefreshUrl for url: {0}, was updated {1} seconds ago'.format(url, updated_ago))
+        if updated_ago < datetime.timedelta(seconds=5):
+            logging.info('Skipping RefreshUrl for url: {0}, which was updated {1} ago'.format(url, updated_ago))
             return
 
         # Update the timestamp before starting the request
