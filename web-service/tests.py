@@ -48,6 +48,19 @@ def testDemoData(endpoint):
 
 ################################################################################
 
+def testInvalidData(endpoint):
+    values = {
+        'objects': [
+            { 'url': 'http://totallybadurlthatwontwork.com/' },
+            { 'usdf': 'http://badkeys' },
+        ]
+    }
+
+    result = resolveScanForValues(endpoint, values)
+    print json.dumps(result, indent=4)
+
+################################################################################
+
 def testRssiRanking(endpoint):
     values = {
         'objects': [
@@ -112,12 +125,36 @@ def testRefreshUrl(endpoint):
     print ret
 
 ################################################################################
+
+def testRedirectWithRssiTxPower(endpoint):
+    values = {
+        'objects': [
+            {
+                'url': endpoint + '/experimental/googl/KYvLwO',
+                'rssi': -41,
+                'txpower': -22,
+                'force': True,
+            },
+            {
+                'url': endpoint + '/experimental/googl/r8iJqW',
+                'rssi': -91,
+                'txpower': -22,
+                'force': True,
+            },
+        ]
+    }
+
+    result = resolveScanForValues(endpoint, values)
+    print json.dumps(result, indent=4)
+
 ################################################################################
 
 if __name__ == '__main__':
     endpoint = LOCAL_ENDPOINT
     testDemoData(endpoint)
+    testInvalidData(endpoint)
     testRssiRanking(endpoint)
     testUrlWhichRedirects(endpoint)
     testUrlShortener(endpoint)
     testRefreshUrl(endpoint)
+    testRedirectWithRssiTxPower(endpoint)

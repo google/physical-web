@@ -36,6 +36,9 @@ handlers:
 - url: /shorten-url
   script: shortener.app
 
+- url: /experimental/.*
+  script: experimental.app
+
 - url: .*
   script: handlers.app
 
