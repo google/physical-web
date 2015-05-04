@@ -361,8 +361,9 @@ def RefreshUrl(url):
     if siteInfo is not None:
         # If we've done an update within the last 5 seconds, don't do another one.
         # This is just to prevent abuse, accidental or otherwise
-        if siteInfo.updated_on > datetime.datetime.now() - datetime.timedelta(seconds=5):
-            logging.info('Skipping RefreshUrl for url: ' + url)
+        updated_ago = datetime.datetime.now() - siteInfo.updated_on
+        if datetime.timedelta(seconds=5) < updated_ago:
+            logging.info('Skipping RefreshUrl for url: {0}, was updated {1} seconds ago'.format(url, updated_ago))
             return
 
         # Update the timestamp before starting the request
