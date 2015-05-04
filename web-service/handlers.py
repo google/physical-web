@@ -33,10 +33,10 @@ class Index(webapp2.RequestHandler):
 
 class GoUrl(webapp2.RequestHandler):
     def get(self):
-        return self._redirect(self)
+        return self._redirect()
 
     def head(self):
-        return self._redirect(self)
+        return self._redirect()
 
     def _redirect(self):
         url = self.request.get('url')
