@@ -31,9 +31,9 @@ Our sample file `physical-web-url.service` looks like this:
 ```
 
 Then `<name>` tag must be unique on your network. We are suggesting that you use the URL as your name to be safe. 
-Finally restart Avahi daemon:
+Finally reload Avahi daemon:
 ```shell
-sudo /etc/init.d/avahi-daemon restart
+sudo /etc/init.d/avahi-daemon reload
 ```
 
 That should be it. If you have the latest client on your phone, the web page http://www.mycompany.com/xyz.html will now show up in your list of nearby devices.
