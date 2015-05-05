@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import argparse
 import json
+import os
+import subprocess
 import urllib
 import urllib2
 
-################################################################################
 
-LOCAL_ENDPOINT = 'http://localhost:8080'
-REMOTE_ENDPOINT = 'http://url-caster.appspot.com'
-REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com'
+LOCAL_TEST_PORT = 9002
 
 ################################################################################
 
@@ -157,13 +157,66 @@ def testGoLink(endpoint):
 
 ################################################################################
 
+
+def main():
+    """The main routine."""
+    # Parse arguments
+    local_url = 'http://localhost:{}'.format(LOCAL_TEST_PORT)
+    parser = argparse.ArgumentParser(description='print things')
+    parser.add_argument(
+            '-e', '--endpoint', dest='endpoint', default='AUTO',
+            help='Which server to test against.\n'
+                 'AUTO:  {} (server starts automatically)\n'
+                 'LOCAL: http://localhost:8080\n'
+                 'PROD:  http://url-caster.appspot.com\n'
+                 'DEV:   http://url-caster-dev.appspot.com\n'
+                 '*:     Other values interpreted literally'
+                 .format(local_url))
+    args = parser.parse_args()
+
+    # Setup the endpoint
+    endpoint = args.endpoint
+    server = None
+    if endpoint == 'AUTO':
+        endpoint = local_url
+        print 'Starting local server...',
+        server = subprocess.Popen([
+            'dev_appserver.py', os.path.dirname(__file__),
+            '--port', str(LOCAL_TEST_PORT),
+            '--admin_port', str(LOCAL_TEST_PORT + 1),
+        ], bufsize=1, stderr=subprocess.PIPE)
+        # Wait for the server to start up
+        for line in iter(server.stderr.readline, b''):
+            if 'running at: {}'.format(local_url) in line:
+                break
+        print 'done'
+    elif endpoint == 'LOCAL':
+        endpoint = 'http://localhost:8080'
+    elif endpoint == 'PROD':
+        endpoint = 'http://url-caster.appspot.com'
+    elif endpoint == 'DEV':
+        endpoint = 'http://url-caster-dev.appspot.com'
+ 
+    # Run the tests
+    try:
+        testDemoData(endpoint)
+        testInvalidData(endpoint)
+        testRssiRanking(endpoint)
+        testUrlWhichRedirects(endpoint)
+        testUrlShortener(endpoint)
+        testRefreshUrl(endpoint)
+        testRedirectWithRssiTxPower(endpoint)
+        testGoLink(endpoint)
+    finally:
+        # Teardown the endpoint
+        if server:
+            server.kill()
+    
+    return 0  # All tests passed because they can't really fail right now...
+
+
 if __name__ == '__main__':
-    endpoint = LOCAL_ENDPOINT
-    testDemoData(endpoint)
-    testInvalidData(endpoint)
-    testRssiRanking(endpoint)
-    testUrlWhichRedirects(endpoint)
-    testUrlShortener(endpoint)
-    testRefreshUrl(endpoint)
-    testRedirectWithRssiTxPower(endpoint)
-    testGoLink(endpoint)
+    try:
+        exit(main())
+    except KeyboardInterrupt:
+        sys.stderr.write('Exiting due to KeyboardInterrupt!\n')
