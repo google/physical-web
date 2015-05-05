@@ -70,8 +70,6 @@ def BuildResponse(objects):
         updated_ago = datetime.datetime.now() - siteInfo.updated_on
         if updated_ago > datetime.timedelta(minutes=5):
             logging.info('Queue RefreshUrl for url: {0}, which was updated {1} ago'.format(url, updated_ago))
-            # Updated time to make sure we don't request twice.
-            siteInfo.put()
             # Add request to queue.
             taskqueue.add(url='/refresh-url', params={'url': url})
 
@@ -368,7 +366,7 @@ def RefreshUrl(url):
             logging.info('Skipping RefreshUrl for url: {0}, which was updated {1} ago'.format(url, updated_ago))
             return
 
-        # Update the timestamp before starting the request
+        # Update the timestamp before starting the request, to make sure we do not request twice.
         siteInfo.put()
 
     siteInfo = FetchAndStoreUrl(siteInfo, url)
