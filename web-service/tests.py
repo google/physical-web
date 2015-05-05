@@ -16,153 +16,207 @@
 #
 import argparse
 import json
+import nose
 import os
 import subprocess
+import unittest
 import urllib
 import urllib2
 
 
 LOCAL_TEST_PORT = 9002
 
-################################################################################
 
-def resolveScanForValues(endpoint, values):
-    req = urllib2.Request(endpoint + '/resolve-scan', json.dumps(values))
-    response = urllib2.urlopen(req)
-    return json.loads(response.read())
+class PwsTest(unittest.TestCase):
+    _HOST = None  # Set in main()
 
-################################################################################
+    @property
+    def HOST(self):
+        PwsTest._HOST
 
-def testDemoData(endpoint):
-    values = {
-        'objects': [
-            { 'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html' },
-            { 'url': 'http://benfry.com/distellamap/' },
-            { 'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe' },
-            { 'url': 'http://sfmoma.org' }
-        ]
-    }
+    def request(self, params=None, payload=None):
+        """
+        Makes an http request to our endpoint
 
-    result = resolveScanForValues(endpoint, values)
-    print json.dumps(result, indent=4)
+        If payload is None, this performs a GET request.
+        Otherwise, the payload is json-serialized and a POST request is sent.
 
-################################################################################
+        """
+        JSON = getattr(self, 'JSON', False)
+        url = '{}/{}'.format(self.HOST, self.PATH)
+        if params:
+            url += '?{}'.format(urllib.urlencode(params))
+        args = [url]
+        if payload is not None:
+            args.append(json.dumps(payload))
+        req = urllib2.Request(*args)
+        response = urllib2.urlopen(req)
+        data = response.read()
+        if JSON:
+            data = json.loads(data)
+            # Print so we have something nice to look at when we fail
+            print json.dumps(data, indent=2)
+        else:
+            print data
+        return response.code, data
 
-def testInvalidData(endpoint):
-    values = {
-        'objects': [
-            { 'url': 'http://totallybadurlthatwontwork.com/' },
-            { 'usdf': 'http://badkeys' },
-        ]
-    }
 
-    result = resolveScanForValues(endpoint, values)
-    print json.dumps(result, indent=4)
+class TestResolveScan(PwsTest):
+    PATH = 'resolve-scan'
+    JSON = True
 
-################################################################################
+    def call(self, values):
+        return self.request(payload=values)[1]
 
-def testRssiRanking(endpoint):
-    values = {
-        'objects': [
-            {
-                'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html',
-                'rssi': -75,
-                'txpower': -22,
-            },
-            {
-                'url': 'http://benfry.com/distellamap/',
-                'rssi': -95,
-                'txpower': -63,
-            },
-            {
-                'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe',
-                'rssi': -61,
-                'txpower': -22,
-            },
-            {
-                'url': 'http://sfmoma.org',
-                'rssi': -74,
-                'txpower': -22,
-            },
-        ]
-    }
+    def test_demo_data(self):
+        result = self.call({
+            'objects': [
+                { 'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html' },
+                { 'url': 'http://benfry.com/distellamap/' },
+                { 'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe' },
+                { 'url': 'http://sfmoma.org' }
+            ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 4)
+        self.assertIn('description', result['metadata'][0])
+        self.assertIn('title', result['metadata'][0])
+        self.assertIn('url', result['metadata'][0])
+        self.assertIn('rank', result['metadata'][0])
+        self.assertIn('id', result['metadata'][0])
+        self.assertIn('icon', result['metadata'][0])
 
-    result = resolveScanForValues(endpoint, values)
-    print json.dumps(result, indent=4)
+    def test_invalid_data(self):
+        result = self.call({
+            'objects': [
+                { 'url': 'http://totallybadurlthatwontwork.com/' },
+                { 'usdf': 'http://badkeys' },
+            ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 0)
 
-################################################################################
 
-def testUrlWhichRedirects(endpoint):
-    values = {
-        'objects': [
-            {
-                'url': 'http://goo.gl/KYvLwO',
-            },
-        ]
-    }
+    def test_rssi_ranking(self):
+        result = self.call({
+            'objects': [
+                {
+                    'url': 'http://www.caltrain.com/schedules/realtime/stations/mountainviewstation-mobile.html',
+                    'rssi': -75,
+                    'txpower': -22,
+                },
+                {
+                    'url': 'http://benfry.com/distellamap/',
+                    'rssi': -95,
+                    'txpower': -63,
+                },
+                {
+                    'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe',
+                    'rssi': -61,
+                    'txpower': -22,
+                },
+                {
+                    'url': 'http://sfmoma.org',
+                    'rssi': -74,
+                    'txpower': -22,
+                },
+            ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 4)
+        self.assertEqual(result['metadata'][0]['id'],
+                         'http://benfry.com/distellamap/')
+        self.assertEqual(result['metadata'][1]['id'],
+                         'http://en.wikipedia.org/wiki/'
+                         'Le_D%C3%A9jeuner_sur_l%E2%80%99herbe')
+        self.assertEqual(result['metadata'][2]['id'],
+                         'http://sfmoma.org')
+        self.assertEqual(result['metadata'][3]['id'],
+                         'http://www.caltrain.com/schedules/realtime/'
+                         'stations/mountainviewstation-mobile.html')
 
-    result = resolveScanForValues(endpoint, values)
-    print json.dumps(result, indent=4)
+    def test_url_which_redirects(self):
+        result = self.call({
+            'objects': [
+                {
+                    'url': 'http://goo.gl/KYvLwO',
+                },
+            ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 1)
+        self.assertEqual(result['metadata'][0]['url'],
+                         'https://github.com/Google/physical-web')
 
-################################################################################
+    def test_redirect_with_rssi_tx_power(self):
+        result = self.call({
+            'objects': [
+                {
+                    'url': '{}/experimental/googl/KYvLwO'.format(self.HOST),
+                    'rssi': -41,
+                    'txpower': -22,
+                    'force': True,
+                },
+                {
+                    'url': '{}/experimental/googl/r8iJqW'.format(self.HOST),
+                    'rssi': -91,
+                    'txpower': -22,
+                    'force': True,
+                },
+            ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 1)
+        self.assertEqual(result['metadata'][0]['url'],
+                         'https://github.com/Google/physical-web')
 
-def testUrlShortener(endpoint):
-    values = {
-        'longUrl': 'http://www.github.com/Google/physical-web'
-    }
-    req = urllib2.Request(endpoint + '/shorten-url', json.dumps(values))
-    response = urllib2.urlopen(req)
-    ret = json.loads(response.read())
-    print ret
 
-################################################################################
+class TestShortenUrl(PwsTest):
+    PATH = 'shorten-url'
+    JSON = True
 
-def testRefreshUrl(endpoint):
-    params = { 'url': 'https://github.com/google/physical-web' }
-    req = urllib2.Request(endpoint + '/refresh-url?' + urllib.urlencode(params), '')
-    response = urllib2.urlopen(req)
-    ret = response.read()
-    print ret
+    def call(self, values):
+        return self.request(payload=values)[1]
 
-################################################################################
+    def test_github_url(self):
+        result = self.call({
+            'longUrl': 'http://www.github.com/Google/physical-web'
+        })
+        self.assertIn('kind', result)
+        self.assertIn('id', result)
+        self.assertIn('longUrl', result)
+        self.assertTrue(result['id'].startswith('http://goo.gl/'))
 
-def testRedirectWithRssiTxPower(endpoint):
-    values = {
-        'objects': [
-            {
-                'url': endpoint + '/experimental/googl/KYvLwO',
-                'rssi': -41,
-                'txpower': -22,
-                'force': True,
-            },
-            {
-                'url': endpoint + '/experimental/googl/r8iJqW',
-                'rssi': -91,
-                'txpower': -22,
-                'force': True,
-            },
-        ]
-    }
 
-    result = resolveScanForValues(endpoint, values)
-    print json.dumps(result, indent=4)
+class RefreshUrl(PwsTest):
+    PATH = 'refresh-url'
 
-################################################################################
+    def call(self, url):
+        params = {'url': url}
+        return self.request(params=params, payload='')[1]
 
-def testGoLink(endpoint):
-    params = { 'url': 'https://github.com/google/physical-web' }
-    req = urllib2.Request(endpoint + '/go?' + urllib.urlencode(params))
-    response = urllib2.urlopen(req)
-    print response.getcode()
+    def test_github_url(self):
+        result = self.call('https://github.com/google/physical-web')
+        self.assertEqual(result, '')
 
-################################################################################
+
+class TestGo(PwsTest):
+    PATH = 'go'
+
+    def call(self, url):
+        params = {'url': url}
+        return self.request(params=params)[0]
+
+    def test_github_url(self):
+        result = self.call('https://github.com/google/physical-web')
+        self.assertEqual(result, 200)
 
 
 def main():
     """The main routine."""
     # Parse arguments
     local_url = 'http://localhost:{}'.format(LOCAL_TEST_PORT)
-    parser = argparse.ArgumentParser(description='print things')
+    parser = argparse.ArgumentParser(description='Run web-service tests')
     parser.add_argument(
             '-e', '--endpoint', dest='endpoint', default='AUTO',
             help='Which server to test against.\n'
@@ -196,23 +250,18 @@ def main():
         endpoint = 'http://url-caster.appspot.com'
     elif endpoint == 'DEV':
         endpoint = 'http://url-caster-dev.appspot.com'
+    PwsTest.HOST = endpoint
  
     # Run the tests
     try:
-        testDemoData(endpoint)
-        testInvalidData(endpoint)
-        testRssiRanking(endpoint)
-        testUrlWhichRedirects(endpoint)
-        testUrlShortener(endpoint)
-        testRefreshUrl(endpoint)
-        testRedirectWithRssiTxPower(endpoint)
-        testGoLink(endpoint)
+        nose.runmodule()
     finally:
         # Teardown the endpoint
         if server:
             server.kill()
     
-    return 0  # All tests passed because they can't really fail right now...
+    # We should never get here since nose.runmodule will call exit
+    return 0
 
 
 if __name__ == '__main__':
