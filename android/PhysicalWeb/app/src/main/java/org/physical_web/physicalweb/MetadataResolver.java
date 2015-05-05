@@ -45,9 +45,9 @@ import java.util.Collection;
 
 class MetadataResolver {
   private static final String TAG = "MetadataResolver";
-  private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
-  //private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
-  private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
+  private static final String METADATA_URL = "https://url-caster.appspot.com/resolve-scan";
+  //private static final String METADATA_URL = "https://url-caster-dev.appspot.com/resolve-scan";
+  private static final String DEMO_METADATA_URL = "https://url-caster.appspot.com/demo";
   private static final int UNDEFINED_SCORE = -1;
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
