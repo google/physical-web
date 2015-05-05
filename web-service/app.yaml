@@ -24,20 +24,25 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+  secure: always
 
 - url: /webui
   static_files: static/index.html
   upload: static/index\.html
+  secure: always
 
 - url: /webui.raw
   static_files: static/raw.html
   upload: static/index\.html
+  secure: always
 
 - url: /shorten-url
   script: shortener.app
+  secure: always
 
 - url: .*
   script: handlers.app
+  secure: always
 
 libraries:
 - name: webapp2

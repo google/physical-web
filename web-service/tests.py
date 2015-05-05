@@ -21,8 +21,8 @@ import urllib2
 ################################################################################
 
 LOCAL_ENDPOINT = 'http://localhost:8080'
-REMOTE_ENDPOINT = 'http://url-caster.appspot.com'
-REMOTE_DEV_ENDPOINT = 'http://url-caster-dev.appspot.com'
+REMOTE_ENDPOINT = 'https://url-caster.appspot.com'
+REMOTE_DEV_ENDPOINT = 'https://url-caster-dev.appspot.com'
 
 ################################################################################
 
