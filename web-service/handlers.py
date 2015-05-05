@@ -26,8 +26,19 @@ class Index(webapp2.RequestHandler):
     def get(self):
         self.response.out.write('')
 
+    def head(self):
+        pass
+
+################################################################################
+
 class GoUrl(webapp2.RequestHandler):
     def get(self):
+        return self._redirect()
+
+    def head(self):
+        return self._redirect()
+
+    def _redirect(self):
         url = self.request.get('url')
         url = url.encode('ascii', 'ignore')
         self.redirect(url)
@@ -76,6 +87,9 @@ class DemoMetadata(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
         self.response.write(json_data)
+
+    def head(self):
+        pass
 
 ################################################################################
 

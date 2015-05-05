@@ -1,5 +1,6 @@
-The Physical Web
-====
+#The Physical Web#
+
+<img align="left" src="https://raw.githubusercontent.com/google/physical-web/master/documentation/images/logo/logo-black.png" hspace="15" width="70px" style="float: left">
 The Physical Web is not shipping yet nor is it a Google product. This is an early-stage experimental project and we're developing it out in the open as we do all things related to the web. This should only be of interest to developers looking to test out this feature and provide us feedback.
 
 The Physical Web is an effort to extend the core superpower of the web - the URL - to everyday physical objects. Our core premise is that you should be able to walk up to any “smart” physical object (e.g. a vending machine, a poster, a toy, a bus stop, a rental car) and interact with it without first downloading an app. The user experience of smart objects should be much like links in a web browser: i.e., just tap and use.
@@ -28,7 +29,12 @@ The Physical Web must be an open standard that everyone can use. This can’t be
 * [Technical Overview](https://github.com/google/physical-web/blob/master/documentation/technical_overview.md)
 * [URI Beacon Spec](https://github.com/google/uribeacon) Partner repo with code/examples for the beacons themselves
 * [mDNS support](https://github.com/google/physical-web/blob/master/documentation/mDNS_Support.md) How to use mDNS instead of Bluetooth to broadcast URLs
+* [Branding Guildelines](documentation/branding_guidelines.md)
 * [SSDP support](documentation/ssdp_support.md) How to use SSDP instead of Bluetooth to broadcast URLs
+* Different Physical Web clients
+    * [Android](android)  
+    * [IOS](ios)  
+    * [Node](nodejs)  This is a minimal client meant for building utilities
 
 ##Beacons
 Our most common request is how to get [UriBeacons](http://uribeacon.org). 

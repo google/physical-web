@@ -448,7 +448,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
    */
   private void updateSummaryNotification() {
     int numNearbyBeacons = mSortedDevices.size();
-    String contentTitle = String.valueOf(numNearbyBeacons) + " ";
+    String contentTitle = String.valueOf(numNearbyBeacons);
     Resources resources = getResources();
     contentTitle += " " + resources.getQuantityString(R.plurals.numFoundBeacons, numNearbyBeacons, numNearbyBeacons);
     String contentText = getString(R.string.summary_notification_pull_down);
