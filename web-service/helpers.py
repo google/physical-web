@@ -161,6 +161,9 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = result.headers['location']
         logging.info('FetchAndStoreUrl url:{0}, redirects_to:{1}'.format(url, final_url))
+        if siteInfo is not None:
+            logging.info('Removing Stale Cache for url:{0}'.format(url))
+            siteInfo.key.delete()
         # TODO: Most redirects should not be cached, but we should still check!
         return GetSiteInfoForUrl(final_url, distance, force_update)
     else:
@@ -369,7 +372,7 @@ def RefreshUrl(url):
         # Update the timestamp before starting the request, to make sure we do not request twice.
         siteInfo.put()
 
-    siteInfo = FetchAndStoreUrl(siteInfo, url)
+    FetchAndStoreUrl(siteInfo, url, force_update=True)
 
 ################################################################################
 
