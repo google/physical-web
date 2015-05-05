@@ -52,12 +52,14 @@ limitations under the License.
   </head>
   <body>
     <h2>/resolve-scan</h2>
+    <form>
     <p>
-    <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com">
+    <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com" required>
     </p>
     <div>
     <button id="resolveScanButton">Run</button>
     </div>
+    </form>
     <p>
     <b id="response-header" style="display: none;">Response</b>
     <pre id="resolveResponse" style="word-wrap: break-word;"></pre>
