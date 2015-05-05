@@ -31,7 +31,7 @@ handlers:
 
 - url: /webui.raw
   static_files: static/raw.html
-  upload: static/index\.html
+  upload: static/raw\.html
 
 - url: /shorten-url
   script: shortener.app
