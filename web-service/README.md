@@ -36,5 +36,5 @@ You can run your own Service by taking a look at the [source code](https://githu
 
 If you are building one of our sample apps and would like to use your own Physical Web Service, you can change the endpoint by modifying:
 
-* Android: Update the `METADATA_URL` in [`MetadataResolver.java`](https://github.com/google/physical-web/blob/master/android/PhysicalWeb/app/src/main/java/org/physical_web/physicalweb/MetadataResolver.java) and `proxy_go_link_base_url` in [`strings.xml`](https://github.com/google/physical-web/blob/0bcd438bb3f6f7ef7ff593fd4fed987daa07ed37/android/PhysicalWeb/app/src/main/res/values/strings.xml)
-* iOS: Update the `METADATA_SERVER_HOSTNAME` in [`PWMetadataRequest.h`](https://github.com/google/physical-web/blob/04f88137a67488b17e30beefb1ffcafe7242c7f2/ios/PhyWeb/Backend/PWMetadataRequest.h)
+* Android: Update `METADATA_URL` in [`MetadataResolver.java`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/android/PhysicalWeb/app/src/main/java/org/physical_web/physicalweb/MetadataResolver.java#L48) and `proxy_go_link_base_url` in [`strings.xml`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/android/PhysicalWeb/app/src/main/res/values/strings.xml#L42)
+* iOS: Update `PHYSICALWEB_SERVER_HOSTNAME` in [`PWMetadataRequest.m`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/ios/PhyWeb/Backend/PWMetadataRequest.m#L22)
