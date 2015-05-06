@@ -221,9 +221,27 @@ def StoreUrl(siteInfo, url, content, encoding):
     # parse the content
     parser = lxml.etree.HTMLParser(encoding=encoding)
     htmltree = lxml.etree.fromstring(content, parser)
-    value = htmltree.xpath('//head//title/text()');
+
+    # Try to find web manifest <link rel="manifest" href="...">.
+    value = htmltree.xpath("//link[@rel='manifest']/attribute::href")
     if (len(value) > 0):
-        title = value[0]
+        # Fetch web manifest.
+        manifestUrl = value[0]
+        if "://" not in manifestUrl:
+            manifestUrl = urljoin(url, manifestUrl)
+        try:
+            result = urlfetch.fetch(manifestUrl)
+            if result.status_code == 200:
+                manifestData = json.loads(result.content)
+                title = manifestData['name']
+        except:
+            pass
+
+    # Try to use <title>...</title>.
+    if title is None:
+        value = htmltree.xpath('//head//title/text()');
+        if (len(value) > 0):
+            title = value[0]
     if title is None:
         value = htmltree.xpath("//head//meta[@property='og:title']/attribute::content");
         if (len(value) > 0):
