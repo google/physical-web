@@ -38,13 +38,17 @@ limitations under the License.
     };
 
     window.onload = function() {
-      var resolveScanButton = document.getElementById("resolveScanButton");
+      var form = document.getElementById("resolveForm");
       var resolveResponseOutput = document.getElementById("resolveResponse");
-      resolveScanButton.onclick = function() {
-        resolveScan(function(data) {
-          document.querySelector("#response-header").style.display = "inline";
-          resolveResponseOutput.innerText = JSON.stringify(data, undefined, 2);
-        });
+      var responseHeader = document.querySelector("#response-header");
+      form.onsubmit = function(event) {
+        if (form.reportValidity()) {
+          resolveScan(function(data) {
+            responseHeader.style.display = "inline";
+            resolveResponseOutput.innerText = JSON.stringify(data, undefined, 2);
+          });
+        }
+        event.preventDefault();
       };
     };
     </script>
@@ -52,12 +56,12 @@ limitations under the License.
   </head>
   <body>
     <h2>/resolve-scan</h2>
-    <form>
+    <form id="resolveForm">
     <p>
-    <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com" required>
+    <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com" required pattern="https?://.+">
     </p>
     <div>
-    <button id="resolveScanButton">Run</button>
+    <button>Run</button>
     </div>
     </form>
     <p>
