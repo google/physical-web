@@ -83,3 +83,12 @@ Physical Web Service, you can change the endpoint by modifying:
   [`strings.xml`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/android/PhysicalWeb/app/src/main/res/values/strings.xml#L42)
 * iOS: Update `PHYSICALWEB_SERVER_HOSTNAME` in
   [`PWMetadataRequest.m`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/ios/PhyWeb/Backend/PWMetadataRequest.m#L22)
+
+
+## How to run the Physical Web Service tests
+
+1. Make sure you have created config.SECRET.json from the config.SAMPLE.json
+   file.
+2. Install nose `pip install nose`
+3. Run ./tests.py -h to see help
+4. Run ./tests.py to test the development server
