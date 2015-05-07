@@ -18,7 +18,9 @@ package org.physical_web.physicalweb;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Base64;
 import android.util.Log;
 
 import com.android.volley.RequestQueue;
@@ -48,6 +50,7 @@ class MetadataResolver {
   private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
   //private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
   private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
+  private static final String BASE64_PREFIX = "base64,";
   private static final int UNDEFINED_SCORE = -1;
   private static RequestQueue mRequestQueue;
   private static boolean mIsInitialized = false;
@@ -71,8 +74,6 @@ class MetadataResolver {
     public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
 
     public void onDemoUrlMetadataReceived(String url, UrlMetadata urlMetadata);
-
-    public void onUrlMetadataIconReceived();
   }
 
 
@@ -184,7 +185,7 @@ class MetadataResolver {
                   String title = "";
                   String url = "";
                   String description = "";
-                  String iconUrl = "/favicon.ico";
+                  Bitmap icon = null;
                   String id = jsonUrlMetadata.getString("id");
                   float score = UNDEFINED_SCORE;
 
@@ -198,22 +199,13 @@ class MetadataResolver {
                     description = jsonUrlMetadata.getString("description");
                   }
                   if (jsonUrlMetadata.has("icon")) {
-                    // We might need to do some magic here.
-                    iconUrl = jsonUrlMetadata.getString("icon");
+                    String dataUrl = jsonUrlMetadata.getString("icon");
+                    int contentStartIndex = dataUrl.indexOf(BASE64_PREFIX) + BASE64_PREFIX.length();
+                    byte[] decodedByte = Base64.decode(dataUrl.substring(contentStartIndex), 0 /* flags */);
+                    icon = BitmapFactory.decodeByteArray(decodedByte, 0 /* offset */, decodedByte.length);
                   }
                   if (jsonUrlMetadata.has("score")) {
                     score = Float.parseFloat(jsonUrlMetadata.getString("score"));
-                  }
-
-                  // TODO: Eliminate this fallback since we expect the server to always return an icon.
-                  // Provisions for a favicon specified as a relative URL.
-                  if (!iconUrl.startsWith("http")) {
-                    // Lets just assume we are dealing with a relative path.
-                    Uri fullUri = Uri.parse(url);
-                    Uri.Builder builder = fullUri.buildUpon();
-                    // Append the default favicon path to the URL.
-                    builder.path(iconUrl);
-                    iconUrl = builder.toString();
                   }
 
                   // Create the metadata object
@@ -221,11 +213,8 @@ class MetadataResolver {
                   urlMetadata.title = title;
                   urlMetadata.description = description;
                   urlMetadata.siteUrl = url;
-                  urlMetadata.iconUrl = iconUrl;
+                  urlMetadata.icon = icon;
                   urlMetadata.score = score;
-
-                  // Kick off the icon download
-                  downloadIcon(urlMetadata);
 
                   if (isDemoRequest) {
                     mMetadataResolverCallback.onDemoUrlMetadataReceived(id, urlMetadata);
@@ -262,22 +251,6 @@ class MetadataResolver {
     return true;
   }
 
-  /**
-   * Asynchronously download the image for the url favicon.
-   *
-   * @param urlMetadata The metadata for the given url
-   */
-  private static void downloadIcon(final UrlMetadata urlMetadata) {
-    ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, new Response.Listener<Bitmap>() {
-      @Override
-      public void onResponse(Bitmap response) {
-        urlMetadata.icon = response;
-        mMetadataResolverCallback.onUrlMetadataIconReceived();
-      }
-    }, 0, 0, null, null);
-    mRequestQueue.add(imageRequest);
-  }
-
   public static String createUrlProxyGoLink(String url) {
     try {
       url = mContext.getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
@@ -289,8 +262,8 @@ class MetadataResolver {
 
   /**
    * A container class for a url's fetched metadata.
-   * The metadata consists of the title, site url, description,
-   * iconUrl and the icon (or favicon).
+   * The metadata consists of the title, site url, description, and the icon
+   * (or favicon).
    * This data is scraped via a server that receives a url
    * and returns a json blob.
    */
@@ -298,7 +271,6 @@ class MetadataResolver {
     public String title;
     public String siteUrl;
     public String description;
-    public String iconUrl;
     public Bitmap icon;
     public float score;
 

@@ -272,11 +272,6 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   @Override
-  public void onUrlMetadataIconReceived() {
-    updateNotifications();
-  }
-
-  @Override
   public void onMdnsUrlFound(String url) {
     onLanUrlFound(url);
   }

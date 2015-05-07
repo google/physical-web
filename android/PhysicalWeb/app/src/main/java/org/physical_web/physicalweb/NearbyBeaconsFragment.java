@@ -241,11 +241,6 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   @Override
-  public void onUrlMetadataIconReceived() {
-    mNearbyDeviceAdapter.notifyDataSetChanged();
-  }
-
-  @Override
   public void onDemoUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
     // Update the hash table
     mUrlToUrlMetadata.put(url, urlMetadata);
