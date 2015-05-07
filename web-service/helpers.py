@@ -150,7 +150,7 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
         return None
 
     logging.info('FetchAndStoreUrl url:{0}, status_code:{1}'.format(url, result.status_code))
-    if result.status_code == 200: # OK
+    if result.status_code == 200 and result.content: # OK
         encoding = GetContentEncoding(result.content)
         assert result.final_url is None
         # TODO: Use the cache-content headers for storeUrl!
