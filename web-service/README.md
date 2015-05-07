@@ -1,9 +1,9 @@
 # Physical Web Service
 
-This is an App Engine project which implements a sample Physical Web "metadata"
+This is an App Engine project which implements a sample Physical Web metadata
 service.  The use of a Physical Web Service is not necessary, but remarkably
-useful.  It helps clients resolve URLs in a safer and more efficient manner
-(read below for more details).
+useful.  It helps clients resolve URL's in a safer and more efficient manner.  
+Read below for more details.
 
 This particular implementation is made to work with the sample Physical Web
 applications in this repo.
@@ -19,23 +19,23 @@ Any app/device can read these UriBeacon packets and do with them whatever they
 wish.  We have provided some example apps (and published them to app stores) to
 make it easier for you to try out the Physical Web.
 
-Our app of course wants to provide a beautiful UX, with rich information about
-the URLs it finds, but even more so, it wants to protect the user and his/her
-privacy from the many potential misuses of the physical web.  We hope every
-other app will do so, also!
+Our app of course wants to provide a beautiful user experience, with rich 
+information about the URL's it finds. Even more so, it wants to protect the 
+user and his/her privacy from the many potential misuses of the physical web.  
+We hope every other app will do so, also.
 
 One really nice property of the Physical Web is that UriBeacons cannot
-physically detect when clients scan it (and so cannot track passers-by).
-However, the web servers actually backing these URLs can of course track all
-requests made for them (as per usual on the web).  So, our app must be
-extremely careful with how it uses the URLs it finds.
+physically detect when clients scan it and so cannot track passers-by.
+However, the web servers backing these URL's can track all requests to them 
+(as is usual on the web).  So our app must be extremely careful with how it 
+uses the URL's it finds.
 
-Yet, showing raw URLs alone is not descriptive enough for most users, and is
-basically useless to anyone when they are obfuscated strings coming from an URL
-shortener (which is common due to the URL length limit).
+Yet, showing raw URL's alone is not descriptive enough for most users, and is
+basically useless to anyone when those URL's are obfuscated strings coming from 
+a URL shortener (which is common due to the URL length limit).
 
-We would like to grab a nice Title / Icon from the actual content of the page
--- but that requires making a request for the page -- which may potentially be
+We would like to grab a nice Title / Icon from the actual content of the page.  
+But that requires making a request for the page, which may potentially be
 abused by malicious parties.  This is the crux of the issue, which we have
 solved by going through a trusted intermediary.  We call this a Physical Web
 Service.
@@ -44,17 +44,17 @@ Service.
 ## What does a Physical Web Service do?
 
 At the very simplest, it fetches, parses, and presents the content of UriBeacon
-URLs on behalf of a client, but without using the client's identity in any way.
+URL's on behalf of a client, but without using the client's identity in any way.
 It's a middleman added for safety and efficiency.
 
 Unlike a UriBeacon, a Physical Web Service is not a core part of the Physical
-Web, is not mandatory, and does not have a specific protocol which must be
+Web, is not mandatory, and does not have a specific protocol that must be
 followed (though perhaps an ad-hoc format will arise one day).  It is an
 auxiliary solution to solve a fundamental problem for Physical Web client
 software (see above).
 
 Over time, we've found this to be an elegant way to solve a bunch of other
-problems for us as well:
+problems for us as well by making the Physical Web:
 * Faster, because we offload the heavy task of content parsing to the server.
 * Cheaper, because we offload the network request costs to the server.
 * Safer, because we can introduce safe-search filtering of inappropriate
