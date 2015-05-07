@@ -233,7 +233,10 @@ def StoreUrl(siteInfo, url, content, encoding):
             result = urlfetch.fetch(manifestUrl)
             if result.status_code == 200:
                 manifestData = json.loads(result.content)
-                title = manifestData['name']
+                if 'short_name' in manifestData:
+                    title = manifestData['short_name']
+                else:
+                    title = manifestData['name']
         except:
             pass
 
