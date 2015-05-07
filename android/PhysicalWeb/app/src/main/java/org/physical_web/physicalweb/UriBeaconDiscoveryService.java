@@ -304,8 +304,8 @@ public class UriBeaconDiscoveryService extends Service
       mUrlToUrlMetadata.put(url, null);
       mDeviceAddressToUrl.put(mockAddress, url);
       mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
-      PwsClient.getInstance(this).findUrlMetadata(UriBeaconDiscoveryService.this, url,
-                                                  mockTxPower, mockRssi);
+      PwsClient.getInstance(this).findUrlMetadata(url, mockTxPower, mockRssi,
+                                                  UriBeaconDiscoveryService.this, TAG);
     }
   }
 
@@ -352,8 +352,8 @@ public class UriBeaconDiscoveryService extends Service
             mPublicUrls.add(url);
             mDeviceAddressToUrl.put(address, url);
             // Fetch the metadata for this url
-            PwsClient.getInstance(this).findUrlMetadata(UriBeaconDiscoveryService.this,
-                                                        url, txPower, rssi);
+            PwsClient.getInstance(this).findUrlMetadata(url, txPower, rssi,
+                                                        UriBeaconDiscoveryService.this, TAG);
           }
           // Update the ranging data
           mRegionResolver.onUpdate(address, rssi, txPower);

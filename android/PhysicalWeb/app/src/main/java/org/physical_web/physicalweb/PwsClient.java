@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,6 +49,7 @@ class PwsClient {
   //private static final String DEV_URL = "http://url-caster-dev.appspot.com";
   private static final String RESOLVE_SCAN_PATH = "resolve-scan";
   private static final String DEMO_RESOLVE_SCAN_PATH = "demo";
+  private static final String SHORTEN_URL_PATH = "shorten-url";
   private static final int UNDEFINED_SCORE = -1;
   private RequestQueue mRequestQueue;
   private Context mContext;
@@ -73,8 +75,12 @@ class PwsClient {
 
   public interface ResolveScanCallback {
     public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
-
     public void onUrlMetadataIconReceived();
+  }
+
+  public interface ShortenUrlCallback {
+    public void onUrlShortened(String shortUrl);
+    public void onError(String longUrl);
   }
 
 
@@ -86,25 +92,73 @@ class PwsClient {
     return PROD_URL + "/" + path;
   }
 
-  public void findUrlMetadata(ResolveScanCallback resolveScanCallback,
-                              String url,
+  public void shortenUrl(final String longUrl,
+                         final ShortenUrlCallback shortenUrlCallback,
+                         final String tag) {
+    // Create the json payload
+    JSONObject jsonObject = new JSONObject();
+    try {
+      jsonObject.put("longUrl", longUrl);
+    } catch (JSONException e) {
+      Log.e(TAG, "JSONException: " + e.toString());
+      shortenUrlCallback.onError(longUrl);
+      return;
+    }
+
+    // Create the http request
+    Request request = new JsonObjectRequest(
+        constructUrlStr(SHORTEN_URL_PATH),
+        jsonObject,
+        new Response.Listener<JSONObject>() {
+          @Override
+          public void onResponse(JSONObject jsonResponse) {
+            String shortUrl;
+            try {
+              shortUrl = jsonResponse.getString("id");
+            } catch (JSONException e) {
+              Log.e(TAG, "JSONException: " + e.toString());
+              shortenUrlCallback.onError(longUrl);
+              return;
+            }
+            shortenUrlCallback.onUrlShortened(shortUrl);
+          }
+        },
+        new Response.ErrorListener() {
+          @Override
+          public void onErrorResponse(VolleyError volleyError) {
+            Log.i(TAG, "VolleyError: " + volleyError.toString());
+            shortenUrlCallback.onError(longUrl);
+          }
+        }
+    );
+    request.setTag(tag);
+
+    // Send off the request
+    mRequestQueue.add(request);
+  }
+
+  public void findUrlMetadata(String url,
                               int txPower,
-                              int rssi) {
+                              int rssi,
+                              ResolveScanCallback resolveScanCallback,
+                              final String tag) {
     // Create the json request object
     JSONObject jsonObj = createUrlMetadataRequestObject(url, txPower, rssi);
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj, false, resolveScanCallback);
+    Request request = createUrlMetadataRequest(jsonObj, false, resolveScanCallback);
+    request.setTag(tag);
     // Queue the request
-    mRequestQueue.add(jsObjRequest);
+    mRequestQueue.add(request);
   }
 
-  public void findDemoUrlMetadata(ResolveScanCallback resolveScanCallback) {
+  public void findDemoUrlMetadata(ResolveScanCallback resolveScanCallback, final String tag) {
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(null, true, resolveScanCallback);
+    Request request = createUrlMetadataRequest(null, true, resolveScanCallback);
+    request.setTag(tag);
     // Queue the request
-    mRequestQueue.add(jsObjRequest);
+    mRequestQueue.add(request);
   }
 
   /**
@@ -138,7 +192,7 @@ class PwsClient {
    * @param jsonObj The given json object to use in the request
    * @return The created json request object
    */
-  private JsonObjectRequest createUrlMetadataRequest(
+  private Request createUrlMetadataRequest(
       JSONObject jsonObj,
       final boolean isDemoRequest,
       final ResolveScanCallback resolveScanCallback) {
@@ -267,6 +321,10 @@ class PwsClient {
       e.printStackTrace();
     }
     return url;
+  }
+
+  public void cancelAllRequests(final String tag) {
+    mRequestQueue.cancelAll(tag);
   }
 
 

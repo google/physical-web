@@ -150,7 +150,7 @@ public class NearbyBeaconsFragment extends ListFragment
     // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
       getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback());
+      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback(), TAG);
     } else {
       initializeBluetooth();
     }
@@ -339,7 +339,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mSsdpUrlDiscoverer.startScanning();
     } else {
       mNearbyDeviceAdapter.clear();
-      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback());
+      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback(), TAG);
     }
   }
 
@@ -361,8 +361,8 @@ public class NearbyBeaconsFragment extends ListFragment
       int mockRssi = 0;
       int mockTxPower = 0;
       // Fetch the metadata for the given url
-      PwsClient.getInstance(getActivity()).findUrlMetadata(NearbyBeaconsFragment.this, url,
-                                                           mockTxPower, mockRssi);
+      PwsClient.getInstance(getActivity()).findUrlMetadata(url, mockTxPower, mockRssi,
+                                                           NearbyBeaconsFragment.this, TAG);
       // Update the ranging info
       mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Force the device to be added to the listview (since it has no metadata)
@@ -391,8 +391,8 @@ public class NearbyBeaconsFragment extends ListFragment
                   mUrlToUrlMetadata.put(url, null);
                   mNearbyDeviceAdapter.addItem(url, address, txPower);
                   // Fetch the metadata for this url
-                  PwsClient.getInstance(getActivity()).findUrlMetadata(NearbyBeaconsFragment.this,
-                                                                       url, txPower, rssi);
+                  PwsClient.getInstance(getActivity()).findUrlMetadata(
+                      url, txPower, rssi, NearbyBeaconsFragment.this, TAG);
                 }
                 // Tell the adapter to update stored data for this url
                 mNearbyDeviceAdapter.updateItem(url, address, rssi, txPower);

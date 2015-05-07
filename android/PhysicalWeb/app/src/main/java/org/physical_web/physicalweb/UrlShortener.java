@@ -35,7 +35,9 @@ import android.util.Log;
  * This class shortens urls and also expands those short urls
  * to their original url.
  * Currently this class only supports google url shortener
- * TODO: support other url shorteners
+ *
+ * TODO: Rename this class since url shortening has been refactored to the
+ *       PwsClient.
  */
 class UrlShortener {
 
@@ -47,63 +49,6 @@ class UrlShortener {
   interface ModifiedUrlCallback {
     void onNewUrl(String newUrl);
     void onError(String oldUrl);
-  }
-
-  /**
-   * Create the shortened form of the given url.
-   * Create a google url shortener interface object
-   * and make a request to shorten the given url
-   */
-  public static class ShortenUrlTask extends AsyncTask<String, Void, String> {
-    private ModifiedUrlCallback mCallback;
-    private String mLongUrl;
-
-    ShortenUrlTask(ModifiedUrlCallback callback) {
-      mCallback = callback;
-    }
-
-    @Override
-    protected String doInBackground(String[] params) {
-      mLongUrl = params[0];
-      Urlshortener urlshortener = createGoogleUrlShortener();
-      Url url = new Url();
-      url.setLongUrl(mLongUrl);
-      try {
-        Url response = urlshortener.url().insert(url).execute();
-        //avoid possible NPE
-        if (response != null) {
-          return response.getId();
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      return null;
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-      if (result == null) {
-        mCallback.onError(mLongUrl);
-      } else {
-        mCallback.onNewUrl(result);
-      }
-    }
-  }
-
-  /**
-   * Create an instance of the google url shortener object
-   * and return it.
-   *
-   * @return The created shortener object
-   */
-  private static Urlshortener createGoogleUrlShortener() {
-    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
-    JsonFactory jsonFactory = AndroidJsonFactory.getDefaultInstance();
-    UrlshortenerRequestInitializer urlshortenerRequestInitializer = new UrlshortenerRequestInitializer();
-    return new Urlshortener.Builder(httpTransport, jsonFactory, null)
-        .setApplicationName("PhysicalWeb")
-        .setUrlshortenerRequestInitializer(urlshortenerRequestInitializer)
-        .build();
   }
 
   /**
