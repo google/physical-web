@@ -24,6 +24,7 @@ except Exception as e:
         print "Warning: import exception '{0}'".format(e)
 
 from urlparse import urljoin, urlparse
+import base64
 import cgi
 import datetime
 import json
@@ -321,23 +322,26 @@ def StoreUrl(siteInfo, url, content, encoding):
         icon = urljoin(url, '/favicon.ico')
     # make sure the icon exists
     try:
-        result = urlfetch.fetch(icon, method = 'HEAD')
+        result = urlfetch.fetch(icon, validate_certificate=True)
         if result.status_code != 200:
+            icon = None
+        elif 'Content-Type' not in result.headers:
             icon = None
         else:
             contentType = result.headers['Content-Type']
-            if contentType is None:
+            if not contentType.startswith('image/'):
                 icon = None
-            elif not contentType.startswith('image/'):
-                icon = None
-    except:
+            else:
+                icon = 'data:' + contentType + ';base64,' + \
+                       base64.b64encode(result.content)
+    except Exception as e:
         s_url = url
         s_icon = icon
         if s_url is None:
             s_url = '[none]'
         if s_icon is None:
             s_icon = '[none]'
-        logging.warning('icon error with ' + s_url + ' -> ' + s_icon)
+        logging.warning('Icon error with {0}->{1}: {2}'.format(s_url, s_icon, e))
         icon = None
 
     jsonlds = []
