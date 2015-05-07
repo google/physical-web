@@ -37,29 +37,33 @@ import java.net.URLEncoder;
 import java.util.Collection;
 
 /**
- * Class for resolving url metadata.
- * Sends requests to the metadata server
- * which then scrapes the page at the given url
- * for its metadata
+ * This class sends requests to the physical web service.
+ *
+ * For the largest use, metadata requests, the physical web service
+ * scrapes the page at the given url for its metadata.
  */
-
-class MetadataResolver {
-  private static final String TAG = "MetadataResolver";
-  private static final String METADATA_URL = "http://url-caster.appspot.com/resolve-scan";
-  //private static final String METADATA_URL = "http://url-caster-dev.appspot.com/resolve-scan";
-  private static final String DEMO_METADATA_URL = "http://url-caster.appspot.com/demo";
+class PwsClient {
+  private static final String TAG = "PwsClient";
+  private static final String PROD_URL = "http://url-caster.appspot.com";
+  //private static final String DEV_URL = "http://url-caster-dev.appspot.com";
+  private static final String RESOLVE_SCAN_PATH = "resolve-scan";
+  private static final String DEMO_RESOLVE_SCAN_PATH = "demo";
   private static final int UNDEFINED_SCORE = -1;
-  private static RequestQueue mRequestQueue;
-  private static boolean mIsInitialized = false;
-  private static MetadataResolverCallback mMetadataResolverCallback;
-  private static Context mContext;
+  private RequestQueue mRequestQueue;
+  private Context mContext;
 
-  private static void initialize(Context context) {
-    if (mRequestQueue == null) {
-      mRequestQueue = Volley.newRequestQueue(context);
+  private static PwsClient mInstance;
+
+  private PwsClient(Context context) {
+    mContext = context.getApplicationContext();
+    mRequestQueue = Volley.newRequestQueue(mContext);
+  }
+
+  public static PwsClient getInstance(Context context) {
+    if (mInstance == null) {
+        mInstance = new PwsClient(context);
     }
-    mIsInitialized = true;
-    mContext = context;
+    return mInstance;
   }
 
 
@@ -67,10 +71,8 @@ class MetadataResolver {
   // callbacks
   /////////////////////////////////
 
-  public interface MetadataResolverCallback {
+  public interface ResolveScanCallback {
     public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
-
-    public void onDemoUrlMetadataReceived(String url, UrlMetadata urlMetadata);
 
     public void onUrlMetadataIconReceived();
   }
@@ -80,52 +82,27 @@ class MetadataResolver {
   // utilities
   /////////////////////////////////
 
-  public static void findUrlMetadata(Context context,
-                                     MetadataResolverCallback metadataResolverCallback,
-                                     String url,
-                                     int txPower,
-                                     int rssi) {
-    // Store the callback so we can call it back later
-    mMetadataResolverCallback = metadataResolverCallback;
-    initialize(context);
-    requestUrlMetadata(url, txPower, rssi);
+  private static String constructUrlStr(final String path) {
+    return PROD_URL + "/" + path;
   }
 
-  /**
-   * Start the process that will ask
-   * the metadata server for the given url's metadata
-   *
-   * @param url The url for which to request data
-   */
-  private static void requestUrlMetadata(String url, int txPower, int rssi) {
-    if (!mIsInitialized) {
-      Log.e(TAG, "Not initialized.");
-      return;
-    }
+  public void findUrlMetadata(ResolveScanCallback resolveScanCallback,
+                              String url,
+                              int txPower,
+                              int rssi) {
     // Create the json request object
     JSONObject jsonObj = createUrlMetadataRequestObject(url, txPower, rssi);
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj, false);
+    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(jsonObj, false, resolveScanCallback);
     // Queue the request
     mRequestQueue.add(jsObjRequest);
   }
 
-  public static void findDemoUrlMetadata(final Context context, final MetadataResolverCallback metadataResolverCallback) {
-    // Store the callback so we can call it back later
-    mMetadataResolverCallback = metadataResolverCallback;
-    initialize(context);
-    requestDemoUrlMetadata();
-  }
-
-  private static void requestDemoUrlMetadata() {
-    if (!mIsInitialized) {
-      Log.e(TAG, "Not initialized.");
-      return;
-    }
+  public void findDemoUrlMetadata(ResolveScanCallback resolveScanCallback) {
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(null, true);
+    JsonObjectRequest jsObjRequest = createUrlMetadataRequest(null, true, resolveScanCallback);
     // Queue the request
     mRequestQueue.add(jsObjRequest);
   }
@@ -161,9 +138,17 @@ class MetadataResolver {
    * @param jsonObj The given json object to use in the request
    * @return The created json request object
    */
-  private static JsonObjectRequest createUrlMetadataRequest(JSONObject jsonObj, final boolean isDemoRequest) {
+  private JsonObjectRequest createUrlMetadataRequest(
+      JSONObject jsonObj,
+      final boolean isDemoRequest,
+      final ResolveScanCallback resolveScanCallback) {
+    String resolveScanPath = RESOLVE_SCAN_PATH;
+    if (isDemoRequest) {
+        resolveScanPath = DEMO_RESOLVE_SCAN_PATH;
+    }
+
     return new JsonObjectRequest(
-        isDemoRequest ? DEMO_METADATA_URL : METADATA_URL,
+        constructUrlStr(resolveScanPath),
         jsonObj,
         new Response.Listener<JSONObject>() {
           // Called when the server returns a response
@@ -225,13 +210,9 @@ class MetadataResolver {
                   urlMetadata.score = score;
 
                   // Kick off the icon download
-                  downloadIcon(urlMetadata);
+                  downloadIcon(urlMetadata, resolveScanCallback);
 
-                  if (isDemoRequest) {
-                    mMetadataResolverCallback.onDemoUrlMetadataReceived(id, urlMetadata);
-                  } else {
-                    mMetadataResolverCallback.onUrlMetadataReceived(id, urlMetadata);
-                  }
+                  resolveScanCallback.onUrlMetadataReceived(id, urlMetadata);
                 }
 
               }
@@ -267,18 +248,19 @@ class MetadataResolver {
    *
    * @param urlMetadata The metadata for the given url
    */
-  private static void downloadIcon(final UrlMetadata urlMetadata) {
+  private void downloadIcon(final UrlMetadata urlMetadata,
+                            final ResolveScanCallback resolveScanCallback) {
     ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, new Response.Listener<Bitmap>() {
       @Override
       public void onResponse(Bitmap response) {
         urlMetadata.icon = response;
-        mMetadataResolverCallback.onUrlMetadataIconReceived();
+        resolveScanCallback.onUrlMetadataIconReceived();
       }
     }, 0, 0, null, null);
     mRequestQueue.add(imageRequest);
   }
 
-  public static String createUrlProxyGoLink(String url) {
+  public String createUrlProxyGoLink(String url) {
     try {
       url = mContext.getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
     } catch (UnsupportedEncodingException e) {
@@ -286,6 +268,11 @@ class MetadataResolver {
     }
     return url;
   }
+
+
+  /////////////////////////////////
+  // data models
+  /////////////////////////////////
 
   /**
    * A container class for a url's fetched metadata.

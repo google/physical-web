@@ -77,8 +77,8 @@ ID, and take a look at `config.SAMPLE.json`.
 If you are building one of our sample apps and would like to use your own
 Physical Web Service, you can change the endpoint by modifying:
 
-* Android: Update `METADATA_URL` in
-  [`MetadataResolver.java`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/android/PhysicalWeb/app/src/main/java/org/physical_web/physicalweb/MetadataResolver.java#L48)
+* Android: Update `PROD_URL` and `DEV_URL` in
+  [`PwsClient.java`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/android/PhysicalWeb/app/src/main/java/org/physical_web/physicalweb/MetadataResolver.java#L48)
   and `proxy_go_link_base_url` in
   [`strings.xml`](https://github.com/google/physical-web/blob/7c7b5c00f2e6eb08c9730be36a98954334a2e8c6/android/PhysicalWeb/app/src/main/res/values/strings.xml#L42)
 * iOS: Update `PHYSICALWEB_SERVER_HOSTNAME` in
