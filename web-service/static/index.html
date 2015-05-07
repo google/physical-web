@@ -21,6 +21,7 @@ limitations under the License.
     <script>
 
     var resolveScan = function(successCallback) {
+      var forceUpdate = document.getElementById("forceUpdate");
       var resolveQuery = document.getElementById("resolvequery");
       successCallback = successCallback || function() {};
 
@@ -32,7 +33,11 @@ limitations under the License.
         }
       };
 
-      query = {"objects":[{"url":resolveQuery.value}]};
+      query = {
+          "objects": [
+            { "url": resolveQuery.value, "force": forceUpdate.checked }
+          ]
+      };
       request.open("POST", "/resolve-scan");
       request.send(JSON.stringify(query));
     };
@@ -43,6 +48,7 @@ limitations under the License.
       var responseHeader = document.querySelector("#response-header");
       form.onsubmit = function(event) {
         if (form.reportValidity()) {
+          resolveResponseOutput.innerText = '';
           resolveScan(function(data) {
             responseHeader.style.display = "inline";
             resolveResponseOutput.innerText = JSON.stringify(data, undefined, 2);
@@ -59,6 +65,7 @@ limitations under the License.
     <form id="resolveForm">
     <p>
     <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com" required pattern="https?://.+">
+    <input type="checkbox" id="forceUpdate">Bypass cache
     </p>
     <div>
     <button>Run</button>
