@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 11
-        versionName "0.1.851"
+        versionName "0.1.852"
     }
 
     buildTypes {
