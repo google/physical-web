@@ -50,6 +50,7 @@ class PwsTest(unittest.TestCase):
         if payload is not None:
             args.append(json.dumps(payload))
         req = urllib2.Request(*args)
+        req.add_header("Content-Type", "application/json")
         response = urllib2.urlopen(req)
         data = response.read()
         if JSON:
@@ -154,14 +155,12 @@ class TestResolveScan(PwsTest):
                 {
                     'url': '{}/experimental/googl/KYvLwO'.format(self.HOST),
                     'rssi': -41,
-                    'txpower': -22,
-                    'force': True,
+                    'txpower': -22
                 },
                 {
                     'url': '{}/experimental/googl/r8iJqW'.format(self.HOST),
                     'rssi': -91,
-                    'txpower': -22,
-                    'force': True,
+                    'txpower': -22
                 },
             ]
         })
@@ -251,7 +250,7 @@ def main():
     elif endpoint == 'DEV':
         endpoint = 'http://url-caster-dev.appspot.com'
     PwsTest.HOST = endpoint
- 
+
     # Run the tests
     try:
         nose.runmodule()
@@ -259,7 +258,7 @@ def main():
         # Teardown the endpoint
         if server:
             server.kill()
-    
+
     # We should never get here since nose.runmodule will call exit
     return 0
 
