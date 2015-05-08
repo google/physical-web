@@ -69,7 +69,10 @@ import java.util.concurrent.TimeUnit;
  * the current number of nearby beacons.
  */
 
-public class UriBeaconDiscoveryService extends Service implements MetadataResolver.MetadataResolverCallback, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback, SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
+public class UriBeaconDiscoveryService extends Service
+                                       implements PwsClient.ResolveScanCallback,
+                                                  MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
+                                                  SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "UriBeaconDiscoveryService";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -108,7 +111,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
-  private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
+  private HashMap<String, PwsClient.UrlMetadata> mUrlToUrlMetadata;
   private HashSet<String> mPublicUrls;
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
@@ -142,8 +145,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     public int compare(String addressA, String addressB) {
       String urlA = mDeviceAddressToUrl.get(addressA);
       String urlB = mDeviceAddressToUrl.get(addressB);
-      MetadataResolver.UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
-      MetadataResolver.UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
+      PwsClient.UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
+      PwsClient.UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
       // If metadata exists for both urls
       if ((urlMetadataA != null) && (urlMetadataB != null)) {
         float scoreA = urlMetadataA.score;
@@ -261,19 +264,25 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
+  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(url, urlMetadata);
     updateNotifications();
   }
 
   @Override
-  public void onDemoUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
-
-  }
-
-  @Override
   public void onUrlMetadataIconReceived() {
     updateNotifications();
+  }
+
+  private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
+    @Override
+    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
+    }
+
+    @Override
+    public void onUrlMetadataIconReceived() {
+      updateNotifications();
+    }
   }
 
   @Override
@@ -295,7 +304,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       mUrlToUrlMetadata.put(url, null);
       mDeviceAddressToUrl.put(mockAddress, url);
       mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
-      MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url, mockTxPower, mockRssi);
+      PwsClient.getInstance(this).findUrlMetadata(url, mockTxPower, mockRssi,
+                                                  UriBeaconDiscoveryService.this, TAG);
     }
   }
 
@@ -342,8 +352,8 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
             mPublicUrls.add(url);
             mDeviceAddressToUrl.put(address, url);
             // Fetch the metadata for this url
-            MetadataResolver.findUrlMetadata(this, UriBeaconDiscoveryService.this, url,
-                                             txPower, rssi);
+            PwsClient.getInstance(this).findUrlMetadata(url, txPower, rssi,
+                                                        UriBeaconDiscoveryService.this, TAG);
           }
           // Update the ranging data
           mRegionResolver.onUpdate(address, rssi, txPower);
@@ -391,7 +401,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
       }
     }
     // If there are scores in the metadata
-    if (MetadataResolver.checkIfMetadataContainsSortingScores(mUrlToUrlMetadata.values())) {
+    if (PwsClient.checkIfMetadataContainsSortingScores(mUrlToUrlMetadata.values())) {
       // Sort using those scores
       Collections.sort(unSorted, mSortByProxyServerScoreComparator);
     }
@@ -408,7 +418,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
    * for the beacon with the given address
    */
   private void updateNearbyBeaconNotification(boolean single, String url, int notificationId) {
-    MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata == null) {
       return;
     }
@@ -493,7 +503,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void updateSummaryNotificationRemoteViewsFirstBeacon(String url, RemoteViews remoteViews) {
-    MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata != null) {
       remoteViews.setImageViewBitmap(R.id.icon_firstBeacon, urlMetadata.icon);
       remoteViews.setTextViewText(R.id.title_firstBeacon, urlMetadata.title);
@@ -517,7 +527,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
   }
 
   private void updateSummaryNotificationRemoteViewsSecondBeacon(String url, RemoteViews remoteViews) {
-    MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata != null) {
       remoteViews.setImageViewBitmap(R.id.icon_secondBeacon, urlMetadata.icon);
       remoteViews.setTextViewText(R.id.title_secondBeacon, urlMetadata.title);
@@ -560,7 +570,7 @@ public class UriBeaconDiscoveryService extends Service implements MetadataResolv
     if (!URLUtil.isNetworkUrl(urlToNavigateTo)) {
       urlToNavigateTo = "http://" + urlToNavigateTo;
     }
-    urlToNavigateTo = MetadataResolver.createUrlProxyGoLink(urlToNavigateTo);
+    urlToNavigateTo = PwsClient.getInstance(this).createUrlProxyGoLink(urlToNavigateTo);
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(urlToNavigateTo));
     int requestID = (int) System.currentTimeMillis();

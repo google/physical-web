@@ -67,13 +67,17 @@ import java.util.concurrent.TimeUnit;
  * the browser and point that browser
  * to the given list items url.
  */
-public class NearbyBeaconsFragment extends ListFragment implements MetadataResolver.MetadataResolverCallback, SwipeRefreshWidget.OnRefreshListener, MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
+public class NearbyBeaconsFragment extends ListFragment
+                                   implements PwsClient.ResolveScanCallback,
+                                              SwipeRefreshWidget.OnRefreshListener,
+                                              MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
+                                              SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "NearbyBeaconsFragment";
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(3);
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothAdapter mBluetoothAdapter;
-  private HashMap<String, MetadataResolver.UrlMetadata> mUrlToUrlMetadata;
+  private HashMap<String, PwsClient.UrlMetadata> mUrlToUrlMetadata;
   private AnimationDrawable mScanningAnimationDrawable;
   private boolean mIsDemoMode;
   private boolean mIsScanRunning;
@@ -146,7 +150,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     // Only scan for beacons when not in demo mode
     if (mIsDemoMode) {
       getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-      MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
+      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback(), TAG);
     } else {
       initializeBluetooth();
     }
@@ -235,7 +239,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
+  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
     mUrlToUrlMetadata.put(url, urlMetadata);
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
@@ -245,22 +249,29 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
-  @Override
-  public void onDemoUrlMetadataReceived(String url, MetadataResolver.UrlMetadata urlMetadata) {
-    // Update the hash table
-    mUrlToUrlMetadata.put(url, urlMetadata);
-    // Fabricate the adapter values so that we can show these demo beacons
-    String mockAddress = generateMockBluetoothAddress(url.hashCode());
-    int mockRssi = 0;
-    int mockTxPower = 0;
-    mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
-    mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
-    // Inform the list adapter of the new data
-    mNearbyDeviceAdapter.sortDevices();
-    mNearbyDeviceAdapter.notifyDataSetChanged();
-    // Stop the refresh animation
-    mSwipeRefreshWidget.setRefreshing(false);
-    fadeInListView();
+  private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
+    @Override
+    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
+      // Update the hash table
+      mUrlToUrlMetadata.put(url, urlMetadata);
+      // Fabricate the adapter values so that we can show these demo beacons
+      String mockAddress = generateMockBluetoothAddress(url.hashCode());
+      int mockRssi = 0;
+      int mockTxPower = 0;
+      mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
+      mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
+      // Inform the list adapter of the new data
+      mNearbyDeviceAdapter.sortDevices();
+      mNearbyDeviceAdapter.notifyDataSetChanged();
+      // Stop the refresh animation
+      mSwipeRefreshWidget.setRefreshing(false);
+      fadeInListView();
+    }
+
+    @Override
+    public void onUrlMetadataIconReceived() {
+      mNearbyDeviceAdapter.notifyDataSetChanged();
+    }
   }
 
   @SuppressWarnings("deprecation")
@@ -308,7 +319,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       url = "http://" + url;
     }
     // Route through the proxy server go link
-    url = MetadataResolver.createUrlProxyGoLink(url);
+    url = PwsClient.getInstance(getActivity()).createUrlProxyGoLink(url);
     // Open the browser and point it to the given url
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(url));
@@ -328,7 +339,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       mSsdpUrlDiscoverer.startScanning();
     } else {
       mNearbyDeviceAdapter.clear();
-      MetadataResolver.findDemoUrlMetadata(getActivity(), NearbyBeaconsFragment.this);
+      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback(), TAG);
     }
   }
 
@@ -350,7 +361,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       int mockRssi = 0;
       int mockTxPower = 0;
       // Fetch the metadata for the given url
-      MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url, mockTxPower, mockRssi);
+      PwsClient.getInstance(getActivity()).findUrlMetadata(url, mockTxPower, mockRssi,
+                                                           NearbyBeaconsFragment.this, TAG);
       // Update the ranging info
       mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Force the device to be added to the listview (since it has no metadata)
@@ -379,8 +391,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
                   mUrlToUrlMetadata.put(url, null);
                   mNearbyDeviceAdapter.addItem(url, address, txPower);
                   // Fetch the metadata for this url
-                  MetadataResolver.findUrlMetadata(getActivity(), NearbyBeaconsFragment.this, url,
-                                                   txPower, rssi);
+                  PwsClient.getInstance(getActivity()).findUrlMetadata(
+                      url, txPower, rssi, NearbyBeaconsFragment.this, TAG);
                 }
                 // Tell the adapter to update stored data for this url
                 mNearbyDeviceAdapter.updateItem(url, address, rssi, txPower);
@@ -432,8 +444,8 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     private Comparator<String> mSortByProxyServerScoreComparator = new Comparator<String>() {
       @Override
       public int compare(String addressA, String addressB) {
-        MetadataResolver.UrlMetadata urlMetadataA = getUrlMetadataFromDeviceAddress(addressA);
-        MetadataResolver.UrlMetadata urlMetadataB = getUrlMetadataFromDeviceAddress(addressB);
+        PwsClient.UrlMetadata urlMetadataA = getUrlMetadataFromDeviceAddress(addressA);
+        PwsClient.UrlMetadata urlMetadataB = getUrlMetadataFromDeviceAddress(addressB);
 
         // If metadata exists for both urls
         if ((urlMetadataA != null) && (urlMetadataB != null)) {
@@ -458,7 +470,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       }
     };
 
-    private MetadataResolver.UrlMetadata getUrlMetadataFromDeviceAddress(String addressToMatch) {
+    private PwsClient.UrlMetadata getUrlMetadataFromDeviceAddress(String addressToMatch) {
       for (String url : mUrlToDeviceAddress.keySet()) {
         if (mUrlToDeviceAddress.get(url).equals(addressToMatch)) {
           return mUrlToUrlMetadata.get(url);
@@ -516,7 +528,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
       String url = getUrlForListItem(i);
 
       // Get the metadata for this url
-      MetadataResolver.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+      PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
       // If the metadata exists
       if (urlMetadata != null) {
         // Set the title text
@@ -589,7 +601,7 @@ public class NearbyBeaconsFragment extends ListFragment implements MetadataResol
     public void sortDevices() {
       mSortedDevices = new ArrayList<>(mUrlToDeviceAddress.values());
       // If there are scores in the metadata
-      if (MetadataResolver.checkIfMetadataContainsSortingScores(mUrlToUrlMetadata.values())) {
+      if (PwsClient.checkIfMetadataContainsSortingScores(mUrlToUrlMetadata.values())) {
         // Sort using those scores
         Collections.sort(mSortedDevices, mSortByProxyServerScoreComparator);
       }

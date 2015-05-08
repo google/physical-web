@@ -83,7 +83,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private boolean mIsScanRunning;
   private BluetoothAdapter mBluetoothAdapter;
   private Handler mHandler;
-  private UrlShortener.ShortenUrlTask mShortenUrlTask;
   private UrlShortener.LengthenShortUrlTask mLengthenShortUrlTask;
 
   // Run when the SCAN_TIME_MILLIS has elapsed.
@@ -168,9 +167,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPause();
     mScanningAnimation.stop();
     scanLeDevice(false);
-    if (mShortenUrlTask != null) {
-      mShortenUrlTask.cancel(true);
-    }
+    PwsClient.getInstance(getActivity()).cancelAllRequests(TAG);
     if (mLengthenShortUrlTask != null) {
       mLengthenShortUrlTask.cancel(true);
     }
@@ -370,9 +367,9 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       url = "http://" + url;
     }
     // Create the callback object to set the url
-    UrlShortener.ModifiedUrlCallback urlSetter = new UrlShortener.ModifiedUrlCallback() {
+    PwsClient.ShortenUrlCallback urlSetter = new PwsClient.ShortenUrlCallback() {
       @Override
-      public void onNewUrl(String newUrl){
+      public void onUrlShortened(String newUrl) {
         setUriBeaconUrl(newUrl);
       }
       @Override
@@ -382,8 +379,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     };
     // Shorten the url if necessary
     if (ConfigUriBeacon.uriLength(url) > ConfigUriBeacon.MAX_URI_LENGTH) {
-      mShortenUrlTask = new UrlShortener.ShortenUrlTask(urlSetter);
-      mShortenUrlTask.execute(url);
+      PwsClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
     } else {
       setUriBeaconUrl(url);
     }
