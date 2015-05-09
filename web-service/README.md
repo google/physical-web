@@ -2,7 +2,7 @@
 
 This is an App Engine project which implements a sample Physical Web metadata
 service.  The use of a Physical Web Service is not necessary, but remarkably
-useful.  It helps clients resolve URL's in a safer and more efficient manner.  
+useful.  It helps clients resolve URLs in a safer and more efficient manner.  
 Read below for more details.
 
 This particular implementation is made to work with the sample Physical Web
@@ -20,18 +20,18 @@ wish.  We have provided some example apps (and published them to app stores) to
 make it easier for you to try out the Physical Web.
 
 Our app of course wants to provide a beautiful user experience, with rich 
-information about the URL's it finds. Even more so, it wants to protect the 
+information about the URLs it finds. Even more so, it wants to protect the 
 user and his/her privacy from the many potential misuses of the physical web.  
 We hope every other app will do so, also.
 
 One really nice property of the Physical Web is that UriBeacons cannot
 physically detect when clients scan it and so cannot track passers-by.
-However, the web servers backing these URL's can track all requests to them 
+However, the web servers backing these URLs can track all requests to them 
 (as is usual on the web).  So our app must be extremely careful with how it 
-uses the URL's it finds.
+uses the URLs it finds.
 
-Yet, showing raw URL's alone is not descriptive enough for most users, and is
-basically useless to anyone when those URL's are obfuscated strings coming from 
+Yet, showing raw URLs alone is not descriptive enough for most users, and is
+basically useless to anyone when those URLs are obfuscated strings coming from 
 a URL shortener (which is common due to the URL length limit).
 
 We would like to grab a nice Title / Icon from the actual content of the page.  
@@ -44,7 +44,7 @@ Service.
 ## What does a Physical Web Service do?
 
 At the very simplest, it fetches, parses, and presents the content of UriBeacon
-URL's on behalf of a client, but without using the client's identity in any way.
+URLs on behalf of a client, but without using the client's identity in any way.
 It's a middleman added for safety and efficiency.
 
 Unlike a UriBeacon, a Physical Web Service is not a core part of the Physical
