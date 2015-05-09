@@ -1,5 +1,10 @@
+# Keystore files for signing
+*.jks
+*.keystore
+
 .gradle
-local.properties
 .idea
 .DS_Store
 build
+local.properties
+signing.properties
