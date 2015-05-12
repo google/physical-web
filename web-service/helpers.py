@@ -349,7 +349,7 @@ def StoreUrl(siteInfo, url, content, encoding):
         jsonldobject = None
         try:
             jsonldobject = json.loads(jsonldtext) # Data is not sanitised.
-        except UnicodeDecodeError:
+        except (ValueError, UnicodeDecodeError):
             jsonldobject = None
         if jsonldobject is not None:
             jsonlds.append(jsonldobject)
