@@ -33,6 +33,7 @@ import lxml.etree
 ################################################################################
 
 ENABLE_EXPERIMENTAL = app_identity.get_application_id().endswith('-dev')
+PHYSICAL_WEB_USER_AGENT = 'Mozilla/5.0' # TODO: Find a more descriptive string.
 
 ################################################################################
 
@@ -138,7 +139,7 @@ def GetSiteInfoForUrl(url, distance=None, force_update=False):
 def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     # Index the page
     try:
-        headers = {}
+        headers = {'User-Agent': PHYSICAL_WEB_USER_AGENT}
         if ENABLE_EXPERIMENTAL and distance is not None:
             headers['X-PhysicalWeb-Distance'] = distance
 
