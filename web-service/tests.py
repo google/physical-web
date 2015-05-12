@@ -18,7 +18,9 @@ import argparse
 import json
 import nose
 import os
+import signal
 import subprocess
+import sys
 import unittest
 import urllib
 import urllib2
@@ -237,9 +239,13 @@ def main():
             'dev_appserver.py', os.path.dirname(__file__),
             '--port', str(LOCAL_TEST_PORT),
             '--admin_port', str(LOCAL_TEST_PORT + 1),
-        ], bufsize=1, stderr=subprocess.PIPE)
+        ], bufsize=1, stderr=subprocess.PIPE, preexec_fn=os.setsid)
         # Wait for the server to start up
-        for line in iter(server.stderr.readline, b''):
+        while True:
+            line = server.stderr.readline()
+            if 'Unable to bind' in line:
+                print 'Rogue server already running.'
+                return 1
             if 'running at: {}'.format(local_url) in line:
                 break
         print 'done'
@@ -257,7 +263,8 @@ def main():
     finally:
         # Teardown the endpoint
         if server:
-            server.kill()
+            os.killpg(os.getpgid(server.pid), signal.SIGINT)
+            server.wait()
 
     # We should never get here since nose.runmodule will call exit
     return 0
