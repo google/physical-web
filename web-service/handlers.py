@@ -52,6 +52,18 @@ class RefreshUrl(webapp2.RequestHandler):
 
 ################################################################################
 
+class FaviconUrl(webapp2.RequestHandler):
+    def get(self):
+        url = self.request.get('url')
+        response = helpers.FaviconUrl(url)
+        if response:
+            self.response.headers['Content-Type'] = response.headers['Content-Type']
+            self.response.write(response.content)
+        else:
+            self.error('404')
+
+################################################################################
+
 class ResolveScan(webapp2.RequestHandler):
     def post(self):
         input_data = self.request.body
@@ -97,6 +109,7 @@ app = webapp2.WSGIApplication([
     ('/', Index),
     ('/resolve-scan', ResolveScan),
     ('/refresh-url', RefreshUrl),
+    ('/favicon', FaviconUrl),
     ('/go', GoUrl),
     ('/demo', DemoMetadata)
 ], debug=True)
