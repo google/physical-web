@@ -22,21 +22,21 @@ import subprocess
 import unittest
 import urllib
 import urllib2
-import yaml
 
 LOCAL_TEST_PORT = 9002
-
-def GetAppSettings():
-    with open('app.yaml', 'r') as f:
-        return yaml.load(f)
 
 
 class PwsTest(unittest.TestCase):
     _HOST = None  # Set in main()
+    _ENABLE_EXPERIMENTAL = False
 
     @property
     def HOST(self):
         PwsTest._HOST
+
+    @property
+    def ENABLE_EXPERIMENTAL(self):
+        PwsTest._ENABLE_EXPERIMENTAL
 
     def request(self, params=None, payload=None):
         """
@@ -154,8 +154,7 @@ class TestResolveScan(PwsTest):
                          'https://github.com/Google/physical-web')
 
     def test_redirect_with_rssi_tx_power(self):
-        settings = GetAppSettings()
-        if not settings['application'].endswith('-dev'):
+        if not self.ENABLE_EXPERIMENTAL:
             return
 
         result = self.call({
@@ -225,20 +224,21 @@ def main():
     local_url = 'http://localhost:{}'.format(LOCAL_TEST_PORT)
     parser = argparse.ArgumentParser(description='Run web-service tests')
     parser.add_argument(
-            '-e', '--endpoint', dest='endpoint', default='AUTO',
+            '-e', '--endpoint', dest='endpoint', default='auto',
             help='Which server to test against.\n'
-                 'AUTO:  {} (server starts automatically)\n'
-                 'LOCAL: http://localhost:8080\n'
-                 'PROD:  http://url-caster.appspot.com\n'
-                 'DEV:   http://url-caster-dev.appspot.com\n'
+                 'auto:  {} (server starts automatically)\n'
+                 'local: http://localhost:8080\n'
+                 'prod:  http://url-caster.appspot.com\n'
+                 'dev:   http://url-caster-dev.appspot.com\n'
                  '*:     Other values interpreted literally'
                  .format(local_url))
+    parser.add_argument('-x', '--experimental', dest='experimental', action='store_true', default=False)
     args = parser.parse_args()
 
     # Setup the endpoint
     endpoint = args.endpoint
     server = None
-    if endpoint == 'AUTO':
+    if endpoint.lower() == 'auto':
         endpoint = local_url
         print 'Starting local server...',
         server = subprocess.Popen([
@@ -251,13 +251,14 @@ def main():
             if 'running at: {}'.format(local_url) in line:
                 break
         print 'done'
-    elif endpoint == 'LOCAL':
+    elif endpoint.lower() == 'local':
         endpoint = 'http://localhost:8080'
-    elif endpoint == 'PROD':
+    elif endpoint.lower() == 'prod':
         endpoint = 'http://url-caster.appspot.com'
-    elif endpoint == 'DEV':
+    elif endpoint.lower() == 'dev':
         endpoint = 'http://url-caster-dev.appspot.com'
     PwsTest.HOST = endpoint
+    PwsTest.ENABLE_EXPERIMENTAL = args.experimental
 
     # Run the tests
     try:

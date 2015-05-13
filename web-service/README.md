@@ -90,6 +90,5 @@ Physical Web Service, you can change the endpoint by modifying:
 1. Make sure you have created config.SECRET.json from the config.SAMPLE.json
    file.
 2. Install nose `pip install nose`
-2. Install pyyaml `pip install pyyaml`
 3. Run ./tests.py -h to see help
 4. Run ./tests.py to test the development server
