@@ -28,6 +28,10 @@ import urllib2
 
 LOCAL_TEST_PORT = 9002
 
+REGRESSION_TEST_URLS = [
+        'http://www.blackanddecker.fr'
+    ]
+
 
 class PwsTest(unittest.TestCase):
     _HOST = None  # Set in main()
@@ -171,6 +175,20 @@ class TestResolveScan(PwsTest):
         self.assertEqual(len(result['metadata']), 1)
         self.assertEqual(result['metadata'][0]['url'],
                          'https://github.com/Google/physical-web')
+
+    def test_regression_urls(self):
+        result = self.call({
+            'objects': [ {'url': url} for url in REGRESSION_TEST_URLS ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), len(REGRESSION_TEST_URLS))
+
+        #self.assertIn('description', result['metadata'][0])
+        #self.assertIn('title', result['metadata'][0])
+        #self.assertIn('url', result['metadata'][0])
+        #self.assertIn('rank', result['metadata'][0])
+        #self.assertIn('id', result['metadata'][0])
+        #self.assertIn('icon', result['metadata'][0])
 
 
 class TestShortenUrl(PwsTest):
