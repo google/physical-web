@@ -22,9 +22,13 @@ import subprocess
 import unittest
 import urllib
 import urllib2
-
+import yaml
 
 LOCAL_TEST_PORT = 9002
+
+def GetAppSettings():
+    with open('app.yaml', 'r') as f:
+        return yaml.load(f)
 
 
 class PwsTest(unittest.TestCase):
@@ -150,6 +154,10 @@ class TestResolveScan(PwsTest):
                          'https://github.com/Google/physical-web')
 
     def test_redirect_with_rssi_tx_power(self):
+        settings = GetAppSettings()
+        if not settings['application'].endswith('-dev'):
+            return
+
         result = self.call({
             'objects': [
                 {
