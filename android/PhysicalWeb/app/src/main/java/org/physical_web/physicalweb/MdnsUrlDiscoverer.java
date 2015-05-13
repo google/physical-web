@@ -54,13 +54,23 @@ class MdnsUrlDiscoverer {
     @Override
     public void onStartDiscoveryFailed(String serviceType, int errorCode) {
       Log.e(TAG, "Discovery failed: Error code:" + errorCode);
-      mNsdManager.stopServiceDiscovery(this);
+      if (this != null) {
+        try {
+          mNsdManager.stopServiceDiscovery(this);
+        } finally {
+        }
+      }
     }
 
     @Override
     public void onStopDiscoveryFailed(String serviceType, int errorCode) {
       Log.e(TAG, "Discovery failed: Error code:" + errorCode);
-      mNsdManager.stopServiceDiscovery(this);
+      if (this != null) {
+        try {
+          mNsdManager.stopServiceDiscovery(this);
+        } finally {
+        }
+      }
     }
   };
   private static final String MDNS_SERVICE_TYPE = "_http._tcp.";
