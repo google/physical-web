@@ -170,7 +170,6 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
         # TODO: Use the cache-content headers for storeUrl!
         return StoreUrl(siteInfo, url, result.content, encoding)
     elif result.status_code == 204: # No Content
-        # TODO: What do we return?  we want to filter this result out
         return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = result.headers['location']
@@ -180,6 +179,8 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
             siteInfo.key.delete()
         # TODO: Most redirects should not be cached, but we should still check!
         return GetSiteInfoForUrl(final_url, distance, force_update)
+    elif 500 <= result.status_code <= 599:
+        return None
     else:
         raise FailedFetchException()
 
