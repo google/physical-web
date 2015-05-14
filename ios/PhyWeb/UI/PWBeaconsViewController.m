@@ -329,6 +329,21 @@
 - (void)_sort {
   BOOL stableMode = [[PWBeaconManager sharedManager] isStableMode];
 
+  BOOL hasRank = NO;
+  for(PWBeacon * beacon in _beacons) {
+    if ([beacon hasRank]) {
+      hasRank = YES;
+      break;
+    }
+  }
+  if (hasRank) {
+    for(PWBeacon * beacon in _beacons) {
+      if (![beacon hasRank]) {
+        [beacon setHasRank:YES];
+        [beacon setRank:1000];
+      }
+    }
+  }
   [_beacons sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     PWBeacon *beacon1 = obj1;
     PWBeacon *beacon2 = obj2;
