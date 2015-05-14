@@ -38,6 +38,7 @@ ENABLE_EXPERIMENTAL = app_identity.get_application_id().endswith('-dev')
 
 def BuildResponse(objects):
     metadata_output = []
+    unresolved_output = []
 
     # Resolve the devices
     for obj in objects:
@@ -48,9 +49,8 @@ def BuildResponse(objects):
         distance = ComputeDistance(rssi, txpower)
 
         def append_invalid():
-            metadata_output.append({
-                'id': url,
-                'url': url
+            unresolved_output.append({
+                'id': url
             })
 
         if url is None:
@@ -61,9 +61,14 @@ def BuildResponse(objects):
             append_invalid()
             continue
 
-        siteInfo = GetSiteInfoForUrl(url, distance, force_update)
+        try:
+            siteInfo = GetSiteInfoForUrl(url, distance, force_update)
+        except FailedFetchException:
+            append_invalid()
+            continue
 
         if siteInfo is None:
+            # No Content
             continue
 
         # If the cache is older than 5 minutes, queue a refresh
@@ -88,7 +93,13 @@ def BuildResponse(objects):
         metadata_output.append(device_data)
 
     metadata_output = map(ReplaceDistanceWithRank, RankedResponse(metadata_output))
-    return metadata_output
+
+    ret = {
+        "metadata": metadata_output,
+        "unresolved": unresolved_output,
+    }
+
+    return ret
 
 ################################################################################
 
@@ -135,6 +146,9 @@ def GetSiteInfoForUrl(url, distance=None, force_update=False):
 
 ################################################################################
 
+class FailedFetchException(Exception):
+    pass
+
 def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     # Index the page
     try:
@@ -147,7 +161,7 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
                                 validate_certificate=True,
                                 headers=headers)
     except:
-        return None
+        raise FailedFetchException()
 
     logging.info('FetchAndStoreUrl url:{0}, status_code:{1}'.format(url, result.status_code))
     if result.status_code == 200 and result.content: # OK
@@ -156,7 +170,6 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
         # TODO: Use the cache-content headers for storeUrl!
         return StoreUrl(siteInfo, url, result.content, encoding)
     elif result.status_code == 204: # No Content
-        # TODO: What do we return?  we want to filter this result out
         return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = result.headers['location']
@@ -166,8 +179,10 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
             siteInfo.key.delete()
         # TODO: Most redirects should not be cached, but we should still check!
         return GetSiteInfoForUrl(final_url, distance, force_update)
-    else:
+    elif 500 <= result.status_code <= 599:
         return None
+    else:
+        raise FailedFetchException()
 
 ################################################################################
 

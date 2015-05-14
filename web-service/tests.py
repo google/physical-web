@@ -98,6 +98,7 @@ class TestResolveScan(PwsTest):
         })
         self.assertIn('metadata', result)
         self.assertEqual(len(result['metadata']), 0)
+        self.assertEqual(len(result['unresolved']), 1)
 
 
     def test_rssi_ranking(self):

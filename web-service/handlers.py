@@ -62,10 +62,8 @@ class ResolveScan(webapp2.RequestHandler):
         except:
             objects = []
 
-        metadata_output = helpers.BuildResponse(objects)
-        output = {
-          'metadata': metadata_output
-        }
+        output = helpers.BuildResponse(objects)
+
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
         self.response.write(json_data)
@@ -80,10 +78,8 @@ class DemoMetadata(webapp2.RequestHandler):
             {'url': 'http://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe'},
             {'url': 'http://sfmoma.org'}
         ]
-        metadata_output = helpers.BuildResponse(objects)
-        output = {
-          'metadata': metadata_output
-        }
+        output = helpers.BuildResponse(objects)
+
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
         self.response.write(json_data)
