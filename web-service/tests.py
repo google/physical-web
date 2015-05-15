@@ -29,7 +29,9 @@ import urllib2
 LOCAL_TEST_PORT = 9002
 
 REGRESSION_TEST_URLS = [
-        'http://www.blackanddecker.fr'
+        'http://www.blackanddecker.fr',
+        'http://www.google.com',
+        'http://dota2.gamepedia.com/',
     ]
 
 
