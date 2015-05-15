@@ -265,7 +265,7 @@ def StoreUrl(siteInfo, url, content, encoding):
         if (len(value) > 0):
             title = value[0]
     if title is not None:
-        title = FlattenString(title.encode(encoding))
+        title = FlattenString(title)
 
     # Try to use <meta name="description" content="...">.
     value = htmltree.xpath("//head//meta[@name='description']/attribute::content")
@@ -306,7 +306,7 @@ def StoreUrl(siteInfo, url, content, encoding):
 
     # Cleanup.
     if description is not None:
-        description = FlattenString(description.encode(encoding))
+        description = FlattenString(description)
         if len(description) > 500:
             description = description[:500]
 
