@@ -85,6 +85,7 @@ class TestResolveScan(PwsTest):
         self.assertIn('description', result['metadata'][0])
         self.assertIn('title', result['metadata'][0])
         self.assertIn('url', result['metadata'][0])
+        self.assertIn('displayUrl', result['metadata'][0])
         self.assertIn('rank', result['metadata'][0])
         self.assertIn('id', result['metadata'][0])
         self.assertIn('icon', result['metadata'][0])
@@ -149,7 +150,10 @@ class TestResolveScan(PwsTest):
         })
         self.assertIn('metadata', result)
         self.assertEqual(len(result['metadata']), 1)
+        # TODO: This url may change to the original url
         self.assertEqual(result['metadata'][0]['url'],
+                         'https://github.com/Google/physical-web')
+        self.assertEqual(result['metadata'][0]['displayUrl'],
                          'https://github.com/Google/physical-web')
 
     def test_redirect_with_rssi_tx_power(self):

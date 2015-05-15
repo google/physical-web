@@ -80,7 +80,10 @@ def BuildResponse(objects):
 
         device_data = {}
         device_data['id'] = url
+        # TODO: change url to the original url (perhaps minus our goo.gl shortened values)
         device_data['url'] = siteInfo.url
+        # TODO: change displayUrl to the "most applicable" url (resolve shorteners, but perhaps not all redirects)
+        device_data['displayUrl'] = siteInfo.url
         if siteInfo.title is not None:
             device_data['title'] = siteInfo.title
         if siteInfo.description is not None:
