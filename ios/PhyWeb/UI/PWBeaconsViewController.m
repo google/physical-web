@@ -327,92 +327,28 @@
 
 // Sort results by RSSI value.
 - (void)_sort {
-  BOOL stableMode = [[PWBeaconManager sharedManager] isStableMode];
-
-  BOOL hasRank = NO;
   for(PWBeacon * beacon in _beacons) {
-    if ([beacon hasRank]) {
-      hasRank = YES;
-      break;
-    }
-  }
-  if (hasRank) {
-    for(PWBeacon * beacon in _beacons) {
-      if (![beacon hasRank]) {
-        [beacon setHasRank:YES];
-        [beacon setRank:1000];
-      }
+    if (![beacon hasRank]) {
+      [beacon setHasRank:YES];
+      [beacon setRank:1000];
     }
   }
   [_beacons sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
     PWBeacon *beacon1 = obj1;
     PWBeacon *beacon2 = obj2;
-    if (stableMode) {
-      if ([beacon1 hasRank]) {
-        PWBeacon *beacon1 = obj1;
-        PWBeacon *beacon2 = obj2;
-        double diff = [beacon1 rank] - [beacon2 rank];
-        if (diff > 0) {
-          return NSOrderedDescending;
-        } else if (diff < 0) {
-          return NSOrderedAscending;
-        } else {
-          NSComparisonResult result =
-              [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
-          if (result != NSOrderedSame) {
-            return result;
-          }
-          return [[[beacon1 URL] absoluteString]
-              caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
-        }
-      } else if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
-        NSInteger regionDifference =
-            (NSInteger)[beacon1 region] - (NSInteger)[beacon2 region];
-        if (regionDifference > 0) {
-          return NSOrderedDescending;
-        } else if (regionDifference < 0) {
-          return NSOrderedAscending;
-        } else {
-          NSComparisonResult result =
-              [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
-          if (result != NSOrderedSame) {
-            return result;
-          }
-          return [[[beacon1 URL] absoluteString]
-              caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
-        }
-      } else if ([beacon1 sortByRegion]) {
-        return NSOrderedAscending;
-      } else if ([beacon2 sortByRegion]) {
-        return NSOrderedDescending;
-      } else {
-        NSComparisonResult result = [[beacon1 date] compare:[beacon2 date]];
-        if (result != NSOrderedSame) {
-          return result;
-        }
-        result = [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
-        if (result != NSOrderedSame) {
-          return result;
-        }
-        return [[[beacon1 URL] absoluteString]
-            caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
-      }
+    double diff = [beacon1 rank] - [beacon2 rank];
+    if (diff > 0) {
+      return NSOrderedDescending;
+    } else if (diff < 0) {
+      return NSOrderedAscending;
     } else {
-      NSInteger regionDifference = (NSInteger)[[beacon1 uriBeacon] region] -
-                                   (NSInteger)[[beacon2 uriBeacon] region];
-      if (regionDifference > 0) {
-        return NSOrderedDescending;
-      } else if (regionDifference < 0) {
-        return NSOrderedAscending;
-      } else {
-        NSComparisonResult result =
-            [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
-        if (result != NSOrderedSame) {
-          return result;
-        }
-        return [[[beacon1 URL] absoluteString]
-            caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
+      NSComparisonResult result =
+          [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+      if (result != NSOrderedSame) {
+        return result;
       }
+      return [[[beacon1 URL] absoluteString]
+          caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
     }
   }];
 }
