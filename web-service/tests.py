@@ -193,12 +193,13 @@ class TestResolveScan(PwsTest):
         self.assertIn('metadata', result)
         self.assertEqual(len(result['metadata']), len(REGRESSION_TEST_URLS))
 
-        #self.assertIn('description', result['metadata'][0])
-        #self.assertIn('title', result['metadata'][0])
-        #self.assertIn('url', result['metadata'][0])
-        #self.assertIn('rank', result['metadata'][0])
-        #self.assertIn('id', result['metadata'][0])
-        #self.assertIn('icon', result['metadata'][0])
+        for beaconResult in result['metadata']:
+            self.assertIn('description', beaconResult)
+            self.assertIn('title', beaconResult)
+            self.assertIn('url', beaconResult)
+            self.assertIn('rank', beaconResult)
+            self.assertIn('id', beaconResult)
+            #self.assertIn('icon', beaconResult)
 
     def test_invalid_rssi(self):
         result = self.call({
