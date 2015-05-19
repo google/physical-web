@@ -18,21 +18,34 @@ import argparse
 import json
 import nose
 import os
+import signal
 import subprocess
+import sys
 import unittest
 import urllib
 import urllib2
 
-
 LOCAL_TEST_PORT = 9002
+
+REGRESSION_TEST_URLS = [
+        'http://www.blackanddecker.fr',
+        'http://www.google.com',
+        'http://dota2.gamepedia.com/',
+        'http://www.orange.fr'
+    ]
 
 
 class PwsTest(unittest.TestCase):
     _HOST = None  # Set in main()
+    _ENABLE_EXPERIMENTAL = False
 
     @property
     def HOST(self):
         PwsTest._HOST
+
+    @property
+    def ENABLE_EXPERIMENTAL(self):
+        PwsTest._ENABLE_EXPERIMENTAL
 
     def request(self, params=None, payload=None):
         """
@@ -96,6 +109,7 @@ class TestResolveScan(PwsTest):
         })
         self.assertIn('metadata', result)
         self.assertEqual(len(result['metadata']), 0)
+        self.assertEqual(len(result['unresolved']), 1)
 
 
     def test_rssi_ranking(self):
@@ -150,6 +164,9 @@ class TestResolveScan(PwsTest):
                          'https://github.com/Google/physical-web')
 
     def test_redirect_with_rssi_tx_power(self):
+        if not self.ENABLE_EXPERIMENTAL:
+            return
+
         result = self.call({
             'objects': [
                 {
@@ -168,6 +185,20 @@ class TestResolveScan(PwsTest):
         self.assertEqual(len(result['metadata']), 1)
         self.assertEqual(result['metadata'][0]['url'],
                          'https://github.com/Google/physical-web')
+
+    def test_regression_urls(self):
+        result = self.call({
+            'objects': [ {'url': url} for url in REGRESSION_TEST_URLS ]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), len(REGRESSION_TEST_URLS))
+
+        #self.assertIn('description', result['metadata'][0])
+        #self.assertIn('title', result['metadata'][0])
+        #self.assertIn('url', result['metadata'][0])
+        #self.assertIn('rank', result['metadata'][0])
+        #self.assertIn('id', result['metadata'][0])
+        #self.assertIn('icon', result['metadata'][0])
 
 
 class TestShortenUrl(PwsTest):
@@ -217,39 +248,45 @@ def main():
     local_url = 'http://localhost:{}'.format(LOCAL_TEST_PORT)
     parser = argparse.ArgumentParser(description='Run web-service tests')
     parser.add_argument(
-            '-e', '--endpoint', dest='endpoint', default='AUTO',
+            '-e', '--endpoint', dest='endpoint', default='auto',
             help='Which server to test against.\n'
-                 'AUTO:  {} (server starts automatically)\n'
-                 'LOCAL: http://localhost:8080\n'
-                 'PROD:  http://url-caster.appspot.com\n'
-                 'DEV:   http://url-caster-dev.appspot.com\n'
+                 'auto:  {} (server starts automatically)\n'
+                 'local: http://localhost:8080\n'
+                 'prod:  http://url-caster.appspot.com\n'
+                 'dev:   http://url-caster-dev.appspot.com\n'
                  '*:     Other values interpreted literally'
                  .format(local_url))
+    parser.add_argument('-x', '--experimental', dest='experimental', action='store_true', default=False)
     args = parser.parse_args()
 
     # Setup the endpoint
     endpoint = args.endpoint
     server = None
-    if endpoint == 'AUTO':
+    if endpoint.lower() == 'auto':
         endpoint = local_url
         print 'Starting local server...',
         server = subprocess.Popen([
             'dev_appserver.py', os.path.dirname(__file__),
             '--port', str(LOCAL_TEST_PORT),
             '--admin_port', str(LOCAL_TEST_PORT + 1),
-        ], bufsize=1, stderr=subprocess.PIPE)
+        ], bufsize=1, stderr=subprocess.PIPE, preexec_fn=os.setsid)
         # Wait for the server to start up
-        for line in iter(server.stderr.readline, b''):
+        while True:
+            line = server.stderr.readline()
+            if 'Unable to bind' in line:
+                print 'Rogue server already running.'
+                return 1
             if 'running at: {}'.format(local_url) in line:
                 break
         print 'done'
-    elif endpoint == 'LOCAL':
+    elif endpoint.lower() == 'local':
         endpoint = 'http://localhost:8080'
-    elif endpoint == 'PROD':
+    elif endpoint.lower() == 'prod':
         endpoint = 'http://url-caster.appspot.com'
-    elif endpoint == 'DEV':
+    elif endpoint.lower() == 'dev':
         endpoint = 'http://url-caster-dev.appspot.com'
     PwsTest.HOST = endpoint
+    PwsTest.ENABLE_EXPERIMENTAL = args.experimental
 
     # Run the tests
     try:
@@ -257,7 +294,8 @@ def main():
     finally:
         # Teardown the endpoint
         if server:
-            server.kill()
+            os.killpg(os.getpgid(server.pid), signal.SIGINT)
+            server.wait()
 
     # We should never get here since nose.runmodule will call exit
     return 0

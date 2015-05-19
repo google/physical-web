@@ -64,5 +64,7 @@ The search agent on the phone may keep track of which devices the user taps on s
 ##8. Why Bluetooth Low Energy?
 There are many possible ways to broadcast a URL. This initial version uses Bluetooth Low Energy (BLE) as it is so ubiquitous on mobile phones and tablets today. In addition, it is very energy efficient. There are tiny BLE devices that can broadcast for nearly 2 years on a single coin cell. We are using the standard BLE 'ad packet' to broadcast out this URL so every device that supports bluetooth can receive it.
 
+However, we also support mDNS and uPnP over wifi. We are not limited to BLE, it is just the starter technology. We expect other ways of discovering URLs will be added over time.
+
 ##Next
 The next suggested document to read would be the technical [overview](http://github.com/google/physical-web/blob/master/documentation/technical_overview.md) document
