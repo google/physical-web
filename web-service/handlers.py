@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from urllib import unquote_plus
 import helpers
 import json
 import logging
@@ -54,7 +55,7 @@ class RefreshUrl(webapp2.RequestHandler):
 
 class FaviconUrl(webapp2.RequestHandler):
     def get(self):
-        url = self.request.get('url')
+        url = unquote_plus(self.request.get('url'))
         response = helpers.FaviconUrl(url)
         if response:
             self.response.headers['Content-Type'] = response.headers['Content-Type']

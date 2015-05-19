@@ -23,6 +23,7 @@ except Exception as e:
     else:
         print "Warning: import exception '{0}'".format(e)
 
+from urllib import quote_plus
 from urlparse import urljoin, urlparse
 import cgi
 import datetime
@@ -83,7 +84,7 @@ def BuildResponse(objects):
         if siteInfo.description is not None:
             device_data['description'] = siteInfo.description
         if siteInfo.favicon_url is not None:
-            device_data['icon'] = urljoin(BASE_URL, '/favicon?url=' + siteInfo.favicon_url)
+            device_data['icon'] = urljoin(BASE_URL, '/favicon?url=' + quote_plus(siteInfo.favicon_url))
         if siteInfo.jsonlds is not None:
             device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         device_data['distance'] = distance
