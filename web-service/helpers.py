@@ -166,6 +166,7 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
                                 validate_certificate=True,
                                 headers=headers)
     except:
+        logging.info('FetchAndStoreUrl FailedFetch url:{0}'.format(url))
         raise FailedFetchException()
 
     logging.info('FetchAndStoreUrl url:{0}, status_code:{1}'.format(url, result.status_code))
@@ -428,7 +429,11 @@ def RefreshUrl(url):
         # Update the timestamp before starting the request, to make sure we do not request twice.
         siteInfo.put()
 
-    FetchAndStoreUrl(siteInfo, url, force_update=True)
+    try:
+        FetchAndStoreUrl(siteInfo, url, force_update=True)
+    except FailedFetchException:
+        pass
+
 
 ################################################################################
 
