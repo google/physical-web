@@ -108,8 +108,7 @@ def ComputeDistance(rssi, txpower):
     try:
         rssi = float(rssi)
         txpower = float(txpower)
-        if rssi == 128:
-            # According to wiki, 127 is MAX and 128 is INVALID.
+        if rssi in [127, 128]: # Known invalid rssi values
             return None
         path_loss = txpower - rssi
         distance = pow(10.0, (path_loss - 41) / 20)

@@ -200,6 +200,28 @@ class TestResolveScan(PwsTest):
         #self.assertIn('id', result['metadata'][0])
         #self.assertIn('icon', result['metadata'][0])
 
+    def test_invalid_rssi(self):
+        result = self.call({
+            'objects': [{
+                'url': 'http://github.com/google/physical-web/',
+                'rssi': 127,
+                'txpower': -41
+                }]
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 1)
+
+        beaconResult = result['metadata'][0]
+
+        self.assertIn('description', beaconResult)
+        self.assertIn('title', beaconResult)
+        self.assertIn('url', beaconResult)
+        self.assertIn('rank', beaconResult)
+        self.assertIn('id', beaconResult)
+        self.assertIn('icon', beaconResult)
+
+        self.assertEqual(1000, beaconResult['rank'])
+
 
 class TestShortenUrl(PwsTest):
     PATH = 'shorten-url'
