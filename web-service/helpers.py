@@ -23,6 +23,7 @@ except Exception as e:
     else:
         print "Warning: import exception '{0}'".format(e)
 
+from urllib import quote_plus
 from urlparse import urljoin, urlparse
 import cgi
 import datetime
@@ -33,6 +34,8 @@ import lxml.etree
 ################################################################################
 
 ENABLE_EXPERIMENTAL = app_identity.get_application_id().endswith('-dev')
+PHYSICAL_WEB_USER_AGENT = 'Mozilla/5.0' # TODO: Find a more descriptive string.
+BASE_URL = 'https://' + app_identity.get_application_id() + '.appspot.com'
 
 ################################################################################
 
@@ -89,7 +92,7 @@ def BuildResponse(objects):
         if siteInfo.description is not None:
             device_data['description'] = siteInfo.description
         if siteInfo.favicon_url is not None:
-            device_data['icon'] = siteInfo.favicon_url
+            device_data['icon'] = urljoin(BASE_URL, '/favicon?url=' + quote_plus(siteInfo.favicon_url))
         if siteInfo.jsonlds is not None:
             device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         device_data['distance'] = distance
@@ -110,8 +113,7 @@ def ComputeDistance(rssi, txpower):
     try:
         rssi = float(rssi)
         txpower = float(txpower)
-        if rssi == 128:
-            # According to wiki, 127 is MAX and 128 is INVALID.
+        if rssi in [127, 128]: # Known invalid rssi values
             return None
         path_loss = txpower - rssi
         distance = pow(10.0, (path_loss - 41) / 20)
@@ -155,7 +157,7 @@ class FailedFetchException(Exception):
 def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     # Index the page
     try:
-        headers = {}
+        headers = {'User-Agent': PHYSICAL_WEB_USER_AGENT}
         if ENABLE_EXPERIMENTAL and distance is not None:
             headers['X-PhysicalWeb-Distance'] = distance
 
@@ -190,6 +192,13 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
 ################################################################################
 
 def GetContentEncoding(content):
+    try:
+        # Don't assume server return proper charset and always try UTF-8 first.
+        u_value = unicode(content, 'utf-8')
+        return 'utf-8'
+    except UnicodeDecodeError:
+        pass
+
     encoding = None
     parser = lxml.etree.HTMLParser(encoding='iso-8859-1')
     htmltree = lxml.etree.fromstring(content, parser)
@@ -207,12 +216,8 @@ def GetContentEncoding(content):
             encoding = value[0]
 
     if encoding is None:
-        try:
-            encoding = 'utf-8'
-            u_value = unicode(content, 'utf-8')
-        except UnicodeDecodeError:
-            encoding = 'iso-8859-1'
-            u_value = unicode(content, 'iso-8859-1')
+        encoding = 'iso-8859-1'
+        u_value = unicode(content, 'iso-8859-1')
 
     return encoding
 
@@ -394,6 +399,18 @@ def StoreUrl(siteInfo, url, content, encoding):
         siteInfo.put()
 
     return siteInfo
+
+################################################################################
+
+def FaviconUrl(url):
+    # Fetch only favicons for sites we've already added to our database.
+    if models.SiteInformation.query(models.SiteInformation.favicon_url==url).count(limit=1):
+        try:
+            headers = {'User-Agent': PHYSICAL_WEB_USER_AGENT}
+            return urlfetch.fetch(url, headers=headers)
+        except:
+            return None
+    return None
 
 ################################################################################
 

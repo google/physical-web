@@ -22,7 +22,7 @@ class BaseModel(ndb.Model):
 
 class SiteInformation(BaseModel):
     url = ndb.TextProperty()
-    favicon_url = ndb.TextProperty()
+    favicon_url = ndb.TextProperty(indexed = True)
     title = ndb.TextProperty()
     description = ndb.TextProperty()
     jsonlds = ndb.TextProperty()
