@@ -23,6 +23,7 @@ except Exception as e:
     else:
         print "Warning: import exception '{0}'".format(e)
 
+from urllib import quote_plus
 from urlparse import urljoin, urlparse
 import cgi
 import datetime
@@ -34,6 +35,7 @@ import lxml.etree
 
 ENABLE_EXPERIMENTAL = app_identity.get_application_id().endswith('-dev')
 PHYSICAL_WEB_USER_AGENT = 'Mozilla/5.0' # TODO: Find a more descriptive string.
+BASE_URL = 'https://' + app_identity.get_application_id() + '.appspot.com'
 
 ################################################################################
 
@@ -87,7 +89,7 @@ def BuildResponse(objects):
         if siteInfo.description is not None:
             device_data['description'] = siteInfo.description
         if siteInfo.favicon_url is not None:
-            device_data['icon'] = siteInfo.favicon_url
+            device_data['icon'] = urljoin(BASE_URL, '/favicon?url=' + quote_plus(siteInfo.favicon_url))
         if siteInfo.jsonlds is not None:
             device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         device_data['distance'] = distance
@@ -391,6 +393,18 @@ def StoreUrl(siteInfo, url, content, encoding):
         siteInfo.put()
 
     return siteInfo
+
+################################################################################
+
+def FaviconUrl(url):
+    # Fetch only favicons for sites we've already added to our database.
+    if models.SiteInformation.query(models.SiteInformation.favicon_url==url).count(limit=1):
+        try:
+            headers = {'User-Agent': PHYSICAL_WEB_USER_AGENT}
+            return urlfetch.fetch(url, headers=headers)
+        except:
+            return None
+    return None
 
 ################################################################################
 
