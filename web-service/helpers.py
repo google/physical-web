@@ -189,6 +189,13 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
 ################################################################################
 
 def GetContentEncoding(content):
+    try:
+        # Don't assume server return proper charset and always try UTF-8 first.
+        u_value = unicode(content, 'utf-8')
+        return 'utf-8'
+    except UnicodeDecodeError:
+        pass
+
     encoding = None
     parser = lxml.etree.HTMLParser(encoding='iso-8859-1')
     htmltree = lxml.etree.fromstring(content, parser)
@@ -206,12 +213,8 @@ def GetContentEncoding(content):
             encoding = value[0]
 
     if encoding is None:
-        try:
-            encoding = 'utf-8'
-            u_value = unicode(content, 'utf-8')
-        except UnicodeDecodeError:
-            encoding = 'iso-8859-1'
-            u_value = unicode(content, 'iso-8859-1')
+        encoding = 'iso-8859-1'
+        u_value = unicode(content, 'iso-8859-1')
 
     return encoding
 
