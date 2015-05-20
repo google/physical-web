@@ -207,7 +207,7 @@ class TestResolveScan(PwsTest):
             self.assertIn('url', beaconResult)
             self.assertIn('rank', beaconResult)
             self.assertIn('id', beaconResult)
-            #self.assertIn('icon', beaconResult)
+            self.assertIn('icon', beaconResult)
 
     def test_invalid_rssi(self):
         result = self.call({

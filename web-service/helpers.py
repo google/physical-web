@@ -355,7 +355,8 @@ def StoreUrl(siteInfo, url, content, encoding):
             contentType = result.headers['Content-Type']
             if contentType is None:
                 icon = None
-            elif not contentType.startswith('image/'):
+            elif (contentType != 'application/octet-stream' and
+                  not contentType.startswith('image/')):
                 icon = None
     except:
         s_url = url
