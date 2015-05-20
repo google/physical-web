@@ -45,8 +45,8 @@ import java.util.Collection;
  */
 class PwsClient {
   private static final String TAG = "PwsClient";
-  private static final String PROD_URL = "http://url-caster.appspot.com";
-  //private static final String DEV_URL = "http://url-caster-dev.appspot.com";
+  private static final String PROD_URL = "https://url-caster.appspot.com";
+  //private static final String DEV_URL = "https://url-caster-dev.appspot.com";
   private static final String RESOLVE_SCAN_PATH = "resolve-scan";
   private static final String DEMO_RESOLVE_SCAN_PATH = "demo";
   private static final String SHORTEN_URL_PATH = "shorten-url";
