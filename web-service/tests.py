@@ -283,8 +283,8 @@ def main():
             help='Which server to test against.\n'
                  'auto:  {} (server starts automatically)\n'
                  'local: http://localhost:8080\n'
-                 'prod:  http://url-caster.appspot.com\n'
-                 'dev:   http://url-caster-dev.appspot.com\n'
+                 'prod:  https://url-caster.appspot.com\n'
+                 'dev:   https://url-caster-dev.appspot.com\n'
                  '*:     Other values interpreted literally'
                  .format(local_url))
     parser.add_argument('-x', '--experimental', dest='experimental', action='store_true', default=False)
@@ -313,9 +313,9 @@ def main():
     elif endpoint.lower() == 'local':
         endpoint = 'http://localhost:8080'
     elif endpoint.lower() == 'prod':
-        endpoint = 'http://url-caster.appspot.com'
+        endpoint = 'https://url-caster.appspot.com'
     elif endpoint.lower() == 'dev':
-        endpoint = 'http://url-caster-dev.appspot.com'
+        endpoint = 'https://url-caster-dev.appspot.com'
     PwsTest.HOST = endpoint
     PwsTest.ENABLE_EXPERIMENTAL = args.experimental
 
