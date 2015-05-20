@@ -319,6 +319,7 @@ def StoreUrl(siteInfo, url, content, encoding):
         if len(description) > 500:
             description = description[:500]
 
+    # Icon
     if icon is None:
         value = htmltree.xpath("//head//link[@rel='shortcut icon']/attribute::href");
         if (len(value) > 0):
@@ -346,28 +347,8 @@ def StoreUrl(siteInfo, url, content, encoding):
         icon = urljoin(url, icon)
     if icon is None:
         icon = urljoin(url, '/favicon.ico')
-    # make sure the icon exists
-    try:
-        result = urlfetch.fetch(icon, method = 'HEAD')
-        if result.status_code != 200:
-            icon = None
-        else:
-            contentType = result.headers['Content-Type']
-            if contentType is None:
-                icon = None
-            elif (contentType != 'application/octet-stream' and
-                  not contentType.startswith('image/')):
-                icon = None
-    except:
-        s_url = url
-        s_icon = icon
-        if s_url is None:
-            s_url = '[none]'
-        if s_icon is None:
-            s_icon = '[none]'
-        logging.warning('icon error with ' + s_url + ' -> ' + s_icon)
-        icon = None
 
+    # json-lds
     jsonlds = []
     value = htmltree.xpath("//head//script[@type='application/ld+json']/text()");
     for jsonldtext in value:
@@ -384,7 +365,9 @@ def StoreUrl(siteInfo, url, content, encoding):
     else:
         jsonlds_data = None
 
+    # Add to cache
     if siteInfo is None:
+        # Add a new value
         siteInfo = models.SiteInformation.get_or_insert(url,
             url = url,
             title = title,
