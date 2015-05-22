@@ -71,15 +71,8 @@ def BuildResponse(objects):
             continue
 
         if siteInfo is None:
-            # No Content
+            # It's a valid url, which we didn't fail to fetch, so it must be `No Content`
             continue
-
-        # If the cache is older than 5 minutes, queue a refresh
-        updated_ago = datetime.datetime.now() - siteInfo.updated_on
-        if updated_ago > datetime.timedelta(minutes=5):
-            logging.info('Queue RefreshUrl for url: {0}, which was updated {1} ago'.format(url, updated_ago))
-            # Add request to queue.
-            taskqueue.add(url='/refresh-url', params={'url': url})
 
         device_data = {}
         device_data['id'] = url
@@ -142,10 +135,22 @@ def ReplaceDistanceWithRank(device_data):
 def GetSiteInfoForUrl(url, distance=None, force_update=False):
     logging.info('GetSiteInfoForUrl url:{0}, distance:{1}'.format(url, distance))
 
-    siteInfo = models.SiteInformation.get_by_id(url)
+    siteInfo = None
 
-    if force_update or siteInfo is None:
+    if force_update:
         siteInfo = FetchAndStoreUrl(siteInfo, url, distance, force_update)
+    else:
+        siteInfo = models.SiteInformation.get_by_id(url)
+
+        if siteInfo is None:
+            siteInfo = FetchAndStoreUrl(siteInfo, url, distance, force_update)
+        else:
+            # If the cache is older than 5 minutes, queue a refresh
+            updated_ago = datetime.datetime.now() - siteInfo.updated_on
+            if updated_ago > datetime.timedelta(minutes=5):
+                logging.info('Queue RefreshUrl for url: {0}, which was updated {1} ago'.format(url, updated_ago))
+                # Add request to queue.
+                taskqueue.add(url='/refresh-url', params={'url': url})
 
     return siteInfo
 
