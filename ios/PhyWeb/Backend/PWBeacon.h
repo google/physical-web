@@ -23,8 +23,14 @@
 
 @property(nonatomic, retain) UBUriBeacon *uriBeacon;
 
-// URL of the page (if shortened, it will be expanded).
+// URL of the page stored on the beacon.
 @property(nonatomic, copy) NSURL *URL;
+
+// URL of the page to display to the user.
+@property(nonatomic, copy) NSURL *displayURL;
+
+// Whether the display URL has been set by the server.
+@property(nonatomic, assign) BOOL hasDisplayURL;
 
 // Title of the page.
 @property(nonatomic, copy) NSString *title;

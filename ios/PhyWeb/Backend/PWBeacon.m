@@ -36,6 +36,10 @@
   if (urlString == (NSString *)[NSNull null]) {
     urlString = nil;
   }
+  NSString *displayUrlString = info[@"displayUrl"];
+  if (displayUrlString == (NSString *)[NSNull null]) {
+    displayUrlString = nil;
+  }
   NSNumber *rankNumber = info[@"rank"];
   if (rankNumber == (NSNumber *)[NSNull null]) {
     rankNumber = nil;
@@ -57,6 +61,10 @@
   } else if (urlString != nil) {
     [self setURL:[NSURL URLWithString:urlString]];
   }
+  [self setHasDisplayURL:displayUrlString != nil];
+  [self setDisplayURL:displayUrlString != nil
+                          ? [NSURL URLWithString:displayUrlString]
+                          : [self URL]];
   [self setTitle:title];
   [self setSnippet:desc];
   [self setIconURL:[NSURL URLWithString:icon]];
