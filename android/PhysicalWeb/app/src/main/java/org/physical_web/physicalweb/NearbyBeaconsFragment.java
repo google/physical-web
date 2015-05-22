@@ -555,10 +555,12 @@ public class NearbyBeaconsFragment extends ListFragment
       if (mDebugRangingViewEnabled) {
         updateRangingDebugView(url, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
       }
       // Otherwise ensure it is not shown
       else {
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
+        view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
       }
 
       return view;
@@ -586,6 +588,14 @@ public class NearbyBeaconsFragment extends ListFragment
       String regionString = getString(R.string.ranging_debug_region_prefix) + RangingUtils.toString(region);
       TextView regionView = (TextView) view.findViewById(R.id.ranging_debug_region);
       regionView.setText(regionString);
+
+      PwsClient.UrlMetadata metadata = mUrlToUrlMetadata.get(url);
+      if (metadata != null) {
+        float rank = metadata.rank;
+        String rankString = getString(R.string.metadata_debug_rank_prefix) + rank;
+        TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
+        rankView.setText(rankString);
+      }
     }
 
     public String getUrlForListItem(int i) {
