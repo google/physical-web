@@ -30,6 +30,9 @@ The basic scanner uses [node-uri-beacon-scanner](https://github.com/sandeepmistr
 
 Then prints out the URI, flags, TX power and RSSI for each discovered beacon.
 
+### Other examples
+
+* [Physical Web Scan](https://github.com/dermike/physical-web-scan) - using the PW proxy to display metadata
 
 ## More information
 
