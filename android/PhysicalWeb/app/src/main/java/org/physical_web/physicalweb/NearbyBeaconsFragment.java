@@ -496,11 +496,13 @@ public class NearbyBeaconsFragment extends ListFragment
         updateRangingDebugView(url, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
+        PwsClient.getInstance(getActivity()).useDevEndpoint();
       }
       // Otherwise ensure it is not shown
       else {
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
+        PwsClient.getInstance(getActivity()).useProdEndpoint();
       }
 
       return view;

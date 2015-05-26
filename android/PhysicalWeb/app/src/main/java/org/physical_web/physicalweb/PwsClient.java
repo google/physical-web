@@ -46,19 +46,21 @@ import java.util.Collection;
 class PwsClient {
   private static final String TAG = "PwsClient";
   private static final String PROD_URL = "https://url-caster.appspot.com";
-  //private static final String DEV_URL = "https://url-caster-dev.appspot.com";
+  private static final String DEV_URL = "https://url-caster-dev.appspot.com";
   private static final String RESOLVE_SCAN_PATH = "resolve-scan";
   private static final String DEMO_RESOLVE_SCAN_PATH = "demo";
   private static final String SHORTEN_URL_PATH = "shorten-url";
   private static final int UNDEFINED_SCORE = -1;
   private RequestQueue mRequestQueue;
   private Context mContext;
+  private String mEndpointUrl;
 
   private static PwsClient mInstance;
 
   private PwsClient(Context context) {
     mContext = context.getApplicationContext();
     mRequestQueue = Volley.newRequestQueue(mContext);
+    mEndpointUrl = PROD_URL;
   }
 
   public static PwsClient getInstance(Context context) {
@@ -279,6 +281,14 @@ class PwsClient {
 
   public void cancelAllRequests(final String tag) {
     mRequestQueue.cancelAll(tag);
+  }
+
+  public void useProdEndpoint() {
+      mEndpointUrl = PROD_URL;
+  }
+
+  public void useDevEndpoint() {
+      mEndpointUrl = DEV_URL;
   }
 
 
