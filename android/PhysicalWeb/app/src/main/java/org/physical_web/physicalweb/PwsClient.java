@@ -90,8 +90,8 @@ class PwsClient {
   // utilities
   /////////////////////////////////
 
-  private static String constructUrlStr(final String path) {
-    return PROD_URL + "/" + path;
+  private String constructUrlStr(final String path) {
+    return mEndpointUrl + "/" + path;
   }
 
   public void shortenUrl(final String longUrl,
