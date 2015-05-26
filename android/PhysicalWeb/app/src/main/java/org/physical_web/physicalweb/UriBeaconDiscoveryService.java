@@ -103,7 +103,7 @@ public class UriBeaconDiscoveryService extends Service
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
-  private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_LOW;
+  private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_MIN;
   private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static final long NOTIFICATION_UPDATE_GATE_DURATION = 1000;
   private boolean mCanUpdateNotifications = false;
