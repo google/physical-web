@@ -217,56 +217,22 @@ class PwsClient {
               if (foundMetaData.length() > 0) {
 
                 for (int i = 0; i < foundMetaData.length(); i++) {
-
                   JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(i);
 
-                  String title = "";
-                  String url = "";
-                  String description = "";
-                  String iconUrl = "/favicon.ico";
-                  String id = jsonUrlMetadata.getString("id");
-                  float score = UNDEFINED_SCORE;
-
-                  if (jsonUrlMetadata.has("title")) {
-                    title = jsonUrlMetadata.getString("title");
-                  }
-                  if (jsonUrlMetadata.has("url")) {
-                    url = jsonUrlMetadata.getString("url");
-                  }
-                  if (jsonUrlMetadata.has("description")) {
-                    description = jsonUrlMetadata.getString("description");
-                  }
-                  if (jsonUrlMetadata.has("icon")) {
-                    // We might need to do some magic here.
-                    iconUrl = jsonUrlMetadata.getString("icon");
-                  }
-                  if (jsonUrlMetadata.has("score")) {
-                    score = Float.parseFloat(jsonUrlMetadata.getString("score"));
-                  }
-
-                  // TODO: Eliminate this fallback since we expect the server to always return an icon.
-                  // Provisions for a favicon specified as a relative URL.
-                  if (!iconUrl.startsWith("http")) {
-                    // Lets just assume we are dealing with a relative path.
-                    Uri fullUri = Uri.parse(url);
-                    Uri.Builder builder = fullUri.buildUpon();
-                    // Append the default favicon path to the URL.
-                    builder.path(iconUrl);
-                    iconUrl = builder.toString();
-                  }
-
-                  // Create the metadata object
                   UrlMetadata urlMetadata = new UrlMetadata();
-                  urlMetadata.title = title;
-                  urlMetadata.description = description;
-                  urlMetadata.siteUrl = url;
-                  urlMetadata.iconUrl = iconUrl;
-                  urlMetadata.score = score;
+                  urlMetadata.id = jsonUrlMetadata.getString("id");
+                  urlMetadata.siteUrl = jsonUrlMetadata.getString("url");
+                  urlMetadata.displayUrl = jsonUrlMetadata.getString("displayUrl");
+                  urlMetadata.title = jsonUrlMetadata.optString("title");
+                  urlMetadata.description = jsonUrlMetadata.optString("description");
+                  urlMetadata.iconUrl = jsonUrlMetadata.optString("icon");
+                  urlMetadata.rank = (float)jsonUrlMetadata.getDouble("rank");
 
-                  // Kick off the icon download
-                  downloadIcon(urlMetadata, resolveScanCallback);
+                  if (!urlMetadata.iconUrl.isEmpty()) {
+                    downloadIcon(urlMetadata, resolveScanCallback);
+                  }
 
-                  resolveScanCallback.onUrlMetadataReceived(id, urlMetadata);
+                  resolveScanCallback.onUrlMetadataReceived(urlMetadata.id, urlMetadata);
                 }
 
               }
@@ -283,18 +249,6 @@ class PwsClient {
           }
         }
     );
-  }
-
-  // TODO: this method will become moot once the proxy server scores all requested urls
-  public static boolean checkIfMetadataContainsSortingScores(Collection<UrlMetadata> urlMetadataCollection) {
-    for (UrlMetadata urlMetadata : urlMetadataCollection) {
-      if (urlMetadata != null) {
-        if (urlMetadata.score == UNDEFINED_SCORE) {
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   /**
@@ -340,12 +294,14 @@ class PwsClient {
    * and returns a json blob.
    */
   public static class UrlMetadata {
-    public String title;
+    public String id;
     public String siteUrl;
+    public String displayUrl;
+    public String title;
     public String description;
     public String iconUrl;
     public Bitmap icon;
-    public float score;
+    public float rank;
 
     public UrlMetadata() {
     }
