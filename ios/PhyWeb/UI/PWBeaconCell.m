@@ -162,7 +162,7 @@ typedef struct {
   _beacon = beacon;
 
   [_titleLabel setText:[[self beacon] title]];
-  [_urlLabel setText:[[[self beacon] URL] absoluteString]];
+  [_urlLabel setText:[[[self beacon] displayURL] absoluteString]];
   [_descriptionLabel setText:snippetForBeacon([self beacon])];
 #if !TODAY_EXTENSION
   if ([[self beacon] iconURL] == nil) {

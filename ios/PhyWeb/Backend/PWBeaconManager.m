@@ -306,16 +306,22 @@
   } else {
     beacon = [[PWBeacon alloc] initWithUriBeacon:uriBeacon info:nil];
   }
-  [PWURLShortener
-       expandURL:[beacon URL]
-      completion:^(NSError* error, NSURL* resultURL) {
+  if (![beacon hasDisplayURL]) {
+    [PWURLShortener
+         expandURL:[beacon URL]
+        completion:^(NSError* error, NSURL* resultURL) {
           // Add beacon to the results.
           [beacon setURL:resultURL];
           [_beaconsDict setObject:beacon forKey:[[beacon uriBeacon] URI]];
           [_pendingURLRequest removeObject:[uriBeacon URI]];
           [_requests removeObject:request];
           [self _notify];
-      }];
+        }];
+  }
+  [_beaconsDict setObject:beacon forKey:[[beacon uriBeacon] URI]];
+  [_pendingURLRequest removeObject:[uriBeacon URI]];
+  [_requests removeObject:request];
+  [self _notify];
 }
 
 // Remove expired beacons.
