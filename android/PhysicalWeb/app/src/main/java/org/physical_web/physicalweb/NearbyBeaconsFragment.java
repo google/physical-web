@@ -55,6 +55,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +80,9 @@ public class NearbyBeaconsFragment extends ListFragment
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothAdapter mBluetoothAdapter;
   private HashMap<String, PwsClient.UrlMetadata> mUrlToUrlMetadata;
+  private long mScanStartTimestamp;
+  private HashMap<String, Long> mUrlToScanTime;
+  private HashMap<String, Long> mUrlToPwsTripTime;
   private AnimationDrawable mScanningAnimationDrawable;
   private boolean mIsDemoMode;
   private boolean mIsScanRunning;
@@ -130,6 +134,8 @@ public class NearbyBeaconsFragment extends ListFragment
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
     mUrlToUrlMetadata = new HashMap<>();
+    mUrlToScanTime = new HashMap<>();
+    mUrlToPwsTripTime = new HashMap<>();
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
 
@@ -240,9 +246,11 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
+  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+                                    long tripMillis) {
     mUrlToUrlMetadata.put(url, urlMetadata);
     mNearbyDeviceAdapter.notifyDataSetChanged();
+    mUrlToPwsTripTime.put(url, tripMillis);
   }
 
   @Override
@@ -252,9 +260,11 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
     @Override
-    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
+    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+                                      long tripMillis) {
       // Update the hash table
       mUrlToUrlMetadata.put(url, urlMetadata);
+      mUrlToPwsTripTime.put(url, tripMillis);
       // Fabricate the adapter values so that we can show these demo beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
       int mockRssi = 0;
@@ -287,6 +297,7 @@ public class NearbyBeaconsFragment extends ListFragment
         mUrlToUrlMetadata.clear();
         mNearbyDeviceAdapter.clear();
         // Start the scan
+        mScanStartTimestamp = new Date().getTime();
         mBluetoothAdapter.startLeScan(mLeScanCallback);
         // If we should stop scanning
       } else {
@@ -389,6 +400,7 @@ public class NearbyBeaconsFragment extends ListFragment
                 String address = device.getAddress();
                 // If we haven't yet seen this url
                 if (!mUrlToUrlMetadata.containsKey(url)) {
+                  mUrlToScanTime.put(url, new Date().getTime() - mScanStartTimestamp);
                   mUrlToUrlMetadata.put(url, null);
                   mNearbyDeviceAdapter.addItem(url, address, txPower);
                   // Fetch the metadata for this url
@@ -523,7 +535,8 @@ public class NearbyBeaconsFragment extends ListFragment
       rssiView.setText(rssiString);
 
       double distance = mRegionResolver.getDistance(deviceAddress);
-      String distanceString = getString(R.string.ranging_debug_distance_prefix) + new DecimalFormat("##.##").format(distance);
+      String distanceString = getString(R.string.ranging_debug_distance_prefix)
+          + new DecimalFormat("##.##").format(distance);
       TextView distanceView = (TextView) view.findViewById(R.id.ranging_debug_distance);
       distanceView.setText(distanceString);
 
@@ -535,9 +548,22 @@ public class NearbyBeaconsFragment extends ListFragment
       PwsClient.UrlMetadata metadata = mUrlToUrlMetadata.get(url);
       if (metadata != null) {
         float rank = metadata.rank;
-        String rankString = getString(R.string.metadata_debug_rank_prefix) + rank;
+        String rankString = getString(R.string.metadata_debug_rank_prefix)
+            + new DecimalFormat("##.##").format(rank);
         TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
         rankView.setText(rankString);
+
+        float scanTime = mUrlToScanTime.get(url) / 1000.0f;
+        String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)
+            + new DecimalFormat("##.##s").format(scanTime);
+        TextView scanTimeView = (TextView) view.findViewById(R.id.metadata_debug_scan_time);
+        scanTimeView.setText(scanTimeString);
+
+        float pwsTripTime = mUrlToPwsTripTime.get(url) / 1000.0f;
+        String pwsTripTimeString = "" + getString(R.string.metadata_debug_pws_trip_time_prefix)
+            + new DecimalFormat("##.##s").format(pwsTripTime);
+        TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
+        pwsTripTimeView.setText(pwsTripTimeString);
       }
     }
 

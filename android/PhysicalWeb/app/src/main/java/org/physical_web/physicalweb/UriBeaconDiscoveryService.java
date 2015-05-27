@@ -215,7 +215,8 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
+  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+                                    long tripMillis) {
     mUrlToUrlMetadata.put(url, urlMetadata);
     updateNotifications();
   }
@@ -227,7 +228,8 @@ public class UriBeaconDiscoveryService extends Service
 
   private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
     @Override
-    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata) {
+    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+                                      long tripMillis) {
     }
 
     @Override
