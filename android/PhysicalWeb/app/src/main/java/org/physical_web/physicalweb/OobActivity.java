@@ -49,7 +49,6 @@ public class OobActivity extends ActionBarActivity {
     // Force the background color to update (it uses the color specified in the layout xml)
     webView.setBackgroundColor(0x000);
     webView.getSettings().setJavaScriptEnabled(true);
-    webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
     webView.setWebViewClient(new WebViewClient());
     webView.loadUrl(getString(R.string.url_getting_started));
   }

@@ -178,11 +178,13 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public int onStartCommand(Intent intent, int flags, int startId) {
     // Since sometimes the lists have values when onStartCommand gets called
     initializeLists();
     // Start scanning only if the screen is on
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+    // NOTE: use powerManager.isInteractive() when minsdk >= 20
     if (powerManager.isScreenOn()) {
       mCanUpdateNotifications = false;
       mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);

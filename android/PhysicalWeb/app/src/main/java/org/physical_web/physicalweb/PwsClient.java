@@ -35,7 +35,6 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collection;
 
 /**
  * This class sends requests to the physical web service.
@@ -108,7 +107,7 @@ class PwsClient {
     }
 
     // Create the http request
-    Request request = new JsonObjectRequest(
+    JsonObjectRequest request = new JsonObjectRequest(
         constructUrlStr(SHORTEN_URL_PATH),
         jsonObject,
         new Response.Listener<JSONObject>() {
@@ -148,7 +147,7 @@ class PwsClient {
     JSONObject jsonObj = createUrlMetadataRequestObject(url, txPower, rssi);
     // Create the metadata request
     // for the given json request object
-    Request request = createUrlMetadataRequest(jsonObj, false, resolveScanCallback);
+    JsonObjectRequest request = createUrlMetadataRequest(jsonObj, false, resolveScanCallback);
     request.setTag(tag);
     // Queue the request
     mRequestQueue.add(request);
@@ -157,7 +156,7 @@ class PwsClient {
   public void findDemoUrlMetadata(ResolveScanCallback resolveScanCallback, final String tag) {
     // Create the metadata request
     // for the given json request object
-    Request request = createUrlMetadataRequest(null, true, resolveScanCallback);
+    JsonObjectRequest request = createUrlMetadataRequest(null, true, resolveScanCallback);
     request.setTag(tag);
     // Queue the request
     mRequestQueue.add(request);
@@ -194,7 +193,7 @@ class PwsClient {
    * @param jsonObj The given json object to use in the request
    * @return The created json request object
    */
-  private Request createUrlMetadataRequest(
+  private JsonObjectRequest createUrlMetadataRequest(
       JSONObject jsonObj,
       final boolean isDemoRequest,
       final ResolveScanCallback resolveScanCallback) {
