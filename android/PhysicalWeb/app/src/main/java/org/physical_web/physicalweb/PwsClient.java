@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Date;
 
 /**
  * This class sends requests to the physical web service.
@@ -75,7 +76,7 @@ class PwsClient {
   /////////////////////////////////
 
   public interface ResolveScanCallback {
-    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata);
+    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata, long tripMillis);
     public void onUrlMetadataIconReceived();
   }
 
@@ -201,6 +202,7 @@ class PwsClient {
     if (isDemoRequest) {
         resolveScanPath = DEMO_RESOLVE_SCAN_PATH;
     }
+    final long creationTimestamp = new Date().getTime();
 
     return new JsonObjectRequest(
         constructUrlStr(resolveScanPath),
@@ -233,7 +235,9 @@ class PwsClient {
                     downloadIcon(urlMetadata, resolveScanCallback);
                   }
 
-                  resolveScanCallback.onUrlMetadataReceived(urlMetadata.id, urlMetadata);
+                  long tripMillis = new Date().getTime() - creationTimestamp;
+                  resolveScanCallback.onUrlMetadataReceived(urlMetadata.id, urlMetadata,
+                                                            tripMillis);
                 }
 
               }
