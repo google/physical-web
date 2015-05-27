@@ -53,7 +53,6 @@ public class AboutFragment extends Fragment {
   private void initializeWebView() {
     WebView webView = (WebView) getActivity().findViewById(R.id.about_webview);
     webView.getSettings().setJavaScriptEnabled(true);
-    webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
     webView.setWebViewClient(new WebViewClient());
     webView.loadUrl(getString(R.string.url_getting_started));
   }
