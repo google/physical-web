@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -96,7 +97,7 @@ public class NearbyBeaconsFragment extends ListFragment
       scanLeDevice(false);
       mMdnsUrlDiscoverer.stopScanning();
       mSsdpUrlDiscoverer.stopScanning();
-      mNearbyDeviceAdapter.sortDevices();
+      mNearbyDeviceAdapter.sortUrls();
       mNearbyDeviceAdapter.notifyDataSetChanged();
       fadeInListView();
     }
@@ -225,7 +226,7 @@ public class NearbyBeaconsFragment extends ListFragment
       return;
     }
     // Get the url for the given item
-    String url = mNearbyDeviceAdapter.getUrlForListItem(position);
+    String url = mNearbyDeviceAdapter.getItem(position);
     String urlToNavigateTo = url;
     // If this url has metadata
     if (mUrlToUrlMetadata.get(url) != null) {
@@ -261,7 +262,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
       mNearbyDeviceAdapter.updateItem(url, mockAddress, mockRssi, mockTxPower);
       // Inform the list adapter of the new data
-      mNearbyDeviceAdapter.sortDevices();
+      mNearbyDeviceAdapter.sortUrls();
       mNearbyDeviceAdapter.notifyDataSetChanged();
       // Stop the refresh animation
       mSwipeRefreshWidget.setRefreshing(false);
@@ -416,14 +417,14 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public final RegionResolver mRegionResolver;
     private final HashMap<String, String> mUrlToDeviceAddress;
-    private List<String> mSortedDevices;
+    private List<String> mSortedUrls;
     private final HashMap<String, Integer> mUrlToTxPower;
 
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();
       mUrlToTxPower = new HashMap<>();
       mRegionResolver = new RegionResolver();
-      mSortedDevices = new ArrayList<>();
+      mSortedUrls = new ArrayList<>();
     }
 
     public void updateItem(String url, String address, int rssi, int txPower) {
@@ -437,12 +438,12 @@ public class NearbyBeaconsFragment extends ListFragment
 
     @Override
     public int getCount() {
-      return mSortedDevices.size();
+      return mSortedUrls.size();
     }
 
     @Override
     public String getItem(int i) {
-      return mSortedDevices.get(i);
+      return mSortedUrls.get(i);
     }
 
     @Override
@@ -465,7 +466,7 @@ public class NearbyBeaconsFragment extends ListFragment
       ImageView iconImageView = (ImageView) view.findViewById(R.id.icon);
 
       // Get the url for the given position
-      String url = getUrlForListItem(i);
+      String url = getItem(i);
 
       // Get the metadata for this url
       PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
@@ -540,23 +541,14 @@ public class NearbyBeaconsFragment extends ListFragment
       }
     }
 
-    public String getUrlForListItem(int i) {
-      String address = getItem(i);
-      for (String url : mUrlToDeviceAddress.keySet()) {
-        if (mUrlToDeviceAddress.get(url).equals(address)) {
-          return url;
-        }
-      }
-      return null;
-    }
-
-    public void sortDevices() {
-      mSortedDevices = new ArrayList<>(mUrlToDeviceAddress.values());
-      Collections.sort(mSortedDevices, new MetadataComparator(mUrlToUrlMetadata));
+    public void sortUrls() {
+      Log.d(TAG, "Sorting urls");
+      mSortedUrls = new ArrayList<>(mUrlToDeviceAddress.keySet());
+      Collections.sort(mSortedUrls, new MetadataComparator(mUrlToUrlMetadata));
     }
 
     public void clear() {
-      mSortedDevices.clear();
+      mSortedUrls.clear();
       mUrlToDeviceAddress.clear();
       notifyDataSetChanged();
     }
