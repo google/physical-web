@@ -133,14 +133,14 @@
             android:layout_weight="1"
             android:textSize="16sp"
             android:textColor="#bbbbbb"
-            android:id="@+id/metadata_debug_rank"/>
+            android:id="@+id/metadata_debug_scan_time"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:textSize="16sp"
             android:textColor="#bbbbbb"
-            android:id="@+id/metadata_debug_scan_time"/>
+            android:id="@+id/metadata_debug_rank"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

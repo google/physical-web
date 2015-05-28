@@ -92,7 +92,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
-  private boolean mDebugRangingViewEnabled = false;
+  private boolean mDebugViewEnabled = false;
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
     @Override
@@ -108,7 +108,7 @@ public class NearbyBeaconsFragment extends ListFragment
   };
   private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener = new AdapterView.OnItemLongClickListener() {
     public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-      mDebugRangingViewEnabled = !mDebugRangingViewEnabled;
+      mDebugViewEnabled = !mDebugViewEnabled;
       mNearbyDeviceAdapter.notifyDataSetChanged();
       return true;
     }
@@ -484,10 +484,12 @@ public class NearbyBeaconsFragment extends ListFragment
       PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
       // If the metadata exists
       if (urlMetadata != null) {
+        Log.d(TAG, url + " Metadata not null1");
         // Set the title text
         titleTextView.setText(urlMetadata.title);
         // Set the url text
-        urlTextView.setText(urlMetadata.displayUrl);
+        //TODO: urlTextView.setText(urlMetadata.displayUrl);
+        urlTextView.setText(url);
         // Set the description text
         descriptionTextView.setText(urlMetadata.description);
         // Set the favicon image
@@ -495,6 +497,7 @@ public class NearbyBeaconsFragment extends ListFragment
       }
       // If metadata does not yet exist
       else {
+        Log.d(TAG, url + " Metadata null1");
         // Clear the children views content (in case this is a recycled list item view)
         titleTextView.setText("");
         iconImageView.setImageDrawable(null);
@@ -505,8 +508,8 @@ public class NearbyBeaconsFragment extends ListFragment
       }
 
       // If we should show the ranging data
-      if (mDebugRangingViewEnabled) {
-        updateRangingDebugView(url, view);
+      if (mDebugViewEnabled) {
+        updateDebugView(url, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
         PwsClient.getInstance(getActivity()).useDevEndpoint();
@@ -521,7 +524,8 @@ public class NearbyBeaconsFragment extends ListFragment
       return view;
     }
 
-    private void updateRangingDebugView(String url, View view) {
+    private void updateDebugView(String url, View view) {
+      // Ranging debug line
       String deviceAddress = mUrlToDeviceAddress.get(url);
 
       int txPower = mUrlToTxPower.get(url);
@@ -545,25 +549,31 @@ public class NearbyBeaconsFragment extends ListFragment
       TextView regionView = (TextView) view.findViewById(R.id.ranging_debug_region);
       regionView.setText(regionString);
 
+      // Metadata debug line
       PwsClient.UrlMetadata metadata = mUrlToUrlMetadata.get(url);
+
+      float scanTime = mUrlToScanTime.get(url) / 1000.0f;
+      String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)
+          + new DecimalFormat("##.##s").format(scanTime);
+      TextView scanTimeView = (TextView) view.findViewById(R.id.metadata_debug_scan_time);
+      scanTimeView.setText(scanTimeString);
+
+      TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
+      TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
       if (metadata != null) {
+        Log.d(TAG, url + " Metadata not null2");
         float rank = metadata.rank;
         String rankString = getString(R.string.metadata_debug_rank_prefix)
             + new DecimalFormat("##.##").format(rank);
-        TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
         rankView.setText(rankString);
-
-        float scanTime = mUrlToScanTime.get(url) / 1000.0f;
-        String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)
-            + new DecimalFormat("##.##s").format(scanTime);
-        TextView scanTimeView = (TextView) view.findViewById(R.id.metadata_debug_scan_time);
-        scanTimeView.setText(scanTimeString);
 
         float pwsTripTime = mUrlToPwsTripTime.get(url) / 1000.0f;
         String pwsTripTimeString = "" + getString(R.string.metadata_debug_pws_trip_time_prefix)
-            + new DecimalFormat("##.##s").format(pwsTripTime);
-        TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
+            + new DecimalFormat("##.##s").format(pwsTripTime) + " " + url;
         pwsTripTimeView.setText(pwsTripTimeString);
+      } else {
+        rankView.setText("");
+        pwsTripTimeView.setText("");
       }
     }
 
