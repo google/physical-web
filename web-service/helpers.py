@@ -183,7 +183,7 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
     elif result.status_code == 204: # No Content
         return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
-        final_url = result.headers['location']
+        final_url = urljoin(url, result.headers['location'])
         logging.info('FetchAndStoreUrl url:{0}, redirects_to:{1}'.format(url, final_url))
         if siteInfo is not None:
             logging.info('Removing Stale Cache for url:{0}'.format(url))

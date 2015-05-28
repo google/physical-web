@@ -31,7 +31,10 @@ REGRESSION_TEST_URLS = [
         'http://www.blackanddecker.fr',
         'http://www.google.com',
         'http://dota2.gamepedia.com/',
-        'http://www.orange.fr'
+        'http://www.orange.fr',
+        'http://librarian.codes',
+        'http://fredrikthalberg.com',
+        'http://harleykwyn.com',
     ]
 
 
