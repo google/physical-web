@@ -484,12 +484,10 @@ public class NearbyBeaconsFragment extends ListFragment
       PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
       // If the metadata exists
       if (urlMetadata != null) {
-        Log.d(TAG, url + " Metadata not null1");
         // Set the title text
         titleTextView.setText(urlMetadata.title);
         // Set the url text
-        //TODO: urlTextView.setText(urlMetadata.displayUrl);
-        urlTextView.setText(url);
+        urlTextView.setText(urlMetadata.displayUrl);
         // Set the description text
         descriptionTextView.setText(urlMetadata.description);
         // Set the favicon image
@@ -497,7 +495,6 @@ public class NearbyBeaconsFragment extends ListFragment
       }
       // If metadata does not yet exist
       else {
-        Log.d(TAG, url + " Metadata null1");
         // Clear the children views content (in case this is a recycled list item view)
         titleTextView.setText("");
         iconImageView.setImageDrawable(null);
@@ -561,7 +558,6 @@ public class NearbyBeaconsFragment extends ListFragment
       TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
       TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
       if (metadata != null) {
-        Log.d(TAG, url + " Metadata not null2");
         float rank = metadata.rank;
         String rankString = getString(R.string.metadata_debug_rank_prefix)
             + new DecimalFormat("##.##").format(rank);
