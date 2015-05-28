@@ -565,7 +565,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
         float pwsTripTime = mUrlToPwsTripTime.get(url) / 1000.0f;
         String pwsTripTimeString = "" + getString(R.string.metadata_debug_pws_trip_time_prefix)
-            + new DecimalFormat("##.##s").format(pwsTripTime) + " " + url;
+            + new DecimalFormat("##.##s").format(pwsTripTime);
         pwsTripTimeView.setText(pwsTripTimeString);
       } else {
         rankView.setText("");
