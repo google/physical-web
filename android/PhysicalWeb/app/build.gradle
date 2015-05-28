@@ -8,8 +8,8 @@ android {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 12
-        versionName "0.1.853"
+        versionCode 13
+        versionName "0.1.854"
     }
 
     buildTypes {
