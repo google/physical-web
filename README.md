@@ -47,4 +47,5 @@ The following companies now sell premade URIbeacons:
 * [iBlio](https://sites.google.com/site/iblionet/beacons)
 * [BKON](http://www.bkon.com/uribeacon)
 * [LilyPad-nano51822](http://www.embeda.com.tw/ucxpresso/?article=2-3-google-uribeacon-project)
-
+* [GoPlus](http://iffu.co.kr/eng/product/go-plus_uri.html)
+* [BlueUp](http://www.blueupbeacons.com/index.php?page=products)
