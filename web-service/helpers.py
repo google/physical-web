@@ -52,9 +52,10 @@ def BuildResponse(objects):
         distance = ComputeDistance(rssi, txpower)
 
         def append_invalid():
-            unresolved_output.append({
-                'id': url
-            })
+            #unresolved_output.append({
+            #    'id': url
+            #})
+            pass
 
         if url is None:
             continue
@@ -95,8 +96,10 @@ def BuildResponse(objects):
 
     ret = {
         "metadata": metadata_output,
-        "unresolved": unresolved_output,
     }
+
+    if unresolved_output:
+        ret["unresolved"] = unresolved_output
 
     return ret
 
