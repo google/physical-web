@@ -43,6 +43,8 @@
 // during the request.
 @property(nonatomic, retain, readonly) NSError *error;
 
+@property(nonatomic, assign, readonly) NSTimeInterval delay;
+
 // Start the request.
 - (void)start;
 

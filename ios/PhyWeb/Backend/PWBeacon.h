@@ -56,6 +56,13 @@
 // Returns YES if the rank has been computed by the metadata server.
 @property(nonatomic, assign) BOOL hasRank;
 
+// Returns the delay to discover the beacon via bluetooth.
+@property(nonatomic, assign) NSTimeInterval discoveryDelay;
+
+// Returns the delay to get the metadata of the beacon via The Physical Web
+// Server.
+@property(nonatomic, assign) NSTimeInterval requestDelay;
+
 // Returns the region name of the beacon when it was created.
 - (NSString *)debugRegionName;
 

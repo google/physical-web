@@ -32,7 +32,11 @@
   NSMutableURLRequest *_request;
   NSURLConnection *_connection;
   NSMutableData *_data;
+  NSTimeInterval _delay;
+  NSTimeInterval _startTime;
 }
+
+@synthesize delay = _delay;
 
 + (NSString *)hostname {
   if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"]) {
@@ -48,6 +52,7 @@
 }
 
 - (void)start {
+  _startTime = [NSDate timeIntervalSinceReferenceDate];
   if ([self isDemo]) {
     NSString *urlString = [NSString
         stringWithFormat:@"https://%@/demo", [PWMetadataRequest hostname]];
@@ -104,6 +109,7 @@
 #pragma mark NSURLConnection delegate
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+  _delay = [NSDate timeIntervalSinceReferenceDate] - _startTime;
   _connection = nil;
   NSError *error;
   NSDictionary *result =

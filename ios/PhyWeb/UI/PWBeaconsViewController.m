@@ -93,7 +93,7 @@
   [_tableView addPullToRefreshWithActionHandler:^{
     [weakSelf _performPullToRefresh];
   }];
-  [self viewWillTransitionToSize:bounds.size withTransitionCoordinator:nil];
+  [self _updateLayoutForSize:bounds.size];
   [[self view] addSubview:_tableView];
 
   _placeholderView = [[PWPlaceholderView alloc] initWithFrame:CGRectZero];
@@ -180,6 +180,10 @@
        withTransitionCoordinator:
            (id<UIViewControllerTransitionCoordinator>)coordinator {
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  [self _updateLayoutForSize:size];
+}
+
+- (void)_updateLayoutForSize:(CGSize)size {
   if (size.width > size.height) {
     [_tableView setContentInset:UIEdgeInsetsMake(0, 0, 0, 0)];
   } else {
@@ -327,7 +331,7 @@
 
 // Sort results by RSSI value.
 - (void)_sort {
-  for(PWBeacon * beacon in _beacons) {
+  for (PWBeacon *beacon in _beacons) {
     if (![beacon hasRank]) {
       [beacon setHasRank:YES];
       [beacon setRank:1000];
