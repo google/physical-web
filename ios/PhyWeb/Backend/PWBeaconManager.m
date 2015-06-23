@@ -327,9 +327,6 @@
   if (idx != NSNotFound) {
     NSDictionary* beaconInfo = [_pendingBeaconsInfos objectAtIndex:idx];
     NSTimeInterval discoveryDelay = [beaconInfo[DISCOVERY_DELAY_KEY] doubleValue];
-    // NSTimeInterval requestStartTime = [beaconInfo[@"requestStartTime"]
-    // doubleValue];
-    // NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
     NSTimeInterval requestDelay = [request delay];
     [beacon setDiscoveryDelay:discoveryDelay];
     [beacon setRequestDelay:requestDelay];
