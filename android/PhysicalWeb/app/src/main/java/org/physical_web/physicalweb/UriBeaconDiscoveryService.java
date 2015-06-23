@@ -270,14 +270,10 @@ public class UriBeaconDiscoveryService extends Service
 
     List<ScanFilter> filters = new ArrayList<>();
     filters.add(new ScanFilter.Builder()
-        .setServiceData(UriBeacon.URI_SERVICE_UUID,
-            new byte[]{},
-            new byte[]{})
+        .setServiceUuid(UriBeacon.URI_SERVICE_UUID)
         .build());
     filters.add(new ScanFilter.Builder()
-        .setServiceData(UriBeacon.TEST_SERVICE_UUID,
-            new byte[]{},
-            new byte[]{})
+        .setServiceUuid(UriBeacon.TEST_SERVICE_UUID)
         .build());
 
     boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
