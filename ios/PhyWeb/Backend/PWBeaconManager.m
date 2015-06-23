@@ -21,6 +21,8 @@
 #import "PWBeacon.h"
 #import "PWMetadataRequest.h"
 
+#define DISCOVERY_DELAY_KEY @"discoveryDelay"
+
 @interface PWBeaconManager () <PWMetadataRequestDelegate,
                                NSNetServiceBrowserDelegate,
                                NSNetServiceDelegate>
@@ -287,7 +289,7 @@
         NSTimeInterval discoveryDelay = currentTime - _startTime;
         NSMutableDictionary* pendingBeaconInfo =
             [[NSMutableDictionary alloc] init];
-        pendingBeaconInfo[@"discoveryDelay"] =
+        pendingBeaconInfo[DISCOVERY_DELAY_KEY] =
             [NSNumber numberWithDouble:discoveryDelay];
         [_pendingBeaconsInfos addObject:pendingBeaconInfo];
         PWMetadataRequest* request = [[PWMetadataRequest alloc] init];
@@ -324,7 +326,7 @@
   NSUInteger idx = [_requests indexOfObject:request];
   if (idx != NSNotFound) {
     NSDictionary* beaconInfo = [_pendingBeaconsInfos objectAtIndex:idx];
-    NSTimeInterval discoveryDelay = [beaconInfo[@"discoveryDelay"] doubleValue];
+    NSTimeInterval discoveryDelay = [beaconInfo[DISCOVERY_DELAY_KEY] doubleValue];
     // NSTimeInterval requestStartTime = [beaconInfo[@"requestStartTime"]
     // doubleValue];
     // NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
