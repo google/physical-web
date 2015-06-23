@@ -202,9 +202,9 @@ static NSString *snippetForBeacon(PWBeacon *beacon) {
   if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"]) {
     return [NSString
         stringWithFormat:
-            @"[%@ initial:%@ rt:%@ rssi:%i tx:%i dist:%.2g rank: %.2g] %@",
-            [beacon sortByRegion] ? @"fast" : @"slow", [beacon debugRegionName],
-            [beacon debugUriRegionName], (int)[[beacon uriBeacon] RSSI],
+            @"[discovery:%g request:%g rssi:%i tx:%i dist:%.2g rank: %.2g] %@",
+            [beacon discoveryDelay], [beacon requestDelay],
+            (int)[[beacon uriBeacon] RSSI],
             (int)[[beacon uriBeacon] txPowerLevel],
             distanceFromRSSI([[beacon uriBeacon] txPowerLevel],
                              [[beacon uriBeacon] RSSI]),
