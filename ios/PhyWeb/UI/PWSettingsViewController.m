@@ -70,7 +70,7 @@
               action:@selector(_enableDebugMode)];
   [doubleTapRecognizer setNumberOfTapsRequired:2];
   [_placeholderView addGestureRecognizer:doubleTapRecognizer];
-  [self viewWillTransitionToSize:bounds.size withTransitionCoordinator:nil];
+  [self _updateLayoutForSize:bounds.size];
 
   [[self view] addSubview:_placeholderView];
   [self _updatedPlaceholderViewState];
@@ -113,6 +113,10 @@
        withTransitionCoordinator:
            (id<UIViewControllerTransitionCoordinator>)coordinator {
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  [self _updateLayoutForSize:size];
+}
+
+- (void)_updateLayoutForSize:(CGSize)size {
   CGRect frame = [_placeholderView frame];
   if (size.width > size.height) {
     frame.origin.y = 33;
@@ -161,8 +165,8 @@
   PWSettingsViewController *__weak weakSelf = self;
   _registeredBlock =
       [[PWBeaconManager sharedManager] registerConfigurationChangeBlock:^{
-          PWSettingsViewController *strongSelf = weakSelf;
-          [strongSelf _openConfigurationView];
+        PWSettingsViewController *strongSelf = weakSelf;
+        [strongSelf _openConfigurationView];
       }];
 }
 
