@@ -115,8 +115,7 @@ public class UriBeaconDiscoveryService extends Service
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
-  private HashMap<String, UrlMetadata> mUrlToUrlMetadata;
-  private HashSet<String> mPublicUrls;
+  private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
@@ -153,8 +152,7 @@ public class UriBeaconDiscoveryService extends Service
 
   private void initializeLists() {
     mRegionResolver = new RegionResolver();
-    mUrlToUrlMetadata = new HashMap<>();
-    mPublicUrls = new HashSet<>();
+    mUrlToPwoMetadata = new HashMap<>();
     mSortedDevices = null;
     mDeviceAddressToUrl = new HashMap<>();
   }
@@ -214,8 +212,11 @@ public class UriBeaconDiscoveryService extends Service
   @Override
   public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                     long tripMillis) {
-    mUrlToUrlMetadata.put(url, urlMetadata);
-    updateNotifications();
+    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+    if (pwoMetadata != null) {
+      pwoMetadata.setUrlMetadata(urlMetadata, tripMillis);
+      updateNotifications();
+    }
   }
 
   @Override
@@ -246,12 +247,13 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private void onLanUrlFound(String url){
-    if (!mUrlToUrlMetadata.containsKey(url)) {
+    if (!mUrlToPwoMetadata.containsKey(url)) {
       // Fabricate the device values so that we can show these ersatz beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
       int mockRssi = 0;
       int mockTxPower = 0;
-      mUrlToUrlMetadata.put(url, null);
+      PwoMetadata pwoMetadata = addPwoMetadata(url);
+      pwoMetadata.isPublic = false;
       mDeviceAddressToUrl.put(mockAddress, url);
       mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
       PwsClient.getInstance(this).findUrlMetadata(url, mockTxPower, mockRssi,
@@ -305,23 +307,29 @@ public class UriBeaconDiscoveryService extends Service
       if (uriBeacon != null) {
         String url = uriBeacon.getUriString();
         if (url != null && !url.isEmpty()) {
-          String address = scanResult.getDevice().getAddress();
+          String deviceAddress = scanResult.getDevice().getAddress();
           int rssi = scanResult.getRssi();
           int txPower = uriBeacon.getTxPowerLevel();
           // If we haven't yet seen this url
-          if (!mUrlToUrlMetadata.containsKey(url)) {
-            mUrlToUrlMetadata.put(url, null);
-            mPublicUrls.add(url);
-            mDeviceAddressToUrl.put(address, url);
+          if (!mUrlToPwoMetadata.containsKey(url)) {
+            PwoMetadata pwoMetadata = addPwoMetadata(url);
+            pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
+            mDeviceAddressToUrl.put(deviceAddress, url);
             // Fetch the metadata for this url
             PwsClient.getInstance(this).findUrlMetadata(url, txPower, rssi,
                                                         UriBeaconDiscoveryService.this, TAG);
           }
           // Update the ranging data
-          mRegionResolver.onUpdate(address, rssi, txPower);
+          mRegionResolver.onUpdate(deviceAddress, rssi, txPower);
         }
       }
     }
+  }
+
+  private PwoMetadata addPwoMetadata(String url) {
+    PwoMetadata pwoMetadata = new PwoMetadata(url, new Date().getTime() - mScanStartTime);
+    mUrlToPwoMetadata.put(url, pwoMetadata);
+    return pwoMetadata;
   }
 
   /**
@@ -356,14 +364,20 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private ArrayList<String> getSortedBeaconsWithMetadata() {
-    ArrayList<String> unSorted = new ArrayList<>(mDeviceAddressToUrl.size());
+    ArrayList<PwoMetadata> pwoMetadataList = new ArrayList<>(mUrlToPwoMetadata.size());
     for (String key : mDeviceAddressToUrl.keySet()) {
-      if (mUrlToUrlMetadata.get(mDeviceAddressToUrl.get(key)) != null) {
-        unSorted.add(key);
+      PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(mDeviceAddressToUrl.get(key));
+      if (pwoMetadata != null && pwoMetadata.hasUrlMetadata() && pwoMetadata.hasBleMetadata()) {
+        pwoMetadataList.add(pwoMetadata);
       }
     }
-    Collections.sort(unSorted, new MetadataComparator(mUrlToUrlMetadata));
-    return unSorted;
+    Collections.sort(pwoMetadataList);
+
+    ArrayList<String> deviceAddresses = new ArrayList<>(mUrlToPwoMetadata.size());
+    for (PwoMetadata pwoMetadata : pwoMetadataList) {
+      deviceAddresses.add(pwoMetadata.bleMetadata.deviceAddress);
+    }
+    return deviceAddresses;
   }
 
   /**
@@ -371,10 +385,11 @@ public class UriBeaconDiscoveryService extends Service
    * for the beacon with the given address
    */
   private void updateNearbyBeaconNotification(boolean single, String url, int notificationId) {
-    UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
-    if (urlMetadata == null) {
+    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+    if (pwoMetadata == null || !pwoMetadata.hasUrlMetadata()) {
       return;
     }
+    UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
 
     // Create an intent that will open the browser to the beacon's url
     // if the user taps on the notification
@@ -391,7 +406,7 @@ public class UriBeaconDiscoveryService extends Service
         .setPriority(NOTIFICATION_PRIORITY)
         .setContentIntent(pendingIntent);
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      if (mPublicUrls.contains(url)) {
+      if (pwoMetadata.isPublic) {
         builder.setVisibility(NOTIFICATION_VISIBILITY);
       }
     }
@@ -456,8 +471,9 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private void updateSummaryNotificationRemoteViewsFirstBeacon(String url, RemoteViews remoteViews) {
-    UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
-    if (urlMetadata != null) {
+    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+    if (pwoMetadata != null && pwoMetadata.hasUrlMetadata()) {
+      UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
       remoteViews.setImageViewBitmap(R.id.icon_firstBeacon, urlMetadata.icon);
       remoteViews.setTextViewText(R.id.title_firstBeacon, urlMetadata.title);
       remoteViews.setTextViewText(R.id.url_firstBeacon, urlMetadata.displayUrl);
@@ -480,8 +496,9 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private void updateSummaryNotificationRemoteViewsSecondBeacon(String url, RemoteViews remoteViews) {
-    UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
-    if (urlMetadata != null) {
+    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+    if (pwoMetadata != null && pwoMetadata.hasUrlMetadata()) {
+      UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
       remoteViews.setImageViewBitmap(R.id.icon_secondBeacon, urlMetadata.icon);
       remoteViews.setTextViewText(R.id.title_secondBeacon, urlMetadata.title);
       remoteViews.setTextViewText(R.id.url_secondBeacon, urlMetadata.displayUrl);
@@ -511,21 +528,13 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private PendingIntent createNavigateToUrlPendingIntent(String url) {
-    String urlToNavigateTo = url;
-    // If this url has metadata
-    if (mUrlToUrlMetadata.get(url) != null) {
-      String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
-      // If this metadata has a siteUrl
-      if (siteUrl != null) {
-        urlToNavigateTo = siteUrl;
-      }
+    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+    if (pwoMetadata != null) {
+      return pwoMetadata.createNavigateToUrlPendingIntent(this);
     }
-    if (!URLUtil.isNetworkUrl(urlToNavigateTo)) {
-      urlToNavigateTo = "http://" + urlToNavigateTo;
-    }
-    urlToNavigateTo = PwsClient.getInstance(this).createUrlProxyGoLink(urlToNavigateTo);
+
     Intent intent = new Intent(Intent.ACTION_VIEW);
-    intent.setData(Uri.parse(urlToNavigateTo));
+    intent.setData(Uri.parse(url));
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent, 0);
     return pendingIntent;
