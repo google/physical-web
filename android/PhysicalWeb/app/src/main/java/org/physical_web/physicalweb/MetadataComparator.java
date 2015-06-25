@@ -19,6 +19,8 @@ package org.physical_web.physicalweb;
 import java.util.Comparator;
 import java.util.HashMap;
 
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 /**
  * A comparator that sorts urls based on their metadata.
  *
@@ -26,9 +28,9 @@ import java.util.HashMap;
  * It will use them to perform the comparing.
  */
 public class MetadataComparator implements Comparator<String> {
-  private final HashMap<String, PwsClient.UrlMetadata> mUrlToUrlMetadata;
+  private final HashMap<String, UrlMetadata> mUrlToUrlMetadata;
 
-  public MetadataComparator(final HashMap<String, PwsClient.UrlMetadata> urlToUrlMetadata) {
+  public MetadataComparator(final HashMap<String, UrlMetadata> urlToUrlMetadata) {
     mUrlToUrlMetadata = urlToUrlMetadata;
   }
 
@@ -37,8 +39,8 @@ public class MetadataComparator implements Comparator<String> {
    */
   @Override
   public int compare(String urlA, String urlB) {
-    PwsClient.UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
-    PwsClient.UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
+    UrlMetadata urlMetadataA = mUrlToUrlMetadata.get(urlA);
+    UrlMetadata urlMetadataB = mUrlToUrlMetadata.get(urlB);
 
     // Return the best rank given by proxy server
     // If a url lacks metedata, the other should come first.

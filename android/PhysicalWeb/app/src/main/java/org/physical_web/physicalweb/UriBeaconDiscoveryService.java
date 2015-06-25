@@ -38,6 +38,8 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
 
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
@@ -111,7 +113,7 @@ public class UriBeaconDiscoveryService extends Service
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
-  private HashMap<String, PwsClient.UrlMetadata> mUrlToUrlMetadata;
+  private HashMap<String, UrlMetadata> mUrlToUrlMetadata;
   private HashSet<String> mPublicUrls;
   private List<String> mSortedDevices;
   private HashMap<String, String> mDeviceAddressToUrl;
@@ -215,7 +217,7 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+  public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                     long tripMillis) {
     mUrlToUrlMetadata.put(url, urlMetadata);
     updateNotifications();
@@ -228,7 +230,7 @@ public class UriBeaconDiscoveryService extends Service
 
   private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
     @Override
-    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                       long tripMillis) {
     }
 
@@ -358,7 +360,7 @@ public class UriBeaconDiscoveryService extends Service
    * for the beacon with the given address
    */
   private void updateNearbyBeaconNotification(boolean single, String url, int notificationId) {
-    PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata == null) {
       return;
     }
@@ -443,7 +445,7 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private void updateSummaryNotificationRemoteViewsFirstBeacon(String url, RemoteViews remoteViews) {
-    PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata != null) {
       remoteViews.setImageViewBitmap(R.id.icon_firstBeacon, urlMetadata.icon);
       remoteViews.setTextViewText(R.id.title_firstBeacon, urlMetadata.title);
@@ -467,7 +469,7 @@ public class UriBeaconDiscoveryService extends Service
   }
 
   private void updateSummaryNotificationRemoteViewsSecondBeacon(String url, RemoteViews remoteViews) {
-    PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+    UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
     if (urlMetadata != null) {
       remoteViews.setImageViewBitmap(R.id.icon_secondBeacon, urlMetadata.icon);
       remoteViews.setTextViewText(R.id.title_secondBeacon, urlMetadata.title);
