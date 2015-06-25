@@ -45,6 +45,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import org.uribeacon.beacon.UriBeacon;
@@ -81,10 +82,8 @@ public class NearbyBeaconsFragment extends ListFragment
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(3);
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothAdapter mBluetoothAdapter;
-  private HashMap<String, UrlMetadata> mUrlToUrlMetadata;
-  private long mScanStartTimestamp;
-  private HashMap<String, Long> mUrlToScanTime;
-  private HashMap<String, Long> mUrlToPwsTripTime;
+  private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
+  private long mScanStartTime;
   private AnimationDrawable mScanningAnimationDrawable;
   private boolean mIsDemoMode;
   private boolean mIsScanRunning;
@@ -135,9 +134,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
-    mUrlToUrlMetadata = new HashMap<>();
-    mUrlToScanTime = new HashMap<>();
-    mUrlToPwsTripTime = new HashMap<>();
+    mUrlToPwoMetadata = new HashMap<>();
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
 
@@ -236,23 +233,15 @@ public class NearbyBeaconsFragment extends ListFragment
     // Get the url for the given item
     String url = mNearbyDeviceAdapter.getItem(position);
     String urlToNavigateTo = url;
-    // If this url has metadata
-    if (mUrlToUrlMetadata.get(url) != null) {
-      String siteUrl = mUrlToUrlMetadata.get(url).siteUrl;
-      // If the metadata has a siteUrl
-      if (siteUrl != null) {
-        urlToNavigateTo = siteUrl;
-      }
-    }
-    openUrlInBrowser(urlToNavigateTo);
+    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+    openUrlInBrowser(pwoMetadata.getNavigableUrl(getActivity()));
   }
 
   @Override
   public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                     long tripMillis) {
-    mUrlToUrlMetadata.put(url, urlMetadata);
+    mUrlToPwoMetadata.get(url).setUrlMetadata(urlMetadata, tripMillis);
     mNearbyDeviceAdapter.notifyDataSetChanged();
-    mUrlToPwsTripTime.put(url, tripMillis);
   }
 
   @Override
@@ -265,8 +254,8 @@ public class NearbyBeaconsFragment extends ListFragment
     public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                       long tripMillis) {
       // Update the hash table
-      mUrlToUrlMetadata.put(url, urlMetadata);
-      mUrlToPwsTripTime.put(url, tripMillis);
+      PwoMetadata pwoMetadata = addPwoMetadata(url);
+      pwoMetadata.setUrlMetadata(urlMetadata, tripMillis);
       // Fabricate the adapter values so that we can show these demo beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
       int mockRssi = 0;
@@ -296,10 +285,10 @@ public class NearbyBeaconsFragment extends ListFragment
         // Stops scanning after the predefined scan time has elapsed.
         mHandler.postDelayed(mScanTimeout, SCAN_TIME_MILLIS);
         // Clear any stored url data
-        mUrlToUrlMetadata.clear();
+        mUrlToPwoMetadata.clear();
         mNearbyDeviceAdapter.clear();
         // Start the scan
-        mScanStartTimestamp = new Date().getTime();
+        mScanStartTime = new Date().getTime();
         mBluetoothAdapter.startLeScan(mLeScanCallback);
         // If we should stop scanning
       } else {
@@ -368,8 +357,8 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   private void onLanUrlFound(String url){
-    if (!mUrlToUrlMetadata.containsKey(url)) {
-      mUrlToUrlMetadata.put(url, null);
+    if (!mUrlToPwoMetadata.containsKey(url)) {
+      PwoMetadata pwoMetadata = addPwoMetadata(url);
       // Fabricate the adapter values so that we can show these ersatz beacons
       String mockAddress = generateMockBluetoothAddress(url.hashCode());
       int mockRssi = 0;
@@ -382,6 +371,12 @@ public class NearbyBeaconsFragment extends ListFragment
       // Force the device to be added to the listview (since it has no metadata)
       mNearbyDeviceAdapter.addItem(url, mockAddress, mockTxPower);
     }
+  }
+
+  private PwoMetadata addPwoMetadata(String url) {
+    PwoMetadata pwoMetadata = new PwoMetadata(url, new Date().getTime() - mScanStartTime);
+    mUrlToPwoMetadata.put(url, pwoMetadata);
+    return pwoMetadata;
   }
 
   /**
@@ -398,19 +393,19 @@ public class NearbyBeaconsFragment extends ListFragment
             if (uriBeacon != null) {
               String url = uriBeacon.getUriString();
               if (url != null && !url.isEmpty()) {
+                String deviceAddress = device.getAddress();
                 int txPower = uriBeacon.getTxPowerLevel();
-                String address = device.getAddress();
                 // If we haven't yet seen this url
-                if (!mUrlToUrlMetadata.containsKey(url)) {
-                  mUrlToScanTime.put(url, new Date().getTime() - mScanStartTimestamp);
-                  mUrlToUrlMetadata.put(url, null);
-                  mNearbyDeviceAdapter.addItem(url, address, txPower);
+                if (!mUrlToPwoMetadata.containsKey(url)) {
+                  PwoMetadata pwoMetadata = addPwoMetadata(url);
+                  pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
+                  mNearbyDeviceAdapter.addItem(url, deviceAddress, txPower);
                   // Fetch the metadata for this url
                   PwsClient.getInstance(getActivity()).findUrlMetadata(
                       url, txPower, rssi, NearbyBeaconsFragment.this, TAG);
                 }
                 // Tell the adapter to update stored data for this url
-                mNearbyDeviceAdapter.updateItem(url, address, rssi, txPower);
+                mNearbyDeviceAdapter.updateItem(url, deviceAddress, rssi, txPower);
               }
             }
           }
@@ -432,11 +427,9 @@ public class NearbyBeaconsFragment extends ListFragment
     public final RegionResolver mRegionResolver;
     private final HashMap<String, String> mUrlToDeviceAddress;
     private List<String> mSortedUrls;
-    private final HashMap<String, Integer> mUrlToTxPower;
 
     NearbyBeaconsAdapter() {
       mUrlToDeviceAddress = new HashMap<>();
-      mUrlToTxPower = new HashMap<>();
       mRegionResolver = new RegionResolver();
       mSortedUrls = new ArrayList<>();
     }
@@ -447,7 +440,6 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public void addItem(String url, String address, int txPower) {
       mUrlToDeviceAddress.put(url, address);
-      mUrlToTxPower.put(url, txPower);
     }
 
     @Override
@@ -483,9 +475,10 @@ public class NearbyBeaconsFragment extends ListFragment
       String url = getItem(i);
 
       // Get the metadata for this url
-      UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+      PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
       // If the metadata exists
-      if (urlMetadata != null) {
+      if (pwoMetadata.hasUrlMetadata()) {
+        UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
         // Set the title text
         titleTextView.setText(urlMetadata.title);
         // Set the url text
@@ -524,34 +517,42 @@ public class NearbyBeaconsFragment extends ListFragment
     }
 
     private void updateDebugView(String url, View view) {
+      PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+
       // Ranging debug line
-      String deviceAddress = mUrlToDeviceAddress.get(url);
-
-      int txPower = mUrlToTxPower.get(url);
-      String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + String.valueOf(txPower);
       TextView txPowerView = (TextView) view.findViewById(R.id.ranging_debug_tx_power);
-      txPowerView.setText(txPowerString);
-
-      int rssi = mRegionResolver.getSmoothedRssi(deviceAddress);
-      String rssiString = getString(R.string.ranging_debug_rssi_prefix) + String.valueOf(rssi);
       TextView rssiView = (TextView) view.findViewById(R.id.ranging_debug_rssi);
-      rssiView.setText(rssiString);
-
-      double distance = mRegionResolver.getDistance(deviceAddress);
-      String distanceString = getString(R.string.ranging_debug_distance_prefix)
-          + new DecimalFormat("##.##").format(distance);
       TextView distanceView = (TextView) view.findViewById(R.id.ranging_debug_distance);
-      distanceView.setText(distanceString);
-
-      int region = mRegionResolver.getRegion(deviceAddress);
-      String regionString = getString(R.string.ranging_debug_region_prefix) + RangingUtils.toString(region);
       TextView regionView = (TextView) view.findViewById(R.id.ranging_debug_region);
-      regionView.setText(regionString);
+      if (pwoMetadata.hasBleMetadata()) {
+        BleMetadata bleMetadata = pwoMetadata.bleMetadata;
+
+        int txPower = bleMetadata.txPower;
+        String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + String.valueOf(txPower);
+        txPowerView.setText(txPowerString);
+
+        String deviceAddress = bleMetadata.deviceAddress;
+        int rssi = mRegionResolver.getSmoothedRssi(deviceAddress);
+        String rssiString = getString(R.string.ranging_debug_rssi_prefix) + String.valueOf(rssi);
+        rssiView.setText(rssiString);
+
+        double distance = mRegionResolver.getDistance(deviceAddress);
+        String distanceString = getString(R.string.ranging_debug_distance_prefix)
+            + new DecimalFormat("##.##").format(distance);
+        distanceView.setText(distanceString);
+
+        int region = mRegionResolver.getRegion(deviceAddress);
+        String regionString = getString(R.string.ranging_debug_region_prefix) + RangingUtils.toString(region);
+        regionView.setText(regionString);
+      } else {
+        txPowerView.setText("");
+        rssiView.setText("");
+        distanceView.setText("");
+        regionView.setText("");
+      }
 
       // Metadata debug line
-      UrlMetadata metadata = mUrlToUrlMetadata.get(url);
-
-      float scanTime = mUrlToScanTime.get(url) / 1000.0f;
+      float scanTime = pwoMetadata.scanMillis / 1000.0f;
       String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)
           + new DecimalFormat("##.##s").format(scanTime);
       TextView scanTimeView = (TextView) view.findViewById(R.id.metadata_debug_scan_time);
@@ -559,13 +560,14 @@ public class NearbyBeaconsFragment extends ListFragment
 
       TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
       TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
-      if (metadata != null) {
-        float rank = metadata.rank;
+      if (pwoMetadata.hasUrlMetadata()) {
+        UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
+        float rank = urlMetadata.rank;
         String rankString = getString(R.string.metadata_debug_rank_prefix)
             + new DecimalFormat("##.##").format(rank);
         rankView.setText(rankString);
 
-        float pwsTripTime = mUrlToPwsTripTime.get(url) / 1000.0f;
+        float pwsTripTime = pwoMetadata.pwsTripMillis / 1000.0f;
         String pwsTripTimeString = "" + getString(R.string.metadata_debug_pws_trip_time_prefix)
             + new DecimalFormat("##.##s").format(pwsTripTime);
         pwsTripTimeView.setText(pwsTripTimeString);
@@ -577,8 +579,19 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public void sortUrls() {
       Log.d(TAG, "Sorting urls");
-      mSortedUrls = new ArrayList<>(mUrlToDeviceAddress.keySet());
-      Collections.sort(mSortedUrls, new MetadataComparator(mUrlToUrlMetadata));
+      ArrayList<PwoMetadata> pwoMetadataList = new ArrayList<>();
+      for (String url : mUrlToDeviceAddress.keySet()) {
+        PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
+        if (pwoMetadata != null) {
+          pwoMetadataList.add(pwoMetadata);
+        }
+      }
+      Collections.sort(pwoMetadataList);
+
+      mSortedUrls = new ArrayList<>(pwoMetadataList.size());
+      for (PwoMetadata pwoMetadata : pwoMetadataList) {
+        mSortedUrls.add(pwoMetadata.url);
+      }
     }
 
     public void clear() {
