@@ -223,18 +223,6 @@ public class UriBeaconDiscoveryService extends Service
     updateNotifications();
   }
 
-  private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
-    @Override
-    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
-                                      long tripMillis) {
-    }
-
-    @Override
-    public void onUrlMetadataIconReceived() {
-      updateNotifications();
-    }
-  }
-
   @Override
   public void onMdnsUrlFound(String url) {
     onLanUrlFound(url);

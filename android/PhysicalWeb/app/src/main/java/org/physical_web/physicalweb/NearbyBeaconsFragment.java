@@ -85,7 +85,6 @@ public class NearbyBeaconsFragment extends ListFragment
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private long mScanStartTime;
   private AnimationDrawable mScanningAnimationDrawable;
-  private boolean mIsDemoMode;
   private boolean mIsScanRunning;
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
@@ -115,12 +114,8 @@ public class NearbyBeaconsFragment extends ListFragment
     }
   };
 
-  public static NearbyBeaconsFragment newInstance(boolean isDemoMode) {
-    NearbyBeaconsFragment nearbyBeaconsFragment = new NearbyBeaconsFragment();
-    Bundle bundle = new Bundle();
-    bundle.putBoolean("isDemoMode", isDemoMode);
-    nearbyBeaconsFragment.setArguments(bundle);
-    return nearbyBeaconsFragment;
+  public static NearbyBeaconsFragment newInstance() {
+    return new NearbyBeaconsFragment();
   }
 
   private void initialize(View rootView) {
@@ -143,14 +138,7 @@ public class NearbyBeaconsFragment extends ListFragment
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
 
-    mIsDemoMode = getArguments().getBoolean("isDemoMode");
-    // Only scan for beacons when not in demo mode
-    if (mIsDemoMode) {
-      getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback(), TAG);
-    } else {
-      initializeBluetooth();
-    }
+    initializeBluetooth();
   }
 
   private void initializeBluetooth() {
@@ -176,42 +164,29 @@ public class NearbyBeaconsFragment extends ListFragment
   @Override
   public void onResume() {
     super.onResume();
-    if (!mIsDemoMode) {
-      getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
-      getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-      mScanningAnimationDrawable.start();
-      scanLeDevice(true);
-      mMdnsUrlDiscoverer.startScanning();
-      mSsdpUrlDiscoverer.startScanning();
-    } else {
-      getActivity().getActionBar().setTitle(R.string.title_nearby_beacons_demo);
-    }
+    getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
+    getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
+    mScanningAnimationDrawable.start();
+    scanLeDevice(true);
+    mMdnsUrlDiscoverer.startScanning();
+    mSsdpUrlDiscoverer.startScanning();
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    if (!mIsDemoMode) {
-      if (mIsScanRunning) {
-        scanLeDevice(false);
-        mMdnsUrlDiscoverer.stopScanning();
-        mSsdpUrlDiscoverer.stopScanning();
-      }
+    if (mIsScanRunning) {
+      scanLeDevice(false);
+      mMdnsUrlDiscoverer.stopScanning();
+      mSsdpUrlDiscoverer.stopScanning();
     }
   }
 
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
     super.onPrepareOptionsMenu(menu);
-    if (mIsDemoMode) {
-      menu.findItem(R.id.action_config).setVisible(false);
-      menu.findItem(R.id.action_about).setVisible(false);
-      menu.findItem(R.id.action_demo).setVisible(false);
-    } else {
-      menu.findItem(R.id.action_config).setVisible(true);
-      menu.findItem(R.id.action_about).setVisible(true);
-      menu.findItem(R.id.action_demo).setVisible(true);
-    }
+    menu.findItem(R.id.action_config).setVisible(true);
+    menu.findItem(R.id.action_about).setVisible(true);
   }
 
   @Override
@@ -237,28 +212,6 @@ public class NearbyBeaconsFragment extends ListFragment
   @Override
   public void onUrlMetadataIconReceived() {
     mNearbyDeviceAdapter.notifyDataSetChanged();
-  }
-
-  private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
-    @Override
-    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
-                                      long tripMillis) {
-      // Update the hash table
-      PwoMetadata pwoMetadata = addPwoMetadata(url);
-      pwoMetadata.setUrlMetadata(urlMetadata, tripMillis);
-      mNearbyDeviceAdapter.addItem(pwoMetadata);
-      // Inform the list adapter of the new data
-      mNearbyDeviceAdapter.sortUrls();
-      mNearbyDeviceAdapter.notifyDataSetChanged();
-      // Stop the refresh animation
-      mSwipeRefreshWidget.setRefreshing(false);
-      fadeInListView();
-    }
-
-    @Override
-    public void onUrlMetadataIconReceived() {
-      mNearbyDeviceAdapter.notifyDataSetChanged();
-    }
   }
 
   @SuppressWarnings("deprecation")
@@ -307,15 +260,10 @@ public class NearbyBeaconsFragment extends ListFragment
       return;
     }
     mSwipeRefreshWidget.setRefreshing(true);
-    if (!mIsDemoMode) {
-      mScanningAnimationDrawable.start();
-      scanLeDevice(true);
-      mMdnsUrlDiscoverer.startScanning();
-      mSsdpUrlDiscoverer.startScanning();
-    } else {
-      mNearbyDeviceAdapter.clear();
-      PwsClient.getInstance(getActivity()).findDemoUrlMetadata(new DemoResolveScanCallback(), TAG);
-    }
+    mScanningAnimationDrawable.start();
+    scanLeDevice(true);
+    mMdnsUrlDiscoverer.startScanning();
+    mSsdpUrlDiscoverer.startScanning();
   }
 
   @Override

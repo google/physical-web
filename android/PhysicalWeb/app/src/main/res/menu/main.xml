@@ -8,11 +8,6 @@
           android:orderInCategory="100"
           android:id="@+id/action_config"/>
 
-    <item android:title="@string/action_demo"
-          app:showAsAction="never"
-          android:orderInCategory="100"
-          android:id="@+id/action_demo"/>
-
     <item android:title="@string/action_about"
           app:showAsAction="never"
           android:orderInCategory="100"
