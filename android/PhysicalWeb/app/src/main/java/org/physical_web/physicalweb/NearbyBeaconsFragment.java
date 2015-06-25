@@ -45,6 +45,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
@@ -79,7 +81,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(3);
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothAdapter mBluetoothAdapter;
-  private HashMap<String, PwsClient.UrlMetadata> mUrlToUrlMetadata;
+  private HashMap<String, UrlMetadata> mUrlToUrlMetadata;
   private long mScanStartTimestamp;
   private HashMap<String, Long> mUrlToScanTime;
   private HashMap<String, Long> mUrlToPwsTripTime;
@@ -246,7 +248,7 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+  public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                     long tripMillis) {
     mUrlToUrlMetadata.put(url, urlMetadata);
     mNearbyDeviceAdapter.notifyDataSetChanged();
@@ -260,7 +262,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private class DemoResolveScanCallback implements PwsClient.ResolveScanCallback {
     @Override
-    public void onUrlMetadataReceived(String url, PwsClient.UrlMetadata urlMetadata,
+    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
                                       long tripMillis) {
       // Update the hash table
       mUrlToUrlMetadata.put(url, urlMetadata);
@@ -481,7 +483,7 @@ public class NearbyBeaconsFragment extends ListFragment
       String url = getItem(i);
 
       // Get the metadata for this url
-      PwsClient.UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
+      UrlMetadata urlMetadata = mUrlToUrlMetadata.get(url);
       // If the metadata exists
       if (urlMetadata != null) {
         // Set the title text
@@ -547,7 +549,7 @@ public class NearbyBeaconsFragment extends ListFragment
       regionView.setText(regionString);
 
       // Metadata debug line
-      PwsClient.UrlMetadata metadata = mUrlToUrlMetadata.get(url);
+      UrlMetadata metadata = mUrlToUrlMetadata.get(url);
 
       float scanTime = mUrlToScanTime.get(url) / 1000.0f;
       String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)

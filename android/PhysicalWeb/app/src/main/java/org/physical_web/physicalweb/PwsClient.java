@@ -33,6 +33,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -292,32 +294,5 @@ class PwsClient {
 
   public void useDevEndpoint() {
       mEndpointUrl = DEV_URL;
-  }
-
-
-  /////////////////////////////////
-  // data models
-  /////////////////////////////////
-
-  /**
-   * A container class for a url's fetched metadata.
-   * The metadata consists of the title, site url, description,
-   * iconUrl and the icon (or favicon).
-   * This data is scraped via a server that receives a url
-   * and returns a json blob.
-   */
-  public static class UrlMetadata {
-    public String id;
-    public String siteUrl;
-    public String displayUrl;
-    public String title;
-    public String description;
-    public String iconUrl;
-    public Bitmap icon;
-    public float rank;
-
-    public UrlMetadata() {
-    }
-
   }
 }
