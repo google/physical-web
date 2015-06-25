@@ -121,10 +121,15 @@ class PwoMetadata implements Comparable<PwoMetadata>{
     return urlToNavigateTo;
   }
 
-  public PendingIntent createNavigateToUrlPendingIntent(Context context) {
+  public Intent createNavigateToUrlIntent(Context context) {
     String urlToNavigateTo = getNavigableUrl(context);
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(urlToNavigateTo));
+    return intent;
+  }
+
+  public PendingIntent createNavigateToUrlPendingIntent(Context context) {
+    Intent intent = createNavigateToUrlIntent(context);
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(context, requestID, intent, 0);
     return pendingIntent;
