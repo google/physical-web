@@ -19,7 +19,8 @@ The following guidelines provide you with guidance for using the Physical Web na
     * Incorrect: "Physical Web from Google”
     * Correct: Just use the Physical Web logo with TM only (nothing else required)
     * Correct: "Physical Web, an open web discovery layer built on top of UriBeacon”
-Don’t use Google or Android logos on product pages where the Physical Web name or logo appear
+
+* Don’t use Google or Android logos on product pages where the Physical Web name or logo appear
 
 You may display, modify according to the above rules, or use the Physical Web name and logo only in connection with compliant implementations of UriBeacon and compliant implementations of the Physical Web. A compliant implementation of UriBeacon is a Bluetooth Low Energy device that broadcasts advertisement packets according to the unmodified UriBeacon specification found in the corresponding GitHub repository. A compliant implementation of the Physical Web is software that scans for UriBeacon advertisement packets and presents results to the user that directly correspond to these scanned packets.
 
