@@ -50,6 +50,7 @@ import org.uribeacon.scan.util.RegionResolver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,6 +108,7 @@ public class UriBeaconDiscoveryService extends Service
   private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static final long NOTIFICATION_UPDATE_GATE_DURATION = 1000;
   private boolean mCanUpdateNotifications = false;
+  private long mScanStartTime;
   private Handler mHandler;
   private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
@@ -186,11 +188,7 @@ public class UriBeaconDiscoveryService extends Service
     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
     // NOTE: use powerManager.isInteractive() when minsdk >= 20
     if (powerManager.isScreenOn()) {
-      mCanUpdateNotifications = false;
-      mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
-      startSearchingForUriBeacons();
-      mMdnsUrlDiscoverer.startScanning();
-      mSsdpUrlDiscoverer.startScanning();
+      startSearchingForPwos();
     }
 
     //make sure the service keeps running
@@ -206,10 +204,7 @@ public class UriBeaconDiscoveryService extends Service
   @Override
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
-    mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
-    stopSearchingForUriBeacons();
-    mMdnsUrlDiscoverer.stopScanning();
-    mSsdpUrlDiscoverer.stopScanning();
+    stopSearchingForPwos();
     unregisterReceiver(mScreenStateBroadcastReceiver);
     mNotificationManager.cancelAll();
   }
@@ -282,6 +277,22 @@ public class UriBeaconDiscoveryService extends Service
 
   private void stopSearchingForUriBeacons() {
     getLeScanner().stopScan(mScanCallback);
+  }
+
+  private void startSearchingForPwos() {
+    mScanStartTime = new Date().getTime();
+    mCanUpdateNotifications = false;
+    mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
+    startSearchingForUriBeacons();
+    mMdnsUrlDiscoverer.startScanning();
+    mSsdpUrlDiscoverer.startScanning();
+  }
+
+  private void stopSearchingForPwos() {
+    mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
+    stopSearchingForUriBeacons();
+    mMdnsUrlDiscoverer.stopScanning();
+    mSsdpUrlDiscoverer.stopScanning();
   }
 
   private void handleFoundDevice(ScanResult scanResult) {
@@ -528,16 +539,9 @@ public class UriBeaconDiscoveryService extends Service
       initializeLists();
       mNotificationManager.cancelAll();
       if (isScreenOn) {
-        mCanUpdateNotifications = false;
-        mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
-        startSearchingForUriBeacons();
-        mMdnsUrlDiscoverer.startScanning();
-        mSsdpUrlDiscoverer.startScanning();
+        startSearchingForPwos();
       } else {
-        mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
-        stopSearchingForUriBeacons();
-        mMdnsUrlDiscoverer.stopScanning();
-        mSsdpUrlDiscoverer.stopScanning();
+        stopSearchingForPwos();
       }
     }
   }
