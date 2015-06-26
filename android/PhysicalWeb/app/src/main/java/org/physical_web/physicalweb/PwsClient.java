@@ -50,7 +50,6 @@ class PwsClient {
   private static final String PROD_URL = "https://url-caster.appspot.com";
   private static final String DEV_URL = "https://url-caster-dev.appspot.com";
   private static final String RESOLVE_SCAN_PATH = "resolve-scan";
-  private static final String DEMO_RESOLVE_SCAN_PATH = "demo";
   private static final String SHORTEN_URL_PATH = "shorten-url";
   private static final int UNDEFINED_SCORE = -1;
   private RequestQueue mRequestQueue;
@@ -150,16 +149,7 @@ class PwsClient {
     JSONObject jsonObj = createUrlMetadataRequestObject(url, txPower, rssi);
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest request = createUrlMetadataRequest(jsonObj, false, resolveScanCallback);
-    request.setTag(tag);
-    // Queue the request
-    mRequestQueue.add(request);
-  }
-
-  public void findDemoUrlMetadata(ResolveScanCallback resolveScanCallback, final String tag) {
-    // Create the metadata request
-    // for the given json request object
-    JsonObjectRequest request = createUrlMetadataRequest(null, true, resolveScanCallback);
+    JsonObjectRequest request = createUrlMetadataRequest(jsonObj, resolveScanCallback);
     request.setTag(tag);
     // Queue the request
     mRequestQueue.add(request);
@@ -198,12 +188,8 @@ class PwsClient {
    */
   private JsonObjectRequest createUrlMetadataRequest(
       JSONObject jsonObj,
-      final boolean isDemoRequest,
       final ResolveScanCallback resolveScanCallback) {
     String resolveScanPath = RESOLVE_SCAN_PATH;
-    if (isDemoRequest) {
-        resolveScanPath = DEMO_RESOLVE_SCAN_PATH;
-    }
     final long creationTimestamp = new Date().getTime();
 
     return new JsonObjectRequest(

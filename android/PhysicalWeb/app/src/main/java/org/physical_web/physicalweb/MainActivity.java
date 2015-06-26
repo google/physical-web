@@ -75,10 +75,6 @@ public class MainActivity extends Activity {
       case R.id.action_about:
         showAboutFragment();
         return true;
-      // If the demo menu item was selected
-      case R.id.action_demo:
-        showNearbyBeaconsFragment(true);
-        return true;
       // If the action bar up button was pressed
       case android.R.id.home:
         getFragmentManager().popBackStack();
@@ -104,7 +100,7 @@ public class MainActivity extends Activity {
       // The service pauses while the app is running since the app does it's own scans or
       // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
       stopUriBeaconDiscoveryService();
-      showNearbyBeaconsFragment(false);
+      showNearbyBeaconsFragment();
     }
     else {
       // Show the oob activity
@@ -138,30 +134,22 @@ public class MainActivity extends Activity {
   /**
    * Show the fragment scanning nearby UriBeacons.
    */
-  private void showNearbyBeaconsFragment(boolean isDemoMode) {
-    if (!isDemoMode) {
-      // Look for an instance of the nearby beacons fragment
-      Fragment nearbyBeaconsFragment = getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
-      // If the fragment does not exist
-      if (nearbyBeaconsFragment == null) {
-        // Create the fragment
-        getFragmentManager().beginTransaction()
-            .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode), NEARBY_BEACONS_FRAGMENT_TAG)
-            .commit();
-        // If the fragment does exist
-      } else {
-        // If the fragment is not currently visible
-        if (!nearbyBeaconsFragment.isVisible()) {
-          // Assume another fragment is visible, so pop that fragment off the stack
-          getFragmentManager().popBackStack();
-        }
-      }
-    } else {
+  private void showNearbyBeaconsFragment() {
+    // Look for an instance of the nearby beacons fragment
+    Fragment nearbyBeaconsFragment = getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
+    // If the fragment does not exist
+    if (nearbyBeaconsFragment == null) {
+      // Create the fragment
       getFragmentManager().beginTransaction()
-          .setCustomAnimations(R.anim.slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
-          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(isDemoMode))
-          .addToBackStack(null)
+          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(), NEARBY_BEACONS_FRAGMENT_TAG)
           .commit();
+      // If the fragment does exist
+    } else {
+      // If the fragment is not currently visible
+      if (!nearbyBeaconsFragment.isVisible()) {
+        // Assume another fragment is visible, so pop that fragment off the stack
+        getFragmentManager().popBackStack();
+      }
     }
   }
 

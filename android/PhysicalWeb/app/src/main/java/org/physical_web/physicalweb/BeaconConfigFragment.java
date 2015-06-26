@@ -181,7 +181,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
-    menu.findItem(R.id.action_demo).setVisible(false);
   }
 
   /**
