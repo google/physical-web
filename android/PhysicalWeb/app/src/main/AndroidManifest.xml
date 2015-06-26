@@ -33,13 +33,13 @@
         </activity>
 
         <service
-            android:name=".UriBeaconDiscoveryService"
+            android:name=".PwoDiscoveryService"
             android:enabled="true"
             android:exported="false">
         </service>
 
         <receiver
-            android:name=".AutostartUriBeaconDiscoveryServiceReceiver">
+            android:name=".AutostartPwoDiscoveryServiceReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
