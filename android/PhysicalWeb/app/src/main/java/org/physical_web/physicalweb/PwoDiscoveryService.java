@@ -197,17 +197,12 @@ public class PwoDiscoveryService extends Service
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
-                                    long tripMillis) {
-    PwoMetadata pwoMetadata = mUrlToPwoMetadata.get(url);
-    if (pwoMetadata != null) {
-      pwoMetadata.setUrlMetadata(urlMetadata, tripMillis);
-      updateNotifications();
-    }
+  public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
+    updateNotifications();
   }
 
   @Override
-  public void onUrlMetadataIconReceived() {
+  public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
     updateNotifications();
   }
 
@@ -225,7 +220,7 @@ public class PwoDiscoveryService extends Service
     if (!mUrlToPwoMetadata.containsKey(url)) {
       PwoMetadata pwoMetadata = addPwoMetadata(url);
       pwoMetadata.isPublic = false;
-      PwsClient.getInstance(this).findUrlMetadata(url, 0, 0, this, TAG);
+      PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
     }
   }
 
@@ -283,7 +278,7 @@ public class PwoDiscoveryService extends Service
             PwoMetadata pwoMetadata = addPwoMetadata(url);
             pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
             // Fetch the metadata for this url
-            PwsClient.getInstance(this).findUrlMetadata(url, txPower, rssi, this, TAG);
+            PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
           }
           // Update the ranging data
           mRegionResolver.onUpdate(deviceAddress, rssi, txPower);

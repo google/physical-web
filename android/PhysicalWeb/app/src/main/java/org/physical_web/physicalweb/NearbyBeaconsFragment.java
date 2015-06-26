@@ -203,14 +203,12 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   @Override
-  public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata,
-                                    long tripMillis) {
-    mUrlToPwoMetadata.get(url).setUrlMetadata(urlMetadata, tripMillis);
+  public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   @Override
-  public void onUrlMetadataIconReceived() {
+  public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
@@ -280,8 +278,7 @@ public class NearbyBeaconsFragment extends ListFragment
     if (!mUrlToPwoMetadata.containsKey(url)) {
       PwoMetadata pwoMetadata = addPwoMetadata(url);
       // Fetch the metadata for the given url
-      PwsClient.getInstance(getActivity()).findUrlMetadata(url, 0, 0, NearbyBeaconsFragment.this,
-                                                           TAG);
+      PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
       mNearbyDeviceAdapter.addItem(pwoMetadata);
     }
   }
@@ -314,8 +311,8 @@ public class NearbyBeaconsFragment extends ListFragment
                   pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
                   mNearbyDeviceAdapter.addItem(pwoMetadata);
                   // Fetch the metadata for this url
-                  PwsClient.getInstance(getActivity()).findUrlMetadata(
-                      url, txPower, rssi, NearbyBeaconsFragment.this, TAG);
+                  PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata,
+                      NearbyBeaconsFragment.this, TAG);
                 }
                 // Tell the adapter to update stored data for this url
                 mNearbyDeviceAdapter.updateItem(url, deviceAddress, rssi, txPower);

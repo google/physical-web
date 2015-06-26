@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import java.io.UnsupportedEncodingException;
@@ -77,8 +78,8 @@ class PwsClient {
   /////////////////////////////////
 
   public interface ResolveScanCallback {
-    public void onUrlMetadataReceived(String url, UrlMetadata urlMetadata, long tripMillis);
-    public void onUrlMetadataIconReceived();
+    public void onUrlMetadataReceived(PwoMetadata pwoMetadata);
+    public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata);
   }
 
   public interface ShortenUrlCallback {
@@ -140,16 +141,12 @@ class PwsClient {
     mRequestQueue.add(request);
   }
 
-  public void findUrlMetadata(String url,
-                              int txPower,
-                              int rssi,
+  public void findUrlMetadata(PwoMetadata pwoMetadata,
                               ResolveScanCallback resolveScanCallback,
                               final String tag) {
-    // Create the json request object
-    JSONObject jsonObj = createUrlMetadataRequestObject(url, txPower, rssi);
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest request = createUrlMetadataRequest(jsonObj, resolveScanCallback);
+    JsonObjectRequest request = createUrlMetadataRequest(pwoMetadata, resolveScanCallback);
     request.setTag(tag);
     // Queue the request
     mRequestQueue.add(request);
@@ -163,14 +160,17 @@ class PwsClient {
    * @param url The url for which the request data will be created
    * @return The constructed json object
    */
-  private static JSONObject createUrlMetadataRequestObject(String url, int txPower, int rssi) {
+  private static JSONObject createUrlMetadataRequestObject(PwoMetadata pwoMetadata) {
     JSONObject jsonObject = new JSONObject();
     try {
       JSONArray urlJsonArray = new JSONArray();
       JSONObject urlJsonObject = new JSONObject();
-      urlJsonObject.put("url", url);
-      urlJsonObject.put("txpower", txPower);
-      urlJsonObject.put("rssi", rssi);
+      urlJsonObject.put("url", pwoMetadata.url);
+      if (pwoMetadata.hasBleMetadata()) {
+        BleMetadata bleMetadata = pwoMetadata.bleMetadata;
+        urlJsonObject.put("txpower", bleMetadata.txPower);
+        urlJsonObject.put("rssi", bleMetadata.rssi);
+      }
       urlJsonArray.put(urlJsonObject);
       jsonObject.put("objects", urlJsonArray);
     } catch (JSONException ex) {
@@ -187,11 +187,13 @@ class PwsClient {
    * @return The created json request object
    */
   private JsonObjectRequest createUrlMetadataRequest(
-      JSONObject jsonObj,
+      final PwoMetadata pwoMetadata,
       final ResolveScanCallback resolveScanCallback) {
     String resolveScanPath = RESOLVE_SCAN_PATH;
     final long creationTimestamp = new Date().getTime();
 
+    // Create the json request object
+    JSONObject jsonObj = createUrlMetadataRequestObject(pwoMetadata);
     return new JsonObjectRequest(
         constructUrlStr(resolveScanPath),
         jsonObj,
@@ -219,13 +221,13 @@ class PwsClient {
                   urlMetadata.iconUrl = jsonUrlMetadata.optString("icon");
                   urlMetadata.rank = (float)jsonUrlMetadata.getDouble("rank");
 
-                  if (!urlMetadata.iconUrl.isEmpty()) {
-                    downloadIcon(urlMetadata, resolveScanCallback);
-                  }
+                  pwoMetadata.setUrlMetadata(urlMetadata,
+                                             new Date().getTime() - creationTimestamp);
 
-                  long tripMillis = new Date().getTime() - creationTimestamp;
-                  resolveScanCallback.onUrlMetadataReceived(urlMetadata.id, urlMetadata,
-                                                            tripMillis);
+                  if (!urlMetadata.iconUrl.isEmpty()) {
+                    downloadIcon(pwoMetadata, resolveScanCallback);
+                  }
+                  resolveScanCallback.onUrlMetadataReceived(pwoMetadata);
                 }
 
               }
@@ -249,13 +251,15 @@ class PwsClient {
    *
    * @param urlMetadata The metadata for the given url
    */
-  private void downloadIcon(final UrlMetadata urlMetadata,
+  private void downloadIcon(final PwoMetadata pwoMetadata,
                             final ResolveScanCallback resolveScanCallback) {
-    ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, new Response.Listener<Bitmap>() {
+    final UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
+    ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl,
+                                                 new Response.Listener<Bitmap>() {
       @Override
       public void onResponse(Bitmap response) {
         urlMetadata.icon = response;
-        resolveScanCallback.onUrlMetadataIconReceived();
+        resolveScanCallback.onUrlMetadataIconReceived(pwoMetadata);
       }
     }, 0, 0, null, null);
     mRequestQueue.add(imageRequest);
