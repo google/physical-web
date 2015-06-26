@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This is a service that scans for nearby uriBeacons.
+ * This is a service that scans for nearby Physical Web Objects.
  * It is created by MainActivity.
  * It finds nearby ble beacons,
  * and stores a count of them.
@@ -72,12 +72,12 @@ import java.util.concurrent.TimeUnit;
  * the current number of nearby beacons.
  */
 
-public class UriBeaconDiscoveryService extends Service
-                                       implements PwsClient.ResolveScanCallback,
-                                                  MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
-                                                  SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
+public class PwoDiscoveryService extends Service
+                                 implements PwsClient.ResolveScanCallback,
+                                            MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
+                                            SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
-  private static final String TAG = "UriBeaconDiscoveryService";
+  private static final String TAG = "PwoDiscoveryService";
   private final ScanCallback mScanCallback = new ScanCallback() {
     @Override
     public void onScanResult(int callbackType, ScanResult scanResult) {
@@ -130,7 +130,7 @@ public class UriBeaconDiscoveryService extends Service
     }
   };
 
-  public UriBeaconDiscoveryService() {
+  public PwoDiscoveryService() {
   }
 
   private static String generateMockBluetoothAddress(int hashCode) {
@@ -144,8 +144,8 @@ public class UriBeaconDiscoveryService extends Service
 
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
-    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, UriBeaconDiscoveryService.this);
-    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, UriBeaconDiscoveryService.this);
+    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, this);
+    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, this);
     mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
   }
@@ -244,8 +244,7 @@ public class UriBeaconDiscoveryService extends Service
       pwoMetadata.isPublic = false;
       mDeviceAddressToUrl.put(mockAddress, url);
       mRegionResolver.onUpdate(mockAddress, mockRssi, mockTxPower);
-      PwsClient.getInstance(this).findUrlMetadata(url, mockTxPower, mockRssi,
-                                                  UriBeaconDiscoveryService.this, TAG);
+      PwsClient.getInstance(this).findUrlMetadata(url, mockTxPower, mockRssi, this, TAG);
     }
   }
 
@@ -304,8 +303,7 @@ public class UriBeaconDiscoveryService extends Service
             pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
             mDeviceAddressToUrl.put(deviceAddress, url);
             // Fetch the metadata for this url
-            PwsClient.getInstance(this).findUrlMetadata(url, txPower, rssi,
-                                                        UriBeaconDiscoveryService.this, TAG);
+            PwsClient.getInstance(this).findUrlMetadata(url, txPower, rssi, this, TAG);
           }
           // Update the ranging data
           mRegionResolver.onUpdate(deviceAddress, rssi, txPower);

@@ -24,13 +24,13 @@ import android.content.SharedPreferences;
 /**
  * This receiver starts the UriBeaconDiscoveryService
  */
-public class AutostartUriBeaconDiscoveryServiceReceiver extends BroadcastReceiver {
+public class AutostartPwoDiscoveryServiceReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     String preferences_key = context.getString(R.string.physical_web_preference_file_name);
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(preferences_key, Context.MODE_PRIVATE);
     if (sharedPreferences.getBoolean(context.getString(R.string.user_opted_in_flag), false)) {
-      Intent newIntent = new Intent(context, UriBeaconDiscoveryService.class);
+      Intent newIntent = new Intent(context, PwoDiscoveryService.class);
       context.startService(newIntent);
     }
   }

@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
    * Stop the beacon discovery service from running.
    */
   private void stopUriBeaconDiscoveryService() {
-    Intent intent = new Intent(this, UriBeaconDiscoveryService.class);
+    Intent intent = new Intent(this, PwoDiscoveryService.class);
     stopService(intent);
   }
 
@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
    * Start up the BeaconDiscoveryService
    */
   private void startUriBeaconDiscoveryService() {
-    Intent intent = new Intent(this, UriBeaconDiscoveryService.class);
+    Intent intent = new Intent(this, PwoDiscoveryService.class);
     startService(intent);
   }
 
