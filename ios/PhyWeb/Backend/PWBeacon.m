@@ -16,10 +16,15 @@
 
 #import "PWBeacon.h"
 
-@implementation PWBeacon
+@implementation PWBeacon {
+  NSMutableArray * _rssiHistory;
+}
 
 - (id)initWithUriBeacon:(UBUriBeacon *)beacon info:(NSDictionary *)info {
   self = [self init];
+  
+  _rssiHistory = [[NSMutableArray alloc] init];
+  
   NSString *title = info[@"title"];
   if (title == (NSString *)[NSNull null]) {
     title = nil;
@@ -96,6 +101,16 @@ static NSString *regionName(UBUriBeaconRegion region) {
 
 - (NSString *)debugUriRegionName {
   return regionName([[self uriBeacon] region]);
+}
+
+- (NSArray *) rssiHistory {
+  return _rssiHistory;
+}
+
+- (void) setUriBeacon:(UBUriBeacon *)uriBeacon {
+  NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
+  [_rssiHistory addObject:@[[NSNumber numberWithInt:(int) [uriBeacon RSSI]], [NSNumber numberWithDouble:timestamp]]];
+  _uriBeacon = uriBeacon;
 }
 
 @end

@@ -415,4 +415,9 @@
   return beacons;
 }
 
+- (NSTimeInterval) startTime
+{
+  return _startTime;
+}
+
 @end

@@ -28,6 +28,7 @@
 #import "PWPlaceholderView.h"
 #import "PWSettingsViewController.h"
 #import "PWSimpleWebViewController.h"
+#import "PWBeaconDetailViewController.h"
 
 @interface PWBeaconsViewController () <
     UITableViewDataSource, UITableViewDelegate, UITextViewDelegate,
@@ -441,6 +442,14 @@
 
 - (void)tableView:(UITableView *)tableView
     didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+  if (1) {
+    PWBeaconDetailViewController * detailController = [[PWBeaconDetailViewController alloc] initWithNibName:nil bundle:nil];
+    UINavigationController *navigationController = [[UINavigationController alloc]
+                                                    initWithRootViewController:detailController];
+    [self presentViewController:navigationController animated:YES completion:nil];
+    return;
+  }
+  
   PWBeacon *beacon = [_beacons objectAtIndex:[indexPath row]];
   NSURL *url = [[beacon uriBeacon] URI];
   NSString *unescaped = [url absoluteString];

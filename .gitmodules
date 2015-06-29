@@ -11,3 +11,6 @@
 	path = ios/PhyWeb/third-party/SVPullToRefresh
 	url = https://github.com/dinhviethoa/SVPullToRefresh
 	branch = contentinset-update
+[submodule "ios/PhyWeb/third-party/JBChartView"]
+	path = ios/PhyWeb/third-party/JBChartView
+	url = https://github.com/Jawbone/JBChartView
