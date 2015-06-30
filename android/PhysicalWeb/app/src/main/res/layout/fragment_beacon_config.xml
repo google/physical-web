@@ -2,9 +2,10 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="org.physical_web.physicalweb.BeaconConfigFragment"
                 android:background="#fff0f0f0"
-                android:clickable="true">
+                android:clickable="true"
+                tools:ignore="Overdraw"
+                tools:context="org.physical_web.physicalweb.BeaconConfigFragment">
 
     <TextView
             android:layout_width="wrap_content"

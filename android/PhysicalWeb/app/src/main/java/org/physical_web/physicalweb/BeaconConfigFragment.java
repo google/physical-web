@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.os.SystemClock;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -136,7 +137,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
 
     // Setup the animation
     mScanningStatus = (TextView) view.findViewById(R.id.textView_scanningStatus);
-    mScanningAnimation = (AnimationDrawable) getResources().getDrawable(R.drawable.scanning_animation);
+    mScanningAnimation = (AnimationDrawable) ResourcesCompat.getDrawable(
+        getResources(), R.drawable.scanning_animation, null);
     mScanningStatus.setCompoundDrawablesWithIntrinsicBounds(null, mScanningAnimation, null, null);
 
     Button button = (Button) view.findViewById(R.id.edit_card_save);

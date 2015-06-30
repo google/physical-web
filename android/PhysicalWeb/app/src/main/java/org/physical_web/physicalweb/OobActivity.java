@@ -16,18 +16,19 @@
 
 package org.physical_web.physicalweb;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class OobActivity extends ActionBarActivity {
+public class OobActivity extends AppCompatActivity {
 
   View.OnClickListener mAcceptButtonOnClickListener = new View.OnClickListener() {
 
@@ -37,13 +38,14 @@ public class OobActivity extends ActionBarActivity {
       SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.physical_web_preference_file_name), Context.MODE_PRIVATE);
       SharedPreferences.Editor editor = sharedPreferences.edit();
       editor.putBoolean(getString(R.string.user_opted_in_flag), true);
-      editor.commit();
+      editor.apply();
 
       // Exit the activity
       finish();
     }
   };
 
+  @SuppressLint("SetJavaScriptEnabled")
   private void initializeWebView() {
     WebView webView = (WebView) findViewById(R.id.oob_webview);
     // Force the background color to update (it uses the color specified in the layout xml)
