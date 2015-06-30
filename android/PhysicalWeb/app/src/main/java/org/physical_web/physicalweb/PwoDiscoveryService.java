@@ -76,7 +76,6 @@ import java.util.concurrent.TimeUnit;
 public class PwoDiscoveryService extends Service
                                  implements PwsClient.ResolveScanCallback,
                                             PwoDiscoverer.PwoDiscoveryCallback,
-                                            MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
                                             SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "PwoDiscoveryService";
@@ -119,7 +118,6 @@ public class PwoDiscoveryService extends Service
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoDiscoverer> mPwoDiscoverers;
-  private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
 
   // TODO: consider a more elegant solution for preventing notification conflicts
@@ -137,10 +135,10 @@ public class PwoDiscoveryService extends Service
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mPwoDiscoverers = new ArrayList<>();
+    mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.setCallback(this);
     }
-    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, this);
     mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, this);
     mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
@@ -227,11 +225,6 @@ public class PwoDiscoveryService extends Service
   }
 
   @Override
-  public void onMdnsUrlFound(String url) {
-    onLanUrlFound(url);
-  }
-
-  @Override
   public void onSsdpUrlFound(String url) {
     onLanUrlFound(url);
   }
@@ -274,7 +267,6 @@ public class PwoDiscoveryService extends Service
       pwoDiscoverer.startScan();
     }
     startSearchingForUriBeacons();
-    mMdnsUrlDiscoverer.startScanning();
     mSsdpUrlDiscoverer.startScanning();
   }
 
@@ -284,7 +276,6 @@ public class PwoDiscoveryService extends Service
       pwoDiscoverer.stopScan();
     }
     stopSearchingForUriBeacons();
-    mMdnsUrlDiscoverer.stopScanning();
     mSsdpUrlDiscoverer.stopScanning();
   }
 

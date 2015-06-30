@@ -76,7 +76,6 @@ public class NearbyBeaconsFragment extends ListFragment
                                    implements PwsClient.ResolveScanCallback,
                                               PwoDiscoverer.PwoDiscoveryCallback,
                                               SwipeRefreshWidget.OnRefreshListener,
-                                              MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
                                               SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "NearbyBeaconsFragment";
@@ -94,7 +93,6 @@ public class NearbyBeaconsFragment extends ListFragment
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
-  private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
   private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
@@ -161,9 +159,6 @@ public class NearbyBeaconsFragment extends ListFragment
     mUrlToPwoMetadata = new HashMap<>();
     mPwoMetadataQueue = new ArrayList<>();
     mPwoDiscoverers = new ArrayList<>();
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.setCallback(this);
-    }
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
 
@@ -171,7 +166,10 @@ public class NearbyBeaconsFragment extends ListFragment
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color, R.color.swipe_refresh_widget_second_color);
     mSwipeRefreshWidget.setOnRefreshListener(this);
 
-    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(getActivity(), NearbyBeaconsFragment.this);
+    mPwoDiscoverers.add(new MdnsPwoDiscoverer(getActivity()));
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.setCallback(this);
+    }
     mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(getActivity(), NearbyBeaconsFragment.this);
 
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
@@ -257,7 +255,6 @@ public class NearbyBeaconsFragment extends ListFragment
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.stopScan();
     }
-    mMdnsUrlDiscoverer.stopScanning();
     mSsdpUrlDiscoverer.stopScanning();
     mBluetoothAdapter.stopLeScan(mLeScanCallback);
     // Change the display appropriately
@@ -276,7 +273,6 @@ public class NearbyBeaconsFragment extends ListFragment
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.startScan();
     }
-    mMdnsUrlDiscoverer.startScanning();
     mSsdpUrlDiscoverer.startScanning();
     mBluetoothAdapter.startLeScan(mLeScanCallback);
     // Stops scanning after the predefined scan time has elapsed.
@@ -327,11 +323,6 @@ public class NearbyBeaconsFragment extends ListFragment
         emptyPwoMetadataQueue();
       }
     }
-  }
-
-  @Override
-  public void onMdnsUrlFound(String url) {
-    onLanUrlFound(url);
   }
 
   @Override

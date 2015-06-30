@@ -22,9 +22,9 @@ import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 import android.webkit.URLUtil;
 
-class MdnsUrlDiscoverer {
+class MdnsPwoDiscoverer extends PwoDiscoverer {
 
-  private static final String TAG = "MdnsUrlDiscoverer";
+  private static final String TAG = "MdnsPwoDiscoverer";
   NsdManager.DiscoveryListener mDiscoveryListener = new NsdManager.DiscoveryListener() {
 
     @Override
@@ -38,7 +38,9 @@ class MdnsUrlDiscoverer {
       Log.d(TAG, "Service discovery success" + service);
       String name = service.getServiceName();
       if (URLUtil.isNetworkUrl(name)) {
-        mMdnsUrlDiscovererCallback.onMdnsUrlFound(name);
+        PwoMetadata pwoMetadata = createPwoMetadata(name);
+        pwoMetadata.isPublic = false;
+        reportPwo(pwoMetadata);
       }
     }
 
@@ -67,7 +69,6 @@ class MdnsUrlDiscoverer {
   };
   private static final String MDNS_SERVICE_TYPE = "_http._tcp.";
   private NsdManager mNsdManager;
-  private MdnsUrlDiscovererCallback mMdnsUrlDiscovererCallback;
   private enum State {
     STOPPED,
     WAITING,
@@ -75,13 +76,13 @@ class MdnsUrlDiscoverer {
   }
   private State mState;
 
-  public MdnsUrlDiscoverer(Context context, MdnsUrlDiscovererCallback mdnsUrlDiscovererCallback) {
-    mMdnsUrlDiscovererCallback = mdnsUrlDiscovererCallback;
+  public MdnsPwoDiscoverer(Context context) {
     mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
     mState = State.STOPPED;
   }
 
-  public synchronized void startScanning() {
+  @Override
+  public synchronized void startScanImpl() {
     if (mState != State.STOPPED) {
       return;
     }
@@ -89,15 +90,12 @@ class MdnsUrlDiscoverer {
     mState = State.WAITING;
   }
 
-  public synchronized void stopScanning() {
+  @Override
+  public synchronized void stopScanImpl() {
     if (mState != State.STARTED) {
       return;
     }
     mNsdManager.stopServiceDiscovery(mDiscoveryListener);
     mState = State.WAITING;
-  }
-
-  public interface MdnsUrlDiscovererCallback {
-    public void onMdnsUrlFound(String url);
   }
 }
