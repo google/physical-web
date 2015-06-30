@@ -75,8 +75,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PwoDiscoveryService extends Service
                                  implements PwsClient.ResolveScanCallback,
-                                            PwoDiscoverer.PwoDiscoveryCallback,
-                                            SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
+                                            PwoDiscoverer.PwoDiscoveryCallback {
 
   private static final String TAG = "PwoDiscoveryService";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -118,7 +117,6 @@ public class PwoDiscoveryService extends Service
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoDiscoverer> mPwoDiscoverers;
-  private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
 
   // TODO: consider a more elegant solution for preventing notification conflicts
   private Runnable mNotificationUpdateGateTimeout = new Runnable() {
@@ -136,10 +134,10 @@ public class PwoDiscoveryService extends Service
     mNotificationManager = NotificationManagerCompat.from(this);
     mPwoDiscoverers = new ArrayList<>();
     mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
+    mPwoDiscoverers.add(new SsdpPwoDiscoverer(this));
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.setCallback(this);
     }
-    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, this);
     mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
   }
@@ -224,19 +222,6 @@ public class PwoDiscoveryService extends Service
     }
   }
 
-  @Override
-  public void onSsdpUrlFound(String url) {
-    onLanUrlFound(url);
-  }
-
-  private void onLanUrlFound(String url){
-    if (!mUrlToPwoMetadata.containsKey(url)) {
-      PwoMetadata pwoMetadata = addPwoMetadata(url);
-      pwoMetadata.isPublic = false;
-      PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
-    }
-  }
-
   private void startSearchingForUriBeacons() {
     ScanSettings settings = new ScanSettings.Builder()
         .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
@@ -267,7 +252,6 @@ public class PwoDiscoveryService extends Service
       pwoDiscoverer.startScan();
     }
     startSearchingForUriBeacons();
-    mSsdpUrlDiscoverer.startScanning();
   }
 
   private void stopSearchingForPwos() {
@@ -276,7 +260,6 @@ public class PwoDiscoveryService extends Service
       pwoDiscoverer.stopScan();
     }
     stopSearchingForUriBeacons();
-    mSsdpUrlDiscoverer.stopScanning();
   }
 
   private void handleFoundDevice(ScanResult scanResult) {

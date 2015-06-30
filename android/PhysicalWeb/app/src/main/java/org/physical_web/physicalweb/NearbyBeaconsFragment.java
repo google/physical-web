@@ -75,8 +75,7 @@ import java.util.concurrent.TimeUnit;
 public class NearbyBeaconsFragment extends ListFragment
                                    implements PwsClient.ResolveScanCallback,
                                               PwoDiscoverer.PwoDiscoveryCallback,
-                                              SwipeRefreshWidget.OnRefreshListener,
-                                              SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
+                                              SwipeRefreshWidget.OnRefreshListener {
 
   private static final String TAG = "NearbyBeaconsFragment";
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
@@ -93,7 +92,6 @@ public class NearbyBeaconsFragment extends ListFragment
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
-  private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
   private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
 
@@ -167,10 +165,10 @@ public class NearbyBeaconsFragment extends ListFragment
     mSwipeRefreshWidget.setOnRefreshListener(this);
 
     mPwoDiscoverers.add(new MdnsPwoDiscoverer(getActivity()));
+    mPwoDiscoverers.add(new SsdpPwoDiscoverer(getActivity()));
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.setCallback(this);
     }
-    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(getActivity(), NearbyBeaconsFragment.this);
 
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
@@ -255,7 +253,6 @@ public class NearbyBeaconsFragment extends ListFragment
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.stopScan();
     }
-    mSsdpUrlDiscoverer.stopScanning();
     mBluetoothAdapter.stopLeScan(mLeScanCallback);
     // Change the display appropriately
     mSwipeRefreshWidget.setRefreshing(false);
@@ -273,7 +270,6 @@ public class NearbyBeaconsFragment extends ListFragment
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.startScan();
     }
-    mSsdpUrlDiscoverer.startScanning();
     mBluetoothAdapter.startLeScan(mLeScanCallback);
     // Stops scanning after the predefined scan time has elapsed.
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
@@ -322,19 +318,6 @@ public class NearbyBeaconsFragment extends ListFragment
       if (mSecondScanComplete) {
         emptyPwoMetadataQueue();
       }
-    }
-  }
-
-  @Override
-  public void onSsdpUrlFound(String url) {
-    onLanUrlFound(url);
-  }
-
-  private void onLanUrlFound(String url){
-    if (!mUrlToPwoMetadata.containsKey(url)) {
-      PwoMetadata pwoMetadata = addPwoMetadata(url);
-      // Fetch the metadata for the given url
-      PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
     }
   }
 
