@@ -16,11 +16,11 @@
 
 package org.physical_web.physicalweb;
 
-import android.content.Context;
-import android.util.Log;
-
 import org.physical_web.physicalweb.ssdp.Ssdp;
 import org.physical_web.physicalweb.ssdp.SsdpMessage;
+
+import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -44,14 +44,13 @@ public class SsdpPwoDiscoverer extends PwoDiscoverer implements Ssdp.SsdpCallbac
       @Override
       public void run() {
         try {
-          // TODO: set timeout using getSsdp().start(NearbyBeaconsFragment.SCAN_TIME_MILLIS)
+          // TODO(?): set timeout using getSsdp().start(NearbyBeaconsFragment.SCAN_TIME_MILLIS)
           // to ensure that SSDP scan thread is stopped automatically after timeout.
           // In this case there is no need to call stop().
           getSsdp().start(null);
           Thread.sleep(200);
           getSsdp().search(PHYSICAL_WEB_SSDP_TYPE);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
           Log.e(TAG, e.getMessage(), e);
         }
       }
@@ -64,8 +63,7 @@ public class SsdpPwoDiscoverer extends PwoDiscoverer implements Ssdp.SsdpCallbac
       public void run() {
         try {
           getSsdp().stop();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           Log.e(TAG, e.getMessage(), e);
         }
       }
@@ -83,7 +81,7 @@ public class SsdpPwoDiscoverer extends PwoDiscoverer implements Ssdp.SsdpCallbac
   public void onSsdpMessageReceived(SsdpMessage ssdpMessage) {
     final String url = ssdpMessage.get("LOCATION");
     final String st = ssdpMessage.get("ST");
-    if(url != null && PHYSICAL_WEB_SSDP_TYPE.equals(st)) {
+    if (url != null && PHYSICAL_WEB_SSDP_TYPE.equals(st)) {
       Log.d(TAG, "SSDP url received: " + url);
       new Thread(new Runnable() {
         @Override

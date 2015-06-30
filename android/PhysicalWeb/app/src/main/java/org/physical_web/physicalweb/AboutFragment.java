@@ -24,14 +24,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import org.physical_web.physicalweb.BuildConfig;
-import org.physical_web.physicalweb.R;
-
+/**
+ * The fragment that displays info about the app.
+ */
 public class AboutFragment extends Fragment {
 
   @SuppressWarnings("WeakerAccess")
@@ -60,7 +59,8 @@ public class AboutFragment extends Fragment {
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
     setHasOptionsMenu(true);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
     return inflater.inflate(R.layout.fragment_about, container, false);

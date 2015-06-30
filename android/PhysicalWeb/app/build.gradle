@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'checkstyle'
 
 android {
     compileSdkVersion 22
@@ -49,7 +50,7 @@ android {
     }
 }
 
-repositories{
+repositories {
     flatDir {
         dirs 'libs'
     }
@@ -60,8 +61,14 @@ dependencies {
     compile 'org.uribeacon:uribeacon-library-release@aar'
 
     compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.google.api-client:google-api-client:1.19.0'
-    compile 'com.google.apis:google-api-services-urlshortener:v1-rev33-1.19.0'
-    compile 'com.google.http-client:google-http-client:1.19.0'
-    compile 'com.google.http-client:google-http-client-android:1.19.0'
 }
+
+task checkstyle(type: Checkstyle) {
+    configProperties.checkstyleSuppressionsPath = new File(rootDir, "app/config/checkstyle/suppressions.xml").absolutePath
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+    classpath = files()
+}
+
+check.dependsOn 'checkstyle', 'lint'

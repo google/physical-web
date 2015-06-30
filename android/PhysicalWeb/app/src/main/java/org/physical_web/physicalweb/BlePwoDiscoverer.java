@@ -22,13 +22,11 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
-import android.util.Log;
-
-import java.util.List;
 
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
-import org.uribeacon.scan.compat.ScanResult;
+
+import java.util.List;
 
 class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanCallback {
   private static final String TAG = "BlePwoDiscoverer";

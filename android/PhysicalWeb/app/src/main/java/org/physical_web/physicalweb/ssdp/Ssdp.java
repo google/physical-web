@@ -75,7 +75,7 @@ public class Ssdp implements Runnable {
   }
 
   public synchronized boolean stop() throws IOException {
-    if(mThread != null) {
+    if (mThread != null) {
       mThread.interrupt();
       mDatagramSocket.close();
       mThread = null;
@@ -86,16 +86,16 @@ public class Ssdp implements Runnable {
   }
 
   public synchronized void search(SsdpMessage msg) throws IOException {
-    if(mDatagramSocket != null){
+    if (mDatagramSocket != null){
       byte bytes[] = msg.toString().getBytes();
       DatagramPacket dp = new DatagramPacket(bytes, bytes.length, mMulticastGroup);
       mDatagramSocket.send(dp);
     }
   }
 
-  public SsdpMessage search(String ST) throws IOException {
+  public SsdpMessage search(String text) throws IOException {
     SsdpMessage msg = new SsdpMessage(SsdpMessage.TYPE_SEARCH);
-    msg.getHeaders().put("ST", ST);
+    msg.getHeaders().put("ST", text);
     msg.getHeaders().put("HOST", SSDP_HOST);
     msg.getHeaders().put("MAN", DISCOVER);
     msg.getHeaders().put("MX" , MX + "");
@@ -115,12 +115,10 @@ public class Ssdp implements Runnable {
         String txt = new String(dp.getData());
         SsdpMessage msg = new SsdpMessage(txt);
         mSsdpCallback.onSsdpMessageReceived(msg);
-      }
-      catch (SocketTimeoutException e) {
+      } catch (SocketTimeoutException e) {
         Log.d(TAG, e.getMessage());
         break;
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         Log.e(TAG, e.getMessage());
       }
     }
@@ -137,6 +135,9 @@ public class Ssdp implements Runnable {
     Log.d(TAG, "SSDP scan terminated");
   }
 
+  /**
+   * Callback for Ssdp discoveries.
+   */
   public interface SsdpCallback {
     public void onSsdpMessageReceived(SsdpMessage ssdpMessage);
   }

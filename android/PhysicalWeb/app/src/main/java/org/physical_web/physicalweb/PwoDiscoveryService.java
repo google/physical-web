@@ -16,6 +16,9 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -26,7 +29,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,11 +37,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
-import android.webkit.URLUtil;
 import android.widget.RemoteViews;
-
-import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
-import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
@@ -52,10 +50,8 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -118,7 +114,6 @@ public class PwoDiscoveryService extends Service
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoDiscoverer> mPwoDiscoverers;
 
-  // TODO: consider a more elegant solution for preventing notification conflicts
   private Runnable mNotificationUpdateGateTimeout = new Runnable() {
     @Override
     public void run() {
@@ -148,8 +143,7 @@ public class PwoDiscoveryService extends Service
   }
 
   /**
-   * Create the broadcast receiver that will listen
-   * for screen on/off events
+   * Create the broadcast receiver that will listen for screen on/off events.
    */
   private void initializeScreenStateBroadcastReceiver() {
     mScreenStateBroadcastReceiver = new ScreenBroadcastReceiver();
@@ -187,7 +181,6 @@ public class PwoDiscoveryService extends Service
 
   @Override
   public IBinder onBind(Intent intent) {
-    // TODO: Return the communication channel to the service.
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
@@ -294,7 +287,7 @@ public class PwoDiscoveryService extends Service
   }
 
   /**
-   * Create a new set of notifications or update those existing
+   * Create a new set of notifications or update those existing.
    */
   private void updateNotifications() {
     if (!mCanUpdateNotifications) {
@@ -335,8 +328,7 @@ public class PwoDiscoveryService extends Service
   }
 
   /**
-   * Create or update a notification with the given id
-   * for the beacon with the given address
+   * Create or update a notification with the given id for the beacon with the given address.
    */
   private void updateNearbyBeaconNotification(boolean single, PwoMetadata pwoMetadata,
                                               int notificationId) {
@@ -372,7 +364,7 @@ public class PwoDiscoveryService extends Service
 
   /**
    * Create or update the a single notification that is a collapsed version
-   * of the top two beacon notifications
+   * of the top two beacon notifications.
    */
   private void updateSummaryNotification(List<PwoMetadata> pwoMetadataList) {
     int numNearbyBeacons = pwoMetadataList.size();
@@ -404,7 +396,7 @@ public class PwoDiscoveryService extends Service
   }
 
   /**
-   * Create the big view for the summary notification
+   * Create the big view for the summary notification.
    */
   private RemoteViews updateSummaryNotificationRemoteViews(List<PwoMetadata> pwoMetadataList) {
     RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification_big_view);
@@ -414,7 +406,7 @@ public class PwoDiscoveryService extends Service
     updateSummaryNotificationRemoteViewsSecondBeacon(pwoMetadataList.get(1), remoteViews);
 
     // Create a pending intent that will open the physical web app
-    // TODO: Use a clickListener on the VIEW MORE button to do this
+    // TODO(cco3): Use a clickListener on the VIEW MORE button to do this
     PendingIntent pendingIntent = createReturnToAppPendingIntent();
     remoteViews.setOnClickPendingIntent(R.id.otherBeaconsLayout, pendingIntent);
 
@@ -432,7 +424,8 @@ public class PwoDiscoveryService extends Service
     if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
       remoteViews.setTextColor(R.id.title_firstBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
       remoteViews.setTextColor(R.id.url_firstBeacon, NON_LOLLIPOP_NOTIFICATION_URL_COLOR);
-      remoteViews.setTextColor(R.id.description_firstBeacon, NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR);
+      remoteViews.setTextColor(R.id.description_firstBeacon,
+                               NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR);
     }
 
     // Create an intent that will open the browser to the beacon's url
@@ -453,7 +446,8 @@ public class PwoDiscoveryService extends Service
     if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
       remoteViews.setTextColor(R.id.title_secondBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
       remoteViews.setTextColor(R.id.url_secondBeacon, NON_LOLLIPOP_NOTIFICATION_URL_COLOR);
-      remoteViews.setTextColor(R.id.description_secondBeacon, NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR);
+      remoteViews.setTextColor(R.id.description_secondBeacon,
+                               NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR);
     }
 
     // Create an intent that will open the browser to the beacon's url
@@ -471,7 +465,7 @@ public class PwoDiscoveryService extends Service
   }
 
   /**
-   * This is the class that listens for screen on/off events
+   * This is the class that listens for screen on/off events.
    */
   private class ScreenBroadcastReceiver extends BroadcastReceiver {
     @Override
