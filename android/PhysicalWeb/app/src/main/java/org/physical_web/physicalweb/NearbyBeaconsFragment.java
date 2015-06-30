@@ -19,17 +19,12 @@ package org.physical_web.physicalweb;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelUuid;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,9 +43,6 @@ import android.widget.Toast;
 import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
-import org.uribeacon.beacon.UriBeacon;
-import org.uribeacon.scan.compat.ScanRecord;
-import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.util.RangingUtils;
 import org.uribeacon.scan.util.RegionResolver;
 
@@ -58,7 +50,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -81,16 +72,12 @@ public class NearbyBeaconsFragment extends ListFragment
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
   private static final long THIRD_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
-  private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
-  private BluetoothAdapter mBluetoothAdapter;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoMetadata> mPwoMetadataQueue;
   private List<PwoDiscoverer> mPwoDiscoverers;
-  private long mScanStartTime;
   private AnimationDrawable mScanningAnimationDrawable;
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
-  private Parcelable[] mScanFilterUuids;
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
@@ -158,7 +145,6 @@ public class NearbyBeaconsFragment extends ListFragment
     mPwoMetadataQueue = new ArrayList<>();
     mPwoDiscoverers = new ArrayList<>();
     mHandler = new Handler();
-    mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color, R.color.swipe_refresh_widget_second_color);
@@ -166,6 +152,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
     mPwoDiscoverers.add(new MdnsPwoDiscoverer(getActivity()));
     mPwoDiscoverers.add(new SsdpPwoDiscoverer(getActivity()));
+    mPwoDiscoverers.add(new BlePwoDiscoverer(getActivity()));
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.setCallback(this);
     }
@@ -176,15 +163,6 @@ public class NearbyBeaconsFragment extends ListFragment
     initializeScanningAnimation(rootView);
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
-
-    initializeBluetooth();
-  }
-
-  private void initializeBluetooth() {
-    // Initializes a Bluetooth adapter. For API version 18 and above,
-    // get a reference to BluetoothAdapter through BluetoothManager.
-    final BluetoothManager bluetoothManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
-    mBluetoothAdapter = bluetoothManager.getAdapter();
   }
 
   private void initializeScanningAnimation(View rootView) {
@@ -243,7 +221,6 @@ public class NearbyBeaconsFragment extends ListFragment
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
-  @SuppressWarnings("deprecation")
   private void stopScanning() {
     // Cancel the scan timeout callback if still active or else it may fire later.
     mHandler.removeCallbacks(mFirstScanTimeout);
@@ -253,24 +230,20 @@ public class NearbyBeaconsFragment extends ListFragment
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.stopScan();
     }
-    mBluetoothAdapter.stopLeScan(mLeScanCallback);
     // Change the display appropriately
     mSwipeRefreshWidget.setRefreshing(false);
     mScanningAnimationDrawable.stop();
   }
 
-  @SuppressWarnings("deprecation")
   private void startScanning() {
     // Clear any stored url data
     mUrlToPwoMetadata.clear();
     mPwoMetadataQueue.clear();
     mNearbyDeviceAdapter.clear();
-    mScanStartTime = new Date().getTime();
     // Start the scan
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.startScan();
     }
-    mBluetoothAdapter.startLeScan(mLeScanCallback);
     // Stops scanning after the predefined scan time has elapsed.
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
@@ -279,21 +252,6 @@ public class NearbyBeaconsFragment extends ListFragment
     // Change the display appropriately
     mScanningAnimationDrawable.start();
     getListView().setVisibility(View.INVISIBLE);
-  }
-
-  private boolean leScanMatches(ScanRecord scanRecord) {
-    if (mScanFilterUuids == null) {
-      return true;
-    }
-    List services = scanRecord.getServiceUuids();
-    if (services != null) {
-      for (Parcelable uuid : mScanFilterUuids) {
-        if (services.contains(uuid)) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   @Override
@@ -317,50 +275,6 @@ public class NearbyBeaconsFragment extends ListFragment
       mPwoMetadataQueue.add(pwoMetadata);
       if (mSecondScanComplete) {
         emptyPwoMetadataQueue();
-      }
-    }
-  }
-
-  private PwoMetadata addPwoMetadata(String url) {
-    PwoMetadata pwoMetadata = new PwoMetadata(url, new Date().getTime() - mScanStartTime);
-    mUrlToPwoMetadata.put(url, pwoMetadata);
-    mPwoMetadataQueue.add(pwoMetadata);
-    if (mSecondScanComplete) {
-      emptyPwoMetadataQueue();
-    }
-    return pwoMetadata;
-  }
-
-  /**
-  * Callback for LE scan results.
-  */
-  private class LeScanCallback implements BluetoothAdapter.LeScanCallback {
-    @Override
-    public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {
-      if (leScanMatches(ScanRecord.parseFromBytes(scanBytes))) {
-        getActivity().runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanBytes);
-            if (uriBeacon != null) {
-              String url = uriBeacon.getUriString();
-              if (url != null && !url.isEmpty()) {
-                String deviceAddress = device.getAddress();
-                int txPower = uriBeacon.getTxPowerLevel();
-                // If we haven't yet seen this url
-                if (!mUrlToPwoMetadata.containsKey(url)) {
-                  PwoMetadata pwoMetadata = addPwoMetadata(url);
-                  pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
-                  // Fetch the metadata for this url
-                  PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata,
-                      NearbyBeaconsFragment.this, TAG);
-                }
-                // Tell the adapter to update stored data for this url
-                mNearbyDeviceAdapter.updateItem(url, deviceAddress, rssi, txPower);
-              }
-            }
-          }
-        });
       }
     }
   }
