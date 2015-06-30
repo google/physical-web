@@ -30,7 +30,7 @@ class MdnsUrlDiscoverer {
     @Override
     public void onDiscoveryStarted(String regType) {
       Log.d(TAG, "Service discovery started");
-      isRunning = true;
+      mState = State.STARTED;
     }
 
     @Override
@@ -50,7 +50,7 @@ class MdnsUrlDiscoverer {
     @Override
     public void onDiscoveryStopped(String serviceType) {
       Log.i(TAG, "Discovery stopped: " + serviceType);
-      isRunning = false;
+      mState = State.STOPPED;
     }
 
     @Override
@@ -68,26 +68,33 @@ class MdnsUrlDiscoverer {
   private static final String MDNS_SERVICE_TYPE = "_http._tcp.";
   private NsdManager mNsdManager;
   private MdnsUrlDiscovererCallback mMdnsUrlDiscovererCallback;
-  private boolean isRunning;
+  private enum State {
+    STOPPED,
+    WAITING,
+    STARTED,
+  }
+  private State mState;
 
   public MdnsUrlDiscoverer(Context context, MdnsUrlDiscovererCallback mdnsUrlDiscovererCallback) {
     mMdnsUrlDiscovererCallback = mdnsUrlDiscovererCallback;
     mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
-    isRunning = false;
+    mState = State.STOPPED;
   }
 
   public synchronized void startScanning() {
-    if (isRunning) {
+    if (mState != State.STOPPED) {
       return;
     }
     mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
+    mState = State.WAITING;
   }
 
   public synchronized void stopScanning() {
-    if (!isRunning) {
+    if (mState != State.STARTED) {
       return;
     }
     mNsdManager.stopServiceDiscovery(mDiscoveryListener);
+    mState = State.WAITING;
   }
 
   public interface MdnsUrlDiscovererCallback {
