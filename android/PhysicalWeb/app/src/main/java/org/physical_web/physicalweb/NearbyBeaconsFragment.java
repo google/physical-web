@@ -74,6 +74,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class NearbyBeaconsFragment extends ListFragment
                                    implements PwsClient.ResolveScanCallback,
+                                              PwoDiscoverer.PwoDiscoveryCallback,
                                               SwipeRefreshWidget.OnRefreshListener,
                                               MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
                                               SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
@@ -86,6 +87,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private BluetoothAdapter mBluetoothAdapter;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoMetadata> mPwoMetadataQueue;
+  private List<PwoDiscoverer> mPwoDiscoverers;
   private long mScanStartTime;
   private AnimationDrawable mScanningAnimationDrawable;
   private Handler mHandler;
@@ -158,6 +160,10 @@ public class NearbyBeaconsFragment extends ListFragment
     setHasOptionsMenu(true);
     mUrlToPwoMetadata = new HashMap<>();
     mPwoMetadataQueue = new ArrayList<>();
+    mPwoDiscoverers = new ArrayList<>();
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.setCallback(this);
+    }
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
 
@@ -248,6 +254,9 @@ public class NearbyBeaconsFragment extends ListFragment
     mHandler.removeCallbacks(mSecondScanTimeout);
     mHandler.removeCallbacks(mThirdScanTimeout);
     // Stop the scanners
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.stopScan();
+    }
     mMdnsUrlDiscoverer.stopScanning();
     mSsdpUrlDiscoverer.stopScanning();
     mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -264,6 +273,9 @@ public class NearbyBeaconsFragment extends ListFragment
     mNearbyDeviceAdapter.clear();
     mScanStartTime = new Date().getTime();
     // Start the scan
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.startScan();
+    }
     mMdnsUrlDiscoverer.startScanning();
     mSsdpUrlDiscoverer.startScanning();
     mBluetoothAdapter.startLeScan(mLeScanCallback);
@@ -297,6 +309,24 @@ public class NearbyBeaconsFragment extends ListFragment
     stopScanning();
     mSwipeRefreshWidget.setRefreshing(true);
     startScanning();
+  }
+
+  @Override
+  public void onPwoDiscovered(PwoMetadata pwoMetadata) {
+    if (pwoMetadata.hasBleMetadata()) {
+      BleMetadata bleMetadata = pwoMetadata.bleMetadata;
+      mNearbyDeviceAdapter.updateItem(pwoMetadata.url, bleMetadata.deviceAddress, bleMetadata.rssi,
+                                      bleMetadata.txPower);
+    }
+
+    if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
+      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
+      PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
+      mPwoMetadataQueue.add(pwoMetadata);
+      if (mSecondScanComplete) {
+        emptyPwoMetadataQueue();
+      }
+    }
   }
 
   @Override

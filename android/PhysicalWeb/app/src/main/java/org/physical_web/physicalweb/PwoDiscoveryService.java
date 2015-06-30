@@ -38,6 +38,7 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import org.uribeacon.beacon.UriBeacon;
@@ -74,6 +75,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PwoDiscoveryService extends Service
                                  implements PwsClient.ResolveScanCallback,
+                                            PwoDiscoverer.PwoDiscoveryCallback,
                                             MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
                                             SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
@@ -116,6 +118,7 @@ public class PwoDiscoveryService extends Service
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
+  private List<PwoDiscoverer> mPwoDiscoverers;
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
 
@@ -133,6 +136,10 @@ public class PwoDiscoveryService extends Service
 
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
+    mPwoDiscoverers = new ArrayList<>();
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.setCallback(this);
+    }
     mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, this);
     mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, this);
     mHandler = new Handler();
@@ -207,6 +214,19 @@ public class PwoDiscoveryService extends Service
   }
 
   @Override
+  public void onPwoDiscovered(PwoMetadata pwoMetadata) {
+    if (pwoMetadata.hasBleMetadata()) {
+      BleMetadata bleMetadata = pwoMetadata.bleMetadata;
+      mRegionResolver.onUpdate(bleMetadata.deviceAddress, bleMetadata.rssi, bleMetadata.txPower);
+    }
+
+    if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
+      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
+      PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
+    }
+  }
+
+  @Override
   public void onMdnsUrlFound(String url) {
     onLanUrlFound(url);
   }
@@ -250,6 +270,9 @@ public class PwoDiscoveryService extends Service
     mScanStartTime = new Date().getTime();
     mCanUpdateNotifications = false;
     mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.startScan();
+    }
     startSearchingForUriBeacons();
     mMdnsUrlDiscoverer.startScanning();
     mSsdpUrlDiscoverer.startScanning();
@@ -257,6 +280,9 @@ public class PwoDiscoveryService extends Service
 
   private void stopSearchingForPwos() {
     mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.stopScan();
+    }
     stopSearchingForUriBeacons();
     mMdnsUrlDiscoverer.stopScanning();
     mSsdpUrlDiscoverer.stopScanning();
