@@ -79,13 +79,15 @@ public class NearbyBeaconsFragment extends ListFragment
                                               SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
 
   private static final String TAG = "NearbyBeaconsFragment";
-  private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(3);
+  private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
+  private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
+  private static final long THIRD_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothAdapter mBluetoothAdapter;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
+  private List<PwoMetadata> mPwoMetadataQueue;
   private long mScanStartTime;
   private AnimationDrawable mScanningAnimationDrawable;
-  private boolean mIsScanRunning;
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private Parcelable[] mScanFilterUuids;
@@ -93,19 +95,53 @@ public class NearbyBeaconsFragment extends ListFragment
   private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
   private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
   private boolean mDebugViewEnabled = false;
-  // Run when the SCAN_TIME_MILLIS has elapsed.
-  private Runnable mScanTimeout = new Runnable() {
+  private boolean mSecondScanComplete;
+
+  // The display of gathered urls happens as follows
+  // 0. Begin scan
+  // 1. Sort and show all urls (mFirstScanTimeout)
+  // 2. Sort and show all new urls beneath the first set (mSecondScanTimeout)
+  // 3. Show each new url at bottom of list as it comes in
+  // 4. Stop scanning (mThirdScanTimeout)
+
+  // Run when the FIRST_SCAN_MILLIS has elapsed.
+  private Runnable mFirstScanTimeout = new Runnable() {
     @Override
     public void run() {
-      mScanningAnimationDrawable.stop();
-      scanLeDevice(false);
-      mMdnsUrlDiscoverer.stopScanning();
-      mSsdpUrlDiscoverer.stopScanning();
-      mNearbyDeviceAdapter.sortUrls();
-      mNearbyDeviceAdapter.notifyDataSetChanged();
-      fadeInListView();
+      Log.d(TAG, "running first scan timeout");
+      if (!mPwoMetadataQueue.isEmpty()) {
+        mScanningAnimationDrawable.stop();
+        mSwipeRefreshWidget.setRefreshing(false);
+        emptyPwoMetadataQueue();
+        fadeInListView();
+      }
     }
   };
+
+  // Run when the SECOND_SCAN_MILLIS has elapsed.
+  private Runnable mSecondScanTimeout = new Runnable() {
+    @Override
+    public void run() {
+      Log.d(TAG, "running second scan timeout");
+      emptyPwoMetadataQueue();
+      if (mScanningAnimationDrawable.isRunning()) {
+        mScanningAnimationDrawable.stop();
+        mSwipeRefreshWidget.setRefreshing(false);
+        fadeInListView();
+      }
+      mSecondScanComplete = true;
+    }
+  };
+
+  // Run when the THIRD_SCAN_MILLIS has elapsed.
+  private Runnable mThirdScanTimeout = new Runnable() {
+    @Override
+    public void run() {
+      Log.d(TAG, "running third scan timeout");
+      stopScanning();
+    }
+  };
+
   private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener = new AdapterView.OnItemLongClickListener() {
     public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
       mDebugViewEnabled = !mDebugViewEnabled;
@@ -121,6 +157,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
     mUrlToPwoMetadata = new HashMap<>();
+    mPwoMetadataQueue = new ArrayList<>();
     mHandler = new Handler();
     mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
 
@@ -152,7 +189,6 @@ public class NearbyBeaconsFragment extends ListFragment
     TextView tv = (TextView) rootView.findViewById(android.R.id.empty);
     //Get the top drawable
     mScanningAnimationDrawable = (AnimationDrawable) tv.getCompoundDrawables()[1];
-    mScanningAnimationDrawable.start();
   }
 
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
@@ -166,20 +202,13 @@ public class NearbyBeaconsFragment extends ListFragment
     super.onResume();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-    mScanningAnimationDrawable.start();
-    scanLeDevice(true);
-    mMdnsUrlDiscoverer.startScanning();
-    mSsdpUrlDiscoverer.startScanning();
+    startScanning();
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    if (mIsScanRunning) {
-      scanLeDevice(false);
-      mMdnsUrlDiscoverer.stopScanning();
-      mSsdpUrlDiscoverer.stopScanning();
-    }
+    stopScanning();
   }
 
   @Override
@@ -192,7 +221,7 @@ public class NearbyBeaconsFragment extends ListFragment
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
     // If we are scanning
-    if (mIsScanRunning) {
+    if (mScanningAnimationDrawable.isRunning()) {
       // Don't respond to touch events
       return;
     }
@@ -213,28 +242,39 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   @SuppressWarnings("deprecation")
-  private void scanLeDevice(final boolean enable) {
-    if (mIsScanRunning != enable) {
-      mIsScanRunning = enable;
-      // If we should start scanning
-      if (enable) {
-        // Stops scanning after the predefined scan time has elapsed.
-        mHandler.postDelayed(mScanTimeout, SCAN_TIME_MILLIS);
-        // Clear any stored url data
-        mUrlToPwoMetadata.clear();
-        mNearbyDeviceAdapter.clear();
-        // Start the scan
-        mScanStartTime = new Date().getTime();
-        mBluetoothAdapter.startLeScan(mLeScanCallback);
-        // If we should stop scanning
-      } else {
-        // Cancel the scan timeout callback if still active or else it may fire later.
-        mHandler.removeCallbacks(mScanTimeout);
-        // Stop the scan
-        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        mSwipeRefreshWidget.setRefreshing(false);
-      }
-    }
+  private void stopScanning() {
+    // Cancel the scan timeout callback if still active or else it may fire later.
+    mHandler.removeCallbacks(mFirstScanTimeout);
+    mHandler.removeCallbacks(mSecondScanTimeout);
+    mHandler.removeCallbacks(mThirdScanTimeout);
+    // Stop the scanners
+    mMdnsUrlDiscoverer.stopScanning();
+    mSsdpUrlDiscoverer.stopScanning();
+    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+    // Change the display appropriately
+    mSwipeRefreshWidget.setRefreshing(false);
+    mScanningAnimationDrawable.stop();
+  }
+
+  @SuppressWarnings("deprecation")
+  private void startScanning() {
+    // Clear any stored url data
+    mUrlToPwoMetadata.clear();
+    mPwoMetadataQueue.clear();
+    mNearbyDeviceAdapter.clear();
+    mScanStartTime = new Date().getTime();
+    // Start the scan
+    mMdnsUrlDiscoverer.startScanning();
+    mSsdpUrlDiscoverer.startScanning();
+    mBluetoothAdapter.startLeScan(mLeScanCallback);
+    // Stops scanning after the predefined scan time has elapsed.
+    mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
+    mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
+    mHandler.postDelayed(mThirdScanTimeout, THIRD_SCAN_TIME_MILLIS);
+    mSecondScanComplete = false;
+    // Change the display appropriately
+    mScanningAnimationDrawable.start();
+    getListView().setVisibility(View.INVISIBLE);
   }
 
   private boolean leScanMatches(ScanRecord scanRecord) {
@@ -254,14 +294,9 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onRefresh() {
-    if (mIsScanRunning) {
-      return;
-    }
+    stopScanning();
     mSwipeRefreshWidget.setRefreshing(true);
-    mScanningAnimationDrawable.start();
-    scanLeDevice(true);
-    mMdnsUrlDiscoverer.startScanning();
-    mSsdpUrlDiscoverer.startScanning();
+    startScanning();
   }
 
   @Override
@@ -279,13 +314,16 @@ public class NearbyBeaconsFragment extends ListFragment
       PwoMetadata pwoMetadata = addPwoMetadata(url);
       // Fetch the metadata for the given url
       PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
-      mNearbyDeviceAdapter.addItem(pwoMetadata);
     }
   }
 
   private PwoMetadata addPwoMetadata(String url) {
     PwoMetadata pwoMetadata = new PwoMetadata(url, new Date().getTime() - mScanStartTime);
     mUrlToPwoMetadata.put(url, pwoMetadata);
+    mPwoMetadataQueue.add(pwoMetadata);
+    if (mSecondScanComplete) {
+      emptyPwoMetadataQueue();
+    }
     return pwoMetadata;
   }
 
@@ -309,7 +347,6 @@ public class NearbyBeaconsFragment extends ListFragment
                 if (!mUrlToPwoMetadata.containsKey(url)) {
                   PwoMetadata pwoMetadata = addPwoMetadata(url);
                   pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
-                  mNearbyDeviceAdapter.addItem(pwoMetadata);
                   // Fetch the metadata for this url
                   PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata,
                       NearbyBeaconsFragment.this, TAG);
@@ -322,6 +359,14 @@ public class NearbyBeaconsFragment extends ListFragment
         });
       }
     }
+  }
+
+  private void emptyPwoMetadataQueue() {
+    Collections.sort(mPwoMetadataQueue);
+    for (PwoMetadata pwoMetadata : mPwoMetadataQueue) {
+      mNearbyDeviceAdapter.addItem(pwoMetadata);
+    }
+    mPwoMetadataQueue.clear();
   }
 
   private void fadeInListView() {
@@ -478,10 +523,6 @@ public class NearbyBeaconsFragment extends ListFragment
         rankView.setText("");
         pwsTripTimeView.setText("");
       }
-    }
-
-    public void sortUrls() {
-      Collections.sort(mPwoMetadataList);
     }
 
     public void clear() {

@@ -30,6 +30,7 @@ class MdnsUrlDiscoverer {
     @Override
     public void onDiscoveryStarted(String regType) {
       Log.d(TAG, "Service discovery started");
+      isRunning = true;
     }
 
     @Override
@@ -49,6 +50,7 @@ class MdnsUrlDiscoverer {
     @Override
     public void onDiscoveryStopped(String serviceType) {
       Log.i(TAG, "Discovery stopped: " + serviceType);
+      isRunning = false;
     }
 
     @Override
@@ -66,17 +68,25 @@ class MdnsUrlDiscoverer {
   private static final String MDNS_SERVICE_TYPE = "_http._tcp.";
   private NsdManager mNsdManager;
   private MdnsUrlDiscovererCallback mMdnsUrlDiscovererCallback;
+  private boolean isRunning;
 
   public MdnsUrlDiscoverer(Context context, MdnsUrlDiscovererCallback mdnsUrlDiscovererCallback) {
     mMdnsUrlDiscovererCallback = mdnsUrlDiscovererCallback;
     mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+    isRunning = false;
   }
 
-  public void startScanning() {
+  public synchronized void startScanning() {
+    if (isRunning) {
+      return;
+    }
     mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
   }
 
-  public void stopScanning() {
+  public synchronized void stopScanning() {
+    if (!isRunning) {
+      return;
+    }
     mNsdManager.stopServiceDiscovery(mDiscoveryListener);
   }
 
