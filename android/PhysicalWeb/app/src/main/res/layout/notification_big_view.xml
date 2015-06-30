@@ -2,8 +2,8 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:paddingLeft="18dp"
-              android:paddingRight="18dp"
+              android:paddingStart="18dp"
+              android:paddingEnd="18dp"
               android:paddingTop="18dp"
               android:paddingBottom="18dp"
               android:layout_width="match_parent"
@@ -95,13 +95,12 @@
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="ACTION"
             android:textSize="14sp"
             android:fontFamily="arial-sans-serif"
             android:textColor="@color/description_color"
             android:id="@+id/firstBeacon_one_click_action"
             android:visibility="gone"
-            android:gravity="right"
+            android:gravity="end"
             android:paddingTop="36dp">
         </TextView>
 
@@ -192,13 +191,12 @@
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="ACTION"
             android:textSize="14sp"
             android:fontFamily="arial-sans-serif"
             android:textColor="@color/description_color"
             android:id="@+id/secondBeacon_one_click_action"
             android:visibility="gone"
-            android:gravity="right"
+            android:gravity="end"
             android:paddingTop="36dp">
         </TextView>
 
@@ -222,7 +220,7 @@
             android:textColor="@color/description_color"
             android:ellipsize="end"
             android:lineSpacingExtra="1.5dp"
-            android:gravity="right">
+            android:gravity="end">
         </TextView>
 
     </LinearLayout>

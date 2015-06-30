@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "21.1.2"
 
     defaultConfig {
@@ -43,6 +43,10 @@ android {
             }
         }
     }
+
+    lintOptions {
+        disable 'IconLauncherShape', 'IconDensities', 'IconMissingDensityFolder'
+    }
 }
 
 repositories{
@@ -55,7 +59,7 @@ dependencies {
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
 
-    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.google.api-client:google-api-client:1.19.0'
     compile 'com.google.apis:google-api-services-urlshortener:v1-rev33-1.19.0'
     compile 'com.google.http-client:google-http-client:1.19.0'

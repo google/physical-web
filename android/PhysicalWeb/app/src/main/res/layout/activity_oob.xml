@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:orientation="vertical"
+    tools:ignore="Overdraw"
     tools:context="org.physical_web.physicalweb.OobActivity">
 
     <WebView

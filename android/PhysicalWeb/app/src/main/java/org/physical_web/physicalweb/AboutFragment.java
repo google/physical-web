@@ -17,6 +17,7 @@
 
 package org.physical_web.physicalweb;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ public class AboutFragment extends Fragment {
     }
   }
 
+  @SuppressLint("SetJavaScriptEnabled")
   private void initializeWebView() {
     WebView webView = (WebView) getActivity().findViewById(R.id.about_webview);
     webView.getSettings().setJavaScriptEnabled(true);

@@ -1,12 +1,14 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#358ee8"
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:ignore="Overdraw">
 
     <WebView
             android:layout_width="match_parent"
@@ -20,8 +22,8 @@
             android:orientation="horizontal"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:paddingLeft="24dp"
-            android:paddingRight="16dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="16dp"
             android:gravity="bottom">
 
         <TextView
@@ -30,7 +32,7 @@
                 android:fontFamily="sans-serif-light"
                 android:text="@string/about_app_title"
                 android:textColor="#ffffff"
-                android:textSize="10sp"/>
+                android:textSize="12sp"/>
 
         <TextView
                 android:id="@+id/version"
@@ -38,9 +40,9 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:textColor="#ffffff"
-                android:textSize="10sp"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"/>
+                android:textSize="12sp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"/>
     </LinearLayout>
 
 </LinearLayout>
