@@ -38,6 +38,7 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import org.uribeacon.beacon.UriBeacon;
@@ -74,8 +75,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PwoDiscoveryService extends Service
                                  implements PwsClient.ResolveScanCallback,
-                                            MdnsUrlDiscoverer.MdnsUrlDiscovererCallback,
-                                            SsdpUrlDiscoverer.SsdpUrlDiscovererCallback {
+                                            PwoDiscoverer.PwoDiscoveryCallback {
 
   private static final String TAG = "PwoDiscoveryService";
   private final ScanCallback mScanCallback = new ScanCallback() {
@@ -116,8 +116,7 @@ public class PwoDiscoveryService extends Service
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
-  private MdnsUrlDiscoverer mMdnsUrlDiscoverer;
-  private SsdpUrlDiscoverer mSsdpUrlDiscoverer;
+  private List<PwoDiscoverer> mPwoDiscoverers;
 
   // TODO: consider a more elegant solution for preventing notification conflicts
   private Runnable mNotificationUpdateGateTimeout = new Runnable() {
@@ -133,8 +132,12 @@ public class PwoDiscoveryService extends Service
 
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
-    mMdnsUrlDiscoverer = new MdnsUrlDiscoverer(this, this);
-    mSsdpUrlDiscoverer = new SsdpUrlDiscoverer(this, this);
+    mPwoDiscoverers = new ArrayList<>();
+    mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
+    mPwoDiscoverers.add(new SsdpPwoDiscoverer(this));
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.setCallback(this);
+    }
     mHandler = new Handler();
     initializeScreenStateBroadcastReceiver();
   }
@@ -207,19 +210,14 @@ public class PwoDiscoveryService extends Service
   }
 
   @Override
-  public void onMdnsUrlFound(String url) {
-    onLanUrlFound(url);
-  }
+  public void onPwoDiscovered(PwoMetadata pwoMetadata) {
+    if (pwoMetadata.hasBleMetadata()) {
+      BleMetadata bleMetadata = pwoMetadata.bleMetadata;
+      mRegionResolver.onUpdate(bleMetadata.deviceAddress, bleMetadata.rssi, bleMetadata.txPower);
+    }
 
-  @Override
-  public void onSsdpUrlFound(String url) {
-    onLanUrlFound(url);
-  }
-
-  private void onLanUrlFound(String url){
-    if (!mUrlToPwoMetadata.containsKey(url)) {
-      PwoMetadata pwoMetadata = addPwoMetadata(url);
-      pwoMetadata.isPublic = false;
+    if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
+      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
       PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
     }
   }
@@ -250,16 +248,18 @@ public class PwoDiscoveryService extends Service
     mScanStartTime = new Date().getTime();
     mCanUpdateNotifications = false;
     mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.startScan();
+    }
     startSearchingForUriBeacons();
-    mMdnsUrlDiscoverer.startScanning();
-    mSsdpUrlDiscoverer.startScanning();
   }
 
   private void stopSearchingForPwos() {
     mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.stopScan();
+    }
     stopSearchingForUriBeacons();
-    mMdnsUrlDiscoverer.stopScanning();
-    mSsdpUrlDiscoverer.stopScanning();
   }
 
   private void handleFoundDevice(ScanResult scanResult) {
