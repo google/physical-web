@@ -4,13 +4,13 @@ apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
-        targetSdkVersion 22
+        targetSdkVersion 21
         versionCode 13
         versionName "0.1.854"
     }
@@ -48,7 +48,10 @@ android {
     }
 
     lintOptions {
+        // We'll get to fixing the icon later
         disable 'IconLauncherShape', 'IconDensities', 'IconMissingDensityFolder'
+        // Travis requires an older api at the moment
+        disable 'OldTargetApi'
     }
 }
 
