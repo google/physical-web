@@ -17,34 +17,25 @@
 package org.physical_web.physicalweb;
 
 import android.os.AsyncTask;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.services.urlshortener.Urlshortener;
-import com.google.api.services.urlshortener.UrlshortenerRequestInitializer;
-import com.google.api.services.urlshortener.model.Url;
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
-import android.util.Log;
 
 /**
  * This class shortens urls and also expands those short urls
  * to their original url.
- * Currently this class only supports google url shortener
+ * Currently this class only supports google url shortener.
  *
- * TODO: Rename this class since url shortening has been refactored to the
- *       PwsClient.
+ * TODO(cco3): Rename this class since url shortening has been refactored to the PwsClient.
  */
 class UrlShortener {
-
   private static final String TAG = "UrlShortener";
 
   /**
-   * A callback to be invoked when done lengthening or shortening a url
+   * A callback to be invoked when done lengthening or shortening a url.
    */
   interface ModifiedUrlCallback {
     void onNewUrl(String newUrl);

@@ -68,10 +68,10 @@ import java.util.concurrent.TimeUnit;
 public class BeaconConfigFragment extends Fragment implements TextView.OnEditorActionListener {
 
   private static final String TAG = "BeaconConfigFragment";
-  // TODO: default value for TxPower should be in another module
   private static final byte TX_POWER_DEFAULT = -22;
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(15);
-  private static final ParcelUuid[] mScanFilterUuids = new ParcelUuid[]{ProtocolV2.CONFIG_SERVICE_UUID, ProtocolV1.CONFIG_SERVICE_UUID};
+  private static final ParcelUuid[] mScanFilterUuids =
+      new ParcelUuid[]{ProtocolV2.CONFIG_SERVICE_UUID, ProtocolV1.CONFIG_SERVICE_UUID};
   private final BluetoothAdapter.LeScanCallback mLeScanCallback = new LeScanCallback();
   private BluetoothDevice mNearestDevice;
   private RegionResolver mRegionResolver;
@@ -117,12 +117,14 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private void initializeBluetooth() {
     // Initializes a Bluetooth adapter. For API version 18 and above,
     // get a reference to BluetoothAdapter through BluetoothManager.
-    final BluetoothManager bluetoothManager = (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
+    final BluetoothManager bluetoothManager =
+        (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
     mBluetoothAdapter = bluetoothManager.getAdapter();
   }
 
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_beacon_config, container, false);
 
@@ -289,13 +291,14 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     int txPower = scanResult.getScanRecord().getTxPowerLevel();
     mRegionResolver.onUpdate(address, rxPower, txPower);
     final String nearestAddress = mRegionResolver.getNearestAddress();
-    // TODO: re-implement nearest address methodology once ranging bug is fixed
+    // TODO(?): re-implement nearest address methodology once ranging bug is fixed
     // When the current sighting comes from the nearest device...
     //if (address.equals(nearestAddress)) {
     if (true) {
       // Stopping the scan in this thread is important for responsiveness
       scanLeDevice(false);
-      mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(), filteredUuid);
+      mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(),
+                                             filteredUuid);
       if (mUriBeaconConfig != null) {
         mNearestDevice = scanResult.getDevice();
         mUriBeaconConfig.connectUriBeacon(mNearestDevice);
@@ -319,16 +322,16 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   }
 
   /**
-   * Hide the software keyboard
+   * Hide the software keyboard.
    */
   private void hideSoftKeyboard() {
-    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+    InputMethodManager imm =
+        (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
     imm.hideSoftInputFromWindow(mEditCardUrl.getWindowToken(), 0);
   }
 
   /**
-   * Show the card that displays the address and url
-   * of the currently-being-configured beacon
+   * Show the card that displays the address and url of the currently-being-configured beacon.
    */
   private void showConfigurableBeaconCard() {
     mEditCard.setVisibility(View.VISIBLE);
@@ -395,7 +398,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       ScanRecord scanRecord = ScanRecord.parseFromBytes(scanBytes);
       ParcelUuid filteredUuid = leScanMatches(scanRecord);
       if (filteredUuid != null) {
-        final ScanResult scanResult = new ScanResult(device, scanRecord, rssi, SystemClock.elapsedRealtimeNanos());
+        final ScanResult scanResult = new ScanResult(device, scanRecord, rssi,
+                                                     SystemClock.elapsedRealtimeNanos());
         handleFoundDevice(scanResult, filteredUuid);
       }
     }
