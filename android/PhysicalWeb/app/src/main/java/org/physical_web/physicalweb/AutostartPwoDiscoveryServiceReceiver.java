@@ -26,12 +26,20 @@ import android.content.SharedPreferences;
  */
 public class AutostartPwoDiscoveryServiceReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
+    // Make sure the user has opted in
     String preferencesKey = context.getString(R.string.physical_web_preference_file_name);
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
-    if (sharedPreferences.getBoolean(context.getString(R.string.user_opted_in_flag), false)) {
-      Intent newIntent = new Intent(context, PwoDiscoveryService.class);
-      context.startService(newIntent);
+    if (!sharedPreferences.getBoolean(context.getString(R.string.user_opted_in_flag), false)) {
+      return;
+    }
+
+    // Handle the intent
+    Intent discoveryIntent = new Intent(context, PwoDiscoveryService.class);
+    if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+      context.startService(discoveryIntent);
+    } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+      context.stopService(discoveryIntent);
     }
   }
 }

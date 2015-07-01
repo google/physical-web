@@ -22,10 +22,8 @@ import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -108,7 +106,6 @@ public class PwoDiscoveryService extends Service
   private boolean mCanUpdateNotifications = false;
   private long mScanStartTime;
   private Handler mHandler;
-  private ScreenBroadcastReceiver mScreenStateBroadcastReceiver;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
@@ -134,23 +131,11 @@ public class PwoDiscoveryService extends Service
       pwoDiscoverer.setCallback(this);
     }
     mHandler = new Handler();
-    initializeScreenStateBroadcastReceiver();
   }
 
   private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToPwoMetadata = new HashMap<>();
-  }
-
-  /**
-   * Create the broadcast receiver that will listen for screen on/off events.
-   */
-  private void initializeScreenStateBroadcastReceiver() {
-    mScreenStateBroadcastReceiver = new ScreenBroadcastReceiver();
-    IntentFilter intentFilter = new IntentFilter();
-    intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-    intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
-    registerReceiver(mScreenStateBroadcastReceiver, intentFilter);
   }
 
   private BluetoothLeScannerCompat getLeScanner() {
@@ -188,7 +173,6 @@ public class PwoDiscoveryService extends Service
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
     stopSearchingForPwos();
-    unregisterReceiver(mScreenStateBroadcastReceiver);
     mNotificationManager.cancelAll();
     super.onDestroy();
   }
@@ -466,22 +450,4 @@ public class PwoDiscoveryService extends Service
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent, 0);
     return pendingIntent;
   }
-
-  /**
-   * This is the class that listens for screen on/off events.
-   */
-  private class ScreenBroadcastReceiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-      boolean isScreenOn = Intent.ACTION_SCREEN_ON.equals(intent.getAction());
-      initializeLists();
-      mNotificationManager.cancelAll();
-      if (isScreenOn) {
-        startSearchingForPwos();
-      } else {
-        stopSearchingForPwos();
-      }
-    }
-  }
 }
-
