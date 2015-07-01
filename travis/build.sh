@@ -1,7 +1,8 @@
 #!/bin/sh
 
-#browse to the android project
+# Browse to the android project
 cd android/PhysicalWeb/
 
-#build a specific gradle task
-./gradlew assembleRelease
+# This will run our linters etc.
+# NOTE: check depends on assembleDebug
+./gradlew check

@@ -16,12 +16,13 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -32,9 +33,6 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
-import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -180,8 +178,7 @@ class PwsClient {
   }
 
   /**
-   * Create the url metadata request,
-   * given the json request object
+   * Create the url metadata request, given the json request object.
    *
    * @param jsonObj The given json object to use in the request
    * @return The created json request object
@@ -219,7 +216,7 @@ class PwsClient {
                   urlMetadata.title = jsonUrlMetadata.optString("title");
                   urlMetadata.description = jsonUrlMetadata.optString("description");
                   urlMetadata.iconUrl = jsonUrlMetadata.optString("icon");
-                  urlMetadata.rank = (float)jsonUrlMetadata.getDouble("rank");
+                  urlMetadata.rank = (float) jsonUrlMetadata.getDouble("rank");
 
                   pwoMetadata.setUrlMetadata(urlMetadata,
                                              new Date().getTime() - creationTimestamp);
@@ -232,7 +229,7 @@ class PwsClient {
 
               }
             } catch (JSONException e) {
-              e.printStackTrace();
+              Log.i(TAG, "Pws gave bad JSON: " + e);
             }
           }
         },
@@ -269,7 +266,7 @@ class PwsClient {
     try {
       url = mContext.getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      Log.e(TAG, "createUrlProxyGoLink error: " + e);
     }
     return url;
   }

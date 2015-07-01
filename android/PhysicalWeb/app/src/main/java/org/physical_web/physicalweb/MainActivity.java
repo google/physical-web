@@ -46,7 +46,8 @@ public class MainActivity extends Activity {
    * displays a dialog requesting user permission to enable Bluetooth.
    */
   private void ensureBluetoothIsEnabled() {
-    BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+    BluetoothManager bluetoothManager =
+        (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
     BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
     if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -85,11 +86,11 @@ public class MainActivity extends Activity {
 
   @Override
   protected void onPause() {
-    super.onPause();
     if (checkIfUserHasOptedIn()) {
       // The service runs when the app isn't running.
       startUriBeaconDiscoveryService();
     }
+    super.onPause();
   }
 
   @Override
@@ -101,8 +102,7 @@ public class MainActivity extends Activity {
       // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
       stopUriBeaconDiscoveryService();
       showNearbyBeaconsFragment();
-    }
-    else {
+    } else {
       // Show the oob activity
       Intent intent = new Intent(this, OobActivity.class);
       startActivity(intent);
@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
   }
 
   /**
-   * Start up the BeaconDiscoveryService
+   * Start up the BeaconDiscoveryService.
    */
   private void startUriBeaconDiscoveryService() {
     Intent intent = new Intent(this, PwoDiscoveryService.class);
@@ -136,12 +136,14 @@ public class MainActivity extends Activity {
    */
   private void showNearbyBeaconsFragment() {
     // Look for an instance of the nearby beacons fragment
-    Fragment nearbyBeaconsFragment = getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
+    Fragment nearbyBeaconsFragment =
+        getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
     // If the fragment does not exist
     if (nearbyBeaconsFragment == null) {
       // Create the fragment
       getFragmentManager().beginTransaction()
-          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(), NEARBY_BEACONS_FRAGMENT_TAG)
+          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(),
+                   NEARBY_BEACONS_FRAGMENT_TAG)
           .commit();
       // If the fragment does exist
     } else {
@@ -159,7 +161,8 @@ public class MainActivity extends Activity {
   private void showBeaconConfigFragment() {
     BeaconConfigFragment beaconConfigFragment = BeaconConfigFragment.newInstance();
     getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
+        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
+                             R.anim.fade_in_activity, R.anim.fade_out_fragment)
         .replace(R.id.main_activity_container, beaconConfigFragment)
         .addToBackStack(null)
         .commit();
@@ -171,14 +174,16 @@ public class MainActivity extends Activity {
   private void showAboutFragment() {
     AboutFragment aboutFragment = AboutFragment.newInstance();
     getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment, R.anim.fade_in_activity, R.anim.fade_out_fragment)
+        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
+                             R.anim.fade_in_activity, R.anim.fade_out_fragment)
         .replace(R.id.main_activity_container, aboutFragment)
         .addToBackStack(null)
         .commit();
   }
 
   private boolean checkIfUserHasOptedIn() {
-    SharedPreferences sharedPreferences = getSharedPreferences("physical_web_preferences", Context.MODE_PRIVATE);
+    SharedPreferences sharedPreferences = getSharedPreferences("physical_web_preferences",
+                                                               Context.MODE_PRIVATE);
     return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
 }

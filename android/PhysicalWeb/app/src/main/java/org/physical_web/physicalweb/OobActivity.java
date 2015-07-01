@@ -24,10 +24,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+/**
+ * The out of the box activity that let's the user know what this app is all about.
+ */
 public class OobActivity extends AppCompatActivity {
 
   View.OnClickListener mAcceptButtonOnClickListener = new View.OnClickListener() {
@@ -35,7 +37,8 @@ public class OobActivity extends AppCompatActivity {
     @Override
     public void onClick(View v) {
       // Save the opt in preference
-      SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.physical_web_preference_file_name), Context.MODE_PRIVATE);
+      String fileName = getString(R.string.physical_web_preference_file_name);
+      SharedPreferences sharedPreferences = getSharedPreferences(fileName, Context.MODE_PRIVATE);
       SharedPreferences.Editor editor = sharedPreferences.edit();
       editor.putBoolean(getString(R.string.user_opted_in_flag), true);
       editor.apply();

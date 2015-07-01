@@ -16,32 +16,27 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
+import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
-import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import org.uribeacon.scan.util.RangingUtils;
 import org.uribeacon.scan.util.RegionResolver;
@@ -49,7 +44,6 @@ import org.uribeacon.scan.util.RegionResolver;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -127,7 +121,8 @@ public class NearbyBeaconsFragment extends ListFragment
     }
   };
 
-  private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener = new AdapterView.OnItemLongClickListener() {
+  private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener =
+      new AdapterView.OnItemLongClickListener() {
     public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
       mDebugViewEnabled = !mDebugViewEnabled;
       mNearbyDeviceAdapter.notifyDataSetChanged();
@@ -147,7 +142,8 @@ public class NearbyBeaconsFragment extends ListFragment
     mHandler = new Handler();
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
-    mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color, R.color.swipe_refresh_widget_second_color);
+    mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color,
+                                                R.color.swipe_refresh_widget_second_color);
     mSwipeRefreshWidget.setOnRefreshListener(this);
 
     mPwoDiscoverers.add(new MdnsPwoDiscoverer(getActivity()));
@@ -171,7 +167,8 @@ public class NearbyBeaconsFragment extends ListFragment
     mScanningAnimationDrawable = (AnimationDrawable) tv.getCompoundDrawables()[1];
   }
 
-  public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater layoutInflater, ViewGroup container,
+                           Bundle savedInstanceState) {
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
     initialize(rootView);
     return rootView;
@@ -333,7 +330,8 @@ public class NearbyBeaconsFragment extends ListFragment
     public View getView(int i, View view, ViewGroup viewGroup) {
       // Get the list view item for the given position
       if (view == null) {
-        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon, viewGroup, false);
+        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon,
+                                                         viewGroup, false);
       }
 
       // Reference the list item views
@@ -344,8 +342,8 @@ public class NearbyBeaconsFragment extends ListFragment
 
       // Get the metadata for the given position
       PwoMetadata pwoMetadata = getItem(i);
-      // If the url metadata exists
       if (pwoMetadata.hasUrlMetadata()) {
+        // If the url metadata exists
         UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
         // Set the title text
         titleTextView.setText(urlMetadata.title);
@@ -355,9 +353,8 @@ public class NearbyBeaconsFragment extends ListFragment
         descriptionTextView.setText(urlMetadata.description);
         // Set the favicon image
         iconImageView.setImageBitmap(urlMetadata.icon);
-      }
-      // If metadata does not yet exist
-      else {
+      } else {
+        // If metadata does not yet exist
         // Clear the children views content (in case this is a recycled list item view)
         titleTextView.setText("");
         iconImageView.setImageDrawable(null);
@@ -367,15 +364,14 @@ public class NearbyBeaconsFragment extends ListFragment
         descriptionTextView.setText(R.string.metadata_loading);
       }
 
-      // If we should show the ranging data
       if (mDebugViewEnabled) {
+        // If we should show the ranging data
         updateDebugView(pwoMetadata, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
         PwsClient.getInstance(getActivity()).useDevEndpoint();
-      }
-      // Otherwise ensure it is not shown
-      else {
+      } else {
+        // Otherwise ensure it is not shown
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
         PwsClient.getInstance(getActivity()).useProdEndpoint();
@@ -394,12 +390,12 @@ public class NearbyBeaconsFragment extends ListFragment
         BleMetadata bleMetadata = pwoMetadata.bleMetadata;
 
         int txPower = bleMetadata.txPower;
-        String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + String.valueOf(txPower);
+        String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + txPower;
         txPowerView.setText(txPowerString);
 
         String deviceAddress = bleMetadata.deviceAddress;
         int rssi = mRegionResolver.getSmoothedRssi(deviceAddress);
-        String rssiString = getString(R.string.ranging_debug_rssi_prefix) + String.valueOf(rssi);
+        String rssiString = getString(R.string.ranging_debug_rssi_prefix) + rssi;
         rssiView.setText(rssiString);
 
         double distance = mRegionResolver.getDistance(deviceAddress);
@@ -408,7 +404,8 @@ public class NearbyBeaconsFragment extends ListFragment
         distanceView.setText(distanceString);
 
         int region = mRegionResolver.getRegion(deviceAddress);
-        String regionString = getString(R.string.ranging_debug_region_prefix) + RangingUtils.toString(region);
+        String regionString = getString(R.string.ranging_debug_region_prefix)
+            + RangingUtils.toString(region);
         regionView.setText(regionString);
       } else {
         txPowerView.setText("");
