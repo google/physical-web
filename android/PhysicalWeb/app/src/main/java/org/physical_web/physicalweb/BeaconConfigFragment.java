@@ -84,7 +84,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   private boolean mIsScanRunning;
   private BluetoothAdapter mBluetoothAdapter;
   private Handler mHandler;
-  private UrlShortener.LengthenShortUrlTask mLengthenShortUrlTask;
 
   // Run when the SCAN_TIME_MILLIS has elapsed.
   private Runnable mScanTimeout = new Runnable() {
@@ -172,9 +171,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     mScanningAnimation.stop();
     scanLeDevice(false);
     PwsClient.getInstance(getActivity()).cancelAllRequests(TAG);
-    if (mLengthenShortUrlTask != null) {
-      mLengthenShortUrlTask.cancel(true);
-    }
     if (mUriBeaconConfig != null) {
       mUriBeaconConfig.closeUriBeacon();
     }
@@ -205,43 +201,52 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     return false;
   }
 
+  /**
+   * Check if the given url is a short url.
+   *
+   * @param url The url that will be tested to see if it is short
+   * @return The value that indicates if the given url is short
+   */
+  private static boolean isShortUrl(String url) {
+    return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
+  }
+
   public void onBeaconConfigReadUrlComplete(ConfigUriBeacon uriBeacon, int status) {
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "onUriBeaconRead - error " + status);
-    } else {
-      // Create the callback object to set the url
-      UrlShortener.ModifiedUrlCallback urlSetter = new UrlShortener.ModifiedUrlCallback() {
-        public void setUrl(String urlToSet) {
-          // Update the url edit text field with the given url
-          mEditCardUrl.setText(urlToSet);
-          // Show the beacon configuration card
-          showConfigurableBeaconCard();
-        }
-        @Override
-        public void onNewUrl(String newUrl){
-          setUrl(newUrl);
-        }
-        @Override
-        public void onError(String oldUrl) {
-          setUrl(oldUrl);
-        }
-      };
-
-      String url = "";
-      if (uriBeacon != null) {
-        url = uriBeacon.getUriString();
-        Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
-        if (UrlShortener.isShortUrl(url)) {
-          mLengthenShortUrlTask = new UrlShortener.LengthenShortUrlTask(urlSetter);
-          mLengthenShortUrlTask.execute(url);
-        } else {
-          urlSetter.onNewUrl(url);
-        }
-      } else {
-        Toast.makeText(getActivity(), R.string.config_url_read_error, Toast.LENGTH_SHORT).show();
-        urlSetter.onNewUrl(url);
-      }
+      return;
     }
+
+    if (uriBeacon == null) {
+      Toast.makeText(getActivity(), R.string.config_url_read_error, Toast.LENGTH_SHORT).show();
+      setEditCardUrl("");
+      return;
+    }
+
+    final String url = uriBeacon.getUriString();
+    Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
+    if (!isShortUrl(url)) {
+      setEditCardUrl(url);
+    }
+
+    // Create the callback object to set the url
+    PwsClient.ResolveScanCallback resolveScanCallback = new PwsClient.ResolveScanCallback() {
+      @Override
+      public void onUrlMetadataReceived(PwoMetadata pwoMetadata){
+        setEditCardUrl(pwoMetadata.urlMetadata.siteUrl);
+      }
+
+      @Override
+      public void onUrlMetadataAbsent(PwoMetadata pwoMetadata){
+        setEditCardUrl(url);
+      }
+
+      @Override
+      public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
+      }
+    };
+    PwoMetadata pwoMetadata = new PwoMetadata(url, 0);
+    PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, resolveScanCallback, TAG);
   }
 
   public void onBeaconConfigWriteUrlComplete(final int status) {
@@ -337,6 +342,13 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     mEditCard.setVisibility(View.VISIBLE);
     Animation animation = AnimationUtils.loadAnimation(getActivity(), R.anim.fade_in_and_slide_up);
     mEditCard.startAnimation(animation);
+  }
+
+  public void setEditCardUrl(String url) {
+    // Update the url edit text field with the given url
+    mEditCardUrl.setText(url);
+    // Show the beacon configuration card
+    showConfigurableBeaconCard();
   }
 
   /**
