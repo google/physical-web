@@ -22,10 +22,14 @@ import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,6 +48,7 @@ import org.uribeacon.scan.util.RegionResolver;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -58,8 +63,7 @@ import java.util.concurrent.TimeUnit;
  * to the given list items url.
  */
 public class NearbyBeaconsFragment extends ListFragment
-                                   implements PwsClient.ResolveScanCallback,
-                                              PwoDiscoverer.PwoDiscoveryCallback,
+                                   implements PwoDiscoveryService.PwoResponseCallback,
                                               SwipeRefreshWidget.OnRefreshListener {
 
   private static final String TAG = "NearbyBeaconsFragment";
@@ -117,7 +121,7 @@ public class NearbyBeaconsFragment extends ListFragment
     @Override
     public void run() {
       Log.d(TAG, "running third scan timeout");
-      stopScanning();
+      mDiscoveryServiceConnection.disconnect();
     }
   };
 
@@ -129,6 +133,53 @@ public class NearbyBeaconsFragment extends ListFragment
       return true;
     }
   };
+
+  /**
+   * The connection to the service that discovers urls.
+   */
+  private class DiscoveryServiceConnection implements ServiceConnection {
+    private PwoDiscoveryService mDiscoveryService;
+
+    @Override
+    public void onServiceConnected(ComponentName className, IBinder service) {
+      // Get the service
+      PwoDiscoveryService.LocalBinder localBinder = (PwoDiscoveryService.LocalBinder) service;
+      mDiscoveryService = localBinder.getServiceInstance();
+
+      // Request the metadata
+      mDiscoveryService.requestPwoMetadata(NearbyBeaconsFragment.this);
+      startScanningDisplay(mDiscoveryService.getScanStartTime());
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName className) {
+      // onServiceDisconnected gets called when the connection is unintentionally disconnected,
+      // which should never happen for us since this is a local service
+      mDiscoveryService = null;
+    }
+
+    public void connect() {
+      if (mDiscoveryService != null) {
+        return;
+      }
+
+      Intent intent = new Intent(getActivity(), PwoDiscoveryService.class);
+      getActivity().startService(intent);
+      getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
+
+    public void disconnect() {
+      if (mDiscoveryService == null) {
+        return;
+      }
+
+      mDiscoveryService.removeCallbacks(NearbyBeaconsFragment.this);
+      mDiscoveryService = null;
+      getActivity().unbindService(this);
+      stopScanningDisplay();
+    }
+  }
+  private DiscoveryServiceConnection mDiscoveryServiceConnection = new DiscoveryServiceConnection();
 
   public static NearbyBeaconsFragment newInstance() {
     return new NearbyBeaconsFragment();
@@ -179,13 +230,13 @@ public class NearbyBeaconsFragment extends ListFragment
     super.onResume();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-    startScanning();
+    mDiscoveryServiceConnection.connect();
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    stopScanning();
+    mDiscoveryServiceConnection.disconnect();
   }
 
   @Override
@@ -222,34 +273,28 @@ public class NearbyBeaconsFragment extends ListFragment
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
-  private void stopScanning() {
+  private void stopScanningDisplay() {
     // Cancel the scan timeout callback if still active or else it may fire later.
     mHandler.removeCallbacks(mFirstScanTimeout);
     mHandler.removeCallbacks(mSecondScanTimeout);
     mHandler.removeCallbacks(mThirdScanTimeout);
-    // Stop the scanners
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.stopScan();
-    }
+
     // Change the display appropriately
     mSwipeRefreshWidget.setRefreshing(false);
     mScanningAnimationDrawable.stop();
   }
 
-  private void startScanning() {
-    // Clear any stored url data
-    mUrlToPwoMetadata.clear();
-    mPwoMetadataQueue.clear();
-    mNearbyDeviceAdapter.clear();
-    // Start the scan
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.startScan();
-    }
-    // Stops scanning after the predefined scan time has elapsed.
-    mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
-    mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
-    mHandler.postDelayed(mThirdScanTimeout, THIRD_SCAN_TIME_MILLIS);
+  private void startScanningDisplay(long scanStartTime) {
+    // Schedule the timeouts
     mSecondScanComplete = false;
+    long elapsedMillis = new Date().getTime() - scanStartTime;
+    long firstDelay = Math.max(FIRST_SCAN_TIME_MILLIS - elapsedMillis, 0);
+    long secondDelay = Math.max(SECOND_SCAN_TIME_MILLIS - elapsedMillis, 0);
+    long thirdDelay = Math.max(THIRD_SCAN_TIME_MILLIS - elapsedMillis, 0);
+    mHandler.postDelayed(mFirstScanTimeout, firstDelay);
+    mHandler.postDelayed(mSecondScanTimeout, secondDelay);
+    mHandler.postDelayed(mThirdScanTimeout, thirdDelay);
+
     // Change the display appropriately
     mScanningAnimationDrawable.start();
     getListView().setVisibility(View.INVISIBLE);
@@ -257,9 +302,19 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onRefresh() {
-    stopScanning();
+    // Clear any stored url data
+    mUrlToPwoMetadata.clear();
+    mPwoMetadataQueue.clear();
+    mNearbyDeviceAdapter.clear();
+
+    // Kill the service to force a refresh
+    mDiscoveryServiceConnection.disconnect();
+    Intent intent = new Intent(getActivity(), PwoDiscoveryService.class);
+    getActivity().stopService(intent);
+
+    // Connect to the service
     mSwipeRefreshWidget.setRefreshing(true);
-    startScanning();
+    mDiscoveryServiceConnection.connect();
   }
 
   @Override
@@ -275,6 +330,8 @@ public class NearbyBeaconsFragment extends ListFragment
       PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
       mPwoMetadataQueue.add(pwoMetadata);
       if (mSecondScanComplete) {
+        // If we've already waited for the second scan timeout, go ahead and put the item in the
+        // listview.
         emptyPwoMetadataQueue();
       }
     }

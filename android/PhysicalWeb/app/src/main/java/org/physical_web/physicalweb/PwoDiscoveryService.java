@@ -22,15 +22,14 @@ import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -77,18 +76,21 @@ public class PwoDiscoveryService extends Service
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private boolean mCanUpdateNotifications = false;
+  private boolean mSecondScanComplete = false;
+  private boolean mIsBound = false;
   private long mScanStartTime;
   private Handler mHandler;
   private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoDiscoverer> mPwoDiscoverers;
+  private List<PwoResponseCallback> mPwoResponseCallbacks;
 
   // Notification of urls happens as follows:
   // 0. Begin scan
   // 1. Delete notification, show top two urls (mFirstScanTimeout)
   // 2. Show each new url as it comes in, if it's in the top two
-  // 3. Stop scanning (mSecondScanTimeout)
+  // 3. Stop scanning if no clients are subscribed (mSecondScanTimeout)
 
   private Runnable mFirstScanTimeout = new Runnable() {
     @Override
@@ -101,9 +103,29 @@ public class PwoDiscoveryService extends Service
   private Runnable mSecondScanTimeout = new Runnable() {
     @Override
     public void run() {
-      stopSelf();
+      mSecondScanComplete = true;
+      if (!mIsBound) {
+        stopSelf();
+      }
     }
   };
+
+  /**
+   * Binder class for getting connections to the service.
+   */
+  public class LocalBinder extends Binder {
+    public PwoDiscoveryService getServiceInstance() {
+      return PwoDiscoveryService.this;
+    }
+  }
+  private IBinder mBinder = new LocalBinder();
+
+  /**
+   * Callback for subscribers to this service.
+   */
+  public interface PwoResponseCallback extends PwoDiscoverer.PwoDiscoveryCallback,
+                                               PwsClient.ResolveScanCallback {
+  }
 
   public PwoDiscoveryService() {
   }
@@ -117,12 +139,11 @@ public class PwoDiscoveryService extends Service
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.setCallback(this);
     }
+    mPwoResponseCallbacks = new ArrayList<>();
     mHandler = new Handler();
-  }
-
-  private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToPwoMetadata = new HashMap<>();
+    mCanUpdateNotifications = false;
   }
 
   @Override
@@ -134,22 +155,30 @@ public class PwoDiscoveryService extends Service
   @Override
   @SuppressWarnings("deprecation")
   public int onStartCommand(Intent intent, int flags, int startId) {
-    // Since sometimes the lists have values when onStartCommand gets called
-    initializeLists();
-    // Start scanning only if the screen is on
-    PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-    // NOTE: use powerManager.isInteractive() when minsdk >= 20
-    if (powerManager.isScreenOn()) {
-      startSearchingForPwos();
-    }
-
+    startSearchingForPwos();
     //make sure the service keeps running
     return START_STICKY;
   }
 
   @Override
   public IBinder onBind(Intent intent) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    mIsBound = true;
+    return mBinder;
+  }
+
+  @Override
+  public boolean onUnbind(Intent intent) {
+    mIsBound = false;
+    if (mSecondScanComplete) {
+      stopSelf();
+    }
+    // true ensures onRebind is called on succcessive binds
+    return true;
+  }
+
+  @Override
+  public void onRebind(Intent intent) {
+    mIsBound = true;
   }
 
   @Override
@@ -161,20 +190,33 @@ public class PwoDiscoveryService extends Service
 
   @Override
   public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
+    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
+      pwoResponseCallback.onUrlMetadataReceived(pwoMetadata);
+    }
     updateNotifications();
   }
 
   @Override
   public void onUrlMetadataAbsent(PwoMetadata pwoMetadata) {
+    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
+      pwoResponseCallback.onUrlMetadataAbsent(pwoMetadata);
+    }
   }
 
   @Override
   public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
+    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
+      pwoResponseCallback.onUrlMetadataIconReceived(pwoMetadata);
+    }
     updateNotifications();
   }
 
   @Override
   public void onPwoDiscovered(PwoMetadata pwoMetadata) {
+    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
+      pwoResponseCallback.onPwoDiscovered(pwoMetadata);
+    }
+
     if (pwoMetadata.hasBleMetadata()) {
       BleMetadata bleMetadata = pwoMetadata.bleMetadata;
       mRegionResolver.onUpdate(bleMetadata.deviceAddress, bleMetadata.rssi, bleMetadata.txPower);
@@ -187,8 +229,11 @@ public class PwoDiscoveryService extends Service
   }
 
   private void startSearchingForPwos() {
+    if (mScanStartTime != 0) {
+      return;
+    }
+
     mScanStartTime = new Date().getTime();
-    mCanUpdateNotifications = false;
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
@@ -378,5 +423,20 @@ public class PwoDiscoveryService extends Service
     int requestID = (int) System.currentTimeMillis();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, intent, 0);
     return pendingIntent;
+  }
+
+  public void requestPwoMetadata(PwoResponseCallback pwoResponseCallback) {
+    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
+      pwoResponseCallback.onPwoDiscovered(pwoMetadata);
+    }
+    mPwoResponseCallbacks.add(pwoResponseCallback);
+  }
+
+  public void removeCallbacks(PwoResponseCallback pwoResponseCallback) {
+    mPwoResponseCallbacks.remove(pwoResponseCallback);
+  }
+
+  public long getScanStartTime() {
+    return mScanStartTime;
   }
 }
