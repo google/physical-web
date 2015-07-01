@@ -37,13 +37,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import org.uribeacon.beacon.UriBeacon;
-import org.uribeacon.scan.compat.BluetoothLeScannerCompat;
-import org.uribeacon.scan.compat.BluetoothLeScannerCompatProvider;
-import org.uribeacon.scan.compat.ScanCallback;
-import org.uribeacon.scan.compat.ScanFilter;
-import org.uribeacon.scan.compat.ScanResult;
-import org.uribeacon.scan.compat.ScanSettings;
 import org.uribeacon.scan.util.RegionResolver;
 
 import java.util.ArrayList;
@@ -72,37 +65,17 @@ public class PwoDiscoveryService extends Service
                                             PwoDiscoverer.PwoDiscoveryCallback {
 
   private static final String TAG = "PwoDiscoveryService";
-  private final ScanCallback mScanCallback = new ScanCallback() {
-    @Override
-    public void onScanResult(int callbackType, ScanResult scanResult) {
-      switch (callbackType) {
-        case ScanSettings.CALLBACK_TYPE_FIRST_MATCH:
-          handleFoundDevice(scanResult);
-          break;
-        case ScanSettings.CALLBACK_TYPE_ALL_MATCHES:
-          handleFoundDevice(scanResult);
-          break;
-        default:
-          Log.e(TAG, "Unrecognized callback type constant received: " + callbackType);
-      }
-    }
-
-    @Override
-    public void onScanFailed(int errorCode) {
-      Log.d(TAG, "onScanFailed  " + "errorCode: " + errorCode);
-    }
-  };
   private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
-  private static final int TIMEOUT_FOR_OLD_BEACONS = 2;
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
   private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_MIN;
   private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
-  private static final long NOTIFICATION_UPDATE_GATE_DURATION = 1000;
+  private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
+  private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private boolean mCanUpdateNotifications = false;
   private long mScanStartTime;
   private Handler mHandler;
@@ -111,11 +84,24 @@ public class PwoDiscoveryService extends Service
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoDiscoverer> mPwoDiscoverers;
 
-  private Runnable mNotificationUpdateGateTimeout = new Runnable() {
+  // Notification of urls happens as follows:
+  // 0. Begin scan
+  // 1. Delete notification, show top two urls (mFirstScanTimeout)
+  // 2. Show each new url as it comes in, if it's in the top two
+  // 3. Stop scanning (mSecondScanTimeout)
+
+  private Runnable mFirstScanTimeout = new Runnable() {
     @Override
     public void run() {
       mCanUpdateNotifications = true;
       updateNotifications();
+    }
+  };
+
+  private Runnable mSecondScanTimeout = new Runnable() {
+    @Override
+    public void run() {
+      stopSelf();
     }
   };
 
@@ -127,6 +113,7 @@ public class PwoDiscoveryService extends Service
     mPwoDiscoverers = new ArrayList<>();
     mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
     mPwoDiscoverers.add(new SsdpPwoDiscoverer(this));
+    mPwoDiscoverers.add(new BlePwoDiscoverer(this));
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.setCallback(this);
     }
@@ -136,10 +123,6 @@ public class PwoDiscoveryService extends Service
   private void initializeLists() {
     mRegionResolver = new RegionResolver();
     mUrlToPwoMetadata = new HashMap<>();
-  }
-
-  private BluetoothLeScannerCompat getLeScanner() {
-    return BluetoothLeScannerCompatProvider.getBluetoothLeScannerCompat(getApplicationContext());
   }
 
   @Override
@@ -173,7 +156,6 @@ public class PwoDiscoveryService extends Service
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
     stopSearchingForPwos();
-    mNotificationManager.cancelAll();
     super.onDestroy();
   }
 
@@ -204,75 +186,22 @@ public class PwoDiscoveryService extends Service
     }
   }
 
-  private void startSearchingForUriBeacons() {
-    ScanSettings settings = new ScanSettings.Builder()
-        .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-        .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-        .build();
-
-    List<ScanFilter> filters = new ArrayList<>();
-    filters.add(new ScanFilter.Builder()
-        .setServiceUuid(UriBeacon.URI_SERVICE_UUID)
-        .build());
-    filters.add(new ScanFilter.Builder()
-        .setServiceUuid(UriBeacon.TEST_SERVICE_UUID)
-        .build());
-
-    boolean started = getLeScanner().startScan(filters, settings, mScanCallback);
-    Log.v(TAG, started ? "... scan started" : "... scan NOT started");
-  }
-
-  private void stopSearchingForUriBeacons() {
-    getLeScanner().stopScan(mScanCallback);
-  }
-
   private void startSearchingForPwos() {
     mScanStartTime = new Date().getTime();
     mCanUpdateNotifications = false;
-    mHandler.postDelayed(mNotificationUpdateGateTimeout, NOTIFICATION_UPDATE_GATE_DURATION);
+    mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
+    mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.startScan();
     }
-    startSearchingForUriBeacons();
   }
 
   private void stopSearchingForPwos() {
-    mHandler.removeCallbacks(mNotificationUpdateGateTimeout);
+    mHandler.removeCallbacks(mFirstScanTimeout);
+    mHandler.removeCallbacks(mSecondScanTimeout);
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.stopScan();
     }
-    stopSearchingForUriBeacons();
-  }
-
-  private void handleFoundDevice(ScanResult scanResult) {
-    long timeStamp = scanResult.getTimestampNanos();
-    long now = TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
-    if (now - timeStamp < TimeUnit.SECONDS.toNanos(TIMEOUT_FOR_OLD_BEACONS)) {
-      UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanResult.getScanRecord().getBytes());
-      if (uriBeacon != null) {
-        String url = uriBeacon.getUriString();
-        if (url != null && !url.isEmpty()) {
-          String deviceAddress = scanResult.getDevice().getAddress();
-          int rssi = scanResult.getRssi();
-          int txPower = uriBeacon.getTxPowerLevel();
-          // If we haven't yet seen this url
-          if (!mUrlToPwoMetadata.containsKey(url)) {
-            PwoMetadata pwoMetadata = addPwoMetadata(url);
-            pwoMetadata.setBleMetadata(deviceAddress, rssi, txPower);
-            // Fetch the metadata for this url
-            PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
-          }
-          // Update the ranging data
-          mRegionResolver.onUpdate(deviceAddress, rssi, txPower);
-        }
-      }
-    }
-  }
-
-  private PwoMetadata addPwoMetadata(String url) {
-    PwoMetadata pwoMetadata = new PwoMetadata(url, new Date().getTime() - mScanStartTime);
-    mUrlToPwoMetadata.put(url, pwoMetadata);
-    return pwoMetadata;
   }
 
   /**

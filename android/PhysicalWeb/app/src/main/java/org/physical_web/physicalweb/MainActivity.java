@@ -100,6 +100,8 @@ public class MainActivity extends Activity {
       ensureBluetoothIsEnabled();
       // The service pauses while the app is running since the app does it's own scans or
       // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
+      // TODO(cco3): When both the fragment and the service are using the same scanner, this
+      //             activity shouldn't touch the service at all.
       stopUriBeaconDiscoveryService();
       showNearbyBeaconsFragment();
     } else {
