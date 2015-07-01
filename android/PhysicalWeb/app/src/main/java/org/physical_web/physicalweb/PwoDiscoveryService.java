@@ -199,6 +199,10 @@ public class PwoDiscoveryService extends Service
   }
 
   @Override
+  public void onUrlMetadataAbsent(PwoMetadata pwoMetadata) {
+  }
+
+  @Override
   public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
     updateNotifications();
   }

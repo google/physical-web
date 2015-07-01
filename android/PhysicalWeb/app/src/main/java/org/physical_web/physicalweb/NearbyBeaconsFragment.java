@@ -214,6 +214,10 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   @Override
+  public void onUrlMetadataAbsent(PwoMetadata pwoMetadata) {
+  }
+
+  @Override
   public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }

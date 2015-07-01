@@ -36,7 +36,12 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class sends requests to the physical web service.
@@ -77,6 +82,7 @@ class PwsClient {
 
   public interface ResolveScanCallback {
     public void onUrlMetadataReceived(PwoMetadata pwoMetadata);
+    public void onUrlMetadataAbsent(PwoMetadata pwoMetadata);
     public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata);
   }
 
@@ -142,9 +148,17 @@ class PwsClient {
   public void findUrlMetadata(PwoMetadata pwoMetadata,
                               ResolveScanCallback resolveScanCallback,
                               final String tag) {
+    List<PwoMetadata> pwoMetadataList = Arrays.asList(pwoMetadata);
+    findUrlMetadata(pwoMetadataList, resolveScanCallback, tag);
+  }
+
+  public void findUrlMetadata(Collection<PwoMetadata> pwoMetadataCollection,
+                              ResolveScanCallback resolveScanCallback,
+                              final String tag) {
     // Create the metadata request
     // for the given json request object
-    JsonObjectRequest request = createUrlMetadataRequest(pwoMetadata, resolveScanCallback);
+    JsonObjectRequest request = createUrlMetadataRequest(pwoMetadataCollection,
+                                                         resolveScanCallback);
     request.setTag(tag);
     // Queue the request
     mRequestQueue.add(request);
@@ -158,18 +172,26 @@ class PwsClient {
    * @param url The url for which the request data will be created
    * @return The constructed json object
    */
-  private static JSONObject createUrlMetadataRequestObject(PwoMetadata pwoMetadata) {
+  private static JSONObject createUrlMetadataRequestObject(
+      Collection<PwoMetadata> pwoMetadataCollection) {
+    JSONArray urlJsonArray = new JSONArray();
+    for (PwoMetadata pwoMetadata : pwoMetadataCollection) {
+      try {
+        JSONObject urlJsonObject = new JSONObject();
+        urlJsonObject.put("url", pwoMetadata.url);
+        if (pwoMetadata.hasBleMetadata()) {
+          BleMetadata bleMetadata = pwoMetadata.bleMetadata;
+          urlJsonObject.put("txpower", bleMetadata.txPower);
+          urlJsonObject.put("rssi", bleMetadata.rssi);
+        }
+        urlJsonArray.put(urlJsonObject);
+      } catch (JSONException ex) {
+        Log.d(TAG, "error: " + ex);
+      }
+    }
+
     JSONObject jsonObject = new JSONObject();
     try {
-      JSONArray urlJsonArray = new JSONArray();
-      JSONObject urlJsonObject = new JSONObject();
-      urlJsonObject.put("url", pwoMetadata.url);
-      if (pwoMetadata.hasBleMetadata()) {
-        BleMetadata bleMetadata = pwoMetadata.bleMetadata;
-        urlJsonObject.put("txpower", bleMetadata.txPower);
-        urlJsonObject.put("rssi", bleMetadata.rssi);
-      }
-      urlJsonArray.put(urlJsonObject);
       jsonObject.put("objects", urlJsonArray);
     } catch (JSONException ex) {
       Log.d(TAG, "error: " + ex);
@@ -184,63 +206,75 @@ class PwsClient {
    * @return The created json request object
    */
   private JsonObjectRequest createUrlMetadataRequest(
-      final PwoMetadata pwoMetadata,
+      final Collection<PwoMetadata> pwoMetadataCollection,
       final ResolveScanCallback resolveScanCallback) {
-    String resolveScanPath = RESOLVE_SCAN_PATH;
-    final long creationTimestamp = new Date().getTime();
+    // Organize the PwoMetadata objects into a map
+    final Map<String, PwoMetadata> urlToPwoMetadata = new HashMap<>();
+    for (PwoMetadata pwoMetadata : pwoMetadataCollection) {
+      urlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
+    }
 
     // Create the json request object
-    JSONObject jsonObj = createUrlMetadataRequestObject(pwoMetadata);
-    return new JsonObjectRequest(
-        constructUrlStr(resolveScanPath),
-        jsonObj,
-        new Response.Listener<JSONObject>() {
-          // Called when the server returns a response
-          @Override
-          public void onResponse(JSONObject jsonResponse) {
+    JSONObject jsonObj = createUrlMetadataRequestObject(pwoMetadataCollection);
+    final long creationTimestamp = new Date().getTime();
+    Response.Listener<JSONObject> responseListener = new Response.Listener<JSONObject>() {
+      // Called when the server returns a response
+      @Override
+      public void onResponse(JSONObject jsonResponse) {
 
-            // Build the metadata from the response
-            try {
-              JSONArray foundMetaData = jsonResponse.getJSONArray("metadata");
-
-              // Loop through the metadata for each url
-              if (foundMetaData.length() > 0) {
-
-                for (int i = 0; i < foundMetaData.length(); i++) {
-                  JSONObject jsonUrlMetadata = foundMetaData.getJSONObject(i);
-
-                  UrlMetadata urlMetadata = new UrlMetadata();
-                  urlMetadata.id = jsonUrlMetadata.getString("id");
-                  urlMetadata.siteUrl = jsonUrlMetadata.getString("url");
-                  urlMetadata.displayUrl = jsonUrlMetadata.getString("displayUrl");
-                  urlMetadata.title = jsonUrlMetadata.optString("title");
-                  urlMetadata.description = jsonUrlMetadata.optString("description");
-                  urlMetadata.iconUrl = jsonUrlMetadata.optString("icon");
-                  urlMetadata.rank = (float) jsonUrlMetadata.getDouble("rank");
-
-                  pwoMetadata.setUrlMetadata(urlMetadata,
-                                             new Date().getTime() - creationTimestamp);
-
-                  if (!urlMetadata.iconUrl.isEmpty()) {
-                    downloadIcon(pwoMetadata, resolveScanCallback);
-                  }
-                  resolveScanCallback.onUrlMetadataReceived(pwoMetadata);
-                }
-
-              }
-            } catch (JSONException e) {
-              Log.i(TAG, "Pws gave bad JSON: " + e);
-            }
-          }
-        },
-        new Response.ErrorListener() {
-
-          @Override
-          public void onErrorResponse(VolleyError volleyError) {
-            Log.i(TAG, "VolleyError: " + volleyError.toString());
-          }
+        // Build the metadata from the response
+        JSONArray foundMetadata;
+        try {
+          foundMetadata = jsonResponse.getJSONArray("metadata");
+        } catch (JSONException e) {
+          Log.i(TAG, "Pws gave bad JSON: " + e);
+          return;
         }
-    );
+
+        // Loop through the metadata for each url
+        for (int i = 0; i < foundMetadata.length(); i++) {
+          UrlMetadata urlMetadata = new UrlMetadata();
+          try {
+            JSONObject jsonUrlMetadata = foundMetadata.getJSONObject(i);
+            urlMetadata.id = jsonUrlMetadata.getString("id");
+            urlMetadata.siteUrl = jsonUrlMetadata.getString("url");
+            urlMetadata.displayUrl = jsonUrlMetadata.getString("displayUrl");
+            urlMetadata.title = jsonUrlMetadata.optString("title");
+            urlMetadata.description = jsonUrlMetadata.optString("description");
+            urlMetadata.iconUrl = jsonUrlMetadata.optString("icon");
+            urlMetadata.rank = (float) jsonUrlMetadata.getDouble("rank");
+          } catch (JSONException e) {
+            Log.i(TAG, "Pws gave bad JSON: " + e);
+            continue;
+          }
+
+          PwoMetadata pwoMetadata = urlToPwoMetadata.get(urlMetadata.id);
+          urlToPwoMetadata.remove(urlMetadata.id);
+          pwoMetadata.setUrlMetadata(urlMetadata,
+                                     new Date().getTime() - creationTimestamp);
+
+          if (!urlMetadata.iconUrl.isEmpty()) {
+            downloadIcon(pwoMetadata, resolveScanCallback);
+          }
+          resolveScanCallback.onUrlMetadataReceived(pwoMetadata);
+        }
+
+        // See which urls the PWS didn't give as a response for
+        for (PwoMetadata pwoMetadata : urlToPwoMetadata.values()) {
+          resolveScanCallback.onUrlMetadataAbsent(pwoMetadata);
+        }
+      }
+    };
+
+    Response.ErrorListener responseErrorListener = new Response.ErrorListener() {
+      @Override
+      public void onErrorResponse(VolleyError volleyError) {
+        Log.i(TAG, "VolleyError: " + volleyError.toString());
+      }
+    };
+
+    return new JsonObjectRequest(constructUrlStr(RESOLVE_SCAN_PATH), jsonObj, responseListener,
+                                 responseErrorListener);
   }
 
   /**
