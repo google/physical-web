@@ -24,6 +24,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class implements SSDP protocol.
@@ -87,7 +88,7 @@ public class Ssdp implements Runnable {
 
   public synchronized void search(SsdpMessage msg) throws IOException {
     if (mDatagramSocket != null){
-      byte bytes[] = msg.toString().getBytes();
+      byte bytes[] = msg.toString().getBytes(StandardCharsets.UTF_8);
       DatagramPacket dp = new DatagramPacket(bytes, bytes.length, mMulticastGroup);
       mDatagramSocket.send(dp);
     }
@@ -112,7 +113,7 @@ public class Ssdp implements Runnable {
       try {
         DatagramPacket dp = new DatagramPacket(buf, buf.length);
         mDatagramSocket.receive(dp);
-        String txt = new String(dp.getData());
+        String txt = new String(dp.getData(), StandardCharsets.UTF_8);
         SsdpMessage msg = new SsdpMessage(txt);
         mSsdpCallback.onSsdpMessageReceived(msg);
       } catch (SocketTimeoutException e) {

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
 
 android {
     compileSdkVersion 22
@@ -71,4 +72,28 @@ task checkstyle(type: Checkstyle) {
     classpath = files()
 }
 
-check.dependsOn 'checkstyle', 'lint'
+task findbugs(type: FindBugs, dependsOn: assembleDebug) {
+    ignoreFailures = false
+    effort = "max"
+    reportLevel = "high"
+    classes = files("${project.rootDir}/app/build/intermediates/classes")
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml.enabled = false
+        html.enabled = true
+        xml {
+            destination "$project.buildDir/reports/findbugs/findbugs.xml"
+        }
+        html {
+            destination "$project.buildDir/reports/findbugs/findbugs.html"
+        }
+    }
+
+    classpath = files()
+}
+
+check.dependsOn 'checkstyle', 'findbugs', 'lint'
