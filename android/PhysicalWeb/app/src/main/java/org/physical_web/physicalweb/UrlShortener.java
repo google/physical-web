@@ -77,7 +77,7 @@ class UrlShortener {
       } catch (MalformedURLException e) {
         Log.w(TAG, "Malformed URL: " + mShortUrl);
       } catch (IOException e) {
-        e.printStackTrace();
+        Log.e(TAG, "LengthenUrl error: " + e);
       }
       return null;
     }

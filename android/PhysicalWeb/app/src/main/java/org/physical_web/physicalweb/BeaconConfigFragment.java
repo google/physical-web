@@ -293,8 +293,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     final String nearestAddress = mRegionResolver.getNearestAddress();
     // TODO(?): re-implement nearest address methodology once ranging bug is fixed
     // When the current sighting comes from the nearest device...
-    //if (address.equals(nearestAddress)) {
-    if (true) {
+    // Remove the `|| true`
+    if (address.equals(nearestAddress) || true) {
       // Stopping the scan in this thread is important for responsiveness
       scanLeDevice(false);
       mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(),
@@ -351,7 +351,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
           .build();
       mUriBeaconConfig.writeUriBeacon(configUriBeacon);
     } catch (URISyntaxException e) {
-      e.printStackTrace();
+      Log.e(TAG, "setUriBeaconUrl error: " + e);
       Toast.makeText(getActivity(), R.string.config_url_error, Toast.LENGTH_SHORT).show();
     }
   }

@@ -86,11 +86,11 @@ public class MainActivity extends Activity {
 
   @Override
   protected void onPause() {
-    super.onPause();
     if (checkIfUserHasOptedIn()) {
       // The service runs when the app isn't running.
       startUriBeaconDiscoveryService();
     }
+    super.onPause();
   }
 
   @Override

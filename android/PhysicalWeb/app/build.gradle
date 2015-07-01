@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
+apply plugin: 'pmd'
 
 android {
     compileSdkVersion 22
@@ -96,4 +97,25 @@ task findbugs(type: FindBugs, dependsOn: assembleDebug) {
     classpath = files()
 }
 
-check.dependsOn 'checkstyle', 'findbugs', 'lint'
+task pmd(type: Pmd, dependsOn: assembleDebug) {
+    ignoreFailures = false
+    ruleSetFiles = files("${project.rootDir}/app/config/pmd/pmd-ruleset.xml")
+    ruleSets = []
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml.enabled = false
+        html.enabled = true
+        xml {
+            destination "$project.buildDir/reports/pmd/pmd.xml"
+        }
+        html {
+            destination "$project.buildDir/reports/pmd/pmd.html"
+        }
+    }
+}
+
+check.dependsOn 'checkstyle', 'findbugs', 'lint', 'pmd'

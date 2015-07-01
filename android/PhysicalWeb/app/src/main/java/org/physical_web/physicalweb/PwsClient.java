@@ -229,7 +229,7 @@ class PwsClient {
 
               }
             } catch (JSONException e) {
-              e.printStackTrace();
+              Log.i(TAG, "Pws gave bad JSON: " + e);
             }
           }
         },
@@ -266,7 +266,7 @@ class PwsClient {
     try {
       url = mContext.getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+      Log.e(TAG, "createUrlProxyGoLink error: " + e);
     }
     return url;
   }

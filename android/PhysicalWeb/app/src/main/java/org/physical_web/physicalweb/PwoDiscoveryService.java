@@ -190,6 +190,7 @@ public class PwoDiscoveryService extends Service
     stopSearchingForPwos();
     unregisterReceiver(mScreenStateBroadcastReceiver);
     mNotificationManager.cancelAll();
+    super.onDestroy();
   }
 
   @Override
@@ -347,10 +348,8 @@ public class PwoDiscoveryService extends Service
         .setContentText(description)
         .setPriority(NOTIFICATION_PRIORITY)
         .setContentIntent(pendingIntent);
-    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      if (pwoMetadata.isPublic) {
-        builder.setVisibility(NOTIFICATION_VISIBILITY);
-      }
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && pwoMetadata.isPublic) {
+      builder.setVisibility(NOTIFICATION_VISIBILITY);
     }
     // For some reason if there is only one notification and you call setGroup
     // the notification doesn't show up on the N7 running kit kat

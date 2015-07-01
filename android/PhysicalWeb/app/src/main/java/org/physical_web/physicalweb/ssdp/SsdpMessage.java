@@ -29,6 +29,7 @@ public class SsdpMessage {
   public static final int TYPE_SEARCH = 0;
   public static final int TYPE_NOTIFY = 1;
   public static final int TYPE_FOUND = 2;
+  private static final String NL = "\r\n";
   private static final String FIRST_LINE[] = {
       Ssdp.TYPE_M_SEARCH + " * HTTP/1.1",
       Ssdp.TYPE_NOTIFY + " * HTTP/1.1",
@@ -42,7 +43,7 @@ public class SsdpMessage {
   }
   
   public SsdpMessage(String txt) {
-    String lines[] = txt.split("\r\n");
+    String lines[] = txt.split(NL);
     String line = lines[0].trim();
     if (line.startsWith(Ssdp.TYPE_M_SEARCH)) {
       this.mType = TYPE_SEARCH;
@@ -53,7 +54,7 @@ public class SsdpMessage {
     }
     for (int i = 1; i < lines.length; i++) {
       line = lines[i].trim();
-      int index = line.indexOf(":");
+      int index = line.indexOf(':');
       if (index > 0) {
         String key = line.substring(0, index).trim();
         String value = line.substring(index + 1).trim();
@@ -84,14 +85,14 @@ public class SsdpMessage {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    builder.append(FIRST_LINE[this.mType]).append("\r\n");
+    builder.append(FIRST_LINE[this.mType]).append(NL);
     for (Map.Entry<String, String> entry: getHeaders().entrySet()) {
       builder.append(entry.getKey())
           .append(": ")
           .append(entry.getValue())
-          .append("\r\n");
+          .append(NL);
     }
-    builder.append("\r\n");
+    builder.append(NL);
     return builder.toString();
   }
 }

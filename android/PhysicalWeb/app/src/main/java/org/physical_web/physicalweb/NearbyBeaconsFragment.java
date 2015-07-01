@@ -390,13 +390,12 @@ public class NearbyBeaconsFragment extends ListFragment
         BleMetadata bleMetadata = pwoMetadata.bleMetadata;
 
         int txPower = bleMetadata.txPower;
-        String txPowerString = getString(R.string.ranging_debug_tx_power_prefix)
-            + String.valueOf(txPower);
+        String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + txPower;
         txPowerView.setText(txPowerString);
 
         String deviceAddress = bleMetadata.deviceAddress;
         int rssi = mRegionResolver.getSmoothedRssi(deviceAddress);
-        String rssiString = getString(R.string.ranging_debug_rssi_prefix) + String.valueOf(rssi);
+        String rssiString = getString(R.string.ranging_debug_rssi_prefix) + rssi;
         rssiView.setText(rssiString);
 
         double distance = mRegionResolver.getDistance(deviceAddress);
