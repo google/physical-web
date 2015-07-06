@@ -2,6 +2,7 @@
 *.jks
 *.keystore
 
+*.iml
 .gradle
 .idea
 .DS_Store
