@@ -109,7 +109,9 @@ static NSString *regionName(UBUriBeaconRegion region) {
 
 - (void) setUriBeacon:(UBUriBeacon *)uriBeacon {
   NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate];
-  [_rssiHistory addObject:@[[NSNumber numberWithInt:(int) [uriBeacon RSSI]], [NSNumber numberWithDouble:timestamp]]];
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"]) {
+    [_rssiHistory addObject:@[[NSNumber numberWithInt:(int) [uriBeacon RSSI]], [NSNumber numberWithDouble:timestamp]]];
+  }
   _uriBeacon = uriBeacon;
 }
 
