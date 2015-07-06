@@ -28,6 +28,8 @@
 // Returns the list of configurable beacons.
 - (NSArray* /* UBConfigurableUriBeacon */)configurableBeacons;
 
+- (NSTimeInterval) startTime;
+
 // Register a callback block when there's a change in the list of beacons.
 // It returns an object that need to be used to unregister the callback.
 // It needs to be passed to -unregisterChangeBlock:.
