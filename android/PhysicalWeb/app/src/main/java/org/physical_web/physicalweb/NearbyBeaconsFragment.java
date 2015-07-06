@@ -286,6 +286,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mNearbyDeviceAdapter.addItem(pwoMetadata);
     }
     mPwoMetadataQueue.clear();
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   private void fadeInListView() {
