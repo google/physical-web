@@ -12,7 +12,7 @@
 #import "PWBeacon.h"
 #import "PWBeaconManager.h"
 
-@interface PWBeaconDetailViewController () <
+@interface PWBeaconDetailViewController ()<
     JBLineChartViewDataSource, JBLineChartViewDelegate, UITableViewDataSource,
     UITableViewDelegate>
 
@@ -243,7 +243,7 @@ static double distanceFromRSSI(int txPower, double rssi) {
 }
 
 - (UIColor *)lineChartView:(JBLineChartView *)lineChartView
-    colorForLineAtLineIndex:(NSUInteger)lineIndex {
+   colorForLineAtLineIndex:(NSUInteger)lineIndex {
   static NSArray *colors = nil;
   if (colors == nil) {
     colors = @[
@@ -260,7 +260,7 @@ static double distanceFromRSSI(int txPower, double rssi) {
 }
 
 - (CGFloat)lineChartView:(JBLineChartView *)lineChartView
-    widthForLineAtLineIndex:(NSUInteger)lineIndex {
+ widthForLineAtLineIndex:(NSUInteger)lineIndex {
   return lineIndex >= 2 ? 3 : 1;
 }
 
@@ -271,9 +271,9 @@ static double distanceFromRSSI(int txPower, double rssi) {
 }
 
 - (void)lineChartView:(JBLineChartView *)lineChartView
-    didSelectLineAtIndex:(NSUInteger)lineIndex
-         horizontalIndex:(NSUInteger)horizontalIndex
-              touchPoint:(CGPoint)touchPoint {
+ didSelectLineAtIndex:(NSUInteger)lineIndex
+      horizontalIndex:(NSUInteger)horizontalIndex
+           touchPoint:(CGPoint)touchPoint {
   if (horizontalIndex >= _maxTime) {
   } else {
     if (_maxTime >= 20) {
@@ -286,7 +286,7 @@ static double distanceFromRSSI(int txPower, double rssi) {
 }
 
 - (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+ numberOfRowsInSection:(NSInteger)section {
   return _beaconsCount - 2;
 }
 

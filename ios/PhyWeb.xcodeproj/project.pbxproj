@@ -25,8 +25,8 @@
 		BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */ = {isa = PBXBuildFile; fileRef = BDBFD6701A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m */; };
 		BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */; };
 		BDC5A9AC1B3B3A90008D9A0B /* PWBeaconDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC5A9AB1B3B3A90008D9A0B /* PWBeaconDetailViewController.m */; };
-		BDC5A9B61B3B3D53008D9A0B /* JBChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC5A9B31B3B3D53008D9A0B /* JBChartView.m */; };
-		BDC5A9B71B3B3D53008D9A0B /* JBLineChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC5A9B51B3B3D53008D9A0B /* JBLineChartView.m */; };
+		BDDC71081B4B20C20000581C /* JBChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDDC71051B4B20C20000581C /* JBChartView.m */; };
+		BDDC71091B4B20C20000581C /* JBLineChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDDC71071B4B20C20000581C /* JBLineChartView.m */; };
 		BDE4D8A619DE0242007938F0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BDE4D8A519DE0242007938F0 /* LaunchScreen.xib */; };
 		BDE4D8A819DE03F1007938F0 /* LaunchIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = BDE4D8A719DE03F1007938F0 /* LaunchIcon.png */; };
 		BDE4D8B419DE154B007938F0 /* PWPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE4D8B319DE154B007938F0 /* PWPlaceholderView.m */; };
@@ -181,10 +181,10 @@
 		BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVPullToRefresh.m"; sourceTree = "<group>"; };
 		BDC5A9AA1B3B3A90008D9A0B /* PWBeaconDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PWBeaconDetailViewController.h; sourceTree = "<group>"; };
 		BDC5A9AB1B3B3A90008D9A0B /* PWBeaconDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PWBeaconDetailViewController.m; sourceTree = "<group>"; };
-		BDC5A9B21B3B3D53008D9A0B /* JBChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JBChartView.h; path = "third-party/JBChartView/Classes/JBChartView.h"; sourceTree = "<group>"; };
-		BDC5A9B31B3B3D53008D9A0B /* JBChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JBChartView.m; path = "third-party/JBChartView/Classes/JBChartView.m"; sourceTree = "<group>"; };
-		BDC5A9B41B3B3D53008D9A0B /* JBLineChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JBLineChartView.h; path = "third-party/JBChartView/Classes/JBLineChartView.h"; sourceTree = "<group>"; };
-		BDC5A9B51B3B3D53008D9A0B /* JBLineChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JBLineChartView.m; path = "third-party/JBChartView/Classes/JBLineChartView.m"; sourceTree = "<group>"; };
+		BDDC71041B4B20C20000581C /* JBChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JBChartView.h; path = "third-party/JBChartView/JBChartView.h"; sourceTree = "<group>"; };
+		BDDC71051B4B20C20000581C /* JBChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JBChartView.m; path = "third-party/JBChartView/JBChartView.m"; sourceTree = "<group>"; };
+		BDDC71061B4B20C20000581C /* JBLineChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JBLineChartView.h; path = "third-party/JBChartView/JBLineChartView.h"; sourceTree = "<group>"; };
+		BDDC71071B4B20C20000581C /* JBLineChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JBLineChartView.m; path = "third-party/JBChartView/JBLineChartView.m"; sourceTree = "<group>"; };
 		BDDFE6ED1A0069B700A76255 /* PhyWeb.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PhyWeb.entitlements; sourceTree = "<group>"; };
 		BDDFE6EE1A0069F000A76255 /* today.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = today.entitlements; sourceTree = "<group>"; };
 		BDE4D88519DDF678007938F0 /* icon-29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-29.png"; sourceTree = "<group>"; };
@@ -341,10 +341,10 @@
 		BDC5A9B81B3B3D60008D9A0B /* JBChartView */ = {
 			isa = PBXGroup;
 			children = (
-				BDC5A9B21B3B3D53008D9A0B /* JBChartView.h */,
-				BDC5A9B31B3B3D53008D9A0B /* JBChartView.m */,
-				BDC5A9B41B3B3D53008D9A0B /* JBLineChartView.h */,
-				BDC5A9B51B3B3D53008D9A0B /* JBLineChartView.m */,
+				BDDC71041B4B20C20000581C /* JBChartView.h */,
+				BDDC71051B4B20C20000581C /* JBChartView.m */,
+				BDDC71061B4B20C20000581C /* JBLineChartView.h */,
+				BDDC71071B4B20C20000581C /* JBLineChartView.m */,
 			);
 			name = JBChartView;
 			sourceTree = "<group>";
@@ -753,7 +753,7 @@
 				BDE9F1C719A7E46D00AA8DFB /* PWBeaconCell.m in Sources */,
 				BDE9F19119A7CDF100AA8DFB /* AppDelegate.m in Sources */,
 				BDFC4DD819E60C5200DC381C /* PWSimpleWebViewController.m in Sources */,
-				BDC5A9B71B3B3D53008D9A0B /* JBLineChartView.m in Sources */,
+				BDDC71091B4B20C20000581C /* JBLineChartView.m in Sources */,
 				BDE9F1C819A7E46D00AA8DFB /* PWBeaconsViewController.m in Sources */,
 				BDE9F2A019AD551500AA8DFB /* PWConfigureViewController.m in Sources */,
 				BDE9F1C919A7E46D00AA8DFB /* PWGradientView.m in Sources */,
@@ -763,7 +763,7 @@
 				BDE9F2A119AD551500AA8DFB /* PWSettingsViewController.m in Sources */,
 				BDE9F18E19A7CDF100AA8DFB /* main.m in Sources */,
 				BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */,
-				BDC5A9B61B3B3D53008D9A0B /* JBChartView.m in Sources */,
+				BDDC71081B4B20C20000581C /* JBChartView.m in Sources */,
 				BDE9F1DA19A7EAFC00AA8DFB /* PWBeaconManager.m in Sources */,
 				BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */,
 				BDE9F1CC19A7E46D00AA8DFB /* PWSignalStrengthView.m in Sources */,

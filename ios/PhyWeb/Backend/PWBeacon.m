@@ -22,9 +22,8 @@
 
 - (id)initWithUriBeacon:(UBUriBeacon *)beacon info:(NSDictionary *)info {
   self = [self init];
-  
+
   _rssiHistory = [[NSMutableArray alloc] init];
-  
   NSString *title = info[@"title"];
   if (title == (NSString *)[NSNull null]) {
     title = nil;

@@ -12,6 +12,4 @@
 
 @interface PWBeaconDetailViewController : UIViewController
 
-@property (nonatomic, retain) PWBeacon * beacon;
-
 @end
