@@ -46,6 +46,6 @@
 
     <style name="Theme.NoActionBar" parent="@style/Theme.AppCompat">
         <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
     </style>
 </resources>
