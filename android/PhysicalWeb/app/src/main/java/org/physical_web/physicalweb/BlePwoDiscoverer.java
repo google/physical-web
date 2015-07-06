@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
+import android.webkit.URLUtil;
 
 import org.uribeacon.beacon.UriBeacon;
 import org.uribeacon.scan.compat.ScanRecord;
@@ -68,7 +69,7 @@ class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanC
     }
 
     String url = uriBeacon.getUriString();
-    if (url == null || url.isEmpty()) {
+    if (!URLUtil.isNetworkUrl(url)) {
       return;
     }
 
