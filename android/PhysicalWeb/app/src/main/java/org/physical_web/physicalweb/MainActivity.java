@@ -85,24 +85,10 @@ public class MainActivity extends Activity {
   }
 
   @Override
-  protected void onPause() {
-    if (checkIfUserHasOptedIn()) {
-      // The service runs when the app isn't running.
-      startUriBeaconDiscoveryService();
-    }
-    super.onPause();
-  }
-
-  @Override
   protected void onResume() {
     super.onResume();
     if (checkIfUserHasOptedIn()) {
       ensureBluetoothIsEnabled();
-      // The service pauses while the app is running since the app does it's own scans or
-      // is configuring a UriBeacon using GATT which doesn't like to compete with scans.
-      // TODO(cco3): When both the fragment and the service are using the same scanner, this
-      //             activity shouldn't touch the service at all.
-      stopUriBeaconDiscoveryService();
       showNearbyBeaconsFragment();
     } else {
       // Show the oob activity
@@ -115,22 +101,6 @@ public class MainActivity extends Activity {
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     setIntent(intent);
-  }
-
-  /**
-   * Stop the beacon discovery service from running.
-   */
-  private void stopUriBeaconDiscoveryService() {
-    Intent intent = new Intent(this, PwoDiscoveryService.class);
-    stopService(intent);
-  }
-
-  /**
-   * Start up the BeaconDiscoveryService.
-   */
-  private void startUriBeaconDiscoveryService() {
-    Intent intent = new Intent(this, PwoDiscoveryService.class);
-    startService(intent);
   }
 
   /**
