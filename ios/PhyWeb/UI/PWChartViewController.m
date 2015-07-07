@@ -6,19 +6,20 @@
 //  Copyright © 2015 Hoa Dinh. All rights reserved.
 //
 
-#import "PWBeaconDetailViewController.h"
+#import "PWChartViewController.h"
 
 #import "JBLineChartView.h"
 #import "PWBeacon.h"
 #import "PWBeaconManager.h"
+#import "PWBeaconChartTableViewCell.h"
 
-@interface PWBeaconDetailViewController ()<
-    JBLineChartViewDataSource, JBLineChartViewDelegate, UITableViewDataSource,
-    UITableViewDelegate>
+@interface PWChartViewController ()<JBLineChartViewDataSource,
+                                    JBLineChartViewDelegate,
+                                    UITableViewDataSource, UITableViewDelegate>
 
 @end
 
-@implementation PWBeaconDetailViewController {
+@implementation PWChartViewController {
   JBLineChartView *_chartView;
   int _beaconsCount;
   int _maxTime;
@@ -28,7 +29,10 @@
   NSInteger _selectedHorizontalIndex;
   NSMutableArray *_urls;
   BOOL _showRSSI;
+  NSURL *_url;
 }
+
+@synthesize URL = _url;
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil
                          bundle:(NSBundle *)nibBundleOrNil {
@@ -261,7 +265,14 @@ static double distanceFromRSSI(int txPower, double rssi) {
 
 - (CGFloat)lineChartView:(JBLineChartView *)lineChartView
  widthForLineAtLineIndex:(NSUInteger)lineIndex {
-  return lineIndex >= 2 ? 3 : 1;
+  if (lineIndex < 2) {
+    return 1.0;
+  }
+  if ([_urls[lineIndex - 2] isEqual:_url]) {
+    return 3.0;
+  } else {
+    return 1.0;
+  }
 }
 
 - (JBLineChartViewLineStyle)lineChartView:(JBLineChartView *)lineChartView
@@ -306,29 +317,26 @@ static double distanceFromRSSI(int txPower, double rssi) {
   }
 
   NSInteger row = [indexPath row];
-  UITableViewCell *cell =
+  PWBeaconChartTableViewCell *cell = (PWBeaconChartTableViewCell *)
       [_tableView dequeueReusableCellWithIdentifier:@"Beacon"];
   if (cell == nil) {
-    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
-                                  reuseIdentifier:@"Beacon"];
+    cell = [[PWBeaconChartTableViewCell alloc]
+          initWithStyle:UITableViewCellStyleDefault
+        reuseIdentifier:@"Beacon"];
   }
-  if (_selectedHorizontalIndex == -1) {
-    [[cell textLabel]
-        setText:[NSString stringWithFormat:@"%@", [_urls objectAtIndex:row]]];
+  [[cell textLabel]
+      setText:[NSString stringWithFormat:@"%@", [_urls objectAtIndex:row]]];
+  if (_showRSSI) {
+    [[cell rssiLabel]
+        setText:[NSString stringWithFormat:
+                              @"%5.2g",
+                              _rssiValues[row + 2][_selectedHorizontalIndex]]];
   } else {
-    if (_showRSSI) {
-      [[cell textLabel]
-          setText:[NSString
-                      stringWithFormat:@"%@: %g", [_urls objectAtIndex:row],
-                                       _rssiValues[row + 2]
-                                                  [_selectedHorizontalIndex]]];
-    } else {
-      [[cell textLabel]
-          setText:[NSString
-                      stringWithFormat:
-                          @"%@: %g", [_urls objectAtIndex:row],
-                          _distanceValues[row + 2][_selectedHorizontalIndex]]];
-    }
+    [[cell rssiLabel]
+        setText:[NSString
+                    stringWithFormat:@"%5.2g",
+                                     _distanceValues
+                                         [row + 2][_selectedHorizontalIndex]]];
   }
   [[cell textLabel] setTextColor:colors[(row + 2) % [colors count]]];
 

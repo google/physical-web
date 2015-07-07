@@ -10,6 +10,8 @@
 
 @class PWBeacon;
 
-@interface PWBeaconDetailViewController : UIViewController
+@interface PWChartViewController : UIViewController
+
+@property (nonatomic, copy) NSURL * URL;
 
 @end
