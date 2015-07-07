@@ -326,17 +326,22 @@ static double distanceFromRSSI(int txPower, double rssi) {
   }
   [[cell textLabel]
       setText:[NSString stringWithFormat:@"%@", [_urls objectAtIndex:row]]];
-  if (_showRSSI) {
-    [[cell rssiLabel]
-        setText:[NSString stringWithFormat:
-                              @"%5.2g",
-                              _rssiValues[row + 2][_selectedHorizontalIndex]]];
+  if (_selectedHorizontalIndex != -1) {
+    if (_showRSSI) {
+      [[cell rssiLabel]
+          setText:[NSString
+                      stringWithFormat:@"%5.2g",
+                                       _rssiValues[row + 2]
+                                                  [_selectedHorizontalIndex]]];
+    } else {
+      [[cell rssiLabel]
+          setText:[NSString
+                      stringWithFormat:
+                          @"%5.2g",
+                          _distanceValues[row + 2][_selectedHorizontalIndex]]];
+    }
   } else {
-    [[cell rssiLabel]
-        setText:[NSString
-                    stringWithFormat:@"%5.2g",
-                                     _distanceValues
-                                         [row + 2][_selectedHorizontalIndex]]];
+    [[cell rssiLabel] setText:@""];
   }
   [[cell textLabel] setTextColor:colors[(row + 2) % [colors count]]];
 
