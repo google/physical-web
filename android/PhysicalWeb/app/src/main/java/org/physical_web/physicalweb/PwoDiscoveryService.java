@@ -425,9 +425,12 @@ public class PwoDiscoveryService extends Service
     return pendingIntent;
   }
 
-  public void requestPwoMetadata(PwoResponseCallback pwoResponseCallback) {
-    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
-      pwoResponseCallback.onPwoDiscovered(pwoMetadata);
+  public void requestPwoMetadata(PwoResponseCallback pwoResponseCallback,
+                                 boolean requestCachedPwos) {
+    if (requestCachedPwos) {
+      for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
+        pwoResponseCallback.onPwoDiscovered(pwoMetadata);
+      }
     }
     mPwoResponseCallbacks.add(pwoResponseCallback);
   }

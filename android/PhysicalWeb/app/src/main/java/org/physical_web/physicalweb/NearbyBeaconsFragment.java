@@ -139,36 +139,39 @@ public class NearbyBeaconsFragment extends ListFragment
    */
   private class DiscoveryServiceConnection implements ServiceConnection {
     private PwoDiscoveryService mDiscoveryService;
+    private boolean mRequestCachedPwos;
 
     @Override
-    public void onServiceConnected(ComponentName className, IBinder service) {
+    public synchronized void onServiceConnected(ComponentName className, IBinder service) {
       // Get the service
       PwoDiscoveryService.LocalBinder localBinder = (PwoDiscoveryService.LocalBinder) service;
       mDiscoveryService = localBinder.getServiceInstance();
 
       // Request the metadata
-      mDiscoveryService.requestPwoMetadata(NearbyBeaconsFragment.this);
-      startScanningDisplay(mDiscoveryService.getScanStartTime());
+      mDiscoveryService.requestPwoMetadata(NearbyBeaconsFragment.this, mRequestCachedPwos);
+      startScanningDisplay(mRequestCachedPwos ? mDiscoveryService.getScanStartTime()
+                                              : new Date().getTime());
     }
 
     @Override
-    public void onServiceDisconnected(ComponentName className) {
+    public synchronized void onServiceDisconnected(ComponentName className) {
       // onServiceDisconnected gets called when the connection is unintentionally disconnected,
       // which should never happen for us since this is a local service
       mDiscoveryService = null;
     }
 
-    public void connect() {
+    public synchronized void connect(boolean requestCachedPwos) {
       if (mDiscoveryService != null) {
         return;
       }
 
+      mRequestCachedPwos = requestCachedPwos;
       Intent intent = new Intent(getActivity(), PwoDiscoveryService.class);
       getActivity().startService(intent);
       getActivity().bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
-    public void disconnect() {
+    public synchronized void disconnect() {
       if (mDiscoveryService == null) {
         return;
       }
@@ -230,7 +233,7 @@ public class NearbyBeaconsFragment extends ListFragment
     super.onResume();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-    mDiscoveryServiceConnection.connect();
+    mDiscoveryServiceConnection.connect(true);
   }
 
   @Override
@@ -307,14 +310,10 @@ public class NearbyBeaconsFragment extends ListFragment
     mPwoMetadataQueue.clear();
     mNearbyDeviceAdapter.clear();
 
-    // Kill the service to force a refresh
+    // Reconnect to the service
     mDiscoveryServiceConnection.disconnect();
-    Intent intent = new Intent(getActivity(), PwoDiscoveryService.class);
-    getActivity().stopService(intent);
-
-    // Connect to the service
     mSwipeRefreshWidget.setRefreshing(true);
-    mDiscoveryServiceConnection.connect();
+    mDiscoveryServiceConnection.connect(false);
   }
 
   @Override
