@@ -240,10 +240,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       public void onUrlMetadataAbsent(PwoMetadata pwoMetadata){
         setEditCardUrl(url);
       }
-
-      @Override
-      public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
-      }
     };
     PwoMetadata pwoMetadata = new PwoMetadata(url, 0);
     PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, resolveScanCallback, TAG);
