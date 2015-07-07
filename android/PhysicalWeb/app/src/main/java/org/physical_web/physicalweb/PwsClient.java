@@ -242,7 +242,7 @@ class PwsClient {
             urlMetadata.title = jsonUrlMetadata.optString("title");
             urlMetadata.description = jsonUrlMetadata.optString("description");
             urlMetadata.iconUrl = jsonUrlMetadata.optString("icon");
-            urlMetadata.rank = (float) jsonUrlMetadata.getDouble("rank");
+            urlMetadata.rank = jsonUrlMetadata.getDouble("rank");
           } catch (JSONException e) {
             Log.i(TAG, "Pws gave bad JSON: " + e);
             continue;
