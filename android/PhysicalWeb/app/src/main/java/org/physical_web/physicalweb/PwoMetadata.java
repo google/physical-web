@@ -76,7 +76,7 @@ class PwoMetadata implements Comparable<PwoMetadata>{
       if (rankCompare != 0) {
         return rankCompare;
       }
-  
+
       // If ranks are equal, compare based on title
       return title.compareTo(other.title);
     }

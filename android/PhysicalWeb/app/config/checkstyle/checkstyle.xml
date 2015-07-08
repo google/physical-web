@@ -33,6 +33,12 @@ page at http://checkstyle.sourceforge.net/config.html -->
     <property name="message" value='All TODOs should be named.  e.g. "TODO(johndoe): Refactor when v2 is released."' />
   </module>
 
+  <module name="RegexpSingleline">
+    <!-- Checks for trailing whitespace -->
+    <property name="format" value="[\t ]+$" />
+    <property name="message" value='Get rid of trailing whitespace.' />
+  </module>
+
   <module name="JavadocPackage">
     <!-- Checks that each Java package has a Javadoc file used for commenting.
       Only allows a package-info.java, not package.html. -->
