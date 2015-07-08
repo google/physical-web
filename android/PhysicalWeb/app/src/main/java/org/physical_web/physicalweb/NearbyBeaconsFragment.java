@@ -476,7 +476,7 @@ public class NearbyBeaconsFragment extends ListFragment
       }
 
       // Metadata debug line
-      float scanTime = pwoMetadata.scanMillis / 1000.0f;
+      double scanTime = pwoMetadata.scanMillis / 1000.0;
       String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)
           + new DecimalFormat("##.##s").format(scanTime);
       TextView scanTimeView = (TextView) view.findViewById(R.id.metadata_debug_scan_time);
@@ -486,12 +486,12 @@ public class NearbyBeaconsFragment extends ListFragment
       TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
       if (pwoMetadata.hasUrlMetadata()) {
         UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-        float rank = urlMetadata.rank;
+        double rank = urlMetadata.rank;
         String rankString = getString(R.string.metadata_debug_rank_prefix)
             + new DecimalFormat("##.##").format(rank);
         rankView.setText(rankString);
 
-        float pwsTripTime = pwoMetadata.pwsTripMillis / 1000.0f;
+        double pwsTripTime = pwoMetadata.pwsTripMillis / 1000.0;
         String pwsTripTimeString = "" + getString(R.string.metadata_debug_pws_trip_time_prefix)
             + new DecimalFormat("##.##s").format(pwsTripTime);
         pwsTripTimeView.setText(pwsTripTimeString);
