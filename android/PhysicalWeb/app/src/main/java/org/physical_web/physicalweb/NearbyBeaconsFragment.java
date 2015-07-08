@@ -321,7 +321,6 @@ public class NearbyBeaconsFragment extends ListFragment
   public void onPwoDiscovered(PwoMetadata pwoMetadata) {
     if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
       mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
-      PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
       mPwoMetadataQueue.add(pwoMetadata);
       if (mSecondScanComplete) {
         // If we've already waited for the second scan timeout, go ahead and put the item in the
