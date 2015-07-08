@@ -23,9 +23,8 @@
 
 #define DISCOVERY_DELAY_KEY @"discoveryDelay"
 
-@interface PWBeaconManager () <PWMetadataRequestDelegate,
-                               NSNetServiceBrowserDelegate,
-                               NSNetServiceDelegate>
+@interface PWBeaconManager ()<PWMetadataRequestDelegate,
+                              NSNetServiceBrowserDelegate, NSNetServiceDelegate>
 
 @end
 
@@ -326,7 +325,8 @@
   NSUInteger idx = [_requests indexOfObject:request];
   if (idx != NSNotFound) {
     NSDictionary* beaconInfo = [_pendingBeaconsInfos objectAtIndex:idx];
-    NSTimeInterval discoveryDelay = [beaconInfo[DISCOVERY_DELAY_KEY] doubleValue];
+    NSTimeInterval discoveryDelay =
+        [beaconInfo[DISCOVERY_DELAY_KEY] doubleValue];
     NSTimeInterval requestDelay = [request delay];
     [beacon setDiscoveryDelay:discoveryDelay];
     [beacon setRequestDelay:requestDelay];
@@ -413,6 +413,10 @@
     [beacons addObject:beacon];
   }
   return beacons;
+}
+
+- (NSTimeInterval)startTime {
+  return _startTime;
 }
 
 @end

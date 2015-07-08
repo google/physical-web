@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		BD039C0419D0E8F8005A7F37 /* libMBProgressHUD.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD039BFF19D0E8BB005A7F37 /* libMBProgressHUD.a */; };
 		BD039C0519D0E8F8005A7F37 /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDE9F27619ABE6DE00AA8DFB /* libSDWebImage.a */; };
+		BD3E51B91B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3E51B81B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m */; };
 		BD49959019F7178E000945BC /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDE9F27619ABE6DE00AA8DFB /* libSDWebImage.a */; };
 		BD49959219F717C6000945BC /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDE9F28519ABF02700AA8DFB /* ImageIO.framework */; };
 		BDA2F8C719D1FD9C00DA4FFD /* liburibeacon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA2F8C019D1FD8600DA4FFD /* liburibeacon.a */; };
@@ -24,6 +25,9 @@
 		BDA3FAA819EF38A600CFAA74 /* PWSignalStrengthView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1C219A7E46D00AA8DFB /* PWSignalStrengthView.m */; };
 		BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */ = {isa = PBXBuildFile; fileRef = BDBFD6701A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m */; };
 		BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */; };
+		BDC5A9AC1B3B3A90008D9A0B /* PWChartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDC5A9AB1B3B3A90008D9A0B /* PWChartViewController.m */; };
+		BDDC71081B4B20C20000581C /* JBChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDDC71051B4B20C20000581C /* JBChartView.m */; };
+		BDDC71091B4B20C20000581C /* JBLineChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDDC71071B4B20C20000581C /* JBLineChartView.m */; };
 		BDE4D8A619DE0242007938F0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BDE4D8A519DE0242007938F0 /* LaunchScreen.xib */; };
 		BDE4D8A819DE03F1007938F0 /* LaunchIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = BDE4D8A719DE03F1007938F0 /* LaunchIcon.png */; };
 		BDE4D8B419DE154B007938F0 /* PWPlaceholderView.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE4D8B319DE154B007938F0 /* PWPlaceholderView.m */; };
@@ -165,6 +169,8 @@
 
 /* Begin PBXFileReference section */
 		BD039BFA19D0E8BB005A7F37 /* MBProgressHUD.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MBProgressHUD.xcodeproj; path = "third-party/MBProgressHUD/MBProgressHUD.xcodeproj"; sourceTree = "<group>"; };
+		BD3E51B71B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PWBeaconChartTableViewCell.h; sourceTree = "<group>"; };
+		BD3E51B81B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PWBeaconChartTableViewCell.m; sourceTree = "<group>"; };
 		BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = uribeacon.xcodeproj; path = "third-party/uribeacon/ios-uribeacon/uribeacon.xcodeproj"; sourceTree = "<group>"; };
 		BDA3FA8619EF2DD700CFAA74 /* today.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = today.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA3FA8819EF2DD700CFAA74 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
@@ -176,6 +182,12 @@
 		BDBFD6701A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVInfiniteScrolling.m"; sourceTree = "<group>"; };
 		BDBFD6711A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVPullToRefresh.h"; sourceTree = "<group>"; };
 		BDBFD6721A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVPullToRefresh.m"; sourceTree = "<group>"; };
+		BDC5A9AA1B3B3A90008D9A0B /* PWChartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PWChartViewController.h; sourceTree = "<group>"; };
+		BDC5A9AB1B3B3A90008D9A0B /* PWChartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PWChartViewController.m; sourceTree = "<group>"; };
+		BDDC71041B4B20C20000581C /* JBChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JBChartView.h; path = "third-party/JBChartView/JBChartView.h"; sourceTree = "<group>"; };
+		BDDC71051B4B20C20000581C /* JBChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JBChartView.m; path = "third-party/JBChartView/JBChartView.m"; sourceTree = "<group>"; };
+		BDDC71061B4B20C20000581C /* JBLineChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JBLineChartView.h; path = "third-party/JBChartView/JBLineChartView.h"; sourceTree = "<group>"; };
+		BDDC71071B4B20C20000581C /* JBLineChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JBLineChartView.m; path = "third-party/JBChartView/JBLineChartView.m"; sourceTree = "<group>"; };
 		BDDFE6ED1A0069B700A76255 /* PhyWeb.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PhyWeb.entitlements; sourceTree = "<group>"; };
 		BDDFE6EE1A0069F000A76255 /* today.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = today.entitlements; sourceTree = "<group>"; };
 		BDE4D88519DDF678007938F0 /* icon-29.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-29.png"; sourceTree = "<group>"; };
@@ -329,6 +341,17 @@
 			path = "third-party/SVPullToRefresh/SVPullToRefresh";
 			sourceTree = "<group>";
 		};
+		BDC5A9B81B3B3D60008D9A0B /* JBChartView */ = {
+			isa = PBXGroup;
+			children = (
+				BDDC71041B4B20C20000581C /* JBChartView.h */,
+				BDDC71051B4B20C20000581C /* JBChartView.m */,
+				BDDC71061B4B20C20000581C /* JBLineChartView.h */,
+				BDDC71071B4B20C20000581C /* JBLineChartView.m */,
+			);
+			name = JBChartView;
+			sourceTree = "<group>";
+		};
 		BDE9F17F19A7CDF100AA8DFB = {
 			isa = PBXGroup;
 			children = (
@@ -444,6 +467,10 @@
 				BDE4D8BC19DF65BE007938F0 /* PWActivityIndicator.m */,
 				BDFC4DD619E60C5200DC381C /* PWSimpleWebViewController.h */,
 				BDFC4DD719E60C5200DC381C /* PWSimpleWebViewController.m */,
+				BDC5A9AA1B3B3A90008D9A0B /* PWChartViewController.h */,
+				BDC5A9AB1B3B3A90008D9A0B /* PWChartViewController.m */,
+				BD3E51B71B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.h */,
+				BD3E51B81B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -451,6 +478,7 @@
 		BDE9F1CD19A7E68400AA8DFB /* third-party */ = {
 			isa = PBXGroup;
 			children = (
+				BDC5A9B81B3B3D60008D9A0B /* JBChartView */,
 				BDBFD66D1A2D125700A0B5E0 /* SVPullToRefresh */,
 				BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */,
 				BD039BFA19D0E8BB005A7F37 /* MBProgressHUD.xcodeproj */,
@@ -730,14 +758,18 @@
 				BDE9F1C719A7E46D00AA8DFB /* PWBeaconCell.m in Sources */,
 				BDE9F19119A7CDF100AA8DFB /* AppDelegate.m in Sources */,
 				BDFC4DD819E60C5200DC381C /* PWSimpleWebViewController.m in Sources */,
+				BDDC71091B4B20C20000581C /* JBLineChartView.m in Sources */,
 				BDE9F1C819A7E46D00AA8DFB /* PWBeaconsViewController.m in Sources */,
 				BDE9F2A019AD551500AA8DFB /* PWConfigureViewController.m in Sources */,
 				BDE9F1C919A7E46D00AA8DFB /* PWGradientView.m in Sources */,
+				BDC5A9AC1B3B3A90008D9A0B /* PWChartViewController.m in Sources */,
 				BDE9F1E319A7FB4000AA8DFB /* PWURLShortener.m in Sources */,
 				BDE9F1C319A7E46D00AA8DFB /* PWMetadataRequest.m in Sources */,
 				BDE9F2A119AD551500AA8DFB /* PWSettingsViewController.m in Sources */,
+				BD3E51B91B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m in Sources */,
 				BDE9F18E19A7CDF100AA8DFB /* main.m in Sources */,
 				BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */,
+				BDDC71081B4B20C20000581C /* JBChartView.m in Sources */,
 				BDE9F1DA19A7EAFC00AA8DFB /* PWBeaconManager.m in Sources */,
 				BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */,
 				BDE9F1CC19A7E46D00AA8DFB /* PWSignalStrengthView.m in Sources */,

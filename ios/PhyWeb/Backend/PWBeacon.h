@@ -63,6 +63,8 @@
 // Server.
 @property(nonatomic, assign) NSTimeInterval requestDelay;
 
+@property (nonatomic, retain, readonly) NSArray * rssiHistory;
+
 // Returns the region name of the beacon when it was created.
 - (NSString *)debugRegionName;
 

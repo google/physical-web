@@ -28,8 +28,9 @@
 #import "PWPlaceholderView.h"
 #import "PWSettingsViewController.h"
 #import "PWSimpleWebViewController.h"
+#import "PWChartViewController.h"
 
-@interface PWBeaconsViewController () <
+@interface PWBeaconsViewController ()<
     UITableViewDataSource, UITableViewDelegate, UITextViewDelegate,
     CBCentralManagerDelegate, PWMetadataRequestDelegate,
     PWSimpleWebViewControllerDelegate>
@@ -169,7 +170,7 @@
 }
 
 - (void)simpleWebViewControllerProceedPressed:
-        (PWSimpleWebViewController *)controller {
+    (PWSimpleWebViewController *)controller {
   [[NSUserDefaults standardUserDefaults] setBool:YES
                                           forKey:@"GettingStartedDialogShown"];
   [[NSUserDefaults standardUserDefaults] synchronize];
@@ -417,7 +418,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView
-    numberOfRowsInSection:(NSInteger)section {
+ numberOfRowsInSection:(NSInteger)section {
   return [_beacons count];
 }
 
@@ -441,19 +442,34 @@
 
 - (void)tableView:(UITableView *)tableView
     didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-  PWBeacon *beacon = [_beacons objectAtIndex:[indexPath row]];
-  NSURL *url = [[beacon uriBeacon] URI];
-  NSString *unescaped = [url absoluteString];
-  NSString *escapedString =
-      [unescaped stringByAddingPercentEncodingWithAllowedCharacters:
-                     [NSCharacterSet URLHostAllowedCharacterSet]];
-  NSString *goURLString =
-      [NSString stringWithFormat:@"http://%@/go?url=%@",
-                                 [PWMetadataRequest hostname], escapedString];
-  NSURL *goURL = [NSURL URLWithString:goURLString];
-  [[UIApplication sharedApplication] openURL:goURL];
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DebugMode"]) {
+    PWChartViewController *detailController =
+        [[PWChartViewController alloc] initWithNibName:nil bundle:nil];
+    PWBeacon *beacon = [_beacons objectAtIndex:[indexPath row]];
+    NSURL *url = [beacon displayURL];
+    [detailController setURL:url];
+    UINavigationController *navigationController =
+        [[UINavigationController alloc]
+            initWithRootViewController:detailController];
+    [self presentViewController:navigationController
+                       animated:YES
+                     completion:nil];
+    [_tableView deselectRowAtIndexPath:indexPath animated:YES];
+  } else {
+    PWBeacon *beacon = [_beacons objectAtIndex:[indexPath row]];
+    NSURL *url = [[beacon uriBeacon] URI];
+    NSString *unescaped = [url absoluteString];
+    NSString *escapedString =
+        [unescaped stringByAddingPercentEncodingWithAllowedCharacters:
+                       [NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *goURLString =
+        [NSString stringWithFormat:@"http://%@/go?url=%@",
+                                   [PWMetadataRequest hostname], escapedString];
+    NSURL *goURL = [NSURL URLWithString:goURLString];
+    [[UIApplication sharedApplication] openURL:goURL];
 
-  [_tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [_tableView deselectRowAtIndexPath:indexPath animated:YES];
+  }
 }
 
 #pragma mark scroll view delegate method
