@@ -41,7 +41,7 @@ public class SsdpMessage {
   public SsdpMessage(int type) {
     this.mType = type;
   }
-  
+
   public SsdpMessage(String txt) {
     String lines[] = txt.split(NL);
     String line = lines[0].trim();
