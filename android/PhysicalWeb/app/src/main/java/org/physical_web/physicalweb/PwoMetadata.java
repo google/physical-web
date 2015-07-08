@@ -25,6 +25,9 @@ import android.net.Uri;
 import android.util.Base64;
 import android.webkit.URLUtil;
 
+import org.uribeacon.scan.util.RangingUtils;
+import org.uribeacon.scan.util.RegionResolver;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -60,6 +63,8 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     int rssi;
     int txPower;
 
+    private static RegionResolver sRegionResolver;
+
     public BleMetadata(String deviceAddress, int rssi, int txPower) {
       this.deviceAddress = deviceAddress;
       this.rssi = rssi;
@@ -88,6 +93,33 @@ class PwoMetadata implements Comparable<PwoMetadata> {
 
     public static BleMetadata fromJsonStr(String jsonStr) throws JSONException {
       return fromJsonObj(new JSONObject(jsonStr));
+    }
+
+    private static RegionResolver getRegionResolver() {
+      if (sRegionResolver == null) {
+        sRegionResolver = new RegionResolver();
+      }
+      return sRegionResolver;
+    }
+
+    public void updateRegionInfo() {
+      getRegionResolver().onUpdate(this.deviceAddress, this.rssi, this.txPower);
+    }
+
+    public int getSmoothedRssi() {
+      return getRegionResolver().getSmoothedRssi(deviceAddress);
+    }
+
+    public double getDistance() {
+      return getRegionResolver().getDistance(deviceAddress);
+    }
+
+    public int getRegion() {
+      return getRegionResolver().getRegion(deviceAddress);
+    }
+
+    public String getRegionString() {
+      return RangingUtils.toString(getRegion());
     }
   }
 

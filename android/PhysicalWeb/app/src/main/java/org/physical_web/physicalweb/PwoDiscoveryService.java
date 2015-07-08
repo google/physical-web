@@ -16,7 +16,6 @@
 
 package org.physical_web.physicalweb;
 
-import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
 import android.app.Notification;
@@ -35,8 +34,6 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
-
-import org.uribeacon.scan.util.RegionResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +78,6 @@ public class PwoDiscoveryService extends Service
   private boolean mIsBound = false;
   private long mScanStartTime;
   private Handler mHandler;
-  private RegionResolver mRegionResolver;
   private NotificationManagerCompat mNotificationManager;
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoDiscoverer> mPwoDiscoverers;
@@ -143,7 +139,6 @@ public class PwoDiscoveryService extends Service
     }
     mPwoResponseCallbacks = new ArrayList<>();
     mHandler = new Handler();
-    mRegionResolver = new RegionResolver();
     mUrlToPwoMetadata = new HashMap<>();
     mCanUpdateNotifications = false;
   }
@@ -234,11 +229,6 @@ public class PwoDiscoveryService extends Service
 
     for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
       pwoResponseCallback.onPwoDiscovered(storedPwoMetadata);
-    }
-
-    if (pwoMetadata.hasBleMetadata()) {
-      BleMetadata bleMetadata = pwoMetadata.bleMetadata;
-      mRegionResolver.onUpdate(bleMetadata.deviceAddress, bleMetadata.rssi, bleMetadata.txPower);
     }
   }
 
