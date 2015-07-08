@@ -75,6 +75,7 @@ class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanC
 
     PwoMetadata pwoMetadata = createPwoMetadata(url);
     pwoMetadata.setBleMetadata(device.getAddress(), rssi, uriBeacon.getTxPowerLevel());
+    pwoMetadata.bleMetadata.updateRegionInfo();
     reportPwo(pwoMetadata);
   }
 

@@ -42,9 +42,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.uribeacon.scan.util.RangingUtils;
-import org.uribeacon.scan.util.RegionResolver;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -322,12 +319,6 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onPwoDiscovered(PwoMetadata pwoMetadata) {
-    if (pwoMetadata.hasBleMetadata()) {
-      BleMetadata bleMetadata = pwoMetadata.bleMetadata;
-      mNearbyDeviceAdapter.updateItem(pwoMetadata.url, bleMetadata.deviceAddress, bleMetadata.rssi,
-                                      bleMetadata.txPower);
-    }
-
     if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
       mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
       PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, this, TAG);
@@ -358,17 +349,10 @@ public class NearbyBeaconsFragment extends ListFragment
 
   // Adapter for holding beacons found through scanning.
   private class NearbyBeaconsAdapter extends BaseAdapter {
-
-    public final RegionResolver mRegionResolver;
     private List<PwoMetadata> mPwoMetadataList;
 
     NearbyBeaconsAdapter() {
-      mRegionResolver = new RegionResolver();
       mPwoMetadataList = new ArrayList<>();
-    }
-
-    public void updateItem(String url, String address, int rssi, int txPower) {
-      mRegionResolver.onUpdate(address, rssi, txPower);
     }
 
     public void addItem(PwoMetadata pwoMetadata) {
@@ -459,18 +443,17 @@ public class NearbyBeaconsFragment extends ListFragment
         txPowerView.setText(txPowerString);
 
         String deviceAddress = bleMetadata.deviceAddress;
-        int rssi = mRegionResolver.getSmoothedRssi(deviceAddress);
+        int rssi = bleMetadata.getSmoothedRssi();
         String rssiString = getString(R.string.ranging_debug_rssi_prefix) + rssi;
         rssiView.setText(rssiString);
 
-        double distance = mRegionResolver.getDistance(deviceAddress);
+        double distance = bleMetadata.getDistance();
         String distanceString = getString(R.string.ranging_debug_distance_prefix)
             + new DecimalFormat("##.##").format(distance);
         distanceView.setText(distanceString);
 
-        int region = mRegionResolver.getRegion(deviceAddress);
-        String regionString = getString(R.string.ranging_debug_region_prefix)
-            + RangingUtils.toString(region);
+        String region = bleMetadata.getRegionString();
+        String regionString = getString(R.string.ranging_debug_region_prefix) + region;
         regionView.setText(regionString);
       } else {
         txPowerView.setText("");
