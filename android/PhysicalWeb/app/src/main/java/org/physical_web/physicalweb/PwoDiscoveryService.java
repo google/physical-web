@@ -61,6 +61,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PwoDiscoveryService extends Service
                                  implements PwsClient.ResolveScanCallback,
+                                            PwsClient.DownloadIconCallback,
                                             PwoDiscoverer.PwoDiscoveryCallback {
 
   private static final String TAG = "PwoDiscoveryService";
@@ -124,7 +125,8 @@ public class PwoDiscoveryService extends Service
    * Callback for subscribers to this service.
    */
   public interface PwoResponseCallback extends PwoDiscoverer.PwoDiscoveryCallback,
-                                               PwsClient.ResolveScanCallback {
+                                               PwsClient.ResolveScanCallback,
+                                               PwsClient.DownloadIconCallback {
   }
 
   public PwoDiscoveryService() {
@@ -193,6 +195,9 @@ public class PwoDiscoveryService extends Service
     for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
       pwoResponseCallback.onUrlMetadataReceived(pwoMetadata);
     }
+    if (!pwoMetadata.urlMetadata.iconUrl.isEmpty()) {
+      PwsClient.getInstance(this).downloadIcon(pwoMetadata, this);
+    }
     updateNotifications();
   }
 
@@ -209,6 +214,13 @@ public class PwoDiscoveryService extends Service
       pwoResponseCallback.onUrlMetadataIconReceived(pwoMetadata);
     }
     updateNotifications();
+  }
+
+  @Override
+  public void onUrlMetadataIconError(PwoMetadata pwoMetadata) {
+    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
+      pwoResponseCallback.onUrlMetadataIconError(pwoMetadata);
+    }
   }
 
   @Override

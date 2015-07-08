@@ -276,6 +276,10 @@ public class NearbyBeaconsFragment extends ListFragment
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
+  @Override
+  public void onUrlMetadataIconError(PwoMetadata pwoMetadata) {
+  }
+
   private void stopScanningDisplay() {
     // Cancel the scan timeout callback if still active or else it may fire later.
     mHandler.removeCallbacks(mFirstScanTimeout);

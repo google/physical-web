@@ -83,7 +83,11 @@ class PwsClient {
   public interface ResolveScanCallback {
     public void onUrlMetadataReceived(PwoMetadata pwoMetadata);
     public void onUrlMetadataAbsent(PwoMetadata pwoMetadata);
+  }
+
+  public interface DownloadIconCallback {
     public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata);
+    public void onUrlMetadataIconError(PwoMetadata pwoMetadata);
   }
 
   public interface ShortenUrlCallback {
@@ -252,10 +256,6 @@ class PwsClient {
           urlToPwoMetadata.remove(urlMetadata.id);
           pwoMetadata.setUrlMetadata(urlMetadata,
                                      new Date().getTime() - creationTimestamp);
-
-          if (!urlMetadata.iconUrl.isEmpty()) {
-            downloadIcon(pwoMetadata, resolveScanCallback);
-          }
           resolveScanCallback.onUrlMetadataReceived(pwoMetadata);
         }
 
@@ -280,19 +280,26 @@ class PwsClient {
   /**
    * Asynchronously download the image for the url favicon.
    *
-   * @param urlMetadata The metadata for the given url
+   * @param pwoMetadata contains the relevant UrlMetadata
    */
-  private void downloadIcon(final PwoMetadata pwoMetadata,
-                            final ResolveScanCallback resolveScanCallback) {
+  public void downloadIcon(final PwoMetadata pwoMetadata,
+                            final DownloadIconCallback downloadIconCallback) {
     final UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-    ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl,
-                                                 new Response.Listener<Bitmap>() {
+    Response.Listener<Bitmap> responseListener = new Response.Listener<Bitmap>() {
       @Override
       public void onResponse(Bitmap response) {
         urlMetadata.icon = response;
-        resolveScanCallback.onUrlMetadataIconReceived(pwoMetadata);
+        downloadIconCallback.onUrlMetadataIconReceived(pwoMetadata);
       }
-    }, 0, 0, null, null);
+    };
+    Response.ErrorListener errorListener = new Response.ErrorListener() {
+      @Override
+      public void onErrorResponse(VolleyError error) {
+        downloadIconCallback.onUrlMetadataIconError(pwoMetadata);
+      }
+    };
+    ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, responseListener, 0, 0, null,
+                                                 errorListener);
     mRequestQueue.add(imageRequest);
   }
 
