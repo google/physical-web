@@ -19,6 +19,8 @@ package org.physical_web.physicalweb;
 import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
 import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
@@ -70,6 +72,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoMetadata> mPwoMetadataQueue;
   private List<PwoDiscoverer> mPwoDiscoverers;
+  private TextView mScanningAnimationTextView;
   private AnimationDrawable mScanningAnimationDrawable;
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
@@ -90,10 +93,8 @@ public class NearbyBeaconsFragment extends ListFragment
     public void run() {
       Log.d(TAG, "running first scan timeout");
       if (!mPwoMetadataQueue.isEmpty()) {
-        mScanningAnimationDrawable.stop();
-        mSwipeRefreshWidget.setRefreshing(false);
         emptyPwoMetadataQueue();
-        fadeInListView();
+        showListView();
       }
     }
   };
@@ -104,11 +105,7 @@ public class NearbyBeaconsFragment extends ListFragment
     public void run() {
       Log.d(TAG, "running second scan timeout");
       emptyPwoMetadataQueue();
-      if (mScanningAnimationDrawable.isRunning()) {
-        mScanningAnimationDrawable.stop();
-        mSwipeRefreshWidget.setRefreshing(false);
-        fadeInListView();
-      }
+      showListView();
       mSecondScanComplete = true;
     }
   };
@@ -144,10 +141,13 @@ public class NearbyBeaconsFragment extends ListFragment
       PwoDiscoveryService.LocalBinder localBinder = (PwoDiscoveryService.LocalBinder) service;
       mDiscoveryService = localBinder.getServiceInstance();
 
+      // Start the scanning display
+      startScanningDisplay(mRequestCachedPwos ? mDiscoveryService.getScanStartTime()
+                                              : new Date().getTime(),
+                           mDiscoveryService.hasResults());
+
       // Request the metadata
       mDiscoveryService.requestPwoMetadata(NearbyBeaconsFragment.this, mRequestCachedPwos);
-      startScanningDisplay(mRequestCachedPwos ? mDiscoveryService.getScanStartTime()
-                                              : new Date().getTime());
     }
 
     @Override
@@ -207,15 +207,12 @@ public class NearbyBeaconsFragment extends ListFragment
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
     setListAdapter(mNearbyDeviceAdapter);
-    initializeScanningAnimation(rootView);
+    //Get the top drawable
+    mScanningAnimationTextView = (TextView) rootView.findViewById(android.R.id.empty);
+    mScanningAnimationDrawable =
+        (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
-  }
-
-  private void initializeScanningAnimation(View rootView) {
-    TextView tv = (TextView) rootView.findViewById(android.R.id.empty);
-    //Get the top drawable
-    mScanningAnimationDrawable = (AnimationDrawable) tv.getCompoundDrawables()[1];
   }
 
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container,
@@ -230,6 +227,7 @@ public class NearbyBeaconsFragment extends ListFragment
     super.onResume();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
+    getListView().setVisibility(View.INVISIBLE);
     mDiscoveryServiceConnection.connect(true);
   }
 
@@ -261,7 +259,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
-    mNearbyDeviceAdapter.notifyDataSetChanged();
+    safeNotifyChange();
   }
 
   @Override
@@ -270,7 +268,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
-    mNearbyDeviceAdapter.notifyDataSetChanged();
+    safeNotifyChange();
   }
 
   @Override
@@ -288,20 +286,29 @@ public class NearbyBeaconsFragment extends ListFragment
     mScanningAnimationDrawable.stop();
   }
 
-  private void startScanningDisplay(long scanStartTime) {
-    // Schedule the timeouts
-    mSecondScanComplete = false;
+  private void startScanningDisplay(long scanStartTime, boolean hasResults) {
+    // Start the scanning animation only if we don't haven't already been scanning
+    // for long enough
     long elapsedMillis = new Date().getTime() - scanStartTime;
-    long firstDelay = Math.max(FIRST_SCAN_TIME_MILLIS - elapsedMillis, 0);
-    long secondDelay = Math.max(SECOND_SCAN_TIME_MILLIS - elapsedMillis, 0);
-    long thirdDelay = Math.max(THIRD_SCAN_TIME_MILLIS - elapsedMillis, 0);
+    if (elapsedMillis < FIRST_SCAN_TIME_MILLIS
+        || (elapsedMillis < SECOND_SCAN_TIME_MILLIS && !hasResults)) {
+      mScanningAnimationTextView.setAlpha(1f);
+      mScanningAnimationDrawable.start();
+      getListView().setVisibility(View.INVISIBLE);
+    } else {
+      showListView();
+    }
+
+    // Schedule the timeouts
+    // We delay at least 50 milliseconds to give the discovery service a chance to
+    // give us cached results.
+    mSecondScanComplete = false;
+    long firstDelay = Math.max(FIRST_SCAN_TIME_MILLIS - elapsedMillis, 50);
+    long secondDelay = Math.max(SECOND_SCAN_TIME_MILLIS - elapsedMillis, 50);
+    long thirdDelay = Math.max(THIRD_SCAN_TIME_MILLIS - elapsedMillis, 50);
     mHandler.postDelayed(mFirstScanTimeout, firstDelay);
     mHandler.postDelayed(mSecondScanTimeout, secondDelay);
     mHandler.postDelayed(mThirdScanTimeout, thirdDelay);
-
-    // Change the display appropriately
-    mScanningAnimationDrawable.start();
-    getListView().setVisibility(View.INVISIBLE);
   }
 
   @Override
@@ -336,14 +343,50 @@ public class NearbyBeaconsFragment extends ListFragment
       mNearbyDeviceAdapter.addItem(pwoMetadata);
     }
     mPwoMetadataQueue.clear();
-    mNearbyDeviceAdapter.notifyDataSetChanged();
+    safeNotifyChange();
   }
 
-  private void fadeInListView() {
-    ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(getListView(), "alpha", 0, 1);
+  private void showListView() {
+    if (getListView().getVisibility() == View.VISIBLE) {
+      return;
+    }
+
+    mSwipeRefreshWidget.setRefreshing(false);
+    getListView().setAlpha(0f);
+    getListView().setVisibility(View.VISIBLE);
+    safeNotifyChange();
+    ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(getListView(), "alpha", 0f, 1f);
     alphaAnimation.setDuration(400);
     alphaAnimation.setInterpolator(new DecelerateInterpolator());
+    alphaAnimation.addListener(new AnimatorListener() {
+      @Override
+      public void onAnimationStart(Animator animation) {
+      }
+      @Override
+      public void onAnimationEnd(Animator animation) {
+        mScanningAnimationTextView.setAlpha(0f);
+        mScanningAnimationDrawable.stop();
+      }
+      @Override
+      public void onAnimationRepeat(Animator animation) {
+      }
+      @Override
+      public void onAnimationCancel(Animator animation) {
+      }
+    });
     alphaAnimation.start();
+  }
+
+  /**
+   * Notify the view that the underlying data has been changed.
+   *
+   * We need to make sure the view is visible because if it's not,
+   * the view will become visible when we notify it.
+   */
+  private void safeNotifyChange() {
+    if (getListView().getVisibility() == View.VISIBLE) {
+      mNearbyDeviceAdapter.notifyDataSetChanged();
+    }
   }
 
   // Adapter for holding beacons found through scanning.

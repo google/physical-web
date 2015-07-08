@@ -159,13 +159,14 @@ public class PwoDiscoveryService extends Service
     String preferencesKey = getString(R.string.discovery_service_prefs_key);
     SharedPreferences prefs = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
     int prefsVersion = prefs.getInt(PREFS_VERSION_KEY, 0);
+    long now = new Date().getTime();
     if (prefsVersion != PREFS_VERSION) {
+      mScanStartTime = now;
       return;
     }
 
     // Don't load the cache if it's stale
     mScanStartTime = prefs.getLong(SCAN_START_TIME_KEY, 0);
-    long now = new Date().getTime();
     if (now - mScanStartTime >= SCAN_STALE_TIME_MILLIS) {
       mScanStartTime = now;
       return;
@@ -509,5 +510,9 @@ public class PwoDiscoveryService extends Service
 
   public long getScanStartTime() {
     return mScanStartTime;
+  }
+
+  public boolean hasResults() {
+   return !mUrlToPwoMetadata.isEmpty();
   }
 }

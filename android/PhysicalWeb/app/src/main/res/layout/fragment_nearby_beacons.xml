@@ -10,6 +10,7 @@
 
         <ListView
             android:id="@android:id/list"
+            android:alpha="0"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:divider="@null">
@@ -21,6 +22,7 @@
             android:text="@string/empty_nearby_beacons_list_text"
             android:textSize="16sp"
             android:textColor="#5A5A5A"
+            android:alpha="0"
             android:drawableTop="@drawable/scanning_animation"
             android:drawablePadding="16dp"
             android:layout_alignParentBottom="true"
