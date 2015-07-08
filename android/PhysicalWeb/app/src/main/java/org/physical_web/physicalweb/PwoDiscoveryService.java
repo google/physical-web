@@ -147,14 +147,13 @@ public class PwoDiscoveryService extends Service
   public void onCreate() {
     super.onCreate();
     initialize();
-  }
 
-  @Override
-  @SuppressWarnings("deprecation")
-  public int onStartCommand(Intent intent, int flags, int startId) {
-    startSearchingForPwos();
-    //make sure the service keeps running
-    return START_STICKY;
+    mScanStartTime = new Date().getTime();
+    mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
+    mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.startScan();
+    }
   }
 
   @Override
@@ -181,7 +180,12 @@ public class PwoDiscoveryService extends Service
   @Override
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
-    stopSearchingForPwos();
+    mHandler.removeCallbacks(mFirstScanTimeout);
+    mHandler.removeCallbacks(mSecondScanTimeout);
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.stopScan();
+    }
+
     super.onDestroy();
   }
 
@@ -229,27 +233,6 @@ public class PwoDiscoveryService extends Service
 
     for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
       pwoResponseCallback.onPwoDiscovered(storedPwoMetadata);
-    }
-  }
-
-  private void startSearchingForPwos() {
-    if (mScanStartTime != 0) {
-      return;
-    }
-
-    mScanStartTime = new Date().getTime();
-    mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
-    mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.startScan();
-    }
-  }
-
-  private void stopSearchingForPwos() {
-    mHandler.removeCallbacks(mFirstScanTimeout);
-    mHandler.removeCallbacks(mSecondScanTimeout);
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.stopScan();
     }
   }
 
