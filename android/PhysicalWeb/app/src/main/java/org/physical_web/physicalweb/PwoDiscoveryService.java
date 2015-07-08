@@ -225,18 +225,20 @@ public class PwoDiscoveryService extends Service
 
   @Override
   public void onPwoDiscovered(PwoMetadata pwoMetadata) {
+    PwoMetadata storedPwoMetadata = mUrlToPwoMetadata.get(pwoMetadata.url);
+    if (storedPwoMetadata == null) {
+      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
+      PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
+      storedPwoMetadata = pwoMetadata;
+    }
+
     for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
-      pwoResponseCallback.onPwoDiscovered(pwoMetadata);
+      pwoResponseCallback.onPwoDiscovered(storedPwoMetadata);
     }
 
     if (pwoMetadata.hasBleMetadata()) {
       BleMetadata bleMetadata = pwoMetadata.bleMetadata;
       mRegionResolver.onUpdate(bleMetadata.deviceAddress, bleMetadata.rssi, bleMetadata.txPower);
-    }
-
-    if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
-      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
-      PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
     }
   }
 
