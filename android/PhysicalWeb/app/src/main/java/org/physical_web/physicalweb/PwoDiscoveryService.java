@@ -21,7 +21,9 @@ import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -35,11 +37,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -63,6 +69,10 @@ public class PwoDiscoveryService extends Service
 
   private static final String TAG = "PwoDiscoveryService";
   private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
+  private static final String PREFS_VERSION_KEY = "prefs_version";
+  private static final String SCAN_START_TIME_KEY = "scan_start_time";
+  private static final String PWO_METADATA_KEY = "pwo_metadata";
+  private static final int PREFS_VERSION = 1;
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
@@ -73,6 +83,7 @@ public class PwoDiscoveryService extends Service
   private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
+  private static final long SCAN_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(2);
   private boolean mCanUpdateNotifications = false;
   private boolean mSecondScanComplete = false;
   private boolean mIsBound = false;
@@ -143,12 +154,47 @@ public class PwoDiscoveryService extends Service
     mCanUpdateNotifications = false;
   }
 
+  private void restoreCache() {
+    // Make sure we are trying to load the right version of the cache
+    String preferencesKey = getString(R.string.discovery_service_prefs_key);
+    SharedPreferences prefs = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
+    int prefsVersion = prefs.getInt(PREFS_VERSION_KEY, 0);
+    if (prefsVersion != PREFS_VERSION) {
+      return;
+    }
+
+    // Don't load the cache if it's stale
+    mScanStartTime = prefs.getLong(SCAN_START_TIME_KEY, 0);
+    long now = new Date().getTime();
+    if (now - mScanStartTime >= SCAN_STALE_TIME_MILLIS) {
+      mScanStartTime = now;
+      return;
+    }
+
+    // Restore the cached metadata
+    Set<String> serializedPwoMetadata = prefs.getStringSet(PWO_METADATA_KEY,
+                                                           new HashSet<String>());
+    for (String pwoMetadataStr : serializedPwoMetadata) {
+      PwoMetadata pwoMetadata;
+      try {
+        pwoMetadata = PwoMetadata.fromJsonStr(pwoMetadataStr);
+      } catch (JSONException e) {
+        Log.e(TAG, "Could not deserialize PWO cache item: " + e);
+        continue;
+      }
+      onPwoDiscovered(pwoMetadata);
+      if (pwoMetadata.hasBleMetadata()) {
+        pwoMetadata.bleMetadata.updateRegionInfo();
+      }
+    }
+  }
+
   @Override
   public void onCreate() {
     super.onCreate();
     initialize();
+    restoreCache();
 
-    mScanStartTime = new Date().getTime();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
@@ -177,15 +223,40 @@ public class PwoDiscoveryService extends Service
     mIsBound = true;
   }
 
+  private void saveCache() {
+    // Serialize the PwoMetadata
+    Set<String> serializedPwoMetadata = new HashSet<>();
+    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
+      try {
+        serializedPwoMetadata.add(pwoMetadata.toJsonStr());
+      } catch (JSONException e) {
+        Log.e(TAG, "Could not serialize PWO cache item: " + e);
+        continue;
+      }
+    }
+
+    // Write the PwoMetadata
+    String preferencesKey = getString(R.string.discovery_service_prefs_key);
+    SharedPreferences prefs = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = prefs.edit();
+    editor.putInt(PREFS_VERSION_KEY, PREFS_VERSION);
+    editor.putLong(SCAN_START_TIME_KEY, mScanStartTime);
+    editor.putStringSet(PWO_METADATA_KEY, serializedPwoMetadata);
+    editor.apply();
+  }
+
   @Override
   public void onDestroy() {
     Log.d(TAG, "onDestroy:  service exiting");
+
+    // Stop the scanners
     mHandler.removeCallbacks(mFirstScanTimeout);
     mHandler.removeCallbacks(mSecondScanTimeout);
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
       pwoDiscoverer.stopScan();
     }
 
+    saveCache();
     super.onDestroy();
   }
 
@@ -227,7 +298,17 @@ public class PwoDiscoveryService extends Service
     PwoMetadata storedPwoMetadata = mUrlToPwoMetadata.get(pwoMetadata.url);
     if (storedPwoMetadata == null) {
       mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
-      PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
+      // We need to make sure the urlMetadata is populated.  This could be a fresh pwoMetadata for
+      // which we have not fetched urlMetadata, or it could be a cached pwoMetadata for which the
+      // urlMetadata fetching process was prematurely terminated.
+      if (pwoMetadata.hasUrlMetadata()) {
+        UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
+        if (urlMetadata.icon == null && !urlMetadata.iconUrl.isEmpty()) {
+          PwsClient.getInstance(this).downloadIcon(pwoMetadata, this);
+        }
+      } else {
+        PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
+      }
       storedPwoMetadata = pwoMetadata;
     }
 
