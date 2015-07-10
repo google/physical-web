@@ -27,7 +27,7 @@ import android.content.SharedPreferences;
 public class AutostartPwoDiscoveryServiceReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     // Make sure the user has opted in
-    String preferencesKey = context.getString(R.string.physical_web_preference_file_name);
+    String preferencesKey = context.getString(R.string.main_prefs_key);
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
     if (!sharedPreferences.getBoolean(context.getString(R.string.user_opted_in_flag), false)) {

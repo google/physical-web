@@ -154,7 +154,8 @@ public class MainActivity extends Activity {
   }
 
   private boolean checkIfUserHasOptedIn() {
-    SharedPreferences sharedPreferences = getSharedPreferences("physical_web_preferences",
+    String preferencesKey = getString(R.string.main_prefs_key);
+    SharedPreferences sharedPreferences = getSharedPreferences(preferencesKey,
                                                                Context.MODE_PRIVATE);
     return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
