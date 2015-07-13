@@ -15,7 +15,7 @@
 @synthesize rssiLabel = _rssiLabel;
 
 - (id)initWithStyle:(UITableViewCellStyle)style
-    reuseIdentifier:(nullable NSString *)reuseIdentifier {
+    reuseIdentifier:(NSString *)reuseIdentifier {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
   _rssiLabel = [[UILabel alloc] initWithFrame:CGRectZero];
