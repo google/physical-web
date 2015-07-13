@@ -65,7 +65,6 @@
     return nil;
   }
   _beaconsDict = [NSMutableDictionary dictionary];
-  _scanner = [[UBUriBeaconScanner alloc] init];
   _changeBlocks = [NSMutableArray array];
   _configurationChangeBlocks = [NSMutableArray array];
   _requests = [NSMutableArray array];
@@ -119,7 +118,12 @@
   _startTime = [NSDate timeIntervalSinceReferenceDate];
   _started = YES;
   PWBeaconManager* __weak weakSelf = self;
-  _scanner = [[UBUriBeaconScanner alloc] init];
+#if TODAY_EXTENSION
+  _scanner = [[UBUriBeaconScanner alloc] initWithApplication:nil];
+#else
+  _scanner = [[UBUriBeaconScanner alloc]
+      initWithApplication:[UIApplication sharedApplication]];
+#endif
   [_scanner startScanningWithUpdateBlock:^{
     PWBeaconManager* strongSelf = weakSelf;
     [strongSelf _updateBeacons];
