@@ -46,7 +46,7 @@
         <section id="main-content">
 <h3><a class="anchor"><span class="octicon octicon-link"></span></a>What is this?</h3>
 <p>The Physical Web is an approach to unleash the core superpower of the web: interaction on demand. People should be able to walk up to any smart device - a vending machine, a poster, a toy, a bus stop, a rental car - and not have to download an app first. Everything should be just a tap away.</p>
-<p>The Physical Web is not shipping yet nor is it a Google product. This is an early-stage experimental project and we're developing it out in the open as we do all things related to the web. This should only be of interest to developers looking to test out this feature and provide us feedback.</p>
+<p>The Physical Web is not shipping yet nor is it a Google product. This is an experimental project and we're developing it out in the open as we do all things related to the web. </p>
 
 <h3><a class="anchor"><span class="octicon octicon-link"></span></a>Why is this important?</h3>
 <p>The number of smart devices is going to explode, and the assumption that each new device will require its own application just isn't realistic. We need a system that lets anyone interact with any device at any time. The Physical Web isn't about replacing native apps: it's about enabling interaction when native apps just aren't practical.</p>
@@ -55,17 +55,20 @@
 <p>The Physical Web must be an open standard that everyone can use. By creating a common web standard that any device can use to offer interaction, a new range of services becomes possible.</p>
 
 <h3><a class="anchor"><span class="octicon octicon-link"></span></a>How does this change things?</h3>
-<p>Once any smart device can have a web address, the entire overhead of an app seems a bit backward. The Physical Web approach unlocks tiny use cases that would never be practical:</p>
+<p>Once any smart device can have a web address, the overhead of a dedicated app is no longer required for simple interactions. The Physical Web approach unlocks use cases that would never be practical if a dedicated app were required:</p>
 <ul>
-<li>A cat collar would let you call to find the owner</li>
-<li>A bus tells you its next stop</li>
-<li>Parking meters can pay in the cloud using the phone's internet connection
+<li>A cat collar can let you call to find the owner</li>
+<li>A bus can tell you its next stop</li>
+<li>A parking meters can pay in the cloud
 <li>Any store, no matter how small, can offer an online experience when you walk in</li>
-<li>A ZipCar broadcasts a signup page, allowing you to immediately drive away</li>
+<li>A shared car service can broadcast a signup page, allowing you to immediately drive away</li>
 <li>Industrial equipment can offer diagnostics</li>
 </ul>
 <p>Each of these examples, taken by itself, is modestly useful. Taken as a whole, however, they imply a vast "long tail" where anything can offer information and utility.</p>
 <p>So many people ask what is the ‘killer app’ for the Physical Web. That’s a bit like asking what is the killer app for the web itself. When any place and object can offer a web page for help, information, configuration, or use, we’ll unlock millions of things, rather than a single killer product.</p>
+
+<h3><a class="anchor"><span class="octicon octicon-link"></span></a>How does it work?</h3>
+<p>A small utility on the phone scans for URLs that are nearby. We are  using the open <a href="https://github.com/google/eddystone">EddyStone-URL</a> Bluetooth beacon format to find nearby URLs without requiring any centralized registrar. We also support finding URLs through Wifi using mDNS and uPnP.</p>
 
 <p>To learn more, visit the <a href="http://www.github.com/google/physical-web">project on GitHub</a></p>
 </section>
