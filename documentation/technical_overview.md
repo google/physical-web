@@ -9,7 +9,7 @@ This has another advantage in that it means that a user can walk through a space
 The current prototype broadcasts once every second, striking a balance between user response time and battery life. There is nothing stopping a device from broadcasting faster if it wishes.
 
 ###BLE Format
-The URL is stored in the advertising packet of a BLE device. The packet identifies itself with a 16-bit Service UUID of 0xFED8 which indicates the beacon is a `URIBeacon`. The exact format of the packet is described in detail at our sister GitHub repo, [URIBeacon](https://github.com/google/uribeacon).
+The URL is stored in the advertising packet of a BLE device. The packet identifies itself with a 16-bit Service UUID of 0xFEAA which indicates the beacon is an [Eddystone beacon](https://github.com/google/eddystone). Additionally, the packet sets the frame type field to 0x10 to specify that it is of the [Eddystone-URL](https://github.com/google/eddystone/tree/master/eddystone-url) format, which is designed to carry URLs.
 
 This small size of the advertising packet does not leave a lot of room for the text of the URL. This is one of tradeoffs that comes from avoiding any connections to the beacon (to reduce tracking and avoid congestion). URLs are encoded so common patterns like 'http://www.' and '.com' can be compressed into a single character. This is very similar to NDEF compression in NFC. In addition, we expect initial testers will use either short domains or a URL shortener. Both the Android and iOS apps do this automatically when a URL is typed in that is too long to fit.
 
