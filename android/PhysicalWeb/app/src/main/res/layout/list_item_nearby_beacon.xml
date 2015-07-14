@@ -2,8 +2,8 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:paddingLeft="18dp"
-              android:paddingRight="18dp"
+              android:paddingStart="18dp"
+              android:paddingEnd="18dp"
               android:paddingTop="18dp"
               android:paddingBottom="18dp"
               android:layout_width="fill_parent"

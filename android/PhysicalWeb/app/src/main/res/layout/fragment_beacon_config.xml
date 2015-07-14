@@ -22,8 +22,8 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:orientation="vertical"
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -36,8 +36,8 @@
                 android:background="@drawable/found_beacon_card"
                 android:paddingTop="20dp"
                 android:paddingBottom="20dp"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
                 android:id="@+id/edit_card">
 
             <TextView
@@ -45,8 +45,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/config_address_label"
                     android:gravity="start"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:paddingBottom="10dp"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif-light"/>
@@ -56,8 +56,8 @@
                     android:layout_height="wrap_content"
                     android:text=""
                     android:gravity="start"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif-light"
                     android:id="@+id/edit_card_address"/>
@@ -67,8 +67,8 @@
                     android:layout_height="wrap_content"
                     android:text="@string/config_edit_url_label"
                     android:gravity="start"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:paddingTop="50dp"
                     android:textSize="16sp"
                     android:fontFamily="sans-serif-light"
