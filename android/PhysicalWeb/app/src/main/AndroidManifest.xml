@@ -47,20 +47,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- This is required for the scan library. -->
-        <service
-            android:name="org.uribeacon.scan.compat.ScanWakefulService"
-            android:exported="false">
-        </service>
-        <service
-            android:name="org.uribeacon.config.GattService"
-            android:exported="false">
-        </service>
-
-        <!-- This is required for the scan library. -->
-        <receiver android:name="org.uribeacon.scan.compat.ScanWakefulBroadcastReceiver">
-        </receiver>
-
         <activity
             android:name=".OobActivity"
             android:label="@string/title_activity_oob"
