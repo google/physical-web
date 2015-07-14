@@ -34,12 +34,7 @@ public class AutostartPwoDiscoveryServiceReceiver extends BroadcastReceiver {
       return;
     }
 
-    // Handle the intent
-    Intent discoveryIntent = new Intent(context, PwoDiscoveryService.class);
-    if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-      context.startService(discoveryIntent);
-    } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-      context.stopService(discoveryIntent);
-    }
+    Intent newIntent = new Intent(context, ScreenListenerService.class);
+    context.startService(newIntent);
   }
 }
