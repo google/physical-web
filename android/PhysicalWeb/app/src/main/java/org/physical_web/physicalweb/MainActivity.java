@@ -90,6 +90,8 @@ public class MainActivity extends Activity {
     if (checkIfUserHasOptedIn()) {
       ensureBluetoothIsEnabled();
       showNearbyBeaconsFragment();
+      Intent intent = new Intent(this, ScreenListenerService.class);
+      startService(intent);
     } else {
       // Show the oob activity
       Intent intent = new Intent(this, OobActivity.class);
