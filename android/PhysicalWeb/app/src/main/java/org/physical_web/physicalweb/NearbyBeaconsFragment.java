@@ -71,7 +71,6 @@ public class NearbyBeaconsFragment extends ListFragment
   private static final long THIRD_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
   private List<PwoMetadata> mPwoMetadataQueue;
-  private List<PwoDiscoverer> mPwoDiscoverers;
   private TextView mScanningAnimationTextView;
   private AnimationDrawable mScanningAnimationDrawable;
   private Handler mHandler;
@@ -189,20 +188,12 @@ public class NearbyBeaconsFragment extends ListFragment
     setHasOptionsMenu(true);
     mUrlToPwoMetadata = new HashMap<>();
     mPwoMetadataQueue = new ArrayList<>();
-    mPwoDiscoverers = new ArrayList<>();
     mHandler = new Handler();
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color,
                                                 R.color.swipe_refresh_widget_second_color);
     mSwipeRefreshWidget.setOnRefreshListener(this);
-
-    mPwoDiscoverers.add(new MdnsPwoDiscoverer(getActivity()));
-    mPwoDiscoverers.add(new SsdpPwoDiscoverer(getActivity()));
-    mPwoDiscoverers.add(new BlePwoDiscoverer(getActivity()));
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.setCallback(this);
-    }
 
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     mNearbyDeviceAdapter = new NearbyBeaconsAdapter();
