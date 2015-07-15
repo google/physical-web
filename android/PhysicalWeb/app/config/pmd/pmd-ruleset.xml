@@ -8,6 +8,8 @@
 
     <exclude-pattern>.*/R.java</exclude-pattern>
     <exclude-pattern>.*/gen/.*</exclude-pattern>
+    <exclude-pattern>.*/ble/UriBeacon.java</exclude-pattern>
+    <exclude-pattern>.*/ble/Utils.java</exclude-pattern>
 
     <rule ref="rulesets/java/android.xml">
         <!-- Config.LOGD deprecated in API level 4 !-->

@@ -7,4 +7,6 @@
 <suppressions>
     <suppress files=".*" checks="PackageName"/>
     <suppress files=".*" checks="JavadocPackage"/>
+    <suppress files="BluetoothUuid\.java" checks="[a-zA-Z0-9]*"/>
+    <suppress files="UriBeacon\.java" checks="[a-zA-Z0-9]*"/>
 </suppressions>
