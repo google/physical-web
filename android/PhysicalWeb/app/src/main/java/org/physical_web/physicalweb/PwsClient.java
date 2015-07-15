@@ -34,8 +34,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -301,15 +299,6 @@ class PwsClient {
     ImageRequest imageRequest = new ImageRequest(urlMetadata.iconUrl, responseListener, 0, 0, null,
                                                  errorListener);
     mRequestQueue.add(imageRequest);
-  }
-
-  public String createUrlProxyGoLink(String url) {
-    try {
-      url = mContext.getString(R.string.proxy_go_link_base_url) + URLEncoder.encode(url, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      Log.e(TAG, "createUrlProxyGoLink error: " + e);
-    }
-    return url;
   }
 
   public void cancelAllRequests(final String tag) {

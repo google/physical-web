@@ -239,7 +239,6 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     if (!URLUtil.isNetworkUrl(urlToNavigateTo)) {
       urlToNavigateTo = "http://" + urlToNavigateTo;
     }
-    urlToNavigateTo = PwsClient.getInstance(context).createUrlProxyGoLink(urlToNavigateTo);
     return urlToNavigateTo;
   }
 
