@@ -300,10 +300,8 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       scanLeDevice(false);
       mUriBeaconConfig = new UriBeaconConfig(getActivity(), new UriBeaconConfigCallback(),
                                              filteredUuid);
-      if (mUriBeaconConfig != null) {
-        mNearestDevice = scanResult.getDevice();
-        mUriBeaconConfig.connectUriBeacon(mNearestDevice);
-      }
+      mNearestDevice = scanResult.getDevice();
+      mUriBeaconConfig.connectUriBeacon(mNearestDevice);
     } else {
       mNearestDevice = null;
     }
