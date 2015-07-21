@@ -142,6 +142,7 @@ public class PwoDiscoveryService extends Service
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mPwoDiscoverers = new ArrayList<>();
+    mPwoDiscoverers.add(new SsidPwoDiscoverer(this));
     mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
     mPwoDiscoverers.add(new SsdpPwoDiscoverer(this));
     mPwoDiscoverers.add(new BlePwoDiscoverer(this));

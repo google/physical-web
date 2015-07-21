@@ -66,6 +66,8 @@ dependencies {
     compile 'org.uribeacon:uribeacon-library-release@aar'
 
     compile 'com.android.support:appcompat-v7:22.1.1'
+
+    testCompile 'junit:junit:4.12'
 }
 
 task checkstyle(type: Checkstyle) {
