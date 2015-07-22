@@ -1,17 +1,18 @@
 package org.physical_web.physicalweb;
 
-import android.content.Context;
-import android.net.wifi.ScanResult;
-
 import org.physical_web.physicalweb.wifi.ContinuousReceiver;
 import org.physical_web.physicalweb.wifi.UrlUtil;
+
+import android.content.Context;
+import android.net.wifi.ScanResult;
 
 import java.util.List;
 
 /**
  * @author Jonas Sevcik
  */
-public class SsidPwoDiscoverer extends PwoDiscoverer implements ContinuousReceiver.ScanResultsListener {
+public class SsidPwoDiscoverer extends PwoDiscoverer
+    implements ContinuousReceiver.ScanResultsListener {
 
   private static final String TAG = SsidPwoDiscoverer.class.getSimpleName();
 

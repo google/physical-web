@@ -10,7 +10,9 @@ import java.util.regex.Pattern;
  */
 public final class UrlUtil {
 
-  private static final String URL_REGEX = "(http|https)://([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?(([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})|([0-9]+\\.){3}[0-9]{1})(:[0-9]+)?(/\\S*)?";
+  private static final String
+      URL_REGEX =
+      "(http|https)://([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?(([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})|([0-9]+\\.){3}[0-9]{1})(:[0-9]+)?(/\\S*)?";
   private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX);
 
   private UrlUtil() {
@@ -27,7 +29,8 @@ public final class UrlUtil {
    * @param ssid containing URL
    * @return first found url; if {@code ssid} doesn't contain URL, returns null
    */
-  public static @Nullable String extractUrl(String ssid) {
+  @Nullable
+  public static String extractUrl(String ssid) {
     Matcher matcher = URL_PATTERN.matcher(ssid);
     if (matcher.find()) {
       return matcher.group();

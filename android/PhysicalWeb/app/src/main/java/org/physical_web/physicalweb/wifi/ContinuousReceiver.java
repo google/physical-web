@@ -17,13 +17,15 @@ import java.util.List;
  */
 public class ContinuousReceiver extends BroadcastReceiver {
 
+  public static final int INTERVAL_IMMEDIATE = 0;
   private static final String TAG = ContinuousReceiver.class.getSimpleName();
 
-  public static final int INTERVAL_IMMEDIATE = 0;
   private Handler mScanHandler = new Handler();
-  @NonNull private Context mContext;
+  @NonNull
+  private Context mContext;
   private WifiManager mManager;
-  @NonNull private ScanResultsListener mListener;
+  @NonNull
+  private ScanResultsListener mListener;
   private boolean mContinueScanning = false;
 
   private long mLastScanTime = 0;
@@ -58,7 +60,8 @@ public class ContinuousReceiver extends BroadcastReceiver {
    * @throws NullPointerException     if {@code context} or {@code listener} is null
    * @throws IllegalArgumentException if {@code scanInterval} is negative
    */
-  public ContinuousReceiver(@NonNull Context context, @NonNull ScanResultsListener listener, int scanInterval) {
+  public ContinuousReceiver(@NonNull Context context, @NonNull ScanResultsListener listener,
+                            int scanInterval) {
     if (context == null) {
       throw new NullPointerException("mContext cannot be null");
     }
@@ -77,7 +80,8 @@ public class ContinuousReceiver extends BroadcastReceiver {
   @Override
   public final void onReceive(Context context, Intent intent) {
     if (!WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
-      throw new IllegalStateException("ContinuousReceiver registered for wrong action: " + intent.getAction());
+      throw new IllegalStateException(
+          "ContinuousReceiver registered for wrong action: " + intent.getAction());
     }
 
     if (mContinueScanning) {
@@ -121,7 +125,7 @@ public class ContinuousReceiver extends BroadcastReceiver {
 
   /**
    * Initiate WiFi scan. Don't forget to unregister from receiving scan updates by calling {@link
-   * #stopScanning()}
+   * #stopScanning()}.
    *
    * @param publishCachedResultsInstantly publish ScanResults from the most recent scan immediately
    */
@@ -151,9 +155,10 @@ public class ContinuousReceiver extends BroadcastReceiver {
   }
 
   /**
-   * Interface used for delivering ScanResults
+   * Interface used for delivering ScanResults.
    */
   public interface ScanResultsListener {
+
     void onScanResultsReceived(List<ScanResult> results);
   }
 }
