@@ -48,15 +48,15 @@ public class UrlUtilTest {
     assertNull(UrlUtil.extractUrl("SSID with malformed URL http://almosturl"));
     assertNull(UrlUtil.extractUrl("SSID with malformed URL http://almostur.l"));
 
-    assertEquals("http://myurl.com", UrlUtil.extractUrl("http://myurl.com"));
-    assertEquals("http://myurl.com", UrlUtil.extractUrl(" http://myurl.com "));
-    assertEquals("http://myurl.com", UrlUtil.extractUrl("    http://myurl.com    "));
-    assertEquals("http://myurl.com", UrlUtil.extractUrl("Some text http://myurl.com"));
-    assertEquals("http://myurl.com", UrlUtil.extractUrl("http://myurl.com some text"));
-    assertEquals("http://myurl.com",
+    String expected = "http://myurl.com";
+    assertEquals(expected, UrlUtil.extractUrl("http://myurl.com"));
+    assertEquals(expected, UrlUtil.extractUrl(" http://myurl.com "));
+    assertEquals(expected, UrlUtil.extractUrl("    http://myurl.com    "));
+    assertEquals(expected, UrlUtil.extractUrl("Some text http://myurl.com"));
+    assertEquals(expected, UrlUtil.extractUrl("http://myurl.com some text"));
+    assertEquals(expected,
                  UrlUtil.extractUrl("Some text http://myurl.com some other text"));
-    assertEquals("http://myurl.com",
-                 UrlUtil.extractUrl("http://myurl.com https://mysecondurl.com"));
+    assertEquals(expected, UrlUtil.extractUrl("http://myurl.com https://mysecondurl.com"));
     assertEquals("http://user:password@myurl.com:8080/path/",
                  UrlUtil.extractUrl("prefix http://user:password@myurl.com:8080/path/ suffix"));
     assertEquals("http://user:password@myurl.com:8080/",
@@ -69,13 +69,12 @@ public class UrlUtilTest {
         .extractUrl(
             "full URL http://user:password@myurl.com:8080/path?query_string#fragment_id suffix"));
 
-    assertEquals("https://myurl.com", UrlUtil.extractUrl("https://myurl.com"));
-    assertEquals("https://myurl.com", UrlUtil.extractUrl(" https://myurl.com "));
-    assertEquals("https://myurl.com", UrlUtil.extractUrl("Some text https://myurl.com"));
-    assertEquals("https://myurl.com", UrlUtil.extractUrl("https://myurl.com some text"));
-    assertEquals("https://myurl.com",
-                 UrlUtil.extractUrl("Some text https://myurl.com some other text"));
-    assertEquals("https://myurl.com",
-                 UrlUtil.extractUrl("https://myurl.com http://mysecondurl.com"));
+    expected = "https://myurl.com";
+    assertEquals(expected, UrlUtil.extractUrl("https://myurl.com"));
+    assertEquals(expected, UrlUtil.extractUrl(" https://myurl.com "));
+    assertEquals(expected, UrlUtil.extractUrl("Some text https://myurl.com"));
+    assertEquals(expected, UrlUtil.extractUrl("https://myurl.com some text"));
+    assertEquals(expected, UrlUtil.extractUrl("Some text https://myurl.com some other text"));
+    assertEquals(expected, UrlUtil.extractUrl("https://myurl.com http://mysecondurl.com"));
   }
 }
