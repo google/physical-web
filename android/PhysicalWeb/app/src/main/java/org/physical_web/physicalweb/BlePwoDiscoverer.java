@@ -16,6 +16,9 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.physicalweb.ble.ScanRecord;
+import org.physical_web.physicalweb.ble.UriBeacon;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -24,13 +27,14 @@ import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.webkit.URLUtil;
 
-import org.uribeacon.beacon.UriBeacon;
-import org.uribeacon.scan.compat.ScanRecord;
-
 import java.util.List;
 
 class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanCallback {
   private static final String TAG = "BlePwoDiscoverer";
+  private static final ParcelUuid URIBEACON_SERVICE_UUID =
+      ParcelUuid.fromString("0000FED8-0000-1000-8000-00805F9B34FB");
+  private static final ParcelUuid EDDYSTONE_URL_SERVICE_UUID =
+      ParcelUuid.fromString("0000FEAA-0000-1000-8000-00805F9B34FB");
   private BluetoothAdapter mBluetoothAdapter;
   private Parcelable[] mScanFilterUuids;
   private boolean isRunning;
@@ -39,7 +43,7 @@ class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanC
     final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(
         Context.BLUETOOTH_SERVICE);
     mBluetoothAdapter = bluetoothManager.getAdapter();
-    mScanFilterUuids = new ParcelUuid[]{UriBeacon.URI_SERVICE_UUID, UriBeacon.TEST_SERVICE_UUID};
+    mScanFilterUuids = new ParcelUuid[]{URIBEACON_SERVICE_UUID, EDDYSTONE_URL_SERVICE_UUID};
   }
 
   private boolean leScanMatches(ScanRecord scanRecord) {
