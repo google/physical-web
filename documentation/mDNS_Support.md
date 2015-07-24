@@ -3,7 +3,7 @@
 The Physical Web is about getting URLs into the physical world. However, this isn't limited to just Bluetooth Low Energy (BLE) beacons. [mDNS](http://en.wikipedia.org/wiki/Multicast_DNS) is a service broadcast technique used in Wi-Fi networks. It has two advantages over BLE: 
 
 1. Only people logged into your Wi-Fi can see the mDNS URLs. This means that in an appartment, your neighbors can't see your devices.
-2. It doesn't have the length restrictions of BLE has so a URL can be along as you'd like (well, at least up to 100 characters).
+2. It doesn't have the length restrictions of BLE, so a URL can be as long as you'd like (well, at least up to 100 characters).
 
 Below is an example of how to setup a Raspberry Pi to broadcast a Physical Web URL using mDNS. We hope others are willing to contribute and offer more versions. If so, we'll create an mDNS directory for all the alternatives.
 
