@@ -244,7 +244,7 @@ public class NearbyBeaconsFragment extends ListFragment
     }
     // Get the url for the given item
     PwoMetadata pwoMetadata = mNearbyDeviceAdapter.getItem(position);
-    Intent intent = pwoMetadata.createNavigateToUrlIntent(getActivity());
+    Intent intent = pwoMetadata.createNavigateToUrlIntent();
     startActivity(intent);
   }
 

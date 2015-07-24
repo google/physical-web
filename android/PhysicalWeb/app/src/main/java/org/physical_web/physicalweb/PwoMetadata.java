@@ -228,7 +228,7 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     return urlMetadata != null;
   }
 
-  public String getNavigableUrl(Context context) {
+  public String getNavigableUrl() {
     String urlToNavigateTo = url;
     if (hasUrlMetadata()) {
       String siteUrl = urlMetadata.siteUrl;
@@ -242,18 +242,17 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     return urlToNavigateTo;
   }
 
-  public Intent createNavigateToUrlIntent(Context context) {
-    String urlToNavigateTo = getNavigableUrl(context);
+  public Intent createNavigateToUrlIntent() {
+    String urlToNavigateTo = getNavigableUrl();
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setData(Uri.parse(urlToNavigateTo));
     return intent;
   }
 
   public PendingIntent createNavigateToUrlPendingIntent(Context context) {
-    Intent intent = createNavigateToUrlIntent(context);
+    Intent intent = createNavigateToUrlIntent();
     int requestID = (int) System.currentTimeMillis();
-    PendingIntent pendingIntent = PendingIntent.getActivity(context, requestID, intent, 0);
-    return pendingIntent;
+    return PendingIntent.getActivity(context, requestID, intent, 0);
   }
 
   public int compareTo(PwoMetadata other) {
