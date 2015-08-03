@@ -196,6 +196,7 @@ public class PwoDiscoveryService extends Service
     initialize();
     restoreCache();
 
+    mNotificationManager.cancelAll();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
