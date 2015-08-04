@@ -35,6 +35,11 @@ abstract class PwoDiscoverer {
     stopScanImpl();
   }
 
+  public void restartScan() {
+    stopScan();
+    startScan();
+  }
+
   public void setCallback(PwoDiscoveryCallback pwoDiscoveryCallback) {
     mPwoDiscoveryCallback = pwoDiscoveryCallback;
   }
