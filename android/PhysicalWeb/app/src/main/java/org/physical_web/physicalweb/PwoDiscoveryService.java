@@ -497,12 +497,19 @@ public class PwoDiscoveryService extends Service
 
   public void requestPwoMetadata(PwoResponseCallback pwoResponseCallback,
                                  boolean requestCachedPwos) {
+    mPwoResponseCallbacks.add(pwoResponseCallback);
     if (requestCachedPwos) {
       for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
         pwoResponseCallback.onPwoDiscovered(pwoMetadata);
       }
+    } else {
+      // If the client isn't requesting cached PWOs, let's restart the scanners so that those
+      // scanners that only discover a PWO once (and not repeatedly) will have an opportunity
+      // to report all results.
+      for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+        pwoDiscoverer.restartScan();
+      }
     }
-    mPwoResponseCallbacks.add(pwoResponseCallback);
   }
 
   public void removeCallbacks(PwoResponseCallback pwoResponseCallback) {

@@ -53,6 +53,10 @@ class MdnsPwoDiscoverer extends PwoDiscoverer {
     public void onDiscoveryStopped(String serviceType) {
       Log.i(TAG, "Discovery stopped: " + serviceType);
       mState = State.STOPPED;
+      if (toRestart) {
+        toRestart = false;
+        startScan();
+      }
     }
 
     @Override
@@ -75,10 +79,12 @@ class MdnsPwoDiscoverer extends PwoDiscoverer {
     STARTED,
   }
   private State mState;
+  private boolean toRestart;
 
   public MdnsPwoDiscoverer(Context context) {
     mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
     mState = State.STOPPED;
+    toRestart = false;
   }
 
   @Override
@@ -86,8 +92,8 @@ class MdnsPwoDiscoverer extends PwoDiscoverer {
     if (mState != State.STOPPED) {
       return;
     }
-    mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
     mState = State.WAITING;
+    mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
   }
 
   @Override
@@ -95,7 +101,13 @@ class MdnsPwoDiscoverer extends PwoDiscoverer {
     if (mState != State.STARTED) {
       return;
     }
-    mNsdManager.stopServiceDiscovery(mDiscoveryListener);
     mState = State.WAITING;
+    mNsdManager.stopServiceDiscovery(mDiscoveryListener);
+  }
+
+  @Override
+  public synchronized void restartScan() {
+    toRestart = true;
+    stopScan();
   }
 }
