@@ -85,7 +85,7 @@ public class MainActivity extends Activity {
   protected void onResume() {
     super.onResume();
 	BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	if(bluetoothAdapter == null){
+	if(bluetoothAdapter == null) {
       Toast.makeText(getApplicationContext(),
 	    R.string.error_bluetooth_support, Toast.LENGTH_LONG).show();
       finish();
