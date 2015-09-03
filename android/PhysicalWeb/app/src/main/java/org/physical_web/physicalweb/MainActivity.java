@@ -19,13 +19,13 @@ package org.physical_web.physicalweb;
 import android.app.Activity;
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * The main entry point for the app.
@@ -45,11 +45,8 @@ public class MainActivity extends Activity {
    * Ensures Bluetooth is available on the beacon and it is enabled. If not,
    * displays a dialog requesting user permission to enable Bluetooth.
    */
-  private void ensureBluetoothIsEnabled() {
-    BluetoothManager bluetoothManager =
-        (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-    BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-    if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+  private void ensureBluetoothIsEnabled(BluetoothAdapter bluetoothAdapter) {
+    if (!bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
       startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
     }
@@ -87,8 +84,15 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    if (bluetoothAdapter == null) {
+      Toast.makeText(getApplicationContext(),
+              R.string.error_bluetooth_support, Toast.LENGTH_LONG).show();
+      finish();
+      return;
+    }
     if (checkIfUserHasOptedIn()) {
-      ensureBluetoothIsEnabled();
+      ensureBluetoothIsEnabled(bluetoothAdapter);
       showNearbyBeaconsFragment();
       Intent intent = new Intent(this, ScreenListenerService.class);
       startService(intent);
