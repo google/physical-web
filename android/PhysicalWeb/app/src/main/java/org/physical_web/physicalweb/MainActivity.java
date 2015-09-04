@@ -19,6 +19,7 @@ package org.physical_web.physicalweb;
 import android.app.Activity;
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -84,15 +85,16 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    if (bluetoothAdapter == null) {
+    BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+    BluetoothAdapter btAdapter = btManager != null ? btManager.getAdapter() : null;
+    if (btAdapter == null) {
       Toast.makeText(getApplicationContext(),
               R.string.error_bluetooth_support, Toast.LENGTH_LONG).show();
       finish();
       return;
     }
     if (checkIfUserHasOptedIn()) {
-      ensureBluetoothIsEnabled(bluetoothAdapter);
+      ensureBluetoothIsEnabled(btAdapter);
       showNearbyBeaconsFragment();
       Intent intent = new Intent(this, ScreenListenerService.class);
       startService(intent);
