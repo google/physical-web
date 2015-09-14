@@ -47,6 +47,7 @@
     <string name="metadata_debug_rank_prefix">rank: </string>
     <string name="metadata_debug_scan_time_prefix">scan: </string>
     <string name="metadata_debug_pws_trip_time_prefix">pws: </string>
+    <string name="metadata_debug_group_prefix">group: </string>
     <string name="summary_notification_pull_down">Pull down to see them.</string>
     <string name="url_shortening_error">URL is too long. Please use a shortener.</string>
     <string name="error_bluetooth_support">Device does not support Bluetooth</string>
