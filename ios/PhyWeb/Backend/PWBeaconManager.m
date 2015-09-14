@@ -241,6 +241,13 @@
       // Request metadata of a new beacon.
       UBUriBeacon* uriBeacon =
           [[UBUriBeacon alloc] initWithURI:url txPowerLevel:0];
+      NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
+      NSTimeInterval discoveryDelay = currentTime - _startTime;
+      NSMutableDictionary* pendingBeaconInfo =
+          [[NSMutableDictionary alloc] init];
+      pendingBeaconInfo[DISCOVERY_DELAY_KEY] =
+          [NSNumber numberWithDouble:discoveryDelay];
+      [_pendingBeaconsInfos addObject:pendingBeaconInfo];
       PWMetadataRequest* request = [[PWMetadataRequest alloc] init];
       [request setUriBeacons:@[ uriBeacon ]];
       [request setDelegate:self];
