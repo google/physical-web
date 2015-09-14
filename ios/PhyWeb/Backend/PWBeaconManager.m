@@ -244,7 +244,7 @@
       NSTimeInterval currentTime = [NSDate timeIntervalSinceReferenceDate];
       NSTimeInterval discoveryDelay = currentTime - _startTime;
       NSMutableDictionary* pendingBeaconInfo =
-      [[NSMutableDictionary alloc] init];
+          [[NSMutableDictionary alloc] init];
       pendingBeaconInfo[DISCOVERY_DELAY_KEY] =
           [NSNumber numberWithDouble:discoveryDelay];
       [_pendingBeaconsInfos addObject:pendingBeaconInfo];
