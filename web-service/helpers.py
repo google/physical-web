@@ -90,7 +90,10 @@ def BuildResponse(objects):
         if siteInfo.jsonlds is not None:
             device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         device_data['distance'] = distance
+        device_data['groupid'] = ComputeGroupId(url, siteInfo.title, siteInfo.description)
+
         metadata_output.append(device_data)
+
 
     metadata_output = map(ReplaceDistanceWithRank, RankedResponse(metadata_output))
 
@@ -130,6 +133,15 @@ def ReplaceDistanceWithRank(device_data):
     device_data['rank'] = distance
     device_data.pop('distance', None)
     return device_data
+
+################################################################################
+
+def ComputeGroupId(url, title, description):
+    import hashlib
+    domain = urlparse(url).netloc
+    seed = domain + title
+    groupid = hashlib.sha1(seed).hexdigest()[:16]
+    return groupid
 
 ################################################################################
 
