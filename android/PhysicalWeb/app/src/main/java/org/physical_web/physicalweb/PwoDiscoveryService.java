@@ -142,7 +142,11 @@ public class PwoDiscoveryService extends Service
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
     mPwoDiscoverers = new ArrayList<>();
-    mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
+
+    // disable mDNS PWO discovery for pre-M devices
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+      mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
+    }
     mPwoDiscoverers.add(new SsdpPwoDiscoverer(this));
     mPwoDiscoverers.add(new BlePwoDiscoverer(this));
     for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
