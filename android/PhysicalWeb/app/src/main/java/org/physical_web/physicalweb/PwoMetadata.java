@@ -139,7 +139,7 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     private static final String ICON_URL_KEY = "iconUrl";
     private static final String ICON_KEY = "icon";
     private static final String RANK_KEY = "rank";
-    private static final String GROUP_KEY = "group";
+    private static final String GROUP_KEY = "groupid";
     public String id;
     public String siteUrl;
     public String displayUrl;
