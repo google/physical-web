@@ -504,7 +504,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
       TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
       TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
-      TextView groupView = (TextView) view.findViewById(R.id.metadata_debug_group);
+      TextView groupidView = (TextView) view.findViewById(R.id.metadata_debug_groupid);
       if (pwoMetadata.hasUrlMetadata()) {
         UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
         double rank = urlMetadata.rank;
@@ -517,12 +517,13 @@ public class NearbyBeaconsFragment extends ListFragment
             + new DecimalFormat("##.##s").format(pwsTripTime);
         pwsTripTimeView.setText(pwsTripTimeString);
 
-        String groupString = getString(R.string.metadata_debug_group_prefix) + urlMetadata.group;
-        groupView.setText(groupString);
+        String groupidString = getString(R.string.metadata_debug_groupid_prefix)
+                + urlMetadata.groupid;
+        groupidView.setText(groupidString);
       } else {
         rankView.setText("");
         pwsTripTimeView.setText("");
-        groupView.setText("");
+        groupidView.setText("");
       }
     }
 

@@ -139,7 +139,7 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     private static final String ICON_URL_KEY = "iconUrl";
     private static final String ICON_KEY = "icon";
     private static final String RANK_KEY = "rank";
-    private static final String GROUP_KEY = "groupid";
+    private static final String GROUPID_KEY = "groupid";
     public String id;
     public String siteUrl;
     public String displayUrl;
@@ -148,7 +148,7 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     public String iconUrl;
     public Bitmap icon;
     public double rank;
-    public String group;
+    public String groupid;
 
     public UrlMetadata() {
     }
@@ -178,7 +178,7 @@ class PwoMetadata implements Comparable<PwoMetadata> {
         jsonObj.put(ICON_KEY, Base64.encodeToString(bitmapData, Base64.DEFAULT));
       }
       jsonObj.put(RANK_KEY, rank);
-      jsonObj.put(GROUP_KEY, group);
+      jsonObj.put(GROUPID_KEY, groupid);
       return jsonObj;
     }
 
@@ -199,7 +199,7 @@ class PwoMetadata implements Comparable<PwoMetadata> {
         urlMetadata.icon = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
       }
       urlMetadata.rank = jsonObj.getDouble(RANK_KEY);
-      urlMetadata.group = jsonObj.getString(GROUP_KEY);
+      urlMetadata.groupid = jsonObj.getString(GROUPID_KEY);
       return urlMetadata;
     }
 
