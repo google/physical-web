@@ -382,24 +382,24 @@ public class NearbyBeaconsFragment extends ListFragment
 
   // Adapter for holding beacons found through scanning.
   private class NearbyBeaconsAdapter extends BaseAdapter {
-    private List<PwoMetadata> mPwoMetadataList;
+    private BeaconDisplayList mBeaconDisplayList;
 
     NearbyBeaconsAdapter() {
-      mPwoMetadataList = new ArrayList<>();
+      mBeaconDisplayList = new BeaconDisplayList();
     }
 
     public void addItem(PwoMetadata pwoMetadata) {
-      mPwoMetadataList.add(pwoMetadata);
+      mBeaconDisplayList.addItem(pwoMetadata);
     }
 
     @Override
     public int getCount() {
-      return mPwoMetadataList.size();
+      return mBeaconDisplayList.size();
     }
 
     @Override
     public PwoMetadata getItem(int i) {
-      return mPwoMetadataList.get(i);
+      return mBeaconDisplayList.getItem(i);
     }
 
     @Override
@@ -528,7 +528,7 @@ public class NearbyBeaconsFragment extends ListFragment
     }
 
     public void clear() {
-      mPwoMetadataList.clear();
+      mBeaconDisplayList.clear();
       notifyDataSetChanged();
     }
   }
