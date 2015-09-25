@@ -50,6 +50,7 @@
     <string name="metadata_debug_groupid_prefix">group: </string>
     <string name="summary_notification_pull_down">Pull down to see them.</string>
     <string name="url_shortening_error">URL is too long. Please use a shortener.</string>
+    <string name="url_charset_error">Non-ASCII characters unsupported in URL. Please use a shortener.</string>
     <string name="error_bluetooth_support">Device does not support Bluetooth</string>
 
 </resources>

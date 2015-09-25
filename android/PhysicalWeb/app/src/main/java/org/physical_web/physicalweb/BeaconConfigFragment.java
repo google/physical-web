@@ -53,6 +53,7 @@ import org.uribeacon.scan.compat.ScanRecord;
 import org.uribeacon.scan.compat.ScanResult;
 import org.uribeacon.scan.util.RegionResolver;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -209,6 +210,35 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
    */
   private static boolean isShortUrl(String url) {
     return url.startsWith("http://goo.gl/") || url.startsWith("https://goo.gl/");
+  }
+
+  /**
+   * Check if the given URL would fit in the UriBeacon uri field.
+   * @param url URL to check
+   * @return True if the URL length is within bounds
+   */
+  private static boolean hasValidUrlLength(String url) {
+    int uriLength = ConfigUriBeacon.uriLength(url);
+    return 0 <= uriLength && uriLength <= ConfigUriBeacon.MAX_URI_LENGTH;
+  }
+
+  /**
+   * Check if the given URL only uses characters from the set defined in RFC 3986 section 2
+   * https://tools.ietf.org/html/rfc3986#section-2
+   * @param url URL to check
+   * @return True if the URL is RFC 3986 compliant
+   */
+  private static boolean isAsciiUrl(String url) {
+    boolean isCompliant = false;
+    try {
+      URI uri = new URI(url);
+      String urlString = uri.toASCIIString();
+      isCompliant = url.equals(urlString);
+    }
+    catch (URISyntaxException e) {
+      // bad url
+    }
+    return isCompliant;
   }
 
   public void onBeaconConfigReadUrlComplete(ConfigUriBeacon uriBeacon, int status) {
@@ -384,11 +414,16 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       }
       @Override
       public void onError(String oldUrl) {
-        Toast.makeText(getActivity(), R.string.url_shortening_error, Toast.LENGTH_SHORT).show();
+        // Avoid showing a "URL too long" error if we shortened due to non-ASCII chars in url
+        int errorMessageStringId = R.string.url_shortening_error;
+        if (hasValidUrlLength(oldUrl) && !isAsciiUrl(oldUrl)) {
+          errorMessageStringId = R.string.url_charset_error;
+        }
+        Toast.makeText(getActivity(), errorMessageStringId, Toast.LENGTH_SHORT).show();
       }
     };
     // Shorten the url if necessary
-    if (ConfigUriBeacon.uriLength(url) > ConfigUriBeacon.MAX_URI_LENGTH) {
+    if (!hasValidUrlLength(url) || !isAsciiUrl(url)) {
       PwsClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
     } else {
       setUriBeaconUrl(url);
