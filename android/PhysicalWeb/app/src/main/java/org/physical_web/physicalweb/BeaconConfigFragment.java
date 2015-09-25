@@ -422,11 +422,13 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
         Toast.makeText(getActivity(), errorMessageStringId, Toast.LENGTH_SHORT).show();
       }
     };
-    // Shorten the url if necessary
-    if (!hasValidUrlLength(url) || !isAsciiUrl(url)) {
-      PwsClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
-    } else {
+
+    if (hasValidUrlLength(url) && isAsciiUrl(url)) {
+      // Set the url if we can
       setUriBeaconUrl(url);
+    } else {
+      // Shorten the url if necessary
+      PwsClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
     }
   }
 
