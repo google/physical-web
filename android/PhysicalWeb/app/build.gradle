@@ -11,8 +11,8 @@ android {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 14
-        versionName "0.1.855"
+        versionCode 15
+        versionName "0.1.856"
     }
 
     buildTypes {
