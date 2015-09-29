@@ -246,6 +246,26 @@ class PwoMetadata implements Comparable<PwoMetadata> {
     return urlToNavigateTo;
   }
 
+  public String getGroupid() {
+    if (hasUrlMetadata()) {
+      String groupid = urlMetadata.groupid;
+      if (groupid != null && !groupid.equals("")) {
+        return groupid;
+      }
+    }
+    return null;
+  }
+
+  public String getDeviceAddress() {
+    if (hasBleMetadata()) {
+      String deviceAddress = bleMetadata.deviceAddress;
+      if (deviceAddress != null && !deviceAddress.equals("")) {
+        return deviceAddress;
+      }
+    }
+    return null;
+  }
+
   public Intent createNavigateToUrlIntent() {
     String urlToNavigateTo = getNavigableUrl();
     Intent intent = new Intent(Intent.ACTION_VIEW);
