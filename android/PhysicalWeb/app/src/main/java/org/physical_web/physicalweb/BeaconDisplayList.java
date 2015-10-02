@@ -19,6 +19,7 @@ package org.physical_web.physicalweb;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 
 class BeaconDisplayList {
@@ -74,7 +75,7 @@ class BeaconDisplayList {
      * @param pwoMetadata New PwoMetadata
      */
     public void addItem(PwoMetadata pwoMetadata) {
-      String groupedPwoId = getGroupedPwoId(pwoMetadata);
+      String groupedPwoId = getPwoId(pwoMetadata);
 
       PwoDevice pwoDevice = mPwoDevices.get(groupedPwoId);
       boolean isNewDevice = false;
@@ -90,12 +91,29 @@ class BeaconDisplayList {
     }
 
     /**
+     * Remove a PWO from this group.
+     * @param pwoMetadata The PwoDevice to remove
+     */
+    public void removeItem(PwoMetadata pwoMetadata) {
+      mPwoDevices.remove(getPwoId(pwoMetadata));
+    }
+
+    /**
+     * Return true if the specified PWO is in this group.
+     * @param pwoMetadata The PwoDevice
+     * @return boolean true if present
+     */
+    public boolean contains(PwoMetadata pwoMetadata) {
+      return mPwoDevices.containsKey(getPwoId(pwoMetadata));
+    }
+
+    /**
      * Promote an existing ungrouped PWO device into this PWO group.
      * @param pwoDevice The PwoDevice to promote
      */
     public void promotePwo(PwoDevice pwoDevice) {
       PwoMetadata topPwoMetadata = pwoDevice.top();
-      String groupedPwoId = getGroupedPwoId(topPwoMetadata);
+      String groupedPwoId = getPwoId(topPwoMetadata);
 
       // only promote if the PWO doesn't already exist
       if (groupedPwoId != null && !mPwoDevices.containsKey(groupedPwoId)) {
@@ -128,7 +146,7 @@ class BeaconDisplayList {
   }
 
   /**
-   * Append new PWO metadata and update the list of displayed beacons
+   * Append new PWO metadata and update the list of displayed beacons.
    * @param pwoMetadata New PwoMetadata
    */
   public void addItem(PwoMetadata pwoMetadata) {
@@ -142,7 +160,7 @@ class BeaconDisplayList {
       updateUngroupedPwo(pwoMetadata);
     } else {
       // Check if this metadata matches an ungrouped PWO. If so, promote it to a grouped PWO.
-      String ungroupedPwoId = getUngroupedPwoId(pwoMetadata);
+      String ungroupedPwoId = getPwoId(pwoMetadata);
       PwoDevice ungroupedPwoDevice = mUngroupedPwoDevices.get(ungroupedPwoId);
       if (ungroupedPwoDevice != null) {
         promoteUngroupedPwo(groupid, ungroupedPwoDevice);
@@ -188,6 +206,28 @@ class BeaconDisplayList {
    * @param pwoMetadata The grouped PWO metadata
    */
   private void updateGroupedPwo(String groupid, PwoMetadata pwoMetadata) {
+    // Is this device already in a group?  If so, remove it first
+    PwoGroup previousPwoGroup = null;
+    String previousPwoGroupid = null;
+    for (Map.Entry<String, PwoGroup> entry : mPwoGroups.entrySet()) {
+      PwoGroup candidateGroup = entry.getValue();
+      if (candidateGroup.contains(pwoMetadata)) {
+        previousPwoGroup = candidateGroup;
+        previousPwoGroupid = entry.getKey();
+        break;
+      }
+    }
+    if (previousPwoGroup != null && !groupid.equals(previousPwoGroupid)) {
+      // Remove the device from the group
+      previousPwoGroup.removeItem(pwoMetadata);
+
+      // Also remove the group if it's empty
+      if (previousPwoGroup.top() == null) {
+        mDisplayList.remove(previousPwoGroup);
+        mPwoGroups.remove(previousPwoGroupid);
+      }
+    }
+
     PwoGroup pwoGroup = mPwoGroups.get(groupid);
 
     boolean isNewGroup = false;
@@ -209,7 +249,7 @@ class BeaconDisplayList {
    * @param pwoMetadata The ungrouped PWO metadata
    */
   private void updateUngroupedPwo(PwoMetadata pwoMetadata) {
-    String ungroupedPwoId = getUngroupedPwoId(pwoMetadata);
+    String ungroupedPwoId = getPwoId(pwoMetadata);
     PwoDevice ungroupedPwoDevice = mUngroupedPwoDevices.get(ungroupedPwoId);
 
     boolean isNewDevice = false;
@@ -221,7 +261,7 @@ class BeaconDisplayList {
 
     // Avoid adding items to the display list until they are populated with PwoMetadata
     if (isNewDevice) {
-      mUngroupedPwoDevices.put(pwoMetadata.url, ungroupedPwoDevice);
+      mUngroupedPwoDevices.put(ungroupedPwoId, ungroupedPwoDevice);
       mDisplayList.add(ungroupedPwoDevice);
     }
   }
@@ -232,7 +272,7 @@ class BeaconDisplayList {
    * @param ungroupedPwo The PWO to promote
    */
   private void promoteUngroupedPwo(String groupid, PwoDevice ungroupedPwo) {
-    String ungroupedPwoId = getUngroupedPwoId(ungroupedPwo.top());
+    String ungroupedPwoId = getPwoId(ungroupedPwo.top());
 
     mDisplayList.remove(ungroupedPwo);
     mUngroupedPwoDevices.remove(ungroupedPwoId);
@@ -243,20 +283,13 @@ class BeaconDisplayList {
     mDisplayList.add(pwoGroup);
   }
 
-  private static String getGroupedPwoId(PwoMetadata pwoMetadata) {
+  private static String getPwoId(PwoMetadata pwoMetadata) {
     // Prefer an id that uniquely identifies the device, but use URL as a fallback for PWOs
     // that do not have BLE metadata or otherwise don't support a unique device id.
     String deviceAddress = pwoMetadata.getDeviceAddress();
     if (deviceAddress != null && !deviceAddress.equals("")) {
-      return deviceAddress;
+      return "ble:" + deviceAddress;
     }
-    return pwoMetadata.url;
-  }
-
-  private static String getUngroupedPwoId(PwoMetadata pwoMetadata) {
-    // Use the same id as the PWS to match against new PWO metadata when it comes in.
-    // Note: The URL isn't guaranteed to be unique as there could be multiple nearby PWOs
-    // advertising the same URL.
-    return pwoMetadata.url;
+    return "url:" + pwoMetadata.url;
   }
 }
