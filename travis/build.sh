@@ -1,8 +1,15 @@
 #!/bin/sh
 
-# Browse to the android project
-cd android/PhysicalWeb/
+# Test the android project
+(
+    cd android/PhysicalWeb/
+    # This will run our linters etc.
+    # NOTE: check depends on assembleDebug
+    ./gradlew check
+)
 
-# This will run our linters etc.
-# NOTE: check depends on assembleDebug
-./gradlew check
+# Test the Physical Web java libraries
+(
+    cd java/libs
+    ./gradlew test
+)
