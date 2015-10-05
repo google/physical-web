@@ -223,7 +223,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   }
 
   /**
-   * Check if the given URL only uses characters from the set defined in RFC 3986 section 2
+   * Check if the given URL only uses characters from the set defined in RFC 3986 section 2.
    * https://tools.ietf.org/html/rfc3986#section-2
    * @param url URL to check
    * @return True if the URL is RFC 3986 compliant
@@ -234,8 +234,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       URI uri = new URI(url);
       String urlString = uri.toASCIIString();
       isCompliant = url.equals(urlString);
-    }
-    catch (URISyntaxException e) {
+    } catch (URISyntaxException e) {
       // bad url
     }
     return isCompliant;
