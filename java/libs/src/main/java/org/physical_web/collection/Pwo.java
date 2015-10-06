@@ -15,6 +15,8 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONObject;
+
 /**
  * The interface defining a PWO (Physical Web Object).
  */
@@ -32,4 +34,13 @@ public interface Pwo {
    * @return The broadcasted URL.
    */
   String getUrl();
+
+  /**
+   * Creates a JSON object that represents the PWO.
+   * This will only be used in serialization and deserialization.
+   * PWOs that are not anticipated to be serialized or deserialized may just
+   * return null.
+   * @return The JSON object representing the PWO.
+   */
+  JSONObject toJsonObject();
 }

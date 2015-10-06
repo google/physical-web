@@ -11,5 +11,7 @@ gradle.projectsEvaluated {
 }
 
 dependencies {
+    compile 'org.json:json:20140107'
     testCompile 'junit:junit:4.11'
+    testCompile 'org.skyscreamer:jsonassert:1.2.3'
 }

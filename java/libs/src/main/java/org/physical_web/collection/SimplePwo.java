@@ -15,12 +15,17 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONObject;
+
 /**
  * A basic implementation of the PWO interface.
  */
 public class SimplePwo implements Pwo {
-  String mId;
-  String mUrl;
+  private static final String PWO_TYPE = "simple";
+  private static final String ID_KEY = "id";
+  private static final String URL_KEY = "url";
+  private String mId;
+  private String mUrl;
 
   /**
    * Construct a SimplePwo.
@@ -48,5 +53,16 @@ public class SimplePwo implements Pwo {
    */
   public String getUrl() {
     return mUrl;
+  }
+
+  /**
+   * Creates a JSON object that represents the PWO.
+   * @return The JSON object representing the PWO.
+   */
+  public JSONObject toJsonObject() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put(ID_KEY, mId);
+    jsonObject.put(URL_KEY, mUrl);
+    return jsonObject;
   }
 }

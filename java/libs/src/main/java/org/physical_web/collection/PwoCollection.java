@@ -23,6 +23,7 @@ import java.util.Map;
  */
 public class PwoCollection {
   private Map<String, Pwo> mIdToPwoMap;
+  private final String PWOS_KEY = "pwos";
 
   /**
    * Construct a PwoCollection.
