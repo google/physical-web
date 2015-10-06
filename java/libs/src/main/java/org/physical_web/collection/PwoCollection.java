@@ -28,7 +28,7 @@ public class PwoCollection {
    * Construct a PwoCollection.
    */
   public PwoCollection() {
-    mIdToPwoMap = new HashMap();
+    mIdToPwoMap = new HashMap<>();
   }
 
   /**

@@ -11,5 +11,6 @@
 # Test the Physical Web java libraries
 (
     cd java/libs
+    ./gradlew check
     ./gradlew test
 )
