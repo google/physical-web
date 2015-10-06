@@ -15,36 +15,20 @@
  */
 package org.physical_web.collection;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
- * Collection of Physical Web Objects and related metadata.
+ * SimplePwo unit test class.
  */
-public class PwoCollection {
-  private Map<String, Pwo> mIdToPwoMap;
+public class SimplePwoTest {
+  private final String ID1 = "id1";
+  private final String URL1 = "http://example.com";
 
-  /**
-   * Construct a PwoCollection.
-   */
-  public PwoCollection() {
-    mIdToPwoMap = new HashMap();
-  }
-
-  /**
-   * Add a PWO to the collection.
-   * @param pwo The PWO to add.
-   */
-  public void addPwo(Pwo pwo) {
-    mIdToPwoMap.put(pwo.getId(), pwo);
-  }
-
-  /**
-   * Fetches a PWO by its ID.
-   * @param id The ID of the PWO.
-   * @return the PWO with the given ID.
-   */
-  public Pwo getPwoById(String id) {
-    return mIdToPwoMap.get(id);
+  @Test
+  public void constructorCreatesProperObject() {
+    Pwo pwo = new SimplePwo(ID1, URL1);
+    assertEquals(pwo.getId(), ID1);
+    assertEquals(pwo.getUrl(), URL1);
   }
 }

@@ -15,36 +15,21 @@
  */
 package org.physical_web.collection;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Collection of Physical Web Objects and related metadata.
+ * The interface defining a PWO (Physical Web Object).
  */
-public class PwoCollection {
-  private Map<String, Pwo> mIdToPwoMap;
+public interface Pwo {
+  /**
+   * Fetches the ID of the PWO.
+   * The ID should be unique across PWOs.  This should even be the case when
+   * one real world device is broadcasting multiple URLs.
+   * @return The ID of the PWO.
+   */
+  String getId();
 
   /**
-   * Construct a PwoCollection.
+   * Fetches the URL broadcasted by the PWO.
+   * @return The broadcasted URL.
    */
-  public PwoCollection() {
-    mIdToPwoMap = new HashMap();
-  }
-
-  /**
-   * Add a PWO to the collection.
-   * @param pwo The PWO to add.
-   */
-  public void addPwo(Pwo pwo) {
-    mIdToPwoMap.put(pwo.getId(), pwo);
-  }
-
-  /**
-   * Fetches a PWO by its ID.
-   * @param id The ID of the PWO.
-   * @return the PWO with the given ID.
-   */
-  public Pwo getPwoById(String id) {
-    return mIdToPwoMap.get(id);
-  }
+  String getUrl();
 }
