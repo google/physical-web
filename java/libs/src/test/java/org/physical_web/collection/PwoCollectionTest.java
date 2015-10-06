@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.physicalweb.collection;
+package org.physical_web.collection;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
