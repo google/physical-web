@@ -15,8 +15,12 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONObject;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * SimplePwo unit test class.
@@ -30,5 +34,14 @@ public class SimplePwoTest {
     Pwo pwo = new SimplePwo(ID1, URL1);
     assertEquals(pwo.getId(), ID1);
     assertEquals(pwo.getUrl(), URL1);
+  }
+
+  @Test
+  public void toJsonObjectCreatesProperJsonObject() {
+    Pwo pwo = new SimplePwo(ID1, URL1);
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("id", ID1);
+    jsonObject.put("url", URL1);
+    JSONAssert.assertEquals(pwo.toJsonObject(), jsonObject, true);
   }
 }
