@@ -18,29 +18,29 @@ package org.physical_web.collection;
 import org.json.JSONObject;
 
 /**
- * The interface defining a PWO (Physical Web Object).
+ * The interface defining a Physical Web URL device.
  */
-public interface Pwo {
+public interface UrlDevice {
   /**
-   * Fetches the ID of the PWO.
-   * The ID should be unique across PWOs.  This should even be the case when
+   * Fetches the ID of the device.
+   * The ID should be unique across devices.  This should even be the case when
    * one real world device is broadcasting multiple URLs.
-   * @return The ID of the PWO.
+   * @return The ID of the device.
    */
   String getId();
 
   /**
-   * Fetches the URL broadcasted by the PWO.
+   * Fetches the URL broadcasted by the device.
    * @return The broadcasted URL.
    */
   String getUrl();
 
   /**
-   * Creates a JSON object that represents the PWO.
+   * Creates a JSON object that represents the device.
    * This will only be used in serialization and deserialization.
-   * PWOs that are not anticipated to be serialized or deserialized may just
+   * Devices that are not anticipated to be serialized or deserialized may just
    * return null.
-   * @return The JSON object representing the PWO.
+   * @return The JSON object representing the device.
    */
   JSONObject toJsonObject();
 }

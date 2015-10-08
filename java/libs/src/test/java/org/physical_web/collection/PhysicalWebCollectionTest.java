@@ -15,33 +15,31 @@
  */
 package org.physical_web.collection;
 
-import org.json.JSONObject;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.skyscreamer.jsonassert.JSONAssert;
-
 /**
- * SimplePwo unit test class.
+ * PhysicalWebCollection unit test class.
  */
-public class SimplePwoTest {
+public class PhysicalWebCollectionTest {
   private final String ID1 = "id1";
+  private final String ID2 = "id2";
   private final String URL1 = "http://example.com";
 
   @Test
-  public void constructorCreatesProperObject() {
-    Pwo pwo = new SimplePwo(ID1, URL1);
-    assertEquals(pwo.getId(), ID1);
-    assertEquals(pwo.getUrl(), URL1);
+  public void getUrlDeviceByIdReturnsFoundDevice() {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    UrlDevice addedUrlDevice = new SimpleUrlDevice(ID1, URL1);
+    physicalWebCollection.addUrlDevice(addedUrlDevice);
+    UrlDevice fetchedUrlDevice = physicalWebCollection.getUrlDeviceById(ID1);
+    assertEquals(fetchedUrlDevice.getId(), ID1);
+    assertEquals(fetchedUrlDevice.getUrl(), URL1);
   }
 
   @Test
-  public void toJsonObjectCreatesProperJsonObject() {
-    Pwo pwo = new SimplePwo(ID1, URL1);
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("id", ID1);
-    jsonObject.put("url", URL1);
-    JSONAssert.assertEquals(pwo.toJsonObject(), jsonObject, true);
+  public void getUrlDeviceByIdReturnsNullForMissingDevice() {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    UrlDevice fetchedUrlDevice = physicalWebCollection.getUrlDeviceById(ID1);
+    assertNull(fetchedUrlDevice);
   }
 }
