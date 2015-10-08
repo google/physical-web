@@ -31,13 +31,16 @@ public class PhysicalWebCollectionTest {
   private static final String ID1 = "id1";
   private static final String ID2 = "id2";
   private static final String URL1 = "http://example.com";
+  private static final String URL2 = "http://physical-web.org";
   private PhysicalWebCollection physicalWebCollection1;
 
   @Before
   public void setUp() {
     physicalWebCollection1 = new PhysicalWebCollection();
     UrlDevice urlDevice = new SimpleUrlDevice(ID1, URL1);
+    PwsResult pwsResult = new PwsResult(URL1, URL1);
     physicalWebCollection1.addUrlDevice(urlDevice);
+    physicalWebCollection1.addMetadata(pwsResult);
   }
 
   @Test
@@ -48,9 +51,22 @@ public class PhysicalWebCollectionTest {
   }
 
   @Test
-  public void getUrlDeviceByReturnsNullForMissingUrlDevice() {
+  public void getUrlDeviceByIdReturnsNullForMissingUrlDevice() {
     UrlDevice fetchedUrlDevice = physicalWebCollection1.getUrlDeviceById(ID2);
     assertNull(fetchedUrlDevice);
+  }
+
+  @Test
+  public void getMetadataByRequestUrlReturnsFoundMetadata() {
+    PwsResult pwsResult = physicalWebCollection1.getMetadataByBroadcastUrl(URL1);
+    assertEquals(pwsResult.getRequestUrl(), URL1);
+    assertEquals(pwsResult.getSiteUrl(), URL1);
+  }
+
+  @Test
+  public void getMetadataByRequestUrlReturnsNullForMissingMetadata() {
+    PwsResult pwsResult = physicalWebCollection1.getMetadataByBroadcastUrl(URL2);
+    assertNull(pwsResult);
   }
 
   @Test
@@ -65,6 +81,10 @@ public class PhysicalWebCollectionTest {
         + "            \"id\": \"" + ID1 + "\","
         + "            \"url\": \"" + URL1 + "\""
         + "        }"
+        + "    }],"
+        + "    \"metadata\": [{"
+        + "        \"requesturl\": \"" + URL1 + "\","
+        + "        \"siteurl\": \"" + URL1 + "\""
         + "    }]"
         + "}");
     JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject, true);
@@ -89,13 +109,20 @@ public class PhysicalWebCollectionTest {
         + "            \"id\": \"" + ID1 + "\","
         + "            \"url\": \"" + URL1 + "\""
         + "        }"
+        + "    }],"
+        + "    \"metadata\": [{"
+        + "        \"requesturl\": \"" + URL1 + "\","
+        + "        \"siteurl\": \"" + URL1 + "\""
         + "    }]"
         + "}");
     physicalWebCollection.jsonDeserialize(jsonObject);
     UrlDevice urlDevice = physicalWebCollection.getUrlDeviceById(ID1);
+    PwsResult pwsResult = physicalWebCollection.getMetadataByBroadcastUrl(URL1);
     assertNotNull(urlDevice);
     assertEquals(urlDevice.getId(), ID1);
     assertEquals(urlDevice.getUrl(), URL1);
+    assertEquals(pwsResult.getRequestUrl(), URL1);
+    assertEquals(pwsResult.getSiteUrl(), URL1);
   }
 
   @Test(expected = PhysicalWebCollectionException.class)
