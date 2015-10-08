@@ -35,7 +35,7 @@ public class PhysicalWebCollection {
   private static final String SITEURL_KEY = "siteurl";
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<Class, UrlDeviceJsonSerializer> mUrlDeviceTypeToUrlDeviceJsonSerializer;
-  private Map<String, PwsResult> mRequestUrlToPwsResultMap;
+  private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
 
   /**
    * Construct a PhysicalWebCollection.
@@ -43,7 +43,7 @@ public class PhysicalWebCollection {
   public PhysicalWebCollection() {
     mDeviceIdToUrlDeviceMap = new HashMap<>();
     mUrlDeviceTypeToUrlDeviceJsonSerializer = new HashMap<>();
-    mRequestUrlToPwsResultMap = new HashMap<>();
+    mBroadcastUrlToPwsResultMap = new HashMap<>();
   }
 
   /**
@@ -59,7 +59,7 @@ public class PhysicalWebCollection {
    * @param pwsResult The PwsResult to add.
    */
   public void addMetadata(PwsResult pwsResult) {
-    mRequestUrlToPwsResultMap.put(pwsResult.getRequestUrl(), pwsResult);
+    mBroadcastUrlToPwsResultMap.put(pwsResult.getRequestUrl(), pwsResult);
   }
 
   /**
@@ -69,6 +69,15 @@ public class PhysicalWebCollection {
    */
   public UrlDevice getUrlDeviceById(String id) {
     return mDeviceIdToUrlDeviceMap.get(id);
+  }
+
+  /**
+   * Fetches cached URL metadata using the URL broadcasted by the Physical Web device.
+   * @param broadcastUrl The URL broadcasted by the device.
+   * @return Cached metadata relevant to the given URL.
+   */
+  public PwsResult getMetadataByBroadcastUrl(String broadcastUrl) {
+    return mBroadcastUrlToPwsResultMap.get(broadcastUrl);
   }
 
   /**
@@ -105,19 +114,33 @@ public class PhysicalWebCollection {
         "No suitable UrlDeviceJsonSerializer found for " + urlDevice.getClass().getName());
   }
 
+  private JSONObject jsonSerializePwsResult(PwsResult pwsResult) {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put(REQUESTURL_KEY, pwsResult.getRequestUrl());
+    jsonObject.put(SITEURL_KEY, pwsResult.getSiteUrl());
+    return jsonObject;
+  }
+
   /**
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
    */
   public JSONObject jsonSerialize() throws PhysicalWebCollectionException {
     JSONObject jsonObject = new JSONObject();
+
+    // Serialize the UrlDevices
     JSONArray urlDevices = new JSONArray();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
       urlDevices.put(jsonSerializeUrlDevice(urlDevice));
     }
     jsonObject.put(DEVICES_KEY, urlDevices);
 
-    // TODO(mattreynolds): URL metadata serialization
+    // Serialize the URL metadata
+    JSONArray metadata = new JSONArray();
+    for (PwsResult pwsResult : mBroadcastUrlToPwsResultMap.values()) {
+      metadata.put(jsonSerializePwsResult(pwsResult));
+    }
+    jsonObject.put(METADATA_KEY, metadata);
 
     jsonObject.put(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
     return jsonObject;
@@ -153,6 +176,12 @@ public class PhysicalWebCollection {
         "No suitable UrlDeviceJsonSerializer found for " + typeName);
   }
 
+  private PwsResult jsonDeserializePwsResult(JSONObject jsonObject) {
+    String requestUrl = jsonObject.getString(REQUESTURL_KEY);
+    String siteUrl = jsonObject.getString(SITEURL_KEY);
+    return new PwsResult(requestUrl, siteUrl);
+  }
+
   /**
    * Populate this data structure with UrlDevices represented by a given JSON object.
    * @param jsonObject a serialized PhysicalWebCollection.
@@ -174,6 +203,12 @@ public class PhysicalWebCollection {
       addUrlDevice(urlDevice);
     }
 
-    // TODO(mattreynolds): URL metadata deserialization
+    // Deserialize the URL metadata
+    JSONArray metadata = jsonObject.getJSONArray(METADATA_KEY);
+    for (int i = 0; i < metadata.length(); i++) {
+      JSONObject metadataPair = metadata.getJSONObject(i);
+      PwsResult pwsResult = jsonDeserializePwsResult(metadataPair);
+      addMetadata(pwsResult);
+    }
   }
 }
