@@ -19,33 +19,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Collection of Physical Web Objects and related metadata.
+ * Collection of Physical Web URL devices and related metadata.
  */
-public class PwoCollection {
-  private Map<String, Pwo> mIdToPwoMap;
-  private final String PWOS_KEY = "pwos";
+public class PhysicalWebCollection {
+  private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
+  private final String DEVICES_KEY = "devices";
 
   /**
-   * Construct a PwoCollection.
+   * Construct a PhysicalWebCollection.
    */
-  public PwoCollection() {
-    mIdToPwoMap = new HashMap<>();
+  public PhysicalWebCollection() {
+    mDeviceIdToUrlDeviceMap = new HashMap<>();
   }
 
   /**
-   * Add a PWO to the collection.
-   * @param pwo The PWO to add.
+   * Add a device to the collection.
+   * @param urlDevice The UrlDevice to add.
    */
-  public void addPwo(Pwo pwo) {
-    mIdToPwoMap.put(pwo.getId(), pwo);
+  public void addUrlDevice(UrlDevice urlDevice) {
+    mDeviceIdToUrlDeviceMap.put(urlDevice.getId(), urlDevice);
   }
 
   /**
-   * Fetches a PWO by its ID.
-   * @param id The ID of the PWO.
-   * @return the PWO with the given ID.
+   * Fetches a device by its ID.
+   * @param id The ID of the device.
+   * @return the UrlDevice with the given ID.
    */
-  public Pwo getPwoById(String id) {
-    return mIdToPwoMap.get(id);
+  public UrlDevice getUrlDeviceById(String id) {
+    return mDeviceIdToUrlDeviceMap.get(id);
   }
 }
