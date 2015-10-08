@@ -18,37 +18,37 @@ package org.physical_web.collection;
 import org.json.JSONObject;
 
 /**
- * A basic implementation of the PWO interface.
+ * A basic implementation of the UrlDevice interface.
  */
-public class SimplePwo implements Pwo {
-  private static final String PWO_TYPE = "simple";
+public class SimpleUrlDevice implements UrlDevice {
+  private static final String DEVICE_TYPE = "simple";
   private static final String ID_KEY = "id";
   private static final String URL_KEY = "url";
   private String mId;
   private String mUrl;
 
   /**
-   * Construct a SimplePwo.
-   * @param id The id of the PWO.
-   * @param url The URL broadcasted by the PWO.
+   * Construct a SimpleUrlDevice.
+   * @param id The id of the device.
+   * @param url The URL broadcasted by the device.
    */
-  SimplePwo(String id, String url) {
+  SimpleUrlDevice(String id, String url) {
     mId = id;
     mUrl = url;
   }
 
   /**
-   * Fetches the ID of the PWO.
-   * The ID should be unique across PWOs.  This should even be the case when
+   * Fetches the ID of the device.
+   * The ID should be unique across UrlDevices.  This should even be the case when
    * one real world device is broadcasting multiple URLs.
-   * @return The ID of the PWO.
+   * @return The ID of the device.
    */
   public String getId() {
     return mId;
   }
 
   /**
-   * Fetches the URL broadcasted by the PWO.
+   * Fetches the URL broadcasted by the device.
    * @return The broadcasted URL.
    */
   public String getUrl() {
@@ -56,8 +56,8 @@ public class SimplePwo implements Pwo {
   }
 
   /**
-   * Creates a JSON object that represents the PWO.
-   * @return The JSON object representing the PWO.
+   * Creates a JSON object that represents the UrlDevice.
+   * @return The JSON object representing the UrlDevice.
    */
   public JSONObject toJsonObject() {
     JSONObject jsonObject = new JSONObject();
