@@ -20,8 +20,8 @@ import org.json.JSONObject;
 /**
  * An interface that defines objects that can serialize and deserialize
  * UrlDevices to and from JSON.
- * @param <T extends UrlDevice> The implementation of UrlDevice that this
- *        serializer is designed to serialize and deserialize.
+ * @param <T> The implementation of UrlDevice that this serializer is designed
+ *            to serialize and deserialize.
  */
 public interface UrlDeviceJsonSerializer<T extends UrlDevice> {
   /**

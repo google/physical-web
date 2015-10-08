@@ -15,8 +15,6 @@
  */
 package org.physical_web.collection;
 
-import org.json.JSONObject;
-
 /**
  * A basic implementation of the UrlDevice interface.
  */

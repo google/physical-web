@@ -15,12 +15,12 @@
  */
 package org.physical_web.collection;
 
-import org.json.JSONArray;
+import static org.junit.Assert.*;
+
 import org.json.JSONObject;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -28,9 +28,9 @@ import org.skyscreamer.jsonassert.JSONAssert;
  * PhysicalWebCollection unit test class.
  */
 public class PhysicalWebCollectionTest {
-  private final String ID1 = "id1";
-  private final String ID2 = "id2";
-  private final String URL1 = "http://example.com";
+  private static final String ID1 = "id1";
+  private static final String ID2 = "id2";
+  private static final String URL1 = "http://example.com";
   private PhysicalWebCollection physicalWebCollection1;
 
   @Before
@@ -70,7 +70,7 @@ public class PhysicalWebCollectionTest {
     JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject, true);
   }
 
-  @Test(expected=PhysicalWebCollectionException.class)
+  @Test(expected = PhysicalWebCollectionException.class)
   public void jsonSerializeWithoutSerializerThrowsException()
       throws PhysicalWebCollectionException {
     physicalWebCollection1.jsonSerialize();
@@ -86,8 +86,8 @@ public class PhysicalWebCollectionTest {
         + "    \"devices\": [{"
         + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
         + "        \"data\": {"
-	+ "            \"id\": \"" + ID1 + "\","
-	+ "            \"url\": \"" + URL1 + "\""
+        + "            \"id\": \"" + ID1 + "\","
+        + "            \"url\": \"" + URL1 + "\""
         + "        }"
         + "    }]"
         + "}");
@@ -98,7 +98,7 @@ public class PhysicalWebCollectionTest {
     assertEquals(urlDevice.getUrl(), URL1);
   }
 
-  @Test(expected=PhysicalWebCollectionException.class)
+  @Test(expected = PhysicalWebCollectionException.class)
   public void jsonDeserializeWithoutSerializerThrowsException()
       throws PhysicalWebCollectionException {
     PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();

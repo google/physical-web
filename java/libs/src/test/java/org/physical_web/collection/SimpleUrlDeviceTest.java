@@ -15,19 +15,15 @@
  */
 package org.physical_web.collection;
 
-import org.json.JSONObject;
-
-import org.junit.Test;
 import static org.junit.Assert.*;
-
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.junit.Test;
 
 /**
  * SimpleUrlDevice unit test class.
  */
 public class SimpleUrlDeviceTest {
-  private final String ID1 = "id1";
-  private final String URL1 = "http://example.com";
+  private static final String ID1 = "id1";
+  private static final String URL1 = "http://example.com";
 
   @Test
   public void constructorCreatesProperObject() {

@@ -25,14 +25,14 @@ import java.util.Map;
  * Collection of Physical Web URL devices and related metadata.
  */
 public class PhysicalWebCollection {
-  private final int SCHEMA_VERSION = 1;
-  private final String SCHEMA_VERSION_KEY = "schema";
-  private final String DEVICES_KEY = "devices";
-  private final String TYPE_KEY = "type";
-  private final String DATA_KEY = "data";
-  private final String METADATA_KEY = "metadata";
-  private final String REQUESTURL_KEY = "requesturl";
-  private final String SITEURL_KEY = "siteurl";
+  private static final int SCHEMA_VERSION = 1;
+  private static final String SCHEMA_VERSION_KEY = "schema";
+  private static final String DEVICES_KEY = "devices";
+  private static final String TYPE_KEY = "type";
+  private static final String DATA_KEY = "data";
+  private static final String METADATA_KEY = "metadata";
+  private static final String REQUESTURL_KEY = "requesturl";
+  private static final String SITEURL_KEY = "siteurl";
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<Class, UrlDeviceJsonSerializer> mUrlDeviceTypeToUrlDeviceJsonSerializer;
   private Map<String, PwsResult> mRequestUrlToPwsResultMap;
