@@ -21,9 +21,6 @@ import org.json.JSONObject;
  * A basic implementation of the UrlDevice interface.
  */
 public class SimpleUrlDevice implements UrlDevice {
-  private static final String DEVICE_TYPE = "simple";
-  private static final String ID_KEY = "id";
-  private static final String URL_KEY = "url";
   private String mId;
   private String mUrl;
 
@@ -53,16 +50,5 @@ public class SimpleUrlDevice implements UrlDevice {
    */
   public String getUrl() {
     return mUrl;
-  }
-
-  /**
-   * Creates a JSON object that represents the UrlDevice.
-   * @return The JSON object representing the UrlDevice.
-   */
-  public JSONObject toJsonObject() {
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put(ID_KEY, mId);
-    jsonObject.put(URL_KEY, mUrl);
-    return jsonObject;
   }
 }

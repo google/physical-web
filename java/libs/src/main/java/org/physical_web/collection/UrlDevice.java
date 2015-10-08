@@ -15,8 +15,6 @@
  */
 package org.physical_web.collection;
 
-import org.json.JSONObject;
-
 /**
  * The interface defining a Physical Web URL device.
  */
@@ -34,13 +32,4 @@ public interface UrlDevice {
    * @return The broadcasted URL.
    */
   String getUrl();
-
-  /**
-   * Creates a JSON object that represents the UrlDevice.
-   * This will only be used in serialization and deserialization.
-   * UrlDevices that are not anticipated to be serialized or deserialized may just
-   * return null.
-   * @return The JSON object representing the UrlDevice.
-   */
-  JSONObject toJsonObject();
 }

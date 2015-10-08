@@ -15,8 +15,14 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * PhysicalWebCollection unit test class.
@@ -25,21 +31,87 @@ public class PhysicalWebCollectionTest {
   private final String ID1 = "id1";
   private final String ID2 = "id2";
   private final String URL1 = "http://example.com";
+  private PhysicalWebCollection physicalWebCollection1;
 
-  @Test
-  public void getUrlDeviceByIdReturnsFoundDevice() {
-    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    UrlDevice addedUrlDevice = new SimpleUrlDevice(ID1, URL1);
-    physicalWebCollection.addUrlDevice(addedUrlDevice);
-    UrlDevice fetchedUrlDevice = physicalWebCollection.getUrlDeviceById(ID1);
-    assertEquals(fetchedUrlDevice.getId(), ID1);
-    assertEquals(fetchedUrlDevice.getUrl(), URL1);
+  @Before
+  public void setUp() {
+    physicalWebCollection1 = new PhysicalWebCollection();
+    UrlDevice urlDevice = new SimpleUrlDevice(ID1, URL1);
+    physicalWebCollection1.addUrlDevice(urlDevice);
   }
 
   @Test
-  public void getUrlDeviceByIdReturnsNullForMissingDevice() {
-    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    UrlDevice fetchedUrlDevice = physicalWebCollection.getUrlDeviceById(ID1);
+  public void getUrlDeviceByIdReturnsFoundUrlDevice() {
+    UrlDevice urlDevice = physicalWebCollection1.getUrlDeviceById(ID1);
+    assertEquals(urlDevice.getId(), ID1);
+    assertEquals(urlDevice.getUrl(), URL1);
+  }
+
+  @Test
+  public void getUrlDeviceByReturnsNullForMissingUrlDevice() {
+    UrlDevice fetchedUrlDevice = physicalWebCollection1.getUrlDeviceById(ID2);
     assertNull(fetchedUrlDevice);
+  }
+
+  @Test
+  public void jsonSerializeWorks() throws PhysicalWebCollectionException {
+    physicalWebCollection1.addUrlDeviceJsonSerializer(SimpleUrlDevice.class,
+                                                      new SimpleUrlDeviceJsonSerializer());
+    JSONObject jsonObject = new JSONObject("{"
+        + "    \"schema\": 1,"
+        + "    \"devices\": [{"
+        + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
+        + "        \"data\": {"
+        + "            \"id\": \"" + ID1 + "\","
+        + "            \"url\": \"" + URL1 + "\""
+        + "        }"
+        + "    }]"
+        + "}");
+    JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject, true);
+  }
+
+  @Test(expected=PhysicalWebCollectionException.class)
+  public void jsonSerializeWithoutSerializerThrowsException()
+      throws PhysicalWebCollectionException {
+    physicalWebCollection1.jsonSerialize();
+  }
+
+  @Test
+  public void jsonDeserializeWorks() throws PhysicalWebCollectionException {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    physicalWebCollection.addUrlDeviceJsonSerializer(SimpleUrlDevice.class,
+                                                     new SimpleUrlDeviceJsonSerializer());
+    JSONObject jsonObject = new JSONObject("{"
+        + "    \"schema\": 1,"
+        + "    \"devices\": [{"
+        + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
+        + "        \"data\": {"
+	+ "            \"id\": \"" + ID1 + "\","
+	+ "            \"url\": \"" + URL1 + "\""
+        + "        }"
+        + "    }]"
+        + "}");
+    physicalWebCollection.jsonDeserialize(jsonObject);
+    UrlDevice urlDevice = physicalWebCollection.getUrlDeviceById(ID1);
+    assertNotNull(urlDevice);
+    assertEquals(urlDevice.getId(), ID1);
+    assertEquals(urlDevice.getUrl(), URL1);
+  }
+
+  @Test(expected=PhysicalWebCollectionException.class)
+  public void jsonDeserializeWithoutSerializerThrowsException()
+      throws PhysicalWebCollectionException {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    JSONObject jsonObject = new JSONObject("{"
+        + "    \"schema\": 1,"
+        + "    \"devices\": [{"
+        + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
+        + "        \"data\": {"
+        + "            \"id\": \"" + ID1 + "\","
+        + "            \"url\": \"" + URL1 + "\""
+        + "        }"
+        + "    }]"
+        + "}");
+    physicalWebCollection.jsonDeserialize(jsonObject);
   }
 }
