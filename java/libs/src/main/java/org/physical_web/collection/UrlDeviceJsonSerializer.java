@@ -36,5 +36,5 @@ public interface UrlDeviceJsonSerializer<T extends UrlDevice> {
    * @param jsonObject The serialized UrlDevice.
    * @return The deserialized UrlDevice.
    */
-  T deserialize(JSONObject jsonObject);
+  UrlDevice deserialize(JSONObject jsonObject);
 }
