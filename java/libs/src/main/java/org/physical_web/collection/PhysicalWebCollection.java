@@ -30,8 +30,12 @@ public class PhysicalWebCollection {
   private final String DEVICES_KEY = "devices";
   private final String TYPE_KEY = "type";
   private final String DATA_KEY = "data";
+  private final String METADATA_KEY = "metadata";
+  private final String REQUESTURL_KEY = "requesturl";
+  private final String SITEURL_KEY = "siteurl";
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<Class, UrlDeviceJsonSerializer> mUrlDeviceTypeToUrlDeviceJsonSerializer;
+  private Map<String, PwsResult> mRequestUrlToPwsResultMap;
 
   /**
    * Construct a PhysicalWebCollection.
@@ -39,6 +43,7 @@ public class PhysicalWebCollection {
   public PhysicalWebCollection() {
     mDeviceIdToUrlDeviceMap = new HashMap<>();
     mUrlDeviceTypeToUrlDeviceJsonSerializer = new HashMap<>();
+    mRequestUrlToPwsResultMap = new HashMap<>();
   }
 
   /**
@@ -47,6 +52,14 @@ public class PhysicalWebCollection {
    */
   public void addUrlDevice(UrlDevice urlDevice) {
     mDeviceIdToUrlDeviceMap.put(urlDevice.getId(), urlDevice);
+  }
+
+  /**
+   * Add URL metadata to the collection.
+   * @param pwsResult The PwsResult to add.
+   */
+  public void addMetadata(PwsResult pwsResult) {
+    mRequestUrlToPwsResultMap.put(pwsResult.getRequestUrl(), pwsResult);
   }
 
   /**
@@ -103,6 +116,9 @@ public class PhysicalWebCollection {
       urlDevices.put(jsonSerializeUrlDevice(urlDevice));
     }
     jsonObject.put(DEVICES_KEY, urlDevices);
+
+    // TODO(mattreynolds): URL metadata serialization
+
     jsonObject.put(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
     return jsonObject;
   }
@@ -157,5 +173,7 @@ public class PhysicalWebCollection {
       UrlDevice urlDevice = jsonDeserializeUrlDevice(urlDeviceJson);
       addUrlDevice(urlDevice);
     }
+
+    // TODO(mattreynolds): URL metadata deserialization
   }
 }
