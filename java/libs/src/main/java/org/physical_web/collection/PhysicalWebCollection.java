@@ -18,8 +18,13 @@ package org.physical_web.collection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Collection of Physical Web URL devices and related metadata.
@@ -210,5 +215,66 @@ public class PhysicalWebCollection {
       PwsResult pwsResult = jsonDeserializePwsResult(metadataPair);
       addMetadata(pwsResult);
     }
+  }
+
+  /**
+   * Return a list of PwPairs sorted by rank in descending order.
+   * @param dedupSiteUrls whether or not to dedup PwPairs by result urls.
+   * @param minRank the minimum rank to keep in the list.
+   * @return a sorted list of PwPairs.
+   */
+  public List<PwPair> getPwPairsSortedByRank(boolean dedupSiteUrls, double minRank) {
+    // Get all valid PwPairs.
+    List<PwPair> allPwPairs = new ArrayList<>();
+    for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
+      PwsResult pwsResult = mBroadcastUrlToPwsResultMap.get(urlDevice.getUrl());
+      if (pwsResult != null) {
+        allPwPairs.add(new PwPair(urlDevice, pwsResult));
+      }
+    }
+
+    // Sort the list in descending order.
+    Collections.sort(allPwPairs);
+    Collections.reverse(allPwPairs);
+
+    // Filter the list.
+    List<PwPair> ret = new ArrayList<>();
+    Set<String> siteUrls = new HashSet<>();
+    for (PwPair pwPair : allPwPairs) {
+      String siteUrl = pwPair.getPwsResult().getSiteUrl();
+      if (pwPair.getRank() >= minRank
+          && !dedupSiteUrls && !siteUrls.contains(siteUrl)) {
+        siteUrls.add(siteUrl);
+        ret.add(pwPair);
+      }
+    }
+
+    return ret;
+  }
+
+  /**
+   * Return a list of PwPairs sorted by rank in descending order.
+   * @param dedupSiteUrls whether or not to dedup PwPairs by result urls.
+   * @return a sorted list of PwPairs.
+   */
+  public List<PwPair> getPwPairsSortedByRank(boolean dedupSiteUrls) {
+    return getPwPairsSortedByRank(dedupSiteUrls, Double.NEGATIVE_INFINITY);
+  }
+
+  /**
+   * Return a list of PwPairs sorted by rank in descending order.
+   * @param minRank the minimum rank to keep in the list.
+   * @return a sorted list of PwPairs.
+   */
+  public List<PwPair> getPwPairsSortedByRank(double minRank) {
+    return getPwPairsSortedByRank(false, minRank);
+  }
+
+  /**
+   * Return a list of PwPairs sorted by rank in descending order.
+   * @return a sorted list of PwPairs.
+   */
+  public List<PwPair> getPwPairsSortedByRank() {
+    return getPwPairsSortedByRank(false, Double.NEGATIVE_INFINITY);
   }
 }

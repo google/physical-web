@@ -17,6 +17,7 @@ package org.physical_web.collection;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -24,11 +25,16 @@ import org.junit.Test;
  */
 public class PwsResultTest {
   private static final String URL1 = "http://example.com";
+  private PwsResult pwsResult1;
+
+  @Before
+  public void setUp() {
+    pwsResult1 = new PwsResult(URL1, URL1);
+  }
 
   @Test
   public void constructorCreatesProperObject() {
-    PwsResult pwsResult = new PwsResult(URL1, URL1);
-    assertEquals(pwsResult.getRequestUrl(), URL1);
-    assertEquals(pwsResult.getSiteUrl(), URL1);
+    assertEquals(pwsResult1.getRequestUrl(), URL1);
+    assertEquals(pwsResult1.getSiteUrl(), URL1);
   }
 }

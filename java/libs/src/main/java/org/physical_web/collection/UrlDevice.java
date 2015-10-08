@@ -32,4 +32,22 @@ public interface UrlDevice {
    * @return The broadcasted URL.
    */
   String getUrl();
+
+  /**
+   * Returns the rank for a given UrlDevice and its associated PwsResult.
+   * Guidelines for values:
+   * - Rank should typically be based on quality signals from the UrlDevice
+   *   and pwsResult.  E.g. if we know the UrlDevice knows its distance from
+   *   the user, we could combine this information with the quality signal from
+   *   pwsResult.
+   * - Rank should typically be between 0 and 1, but out of bounds values will
+   *   not be rounded into range.
+   * - 0 should represent extremely low quality
+   * - .5 should represent median quality
+   * - 1 should represent extremely high quality
+   * @param pwsResult is the response received from the Physical Web Service
+   *        for the url broadcasted by this UrlDevice.
+   * @return The rank of the UrlDevice, given its associated PwsResult.
+   */
+  double getRank(PwsResult pwsResult);
 }

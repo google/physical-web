@@ -49,4 +49,14 @@ public class SimpleUrlDevice implements UrlDevice {
   public String getUrl() {
     return mUrl;
   }
+
+  /**
+   * Returns the rank of this device given its associated PwsResult.
+   * @param pwsResult is the response received from the Physical Web Service
+   *        for the url broadcasted by this UrlDevice.
+   * @return .5 (at the moment we don't have anything by which to judge rank)
+   */
+  public double getRank(PwsResult pwsResult) {
+    return .5;
+  }
 }
