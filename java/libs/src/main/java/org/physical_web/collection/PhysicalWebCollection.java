@@ -219,11 +219,11 @@ public class PhysicalWebCollection {
 
   /**
    * Return a list of PwPairs sorted by rank in descending order.
-   * @param dedupSiteUrls whether or not to dedup PwPairs by result urls.
-   * @param minRank the minimum rank to keep in the list.
+   * These PwPairs will be deduplicated by siteUrls (favoring the PwPair with
+   * the highest rank).
    * @return a sorted list of PwPairs.
    */
-  public List<PwPair> getPwPairsSortedByRank(boolean dedupSiteUrls, double minRank) {
+  public List<PwPair> getPwPairsSortedByRank() {
     // Get all valid PwPairs.
     List<PwPair> allPwPairs = new ArrayList<>();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
@@ -241,39 +241,12 @@ public class PhysicalWebCollection {
     Set<String> siteUrls = new HashSet<>();
     for (PwPair pwPair : allPwPairs) {
       String siteUrl = pwPair.getPwsResult().getSiteUrl();
-      if (pwPair.getRank() >= minRank
-          && !dedupSiteUrls && !siteUrls.contains(siteUrl)) {
+      if (!siteUrls.contains(siteUrl)) {
         siteUrls.add(siteUrl);
         ret.add(pwPair);
       }
     }
 
     return ret;
-  }
-
-  /**
-   * Return a list of PwPairs sorted by rank in descending order.
-   * @param dedupSiteUrls whether or not to dedup PwPairs by result urls.
-   * @return a sorted list of PwPairs.
-   */
-  public List<PwPair> getPwPairsSortedByRank(boolean dedupSiteUrls) {
-    return getPwPairsSortedByRank(dedupSiteUrls, Double.NEGATIVE_INFINITY);
-  }
-
-  /**
-   * Return a list of PwPairs sorted by rank in descending order.
-   * @param minRank the minimum rank to keep in the list.
-   * @return a sorted list of PwPairs.
-   */
-  public List<PwPair> getPwPairsSortedByRank(double minRank) {
-    return getPwPairsSortedByRank(false, minRank);
-  }
-
-  /**
-   * Return a list of PwPairs sorted by rank in descending order.
-   * @return a sorted list of PwPairs.
-   */
-  public List<PwPair> getPwPairsSortedByRank() {
-    return getPwPairsSortedByRank(false, Double.NEGATIVE_INFINITY);
   }
 }

@@ -179,7 +179,7 @@ public class PhysicalWebCollectionTest {
     physicalWebCollection.jsonDeserialize(jsonObject);
   }
 
-  public void getPwPairsSortedByRankNoFilters() {
+  public void getPwPairsSortedByRankWorks() {
     addRankedDevice(ID1, URL1, .1);
     addRankedDevice(ID2, URL2, .5);
     addRankedDevice(ID3, URL2, .9);  // Duplicate URL
@@ -188,34 +188,5 @@ public class PhysicalWebCollectionTest {
     assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
     assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID2);
     assertEquals(pwPairs.get(2).getUrlDevice().getId(), ID1);
-  }
-
-  public void getPwPairsSortedByRankFilterOnRank() {
-    addRankedDevice(ID1, URL1, .1);
-    addRankedDevice(ID2, URL2, .5);
-    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
-    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank(.2);
-    assertEquals(pwPairs.size(), 2);
-    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
-    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID2);
-  }
-
-  public void getPwPairsSortedByRankFilterOnDuplicates() {
-    addRankedDevice(ID1, URL1, .1);
-    addRankedDevice(ID2, URL2, .5);
-    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
-    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank(true);
-    assertEquals(pwPairs.size(), 2);
-    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
-    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID1);
-  }
-
-  public void getPwPairsSortedByRankFilterOnRankAndDuplicates() {
-    addRankedDevice(ID1, URL1, .1);
-    addRankedDevice(ID2, URL2, .5);
-    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
-    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank(true, .2);
-    assertEquals(pwPairs.size(), 1);
-    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
   }
 }
