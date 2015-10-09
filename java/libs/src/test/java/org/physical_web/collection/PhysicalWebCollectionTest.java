@@ -27,6 +27,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 /**
  * PhysicalWebCollection unit test class.
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class PhysicalWebCollectionTest {
   private static final String ID1 = "id1";
   private static final String ID2 = "id2";
