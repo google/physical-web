@@ -234,8 +234,7 @@ public class PhysicalWebCollection {
     }
 
     // Sort the list in descending order.
-    Collections.sort(allPwPairs);
-    Collections.reverse(allPwPairs);
+    Collections.sort(allPwPairs, Collections.reverseOrder());
 
     // Filter the list.
     List<PwPair> ret = new ArrayList<>();
