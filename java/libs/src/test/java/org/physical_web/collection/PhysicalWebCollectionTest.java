@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.util.List;
+
 /**
  * PhysicalWebCollection unit test class.
  */
@@ -31,9 +33,42 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class PhysicalWebCollectionTest {
   private static final String ID1 = "id1";
   private static final String ID2 = "id2";
+  private static final String ID3 = "id3";
   private static final String URL1 = "http://example.com";
   private static final String URL2 = "http://physical-web.org";
   private PhysicalWebCollection physicalWebCollection1;
+  private PhysicalWebCollection physicalWebCollection2;
+
+  private static class RankedDevice implements UrlDevice {
+    private String mId;
+    private String mUrl;
+    private double mRank;
+
+    RankedDevice(String id, String url, double rank) {
+      mId = id;
+      mUrl = url;
+      mRank = rank;
+    }
+
+    public String getId() {
+      return mId;
+    }
+
+    public String getUrl() {
+      return mUrl;
+    }
+
+    public double getRank(PwsResult pwsResult) {
+      return mRank;
+    }
+  }
+
+  private void addRankedDevice(String id, String url, double rank) {
+    UrlDevice urlDevice = new RankedDevice(id, url, rank);
+    PwsResult pwsResult = new PwsResult(url, url);
+    physicalWebCollection2.addUrlDevice(urlDevice);
+    physicalWebCollection2.addMetadata(pwsResult);
+  }
 
   @Before
   public void setUp() {
@@ -42,6 +77,7 @@ public class PhysicalWebCollectionTest {
     PwsResult pwsResult = new PwsResult(URL1, URL1);
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
+    physicalWebCollection2 = new PhysicalWebCollection();
   }
 
   @Test
@@ -141,5 +177,45 @@ public class PhysicalWebCollectionTest {
         + "    }]"
         + "}");
     physicalWebCollection.jsonDeserialize(jsonObject);
+  }
+
+  public void getPwPairsSortedByRankNoFilters() {
+    addRankedDevice(ID1, URL1, .1);
+    addRankedDevice(ID2, URL2, .5);
+    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
+    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank();
+    assertEquals(pwPairs.size(), 3);
+    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
+    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID2);
+    assertEquals(pwPairs.get(2).getUrlDevice().getId(), ID1);
+  }
+
+  public void getPwPairsSortedByRankFilterOnRank() {
+    addRankedDevice(ID1, URL1, .1);
+    addRankedDevice(ID2, URL2, .5);
+    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
+    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank(.2);
+    assertEquals(pwPairs.size(), 2);
+    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
+    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID2);
+  }
+
+  public void getPwPairsSortedByRankFilterOnDuplicates() {
+    addRankedDevice(ID1, URL1, .1);
+    addRankedDevice(ID2, URL2, .5);
+    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
+    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank(true);
+    assertEquals(pwPairs.size(), 2);
+    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
+    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID1);
+  }
+
+  public void getPwPairsSortedByRankFilterOnRankAndDuplicates() {
+    addRankedDevice(ID1, URL1, .1);
+    addRankedDevice(ID2, URL2, .5);
+    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
+    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank(true, .2);
+    assertEquals(pwPairs.size(), 1);
+    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
   }
 }

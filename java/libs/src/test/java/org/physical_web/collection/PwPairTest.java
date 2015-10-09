@@ -21,31 +21,25 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * SimpleUrlDevice unit test class.
+ * PwPair unit test class.
  */
-public class SimpleUrlDeviceTest {
+public class PwPairTest {
   private static final String ID1 = "id1";
   private static final String URL1 = "http://example.com";
   private SimpleUrlDevice urlDevice1;
+  private PwsResult pwsResult1;
+  private PwPair pwPair1;
 
   @Before
   public void setUp() {
     urlDevice1 = new SimpleUrlDevice(ID1, URL1);
+    pwsResult1 = new PwsResult(URL1, URL1);
+    pwPair1 = new PwPair(urlDevice1, pwsResult1);
   }
 
   @Test
-  public void getIdReturnsId() {
-    assertEquals(urlDevice1.getId(), ID1);
-  }
-
-  @Test
-  public void getUrlReturnsUrl() {
-    assertEquals(urlDevice1.getUrl(), URL1);
-  }
-
-  @Test
-  public void getRankReturnsPointFive() {
-    PwsResult pwsResult = new PwsResult(URL1, URL1);
-    assertEquals(.5, urlDevice1.getRank(pwsResult), .0001);
+  public void constructorCreatesProperObject() {
+    assertEquals(urlDevice1, pwPair1.getUrlDevice());
+    assertEquals(pwsResult1, pwPair1.getPwsResult());
   }
 }
