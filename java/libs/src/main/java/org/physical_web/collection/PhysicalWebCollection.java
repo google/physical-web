@@ -39,6 +39,7 @@ public class PhysicalWebCollection {
   private static final String METADATA_KEY = "metadata";
   private static final String REQUESTURL_KEY = "requesturl";
   private static final String SITEURL_KEY = "siteurl";
+  private static final String GROUPID_KEY = "groupid";
   private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
   private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
@@ -130,6 +131,12 @@ public class PhysicalWebCollection {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put(REQUESTURL_KEY, pwsResult.getRequestUrl());
     jsonObject.put(SITEURL_KEY, pwsResult.getSiteUrl());
+
+    String groupId = pwsResult.getGroupId();
+    if (groupId != null && !groupId.equals("")) {
+      jsonObject.put(GROUPID_KEY, groupId);
+    }
+
     return jsonObject;
   }
 
@@ -192,7 +199,11 @@ public class PhysicalWebCollection {
   private PwsResult jsonDeserializePwsResult(JSONObject jsonObject) {
     String requestUrl = jsonObject.getString(REQUESTURL_KEY);
     String siteUrl = jsonObject.getString(SITEURL_KEY);
-    return new PwsResult(requestUrl, siteUrl);
+    String groupId = null;
+    if (jsonObject.has(GROUPID_KEY)) {
+      groupId = jsonObject.getString(GROUPID_KEY);
+    }
+    return new PwsResult(requestUrl, siteUrl, groupId);
   }
 
   /**
@@ -257,6 +268,38 @@ public class PhysicalWebCollection {
     }
 
     return ret;
+  }
+
+  /**
+   * Return a list of UrlGroups sorted by the rank of the top-ranked pair in each group.
+   * @return a sorted list of UrlGroups.
+   */
+  public List<UrlGroup> getUrlGroupsSortedByRank() {
+    List<PwPair> sortedPwPairs = getPwPairsSortedByRank();
+
+    Map<String, UrlGroup> pwGroupMap = new HashMap<>();
+    for (PwPair pwPair : sortedPwPairs) {
+      PwsResult pwsResult = pwPair.getPwsResult();
+      if (pwsResult != null) {
+        String groupId = pwsResult.getGroupId();
+        if (groupId != null && !groupId.equals("")) {
+          // Create the group if it doesn't exist
+          UrlGroup urlGroup = pwGroupMap.get(groupId);
+          if (urlGroup == null) {
+            urlGroup = new UrlGroup(groupId);
+            pwGroupMap.put(groupId, urlGroup);
+          }
+
+          // Add the pair to this group
+          urlGroup.addPair(pwPair);
+        }
+      }
+    }
+
+    List<UrlGroup> pwGroupList = new ArrayList<>(pwGroupMap.values());
+    Collections.sort(pwGroupList, Collections.reverseOrder());
+
+    return pwGroupList;
   }
 
   /**

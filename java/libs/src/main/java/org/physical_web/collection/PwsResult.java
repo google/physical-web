@@ -21,15 +21,18 @@ package org.physical_web.collection;
 public class PwsResult {
   private String mRequestUrl;
   private String mSiteUrl;
+  private String mGroupId;
 
   /**
    * Construct a PwsResult.
    * @param requestUrl The request URL, as broadcasted by the device
    * @param siteUrl The site URL, as reported by PWS
+   * @param groupId The URL group ID, as reported by PWS
    */
-  PwsResult(String requestUrl, String siteUrl) {
+  PwsResult(String requestUrl, String siteUrl, String groupId) {
     mRequestUrl = requestUrl;
     mSiteUrl = siteUrl;
+    mGroupId = groupId;
   }
 
   /**
@@ -50,5 +53,15 @@ public class PwsResult {
    */
   public String getSiteUrl() {
     return mSiteUrl;
+  }
+
+  /**
+   * Fetches the URL group ID.
+   * The group ID is returned by the Physical Web Service and is used to group similar (but not
+   * necessarily identical) URLs.
+   * @return The URL group ID, may be null
+   */
+  public String getGroupId() {
+    return mGroupId;
   }
 }

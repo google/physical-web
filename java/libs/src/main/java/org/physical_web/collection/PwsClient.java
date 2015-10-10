@@ -90,7 +90,7 @@ public class PwsClient {
           } catch (JSONException e) {
             continue;
           }
-          PwsResult pwsResult = new PwsResult(requestUrl, responseUrl);
+          PwsResult pwsResult = new PwsResult(requestUrl, responseUrl, null);
           pwsResultCallback.onPwsResult(pwsResult);
           foundUrls.add(pwsResult.getRequestUrl());
         }

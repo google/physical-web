@@ -33,7 +33,7 @@ public class PwPairTest {
   @Before
   public void setUp() {
     urlDevice1 = new SimpleUrlDevice(ID1, URL1);
-    pwsResult1 = new PwsResult(URL1, URL1);
+    pwsResult1 = new PwsResult(URL1, URL1, null);
     pwPair1 = new PwPair(urlDevice1, pwsResult1);
   }
 
