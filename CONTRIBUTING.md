@@ -27,10 +27,8 @@ again.
 
 Once your CLA is submitted (or if you already submitted one for
 another Google project), make a commit adding yourself to the
-[AUTHORS][] and [CONTRIBUTORS][] files. This commit can be part
-of your first [pull request][].
+[CONTRIBUTORS][] file. This commit can be part of your first [pull request][].
 
-[AUTHORS]: AUTHORS
 [CONTRIBUTORS]: CONTRIBUTORS
 
 
