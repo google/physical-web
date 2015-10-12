@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -269,8 +270,8 @@ public class PhysicalWebCollection {
    * PwsResult.
    * @param pwsResultCallback The callback to run when we get an HTTPResponse.
    */
-  public void fetchPwsResults(PwsResultCallback pwsResultCallback) {
-    // Get new URLs to fetch
+  public void fetchPwsResults(final PwsResultCallback pwsResultCallback) {
+    // Get new URLs to fetch.
     Set<String> newUrls = new HashSet<>();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
       String url = urlDevice.getUrl();
@@ -281,8 +282,34 @@ public class PhysicalWebCollection {
       }
     }
 
-    // TODO(cco3): Create augmented callback that removes the urls from
-    // mPendingBroadcastUrls.
-    mPwsClient.resolve(newUrls, pwsResultCallback);
+    // Make the request.
+    PwsResultCallback augmentedCallback = new PwsResultCallback() {
+      public void onPwsResult(PwsResult pwsResult) {
+        mPendingBroadcastUrls.remove(pwsResult.getRequestUrl());
+        addMetadata(pwsResult);
+        pwsResultCallback.onPwsResult(pwsResult);
+      }
+
+      public void onPwsResultAbsent(String url) {
+        mPendingBroadcastUrls.remove(url);
+        pwsResultCallback.onPwsResultAbsent(url);
+      }
+
+      public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
+        for (String url : urls) {
+          mPendingBroadcastUrls.remove(url);
+        }
+        pwsResultCallback.onPwsResultError(urls, httpResponseCode, e);
+      }
+    };
+    mPwsClient.resolve(newUrls, augmentedCallback);
+  }
+
+
+  /**
+   * Cancel all current HTTP requests.
+   */
+  public void cancelAllRequests() {
+    mPwsClient.cancelAllRequests();
   }
 }
