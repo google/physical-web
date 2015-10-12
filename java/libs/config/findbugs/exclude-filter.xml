@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
   <Match>
-    <Class name="org.physical_web.physicalweb.ble.ScanRecord"/>
+    <Class name="org.physical_web.collection.PhysicalWebCollection"/>
+    <Method name="~json(Des|S)erializeUrlDevice"/>
+    <Bug pattern="DM_STRING_CTOR"/>
   </Match>
 </FindBugsFilter>

@@ -19,36 +19,23 @@ dependencies {
     testCompile 'org.skyscreamer:jsonassert:1.2.3'
 }
 
+findbugsMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+findbugs {
+    reportsDir = file("$project.buildDir/reports/findbugs")
+    excludeFilter = file("$project.rootDir/config/findbugs/exclude-filter.xml")
+}
+
 task checkstyle(type: Checkstyle) {
     configProperties.checkstyleSuppressionsPath = new File(rootDir, "config/checkstyle/suppressions.xml").absolutePath
     source 'src'
     include '**/*.java'
     exclude '**/gen/**'
-    classpath = files()
-}
-
-task findbugs(type: FindBugs, dependsOn: assemble) {
-    ignoreFailures = false
-    effort = "max"
-    reportLevel = "high"
-    classes = files("${project.rootDir}/build/classes")
-    excludeFilter = file("${project.rootDir}/config/findbugs/exclude-filter.xml")
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml.enabled = false
-        html.enabled = true
-        xml {
-            destination "$project.buildDir/reports/findbugs/findbugs.xml"
-        }
-        html {
-            destination "$project.buildDir/reports/findbugs/findbugs.html"
-        }
-    }
-
     classpath = files()
 }
 
@@ -73,4 +60,4 @@ task pmd(type: Pmd) {
     }
 }
 
-check.dependsOn 'checkstyle', 'findbugs', 'pmd'
+check.dependsOn 'checkstyle', 'pmd'
