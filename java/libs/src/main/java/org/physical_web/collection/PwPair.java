@@ -82,6 +82,6 @@ public class PwPair implements Comparable<PwPair> {
    * @return the comparison value.
    */
   public int compareTo(PwPair other) {
-    return new Double(getRank()).compareTo(other.getRank());
+    return Double.compare(getRank(), other.getRank());
   }
 }

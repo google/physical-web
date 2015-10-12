@@ -20,6 +20,9 @@ dependencies {
 }
 
 findbugsMain {
+    ignoreFailures = false
+    effort = "max"
+    reportLevel = "low"
     reports {
         xml.enabled = false
         html.enabled = true
@@ -31,33 +34,20 @@ findbugs {
     excludeFilter = file("$project.rootDir/config/findbugs/exclude-filter.xml")
 }
 
-task checkstyle(type: Checkstyle) {
-    configProperties.checkstyleSuppressionsPath = new File(rootDir, "config/checkstyle/suppressions.xml").absolutePath
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-    classpath = files()
+checkstyle {
+    configProperties.checkstyleSuppressionsPath = file("$project.rootDir/config/checkstyle/suppressions.xml")
 }
 
-task pmd(type: Pmd) {
-    ignoreFailures = false
-    ruleSetFiles = files("${project.rootDir}/config/pmd/pmd-ruleset.xml")
-    ruleSets = []
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
+pmdMain {
     reports {
         xml.enabled = false
         html.enabled = true
-        xml {
-            destination "$project.buildDir/reports/pmd/pmd.xml"
-        }
-        html {
-            destination "$project.buildDir/reports/pmd/pmd.html"
-        }
     }
 }
 
-check.dependsOn 'checkstyle', 'pmd'
+pmd {
+    ignoreFailures = false
+    ruleSetFiles = files("${project.rootDir}/config/pmd/pmd-ruleset.xml")
+    ruleSets = []
+    reportsDir = file("$project.buildDir/reports/findbugs")
+}
