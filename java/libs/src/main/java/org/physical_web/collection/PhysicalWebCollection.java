@@ -38,17 +38,22 @@ public class PhysicalWebCollection {
   private static final String METADATA_KEY = "metadata";
   private static final String REQUESTURL_KEY = "requesturl";
   private static final String SITEURL_KEY = "siteurl";
+  private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
+  private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<Class, UrlDeviceJsonSerializer> mUrlDeviceTypeToUrlDeviceJsonSerializer;
   private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
+  private Set<String> mPendingBroadcastUrls;
 
   /**
    * Construct a PhysicalWebCollection.
    */
   public PhysicalWebCollection() {
+    mPwsClient = new PwsClient(DEFAULT_PWS_ENDPOINT);
     mDeviceIdToUrlDeviceMap = new HashMap<>();
     mUrlDeviceTypeToUrlDeviceJsonSerializer = new HashMap<>();
     mBroadcastUrlToPwsResultMap = new HashMap<>();
+    mPendingBroadcastUrls = new HashSet<>();
   }
 
   /**
@@ -248,5 +253,36 @@ public class PhysicalWebCollection {
     }
 
     return ret;
+  }
+
+  /**
+   * Set the URL for making PWS requests.
+   * @param pwsEndpoint The new PWS endpoint.
+   */
+  public void setPwsEndpoint(String pwsEndpoint) {
+    mPwsClient.setPwsEndpoint(pwsEndpoint);
+  }
+
+  /**
+   * Triggers an HTTP request to be made to the PWS.
+   * This method fetches a PwsResult for all broadcast URLs that do not have a
+   * PwsResult.
+   * @param pwsResultCallback The callback to run when we get an HTTPResponse.
+   */
+  public void fetchPwsResults(PwsResultCallback pwsResultCallback) {
+    // Get new URLs to fetch
+    Set<String> newUrls = new HashSet<>();
+    for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
+      String url = urlDevice.getUrl();
+      if (!mPendingBroadcastUrls.contains(url)
+          && !mBroadcastUrlToPwsResultMap.containsKey(url)) {
+        newUrls.add(url);
+        mPendingBroadcastUrls.add(url);
+      }
+    }
+
+    // TODO(cco3): Create augmented callback that removes the urls from
+    // mPendingBroadcastUrls.
+    mPwsClient.resolve(newUrls, pwsResultCallback);
   }
 }
