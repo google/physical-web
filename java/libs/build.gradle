@@ -75,6 +75,11 @@ pmd {
     reportsDir = file("$project.buildDir/reports/findbugs")
 }
 
+javadoc {
+    source = sourceSets.main.java
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.withType(Test) {
     reports.html.destination = file("${reporting.baseDir}/${name}")
 }

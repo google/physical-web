@@ -21,6 +21,7 @@ package org.physical_web.collection;
 public class PhysicalWebCollectionException extends Exception {
   /**
    * Construct a PhysicalWebCollectionException.
+   * @param message The detail message string.
    */
   public PhysicalWebCollectionException(String message) {
     super(message);

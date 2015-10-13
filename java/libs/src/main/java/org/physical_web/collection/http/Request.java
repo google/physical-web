@@ -35,6 +35,7 @@ public abstract class Request<T> extends Thread {
    * Construct a Request object.
    * @param url The url to make an HTTP request to.
    * @param callback The callback run when the HTTP response is received.
+   * @throws MalformedURLException on invalid url
    */
   public Request(String url, RequestCallback<T> callback) throws MalformedURLException {
     mUrl = new URL(url);
@@ -99,6 +100,7 @@ public abstract class Request<T> extends Thread {
   /**
    * Helper method to make an HTTP request.
    * @param urlConnection The HTTP connection.
+   * @throws IOException on error
    */
   protected abstract void writeToUrlConnection(HttpURLConnection urlConnection) throws IOException;
 
@@ -106,6 +108,7 @@ public abstract class Request<T> extends Thread {
    * Helper method to read an HTTP response.
    * @param is The InputStream.
    * @return An object representing the HTTP response.
+   * @throws IOException on error
    */
   protected abstract T readInputStream(InputStream is) throws IOException;
 }

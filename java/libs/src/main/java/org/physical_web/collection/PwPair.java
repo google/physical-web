@@ -24,6 +24,8 @@ public class PwPair implements Comparable<PwPair> {
 
   /**
    * Construct a PwPair.
+   * @param urlDevice The URL device.
+   * @param pwsResult The metadata returned by PWS for the URL broadcast by the device.
    */
   public PwPair(UrlDevice urlDevice, PwsResult pwsResult) {
     mUrlDevice = urlDevice;
