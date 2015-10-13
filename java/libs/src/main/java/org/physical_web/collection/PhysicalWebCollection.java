@@ -96,6 +96,7 @@ public class PhysicalWebCollection {
    * @param urlDeviceType the class UrlDevices to serialize and deserialize with this
    *        serializer.
    * @param urlDeviceJsonSerializer the serializer to use in serializing UrlDevices.
+   * @param <T> the subclass of UrlDevice that the serializer will deserialize to.
    */
   public <T extends UrlDevice> void addUrlDeviceJsonSerializer(
       Class<? extends T> urlDeviceType,
@@ -135,6 +136,7 @@ public class PhysicalWebCollection {
   /**
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
+   * @throws PhysicalWebCollectionException on invalid or unrecognized input
    */
   public JSONObject jsonSerialize() throws PhysicalWebCollectionException {
     JSONObject jsonObject = new JSONObject();
@@ -196,6 +198,7 @@ public class PhysicalWebCollection {
   /**
    * Populate this data structure with UrlDevices represented by a given JSON object.
    * @param jsonObject a serialized PhysicalWebCollection.
+   * @throws PhysicalWebCollectionException on invalid or unrecognized input
    */
   public void jsonDeserialize(JSONObject jsonObject) throws PhysicalWebCollectionException {
     // Check the schema version

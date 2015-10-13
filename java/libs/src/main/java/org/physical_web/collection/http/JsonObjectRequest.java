@@ -38,6 +38,7 @@ public class JsonObjectRequest extends Request<JSONObject> {
    * @param url The url to make this HTTP request to.
    * @param jsonObject The JSON payload.
    * @param callback The callback run when the HTTP response is received.
+   * @throws MalformedURLException on invalid url
    */
   public JsonObjectRequest(String url, JSONObject jsonObject, RequestCallback callback)
       throws MalformedURLException {

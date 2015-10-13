@@ -103,7 +103,7 @@ public class IntegrationTest {
 
   @Test
   public void resolveSomeUrls() throws InterruptedException {
-    physicalWebCollection.addUrlDevice(new RankedDevice("id1", "https://google.com", .5));	
+    physicalWebCollection.addUrlDevice(new RankedDevice("id1", "https://google.com", .5));
     physicalWebCollection.addUrlDevice(new RankedDevice("id2", "https://goo.gl/mo6YnG", .2));
     FetchPwsResultsTask task = new FetchPwsResultsTask(2);
     assertTrue(task.run());
