@@ -5,4 +5,9 @@
     <Method name="~json(Des|S)erializeUrlDevice"/>
     <Bug pattern="DM_STRING_CTOR"/>
   </Match>
+  <Match>
+    <Class name="org.physical_web.collection.PwPair"/>
+    <Method name="equals"/>
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+  </Match>
 </FindBugsFilter>
