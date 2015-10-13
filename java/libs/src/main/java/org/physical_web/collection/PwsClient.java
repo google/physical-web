@@ -114,9 +114,11 @@ public class PwsClient {
     try {
       JSONArray urls = new JSONArray();
       for (String url : broadcastUrls) {
-        urls.put(url);
+        JSONObject obj = new JSONObject();
+        obj.put("url", url);
+        urls.put(obj);
       }
-      payload.put("urls", payload);
+      payload.put("objects", urls);
     } catch (JSONException e) {
       pwsResultCallback.onPwsResultError(broadcastUrls, 0, e);
       return;

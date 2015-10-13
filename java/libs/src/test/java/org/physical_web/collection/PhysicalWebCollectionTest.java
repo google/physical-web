@@ -39,23 +39,12 @@ public class PhysicalWebCollectionTest {
   private PhysicalWebCollection physicalWebCollection1;
   private PhysicalWebCollection physicalWebCollection2;
 
-  private static class RankedDevice implements UrlDevice {
-    private String mId;
-    private String mUrl;
+  private static class RankedDevice extends SimpleUrlDevice {
     private double mRank;
 
     RankedDevice(String id, String url, double rank) {
-      mId = id;
-      mUrl = url;
+      super(id, url);
       mRank = rank;
-    }
-
-    public String getId() {
-      return mId;
-    }
-
-    public String getUrl() {
-      return mUrl;
     }
 
     public double getRank(PwsResult pwsResult) {

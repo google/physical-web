@@ -1,10 +1,27 @@
-apply plugin: 'java'
-apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
-apply plugin: 'pmd'
+plugins {
+    id 'checkstyle'
+    id 'findbugs'
+    id 'java'
+    id 'pmd'
+}
 
 repositories {
     jcenter()
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integrationTest/java')
+        }
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
 }
 
 gradle.projectsEvaluated {
@@ -17,6 +34,12 @@ dependencies {
     compile 'org.json:json:20140107'
     testCompile 'junit:junit:4.11'
     testCompile 'org.skyscreamer:jsonassert:1.2.3'
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
 }
 
 findbugsMain {
@@ -51,3 +74,9 @@ pmd {
     ruleSets = []
     reportsDir = file("$project.buildDir/reports/findbugs")
 }
+
+tasks.withType(Test) {
+    reports.html.destination = file("${reporting.baseDir}/${name}")
+}
+
+integrationTest.dependsOn assemble
