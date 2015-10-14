@@ -348,7 +348,9 @@ public class PhysicalWebCollection {
         pwsResultCallback.onPwsResultError(urls, httpResponseCode, e);
       }
     };
-    mPwsClient.resolve(newUrls, augmentedCallback);
+    if (newUrls.size() > 0) {
+      mPwsClient.resolve(newUrls, augmentedCallback);
+    }
   }
 
 
