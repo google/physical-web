@@ -53,12 +53,13 @@ findbugsMain {
 }
 
 findbugs {
-    reportsDir = file("$project.buildDir/reports/findbugs")
-    excludeFilter = file("$project.rootDir/config/findbugs/exclude-filter.xml")
+    reportsDir = new File(buildDir, "reports/findbugs")
+    excludeFilter = new File(projectDir, "config/findbugs/exclude-filter.xml")
 }
 
 checkstyle {
-    configProperties.checkstyleSuppressionsPath = file("$project.rootDir/config/checkstyle/suppressions.xml")
+    configProperties.checkstyleSuppressionsPath =
+            new File(projectDir, "config/checkstyle/suppressions.xml")
 }
 
 pmdMain {
@@ -70,9 +71,9 @@ pmdMain {
 
 pmd {
     ignoreFailures = false
-    ruleSetFiles = files("${project.rootDir}/config/pmd/pmd-ruleset.xml")
+    ruleSetFiles = files(new File(projectDir, "config/pmd/pmd-ruleset.xml"))
     ruleSets = []
-    reportsDir = file("$project.buildDir/reports/findbugs")
+    reportsDir = new File(buildDir, "reports/findbugs")
 }
 
 javadoc {

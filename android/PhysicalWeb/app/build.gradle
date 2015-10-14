@@ -62,6 +62,10 @@ repositories {
 }
 
 dependencies {
+    compile(project(':libs')) {
+        exclude group: 'org.json', module: 'json'
+    }
+
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
 
