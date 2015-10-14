@@ -36,37 +36,26 @@ public class PhysicalWebCollectionTest {
   private static final String ID3 = "id3";
   private static final String URL1 = "http://example.com";
   private static final String URL2 = "http://physical-web.org";
+  private static final String URL3a = "http://example.com/#a";
+  private static final String URL3b = "http://example.com/#b";
+  private static final String GROUPID1 = "group1";
+  private static final String GROUPID2 = "group2";
   private PhysicalWebCollection physicalWebCollection1;
-  private PhysicalWebCollection physicalWebCollection2;
 
-  private static class RankedDevice extends SimpleUrlDevice {
-    private double mRank;
-
-    RankedDevice(String id, String url, double rank) {
-      super(id, url);
-      mRank = rank;
-    }
-
-    public double getRank(PwsResult pwsResult) {
-      return mRank;
-    }
-  }
-
-  private void addRankedDevice(String id, String url, double rank) {
-    UrlDevice urlDevice = new RankedDevice(id, url, rank);
-    PwsResult pwsResult = new PwsResult(url, url);
-    physicalWebCollection2.addUrlDevice(urlDevice);
-    physicalWebCollection2.addMetadata(pwsResult);
+  private void addRankedDeviceAndMetadata(PhysicalWebCollection collection, String id, String url,
+                                          String groupId, double rank) {
+    PwPair rankedPair = RankedDevice.createRankedPair(id, url, groupId, rank);
+    collection.addUrlDevice(rankedPair.getUrlDevice());
+    collection.addMetadata(rankedPair.getPwsResult());
   }
 
   @Before
   public void setUp() {
     physicalWebCollection1 = new PhysicalWebCollection();
     UrlDevice urlDevice = new SimpleUrlDevice(ID1, URL1);
-    PwsResult pwsResult = new PwsResult(URL1, URL1);
+    PwsResult pwsResult = new PwsResult(URL1, URL1, GROUPID1);
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
-    physicalWebCollection2 = new PhysicalWebCollection();
   }
 
   @Test
@@ -87,6 +76,7 @@ public class PhysicalWebCollectionTest {
     PwsResult pwsResult = physicalWebCollection1.getMetadataByBroadcastUrl(URL1);
     assertEquals(pwsResult.getRequestUrl(), URL1);
     assertEquals(pwsResult.getSiteUrl(), URL1);
+    assertEquals(pwsResult.getGroupId(), GROUPID1);
   }
 
   @Test
@@ -110,7 +100,8 @@ public class PhysicalWebCollectionTest {
         + "    }],"
         + "    \"metadata\": [{"
         + "        \"requesturl\": \"" + URL1 + "\","
-        + "        \"siteurl\": \"" + URL1 + "\""
+        + "        \"siteurl\": \"" + URL1 + "\","
+        + "        \"groupid\": \"" + GROUPID1 + "\""
         + "    }]"
         + "}");
     JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject, true);
@@ -138,7 +129,8 @@ public class PhysicalWebCollectionTest {
         + "    }],"
         + "    \"metadata\": [{"
         + "        \"requesturl\": \"" + URL1 + "\","
-        + "        \"siteurl\": \"" + URL1 + "\""
+        + "        \"siteurl\": \"" + URL1 + "\","
+        + "        \"groupid\": \"" + GROUPID1 + "\""
         + "    }]"
         + "}");
     physicalWebCollection.jsonDeserialize(jsonObject);
@@ -149,6 +141,7 @@ public class PhysicalWebCollectionTest {
     assertEquals(urlDevice.getUrl(), URL1);
     assertEquals(pwsResult.getRequestUrl(), URL1);
     assertEquals(pwsResult.getSiteUrl(), URL1);
+    assertEquals(pwsResult.getGroupId(), GROUPID1);
   }
 
   @Test(expected = PhysicalWebCollectionException.class)
@@ -168,14 +161,40 @@ public class PhysicalWebCollectionTest {
     physicalWebCollection.jsonDeserialize(jsonObject);
   }
 
+  @Test
+  public void jsonSerializeAndDeserializePreservesNullGroupId() throws Exception {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    physicalWebCollection.addMetadata(new PwsResult(URL1, URL1, null)); // no group ID
+
+    PhysicalWebCollection deserializedCollection = new PhysicalWebCollection();
+    deserializedCollection.jsonDeserialize(physicalWebCollection.jsonSerialize());
+    PwsResult deserializedResult = deserializedCollection.getMetadataByBroadcastUrl(URL1);
+    assertNull(deserializedResult.getGroupId());
+  }
+
+  @Test
   public void getPwPairsSortedByRankWorks() {
-    addRankedDevice(ID1, URL1, .1);
-    addRankedDevice(ID2, URL2, .5);
-    addRankedDevice(ID3, URL2, .9);  // Duplicate URL
-    List<PwPair> pwPairs = physicalWebCollection2.getPwPairsSortedByRank();
-    assertEquals(pwPairs.size(), 3);
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, null, .1);
+    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL2, null, .5);
+    addRankedDeviceAndMetadata(physicalWebCollection, ID3, URL2, null, .9);  // Duplicate URL
+    List<PwPair> pwPairs = physicalWebCollection.getPwPairsSortedByRank();
+    assertEquals(pwPairs.size(), 2);
     assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
-    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID2);
-    assertEquals(pwPairs.get(2).getUrlDevice().getId(), ID1);
+    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID1);
+  }
+
+  @Test
+  public void getUrlGroupsSortedByRankWorks() {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUPID1, .1);  // Group 1
+    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL3a, GROUPID2, .5);  // Group 2
+    addRankedDeviceAndMetadata(physicalWebCollection, ID3, URL3b, GROUPID2, .9);  // Also group 1
+    List<UrlGroup> pwGroups = physicalWebCollection.getUrlGroupsSortedByRank();
+    assertEquals(pwGroups.size(), 2);
+    assertEquals(pwGroups.get(0).getGroupId(), GROUPID2);
+    assertEquals(pwGroups.get(0).getTopPair().getUrlDevice().getId(), ID3);
+    assertEquals(pwGroups.get(1).getGroupId(), GROUPID1);
+    assertEquals(pwGroups.get(1).getTopPair().getUrlDevice().getId(), ID1);
   }
 }

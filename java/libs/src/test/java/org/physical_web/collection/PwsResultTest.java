@@ -29,7 +29,7 @@ public class PwsResultTest {
 
   @Before
   public void setUp() {
-    pwsResult1 = new PwsResult(URL1, URL1);
+    pwsResult1 = new PwsResult(URL1, URL1, null);
   }
 
   @Test
