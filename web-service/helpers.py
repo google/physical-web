@@ -65,9 +65,6 @@ def BuildResponse(objects):
             append_invalid()
             continue
 
-        # Url fragment is usually not preserved across fetches, so store request fragment here.
-        url_fragment = parsed_url.fragment
-
         try:
             siteInfo = GetSiteInfoForUrl(url, distance, force_update)
         except FailedFetchException:
@@ -78,8 +75,10 @@ def BuildResponse(objects):
             # It's a valid url, which we didn't fail to fetch, so it must be `No Content`
             continue
 
-        scheme, netloc, path, query, _ = urlsplit(siteInfo.url)
-        finalUrl = urlunsplit((scheme, netloc, path, query, url_fragment))
+        scheme, netloc, path, query, fragment = urlsplit(siteInfo.url)
+        if fragment == '':
+            fragment = parsed_url.fragment
+        finalUrl = urlunsplit((scheme, netloc, path, query, fragment))
 
         device_data = {}
         device_data['id'] = url
@@ -208,6 +207,12 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
         return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = urljoin(url, result.headers['location'])
+
+        scheme, netloc, path, query, fragment = urlsplit(final_url)
+        if fragment == '':
+            fragment = urlparse(url).fragment
+        final_url = urlunsplit((scheme, netloc, path, query, fragment))
+
         logging.info('FetchAndStoreUrl url:{0}, redirects_to:{1}'.format(url, final_url))
         if siteInfo is not None:
             logging.info('Removing Stale Cache for url:{0}'.format(url))
