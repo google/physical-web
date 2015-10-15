@@ -140,7 +140,7 @@ def ComputeGroupId(url, title, description):
     import hashlib
     domain = urlparse(url).netloc
     seed = domain + '\0' + title
-    groupid = hashlib.sha1(seed).hexdigest()[:16]
+    groupid = hashlib.sha1(seed.encode('utf-8')).hexdigest()[:16]
     return groupid
 
 ################################################################################
