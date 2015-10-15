@@ -280,19 +280,17 @@ public class PhysicalWebCollection {
     Map<String, UrlGroup> pwGroupMap = new HashMap<>();
     for (PwPair pwPair : sortedPwPairs) {
       PwsResult pwsResult = pwPair.getPwsResult();
-      if (pwsResult != null) {
-        String groupId = pwsResult.getGroupId();
-        if (groupId != null && !groupId.equals("")) {
-          // Create the group if it doesn't exist
-          UrlGroup urlGroup = pwGroupMap.get(groupId);
-          if (urlGroup == null) {
-            urlGroup = new UrlGroup(groupId);
-            pwGroupMap.put(groupId, urlGroup);
-          }
-
-          // Add the pair to this group
-          urlGroup.addPair(pwPair);
+      String groupId = pwsResult.getGroupId();
+      if (groupId != null && !groupId.equals("")) {
+        // Create the group if it doesn't exist
+        UrlGroup urlGroup = pwGroupMap.get(groupId);
+        if (urlGroup == null) {
+          urlGroup = new UrlGroup(groupId);
+          pwGroupMap.put(groupId, urlGroup);
         }
+
+        // Add the pair to this group
+        urlGroup.addPair(pwPair);
       }
     }
 

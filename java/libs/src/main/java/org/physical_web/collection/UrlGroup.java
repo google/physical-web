@@ -78,18 +78,25 @@ public class UrlGroup implements Comparable<UrlGroup> {
   public boolean equals(Object other) {
     if (other instanceof UrlGroup) {
       UrlGroup otherUrlGroup = (UrlGroup) other;
-      return getTopPair() == otherUrlGroup.getTopPair();
+      return getTopPair().equals(otherUrlGroup.getTopPair()) &&
+          getGroupId().equals(otherUrlGroup.getGroupId());
     }
     return false;
   }
 
   /**
    * Compare two UrlGroups based on the ranks of their top pairs.
+   * Ties are broken by alphabetical comparison of groupid strings.
    * @param other the UrlGroup to compare to.
    * @return the comparison value.
    */
   @Override
   public int compareTo(UrlGroup other) {
-    return getTopPair().compareTo(other.getTopPair());
+    int compareValue = getTopPair().compareTo(other.getTopPair());
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    return getGroupId().compareTo(other.getGroupId());
   }
 }
