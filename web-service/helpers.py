@@ -90,7 +90,10 @@ def BuildResponse(objects):
         if siteInfo.jsonlds is not None:
             device_data['json-ld'] = json.loads(siteInfo.jsonlds)
         device_data['distance'] = distance
-        device_data['groupid'] = ComputeGroupId(siteInfo.url, siteInfo.title, siteInfo.description)
+        try:
+            device_data['groupid'] = ComputeGroupId(siteInfo.url, siteInfo.title, siteInfo.description)
+        except Exception as e:
+            logging.error('ComputeGroupId url:{0}, title:{1}, description:{2}'.format(siteInfo.url, siteInfo.title, siteInfo.description))
 
         metadata_output.append(device_data)
 
