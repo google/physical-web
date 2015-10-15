@@ -24,7 +24,7 @@ except Exception as e:
         print "Warning: import exception '{0}'".format(e)
 
 from urllib import quote_plus
-from urlparse import urljoin, urlparse
+from urlparse import urljoin, urlparse, urlsplit, urlunsplit
 import cgi
 import datetime
 import json
@@ -65,6 +65,9 @@ def BuildResponse(objects):
             append_invalid()
             continue
 
+        # Url fragment is usually not preserved across fetches, so store request fragment here.
+        url_fragment = parsed_url.fragment
+
         try:
             siteInfo = GetSiteInfoForUrl(url, distance, force_update)
         except FailedFetchException:
@@ -75,12 +78,15 @@ def BuildResponse(objects):
             # It's a valid url, which we didn't fail to fetch, so it must be `No Content`
             continue
 
+        scheme, netloc, path, query, _ = urlsplit(siteInfo.url)
+        finalUrl = urlunsplit((scheme, netloc, path, query, url_fragment))
+
         device_data = {}
         device_data['id'] = url
         # TODO: change url to the original url (perhaps minus our goo.gl shortened values)
-        device_data['url'] = siteInfo.url
+        device_data['url'] = finalUrl
         # TODO: change displayUrl to the "most applicable" url (resolve shorteners, but perhaps not all redirects)
-        device_data['displayUrl'] = siteInfo.url
+        device_data['displayUrl'] = finalUrl
         if siteInfo.title is not None:
             device_data['title'] = siteInfo.title
         if siteInfo.description is not None:
