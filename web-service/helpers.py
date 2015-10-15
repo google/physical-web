@@ -24,7 +24,7 @@ except Exception as e:
         print "Warning: import exception '{0}'".format(e)
 
 from urllib import quote_plus
-from urlparse import urljoin, urlparse
+from urlparse import urljoin, urlparse, urlsplit, urlunsplit
 import cgi
 import datetime
 import json
@@ -75,12 +75,17 @@ def BuildResponse(objects):
             # It's a valid url, which we didn't fail to fetch, so it must be `No Content`
             continue
 
+        scheme, netloc, path, query, fragment = urlsplit(siteInfo.url)
+        if fragment == '':
+            fragment = parsed_url.fragment
+        finalUrl = urlunsplit((scheme, netloc, path, query, fragment))
+
         device_data = {}
         device_data['id'] = url
         # TODO: change url to the original url (perhaps minus our goo.gl shortened values)
-        device_data['url'] = siteInfo.url
+        device_data['url'] = finalUrl
         # TODO: change displayUrl to the "most applicable" url (resolve shorteners, but perhaps not all redirects)
-        device_data['displayUrl'] = siteInfo.url
+        device_data['displayUrl'] = finalUrl
         if siteInfo.title is not None:
             device_data['title'] = siteInfo.title
         if siteInfo.description is not None:
@@ -202,6 +207,12 @@ def FetchAndStoreUrl(siteInfo, url, distance=None, force_update=False):
         return None
     elif result.status_code in [301, 302, 303, 307, 308]: # Moved Permanently, Found, See Other, Temporary Redirect, Permanent Redirect
         final_url = urljoin(url, result.headers['location'])
+
+        scheme, netloc, path, query, fragment = urlsplit(final_url)
+        if fragment == '':
+            fragment = urlparse(url).fragment
+        final_url = urlunsplit((scheme, netloc, path, query, fragment))
+
         logging.info('FetchAndStoreUrl url:{0}, redirects_to:{1}'.format(url, final_url))
         if siteInfo is not None:
             logging.info('Removing Stale Cache for url:{0}'.format(url))
