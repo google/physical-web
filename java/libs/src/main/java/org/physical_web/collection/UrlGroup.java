@@ -18,13 +18,14 @@ package org.physical_web.collection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * A collection of similar URLs, the devices broadcasting those URLs, and associated metadata.
  */
 public class UrlGroup implements Comparable<UrlGroup> {
   private String mGroupId;
-  private List<PwPair> mPwPairs;
+  private PriorityQueue<PwPair> mPwPairs;
 
   /**
    * Construct a UrlGroup.
@@ -32,7 +33,7 @@ public class UrlGroup implements Comparable<UrlGroup> {
    */
   public UrlGroup(String groupId) {
     mGroupId = groupId;
-    mPwPairs = new ArrayList<>();
+    mPwPairs = new PriorityQueue<>(1, Collections.reverseOrder());
   }
 
   /**
@@ -56,40 +57,66 @@ public class UrlGroup implements Comparable<UrlGroup> {
    * @return The top PwPair.
    */
   public PwPair getTopPair() {
-    return Collections.max(mPwPairs);
+    return mPwPairs.peek();
   }
 
   /**
-   * Unimplemented hash code method.
-   * @return 42.
+   * Return a hash code for this UrlGroup.
+   * @return hash code
    */
   @Override
   public int hashCode() {
-    assert false : "hashCode not designed";
-    return 42;
+    int hash = 1;
+    hash = hash * 31 + ((mGroupId == null) ? 0 : mGroupId.hashCode());
+    hash = hash * 31 + mPwPairs.hashCode();
+    return hash;
   }
 
   /**
-   * Check if two UrlGroups are equal based on the ranks of their top pairs.
+   * Check if two UrlGroups are equal.
    * @param other the UrlGroup to compare to.
    * @return true if the top pairs are of equal rank.
    */
   @Override
   public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+
     if (other instanceof UrlGroup) {
       UrlGroup otherUrlGroup = (UrlGroup) other;
-      return getTopPair() == otherUrlGroup.getTopPair();
+      if (mPwPairs.size() == otherUrlGroup.mPwPairs.size() &&
+          mGroupId.equals(otherUrlGroup.mGroupId)) {
+        // don't consider order when comparing lists
+        List<PwPair> myPairs = new ArrayList<>(mPwPairs);
+        List<PwPair> otherPairs = new ArrayList<>(otherUrlGroup.mPwPairs);
+        Collections.sort(myPairs);
+        Collections.sort(otherPairs);
+        return myPairs.equals(otherPairs);
+      }
     }
+
     return false;
   }
 
   /**
    * Compare two UrlGroups based on the ranks of their top pairs.
+   * Ties are broken by alphabetical comparison of groupid strings.
    * @param other the UrlGroup to compare to.
    * @return the comparison value.
    */
   @Override
   public int compareTo(UrlGroup other) {
-    return getTopPair().compareTo(other.getTopPair());
+    if (this == other) {
+      return 0;
+    }
+
+    int compareValue = Utils.nullSafeCompare(getTopPair(), other.getTopPair());
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    return Utils.nullSafeCompare(mGroupId, other.mGroupId);
   }
+
 }

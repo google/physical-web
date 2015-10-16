@@ -3,27 +3,27 @@ package org.physical_web.collection;
 /**
  * A mock UrlDevice with a configurable rank value.
  */
-class RankedDevice implements UrlDevice {
-  private String mId;
-  private String mUrl;
+public class RankedDevice extends SimpleUrlDevice {
   private double mRank;
 
-  RankedDevice(String id, String url, double rank) {
-    mId = id;
-    mUrl = url;
+  public RankedDevice(String id, String url, double rank) {
+    super(id, url);
     mRank = rank;
   }
 
-  public String getId() {
-    return mId;
-  }
-
-  public String getUrl() {
-    return mUrl;
-  }
-
+  @Override
   public double getRank(PwsResult pwsResult) {
     return mRank;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    return super.equals(other);
   }
 
   /**

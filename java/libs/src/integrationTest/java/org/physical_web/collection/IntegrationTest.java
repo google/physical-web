@@ -31,19 +31,6 @@ import java.util.concurrent.TimeUnit;
 public class IntegrationTest {
   private PhysicalWebCollection physicalWebCollection;
 
-  private static class RankedDevice extends SimpleUrlDevice {
-    private double mRank;
-
-    RankedDevice(String id, String url, double rank) {
-      super(id, url);
-      mRank = rank;
-    }
-
-    public double getRank(PwsResult pwsResult) {
-      return mRank;
-    }
-  }
-
   private class FetchPwsResultsTask {
     private int mNumExpected;
     private Semaphore mMutex;
