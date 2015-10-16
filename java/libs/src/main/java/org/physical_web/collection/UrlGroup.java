@@ -18,13 +18,14 @@ package org.physical_web.collection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * A collection of similar URLs, the devices broadcasting those URLs, and associated metadata.
  */
 public class UrlGroup implements Comparable<UrlGroup> {
   private String mGroupId;
-  private List<PwPair> mPwPairs;
+  private PriorityQueue<PwPair> mPwPairs;
 
   /**
    * Construct a UrlGroup.
@@ -32,7 +33,7 @@ public class UrlGroup implements Comparable<UrlGroup> {
    */
   public UrlGroup(String groupId) {
     mGroupId = groupId;
-    mPwPairs = new ArrayList<>();
+    mPwPairs = new PriorityQueue<>(1, Collections.reverseOrder());
   }
 
   /**
@@ -56,7 +57,7 @@ public class UrlGroup implements Comparable<UrlGroup> {
    * @return The top PwPair.
    */
   public PwPair getTopPair() {
-    return Collections.max(mPwPairs, Collections.reverseOrder());
+    return mPwPairs.peek();
   }
 
   /**
