@@ -18,7 +18,7 @@ package org.physical_web.collection;
 /**
  * Metadata returned from the Physical Web Service for a single URL.
  */
-public class PwsResult {
+public class PwsResult implements Comparable<PwsResult> {
   private String mRequestUrl;
   private String mSiteUrl;
   private String mGroupId;
@@ -63,5 +63,64 @@ public class PwsResult {
    */
   public String getGroupId() {
     return mGroupId;
+  }
+
+  /**
+   * Return a hash code for this PwsResult.
+   * @return hash code
+   */
+  @Override
+  public int hashCode() {
+    int hash = 1;
+    hash = hash * 31 + mRequestUrl.hashCode();
+    hash = hash * 31 + mSiteUrl.hashCode();
+    hash = hash * 31 + ((mGroupId == null) ? 0 : mGroupId.hashCode());
+    return hash;
+  }
+
+  /**
+   * Check if two PwsResults are equal.
+   * @param other the PwsResult to compare to.
+   * @return true if the PwsResults are equal.
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+
+    if (other instanceof PwsResult) {
+      PwsResult otherPwsResult = (PwsResult) other;
+
+      return Utils.nullSafeCompare(mGroupId, otherPwsResult.mGroupId) == 0 &&
+          mRequestUrl.equals(otherPwsResult.mRequestUrl) &&
+          mSiteUrl.equals(otherPwsResult.mSiteUrl);
+    }
+    return false;
+  }
+
+  /**
+   * Compare two PwsResults based on request URL alphabetical ordering, breaking ties by comparing
+   * site URL and group ID.
+   * @param other the PwsResult to compare to.
+   * @return the comparison value.
+   */
+  @Override
+  public int compareTo(PwsResult other) {
+    if (this == other) {
+      return 0;
+    }
+
+    int compareValue = mRequestUrl.compareTo(other.mRequestUrl);
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    compareValue = mSiteUrl.compareTo(other.mSiteUrl);
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    return Utils.nullSafeCompare(mGroupId, other.mGroupId);
   }
 }

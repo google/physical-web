@@ -18,7 +18,7 @@ package org.physical_web.collection;
 /**
  * The interface defining a Physical Web URL device.
  */
-public interface UrlDevice {
+public interface UrlDevice extends Comparable<UrlDevice> {
   /**
    * Fetches the ID of the UrlDevice.
    * The ID should be unique across UrlDevices.  This should even be the case when

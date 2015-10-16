@@ -56,31 +56,45 @@ public class UrlGroup implements Comparable<UrlGroup> {
    * @return The top PwPair.
    */
   public PwPair getTopPair() {
-    return Collections.max(mPwPairs);
+    return Collections.max(mPwPairs, Collections.reverseOrder());
   }
 
   /**
-   * Unimplemented hash code method.
-   * @return 42.
+   * Return a hash code for this UrlGroup.
+   * @return hash code
    */
   @Override
   public int hashCode() {
-    assert false : "hashCode not designed";
-    return 42;
+    int hash = 1;
+    hash = hash * 31 + ((mGroupId == null) ? 0 : mGroupId.hashCode());
+    hash = hash * 31 + mPwPairs.hashCode();
+    return hash;
   }
 
   /**
-   * Check if two UrlGroups are equal based on the ranks of their top pairs.
+   * Check if two UrlGroups are equal.
    * @param other the UrlGroup to compare to.
    * @return true if the top pairs are of equal rank.
    */
   @Override
   public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+
     if (other instanceof UrlGroup) {
       UrlGroup otherUrlGroup = (UrlGroup) other;
-      return getTopPair().equals(otherUrlGroup.getTopPair()) &&
-          getGroupId().equals(otherUrlGroup.getGroupId());
+      if (mPwPairs.size() == otherUrlGroup.mPwPairs.size() &&
+          mGroupId.equals(otherUrlGroup.mGroupId)) {
+        // don't consider order when comparing lists
+        List<PwPair> myPairs = new ArrayList<>(mPwPairs);
+        List<PwPair> otherPairs = new ArrayList<>(otherUrlGroup.mPwPairs);
+        Collections.sort(myPairs);
+        Collections.sort(otherPairs);
+        return myPairs.equals(otherPairs);
+      }
     }
+
     return false;
   }
 
@@ -92,11 +106,16 @@ public class UrlGroup implements Comparable<UrlGroup> {
    */
   @Override
   public int compareTo(UrlGroup other) {
-    int compareValue = getTopPair().compareTo(other.getTopPair());
+    if (this == other) {
+      return 0;
+    }
+
+    int compareValue = Utils.nullSafeCompare(getTopPair(), other.getTopPair());
     if (compareValue != 0) {
       return compareValue;
     }
 
-    return getGroupId().compareTo(other.getGroupId());
+    return Utils.nullSafeCompare(mGroupId, other.mGroupId);
   }
+
 }

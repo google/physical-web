@@ -19,8 +19,8 @@ package org.physical_web.collection;
  * A basic implementation of the UrlDevice interface.
  */
 public class SimpleUrlDevice implements UrlDevice {
-  private String mId;
-  private String mUrl;
+  protected String mId;
+  protected String mUrl;
 
   /**
    * Construct a SimpleUrlDevice.
@@ -38,6 +38,7 @@ public class SimpleUrlDevice implements UrlDevice {
    * one real world device is broadcasting multiple URLs.
    * @return The ID of the device.
    */
+  @Override
   public String getId() {
     return mId;
   }
@@ -46,6 +47,7 @@ public class SimpleUrlDevice implements UrlDevice {
    * Fetches the URL broadcasted by the device.
    * @return The broadcasted URL.
    */
+  @Override
   public String getUrl() {
     return mUrl;
   }
@@ -56,7 +58,58 @@ public class SimpleUrlDevice implements UrlDevice {
    *        for the url broadcasted by this UrlDevice.
    * @return .5 (at the moment we don't have anything by which to judge rank)
    */
+  @Override
   public double getRank(PwsResult pwsResult) {
     return .5;
+  }
+
+  /**
+   * Return a hash code for this SimpleUrlDevice.
+   * @return hash code
+   */
+  @Override
+  public int hashCode() {
+    int hash = 1;
+    hash = hash * 31 + mId.hashCode();
+    hash = hash * 31 + mUrl.hashCode();
+    return hash;
+  }
+
+  /**
+   * Check if two UrlDevices are equal.
+   * @param other the UrlDevice to compare to.
+   * @return true if the UrlDevices are equal
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+
+    if (other instanceof UrlDevice) {
+      UrlDevice otherUrlDevice = (UrlDevice) other;
+      return mId.equals(otherUrlDevice.getId()) &&
+          mUrl.equals(otherUrlDevice.getUrl());
+    }
+    return false;
+  }
+
+  /**
+   * Compare two UrlDevices based on device ID, breaking ties by comparing broadcast URL.
+   * @param other the UrlDevice to compare to.
+   * @return the comparison value.
+   */
+  @Override
+  public int compareTo(UrlDevice other) {
+    if (this == other) {
+      return 0;
+    }
+
+    int compareValue = mId.compareTo(other.getId());
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    return mUrl.compareTo(other.getUrl());
   }
 }
