@@ -34,6 +34,8 @@ public class PhysicalWebCollectionTest {
   private static final String ID1 = "id1";
   private static final String ID2 = "id2";
   private static final String ID3 = "id3";
+  private static final String ID4 = "id4";
+  private static final String ID5 = "id5";
   private static final String URL1 = "http://example.com";
   private static final String URL2 = "http://physical-web.org";
   private static final String URL3a = "http://example.com/#a";
@@ -185,16 +187,20 @@ public class PhysicalWebCollectionTest {
   }
 
   @Test
-  public void getUrlGroupsSortedByRankWorks() {
+  public void getGroupedPwPairsSortedByRankWorks() {
     PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
     addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUPID1, .1);  // Group 1
-    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL3a, GROUPID2, .5);  // Group 2
-    addRankedDeviceAndMetadata(physicalWebCollection, ID3, URL3b, GROUPID2, .9);  // Also group 1
-    List<UrlGroup> pwGroups = physicalWebCollection.getUrlGroupsSortedByRank();
-    assertEquals(pwGroups.size(), 2);
-    assertEquals(pwGroups.get(0).getGroupId(), GROUPID2);
-    assertEquals(pwGroups.get(0).getTopPair().getUrlDevice().getId(), ID3);
-    assertEquals(pwGroups.get(1).getGroupId(), GROUPID1);
-    assertEquals(pwGroups.get(1).getTopPair().getUrlDevice().getId(), ID1);
+    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL2, null, .6);  // Ungrouped
+    addRankedDeviceAndMetadata(physicalWebCollection, ID3, URL2, null, .7);  // Duplicate URL
+    addRankedDeviceAndMetadata(physicalWebCollection, ID4, URL3a, GROUPID2, .5);  // Group 2
+    addRankedDeviceAndMetadata(physicalWebCollection, ID5, URL3b, GROUPID2, .9);  // Also group 2
+    List<PwPair> groupedPairs = physicalWebCollection.getGroupedPwPairsSortedByRank();
+    assertEquals(groupedPairs.size(), 3);
+    assertEquals(groupedPairs.get(0).getPwsResult().getGroupId(), GROUPID2);
+    assertEquals(groupedPairs.get(0).getUrlDevice().getId(), ID5);
+    assertEquals(groupedPairs.get(1).getPwsResult().getGroupId(), null);
+    assertEquals(groupedPairs.get(1).getUrlDevice().getId(), ID3);
+    assertEquals(groupedPairs.get(2).getPwsResult().getGroupId(), GROUPID1);
+    assertEquals(groupedPairs.get(2).getUrlDevice().getId(), ID1);
   }
 }
