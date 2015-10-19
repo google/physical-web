@@ -245,6 +245,39 @@ public class PhysicalWebCollection {
    */
   public List<PwPair> getPwPairsSortedByRank() {
     // Get all valid PwPairs.
+    List<PwPair> allPwPairs = getPwPairs();
+
+    // Sort the list in descending order.
+    Collections.sort(allPwPairs, Collections.reverseOrder());
+
+    // Filter the list.
+    return removeDuplicateSiteUrls(allPwPairs);
+  }
+
+  /**
+   * Return a list of PwPairs sorted by rank in descending order, including only the top-ranked
+   * pair from each group.
+   * @return a sorted list of PwPairs.
+   */
+  public List<PwPair> getGroupedPwPairsSortedByRank() {
+    // Get all valid PwPairs.
+    List<PwPair> allPwPairs = getPwPairs();
+
+    // Group pairs with the same groupId, keeping only the top-ranked PwPair.
+    List<PwPair> groupedPwPairs = removeDuplicateGroupIds(allPwPairs, null);
+
+    // Sort by descending rank.
+    Collections.sort(groupedPwPairs, Collections.reverseOrder());
+
+    // Remove duplicate site URLs.
+    return removeDuplicateSiteUrls(groupedPwPairs);
+  }
+
+  /**
+   * Return a list of all pairs of valid URL devices and corresponding URL metadata.
+   * @return list of PwPairs.
+   */
+  private List<PwPair> getPwPairs() {
     List<PwPair> allPwPairs = new ArrayList<>();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
       PwsResult pwsResult = mBroadcastUrlToPwsResultMap.get(urlDevice.getUrl());
@@ -252,52 +285,66 @@ public class PhysicalWebCollection {
         allPwPairs.add(new PwPair(urlDevice, pwsResult));
       }
     }
+    return allPwPairs;
+  }
 
-    // Sort the list in descending order.
-    Collections.sort(allPwPairs, Collections.reverseOrder());
-
-    // Filter the list.
-    List<PwPair> ret = new ArrayList<>();
+  /**
+   * If a site URL appears multiple times in the pairs list, keep only the first example.
+   * @param allPwPairs input PwPairs list.
+   * @return filtered PwPairs list with all duplicated site URLs removed.
+   */
+  private static List<PwPair> removeDuplicateSiteUrls(List<PwPair> allPwPairs) {
+    List<PwPair> filteredPwPairs = new ArrayList<>();
     Set<String> siteUrls = new HashSet<>();
     for (PwPair pwPair : allPwPairs) {
       String siteUrl = pwPair.getPwsResult().getSiteUrl();
       if (!siteUrls.contains(siteUrl)) {
         siteUrls.add(siteUrl);
-        ret.add(pwPair);
+        filteredPwPairs.add(pwPair);
       }
     }
-
-    return ret;
+    return filteredPwPairs;
   }
 
   /**
-   * Return a list of UrlGroups sorted by the rank of the top-ranked pair in each group.
-   * @return a sorted list of UrlGroups.
+   * Given a list of PwPairs, return a filtered list such that only one PwPair from each group
+   * is included.
+   * @param allPairs Input PwPairs list.
+   * @param outGroupMap Optional output map from discovered group IDs to UrlGroups, may be null.
+   * @return Filtered PwPairs list.
    */
-  public List<UrlGroup> getUrlGroupsSortedByRank() {
-    List<PwPair> sortedPwPairs = getPwPairsSortedByRank();
+  private static List<PwPair> removeDuplicateGroupIds(List<PwPair> allPairs,
+                                                      Map<String, UrlGroup> outGroupMap) {
+    List<PwPair> filteredPairs = new ArrayList<>();
+    Map<String, UrlGroup> groupMap = outGroupMap;
+    if (groupMap == null) {
+      groupMap = new HashMap<>();
+    } else {
+      groupMap.clear();
+    }
 
-    Map<String, UrlGroup> pwGroupMap = new HashMap<>();
-    for (PwPair pwPair : sortedPwPairs) {
+    for (PwPair pwPair : allPairs) {
       PwsResult pwsResult = pwPair.getPwsResult();
       String groupId = pwsResult.getGroupId();
-      if (groupId != null && !groupId.equals("")) {
+      if (groupId == null || groupId.equals("")) {
+        // Pairs without a group are always included
+        filteredPairs.add(pwPair);
+      } else {
         // Create the group if it doesn't exist
-        UrlGroup urlGroup = pwGroupMap.get(groupId);
+        UrlGroup urlGroup = groupMap.get(groupId);
         if (urlGroup == null) {
           urlGroup = new UrlGroup(groupId);
-          pwGroupMap.put(groupId, urlGroup);
+          groupMap.put(groupId, urlGroup);
         }
-
-        // Add the pair to this group
         urlGroup.addPair(pwPair);
       }
     }
 
-    List<UrlGroup> pwGroupList = new ArrayList<>(pwGroupMap.values());
-    Collections.sort(pwGroupList, Collections.reverseOrder());
+    for (UrlGroup urlGroup : groupMap.values()) {
+      filteredPairs.add(urlGroup.getTopPair());
+    }
 
-    return pwGroupList;
+    return filteredPairs;
   }
 
   /**
