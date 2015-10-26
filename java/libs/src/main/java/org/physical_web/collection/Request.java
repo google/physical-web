@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.physical_web.collection.http;
+package org.physical_web.collection;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.net.URL;
  * This is to be used as a base class for more specific request classes.
  * @param <T> The type representing the request payload.
  */
-public abstract class Request<T> extends Thread {
+abstract class Request<T> extends Thread {
   private URL mUrl;
   private RequestCallback<T> mCallback;
 

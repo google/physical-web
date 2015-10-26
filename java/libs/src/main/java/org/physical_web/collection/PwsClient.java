@@ -15,9 +15,6 @@
  */
 package org.physical_web.collection;
 
-import org.physical_web.collection.http.JsonObjectRequest;
-import org.physical_web.collection.http.Request;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

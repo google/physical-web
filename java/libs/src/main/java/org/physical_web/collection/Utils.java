@@ -18,7 +18,7 @@ package org.physical_web.collection;
 /**
  * Utility methods for the Physical Web library.
  */
-public class Utils {
+class Utils {
   /**
    * Compare two nullable comparables, preferring any non-null value over null.
    * @param o1 first object to compare
