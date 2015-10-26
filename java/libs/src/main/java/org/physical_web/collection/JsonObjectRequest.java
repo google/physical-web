@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.physical_web.collection.http;
+package org.physical_web.collection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +30,7 @@ import java.net.MalformedURLException;
  * A class that represents an HTTP request for a JSON object.
  * Both the request payload and the response are JSON objects.
  */
-public class JsonObjectRequest extends Request<JSONObject> {
+class JsonObjectRequest extends Request<JSONObject> {
   private JSONObject mJsonObject;
 
   /**
