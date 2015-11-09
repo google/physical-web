@@ -16,7 +16,7 @@
 
 #import "PWConfigureViewController.h"
 
-#import <UriBeacon/UriBeacon.h>
+#import "UriBeacon.h"
 #import <MBProgressHUD/MBProgressHUD.h>
 
 #import "PWURLShortener.h"

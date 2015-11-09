@@ -16,7 +16,7 @@
 
 #import "PWBeaconManager.h"
 
-#import <UriBeacon/UriBeacon.h>
+#import "UriBeacon.h"
 
 #import "PWBeacon.h"
 #import "PWMetadataRequest.h"

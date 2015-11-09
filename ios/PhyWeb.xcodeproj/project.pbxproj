@@ -12,11 +12,27 @@
 		BD3E51B91B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = BD3E51B81B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m */; };
 		BD49959019F7178E000945BC /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDE9F27619ABE6DE00AA8DFB /* libSDWebImage.a */; };
 		BD49959219F717C6000945BC /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDE9F28519ABF02700AA8DFB /* ImageIO.framework */; };
-		BDA2F8C719D1FD9C00DA4FFD /* liburibeacon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA2F8C019D1FD8600DA4FFD /* liburibeacon.a */; };
+		BD54189E1BF15FA300F175DB /* NSString+UB.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418891BF15FA300F175DB /* NSString+UB.m */; settings = {ASSET_TAGS = (); }; };
+		BD54189F1BF15FA300F175DB /* NSURL+UB.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54188B1BF15FA300F175DB /* NSURL+UB.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A01BF15FA300F175DB /* UBConfigurableUriBeacon.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54188D1BF15FA300F175DB /* UBConfigurableUriBeacon.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A11BF15FA300F175DB /* UBUriBeacon.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418901BF15FA300F175DB /* UBUriBeacon.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A21BF15FA300F175DB /* UBUriBeaconReader.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418931BF15FA300F175DB /* UBUriBeaconReader.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A31BF15FA300F175DB /* UBUriBeaconScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418951BF15FA300F175DB /* UBUriBeaconScanner.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A41BF15FA300F175DB /* UBUriBeaconWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418981BF15FA300F175DB /* UBUriBeaconWriter.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A51BF15FA300F175DB /* UBUriReader.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54189A1BF15FA300F175DB /* UBUriReader.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A61BF15FA300F175DB /* UBUriWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54189C1BF15FA300F175DB /* UBUriWriter.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A71BF15FCF00F175DB /* NSString+UB.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418891BF15FA300F175DB /* NSString+UB.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A81BF15FCF00F175DB /* NSURL+UB.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54188B1BF15FA300F175DB /* NSURL+UB.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418A91BF15FCF00F175DB /* UBConfigurableUriBeacon.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54188D1BF15FA300F175DB /* UBConfigurableUriBeacon.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418AA1BF15FCF00F175DB /* UBUriBeacon.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418901BF15FA300F175DB /* UBUriBeacon.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418AB1BF15FCF00F175DB /* UBUriBeaconReader.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418931BF15FA300F175DB /* UBUriBeaconReader.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418AC1BF15FCF00F175DB /* UBUriBeaconScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418951BF15FA300F175DB /* UBUriBeaconScanner.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418AD1BF15FCF00F175DB /* UBUriBeaconWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = BD5418981BF15FA300F175DB /* UBUriBeaconWriter.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418AE1BF15FCF00F175DB /* UBUriReader.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54189A1BF15FA300F175DB /* UBUriReader.m */; settings = {ASSET_TAGS = (); }; };
+		BD5418B01BF1613D00F175DB /* UBUriWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = BD54189C1BF15FA300F175DB /* UBUriWriter.m */; settings = {ASSET_TAGS = (); }; };
 		BDA3FA8919EF2DD700CFAA74 /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA3FA8819EF2DD700CFAA74 /* NotificationCenter.framework */; };
 		BDA3FA8F19EF2DD700CFAA74 /* TodayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BDA3FA8E19EF2DD700CFAA74 /* TodayViewController.m */; };
 		BDA3FA9419EF2DD700CFAA74 /* today.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BDA3FA8619EF2DD700CFAA74 /* today.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		BDA3FAA219EF327400CFAA74 /* liburibeacon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BDA2F8C019D1FD8600DA4FFD /* liburibeacon.a */; };
 		BDA3FAA319EF329400CFAA74 /* PWBeaconManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1D919A7EAFC00AA8DFB /* PWBeaconManager.m */; };
 		BDA3FAA419EF329700CFAA74 /* PWMetadataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1B119A7E46D00AA8DFB /* PWMetadataRequest.m */; };
 		BDA3FAA519EF329900CFAA74 /* PWBeacon.m in Sources */ = {isa = PBXBuildFile; fileRef = BDE9F1DF19A7EF3F00AA8DFB /* PWBeacon.m */; };
@@ -74,33 +90,12 @@
 			remoteGlobalIDString = D286A7481518C70F00E13FB8;
 			remoteInfo = MBProgressHUD;
 		};
-		BDA2F8BF19D1FD8600DA4FFD /* PBXContainerItemProxy */ = {
+		BD5418851BF15F7200F175DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */;
+			containerPortal = BDE9F26E19ABE6DD00AA8DFB /* SDWebImage.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = BD779295199C0AEF00278B6A;
-			remoteInfo = uribeacon;
-		};
-		BDA2F8C119D1FD8600DA4FFD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = BD7792C6199F22F900278B6A;
-			remoteInfo = "uribeacon-sample";
-		};
-		BDA2F8C319D1FD8600DA4FFD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = BD039BCD19CA488C005A7F37;
-			remoteInfo = "uribeacon-tests";
-		};
-		BDA2F8C519D1FD9800DA4FFD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = BD779294199C0AEF00278B6A;
-			remoteInfo = uribeacon;
+			remoteGlobalIDString = 4A2CADFF1AB4BB5300B6BC39;
+			remoteInfo = WebImage;
 		};
 		BDA3FA9219EF2DD700CFAA74 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -115,13 +110,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = BDA3FA8519EF2DD700CFAA74;
 			remoteInfo = today;
-		};
-		BDA3FAA019EF326E00CFAA74 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = BD779294199C0AEF00278B6A;
-			remoteInfo = uribeacon;
 		};
 		BDE9F27519ABE6DE00AA8DFB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -171,7 +159,28 @@
 		BD039BFA19D0E8BB005A7F37 /* MBProgressHUD.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MBProgressHUD.xcodeproj; path = "third-party/MBProgressHUD/MBProgressHUD.xcodeproj"; sourceTree = "<group>"; };
 		BD3E51B71B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PWBeaconChartTableViewCell.h; sourceTree = "<group>"; };
 		BD3E51B81B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PWBeaconChartTableViewCell.m; sourceTree = "<group>"; };
-		BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = uribeacon.xcodeproj; path = "third-party/uribeacon/ios-uribeacon/uribeacon.xcodeproj"; sourceTree = "<group>"; };
+		BD5418881BF15FA300F175DB /* NSString+UB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+UB.h"; sourceTree = "<group>"; };
+		BD5418891BF15FA300F175DB /* NSString+UB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+UB.m"; sourceTree = "<group>"; };
+		BD54188A1BF15FA300F175DB /* NSURL+UB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+UB.h"; sourceTree = "<group>"; };
+		BD54188B1BF15FA300F175DB /* NSURL+UB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+UB.m"; sourceTree = "<group>"; };
+		BD54188C1BF15FA300F175DB /* UBConfigurableUriBeacon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBConfigurableUriBeacon.h; sourceTree = "<group>"; };
+		BD54188D1BF15FA300F175DB /* UBConfigurableUriBeacon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBConfigurableUriBeacon.m; sourceTree = "<group>"; };
+		BD54188E1BF15FA300F175DB /* UBConfigurableURIBeaconPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBConfigurableURIBeaconPrivate.h; sourceTree = "<group>"; };
+		BD54188F1BF15FA300F175DB /* UBUriBeacon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriBeacon.h; sourceTree = "<group>"; };
+		BD5418901BF15FA300F175DB /* UBUriBeacon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBUriBeacon.m; sourceTree = "<group>"; };
+		BD5418911BF15FA300F175DB /* UBUriBeaconPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriBeaconPrivate.h; sourceTree = "<group>"; };
+		BD5418921BF15FA300F175DB /* UBUriBeaconReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriBeaconReader.h; sourceTree = "<group>"; };
+		BD5418931BF15FA300F175DB /* UBUriBeaconReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBUriBeaconReader.m; sourceTree = "<group>"; };
+		BD5418941BF15FA300F175DB /* UBUriBeaconScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriBeaconScanner.h; sourceTree = "<group>"; };
+		BD5418951BF15FA300F175DB /* UBUriBeaconScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBUriBeaconScanner.m; sourceTree = "<group>"; };
+		BD5418961BF15FA300F175DB /* UBUriBeaconScannerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriBeaconScannerPrivate.h; sourceTree = "<group>"; };
+		BD5418971BF15FA300F175DB /* UBUriBeaconWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriBeaconWriter.h; sourceTree = "<group>"; };
+		BD5418981BF15FA300F175DB /* UBUriBeaconWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBUriBeaconWriter.m; sourceTree = "<group>"; };
+		BD5418991BF15FA300F175DB /* UBUriReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriReader.h; sourceTree = "<group>"; };
+		BD54189A1BF15FA300F175DB /* UBUriReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBUriReader.m; sourceTree = "<group>"; };
+		BD54189B1BF15FA300F175DB /* UBUriWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UBUriWriter.h; sourceTree = "<group>"; };
+		BD54189C1BF15FA300F175DB /* UBUriWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UBUriWriter.m; sourceTree = "<group>"; };
+		BD54189D1BF15FA300F175DB /* UriBeacon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UriBeacon.h; sourceTree = "<group>"; };
 		BDA3FA8619EF2DD700CFAA74 /* today.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = today.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDA3FA8819EF2DD700CFAA74 /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
 		BDA3FA8C19EF2DD700CFAA74 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -263,7 +272,6 @@
 			files = (
 				BD49959219F717C6000945BC /* ImageIO.framework in Frameworks */,
 				BD49959019F7178E000945BC /* libSDWebImage.a in Frameworks */,
-				BDA3FAA219EF327400CFAA74 /* liburibeacon.a in Frameworks */,
 				BDA3FA8919EF2DD700CFAA74 /* NotificationCenter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -272,7 +280,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BDA2F8C719D1FD9C00DA4FFD /* liburibeacon.a in Frameworks */,
 				BD039C0419D0E8F8005A7F37 /* libMBProgressHUD.a in Frameworks */,
 				BD039C0519D0E8F8005A7F37 /* libSDWebImage.a in Frameworks */,
 				BDE9F28619ABF02700AA8DFB /* ImageIO.framework in Frameworks */,
@@ -291,14 +298,33 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		BDA2F8B919D1FD8600DA4FFD /* Products */ = {
+		BD5418871BF15FA300F175DB /* uribeacon */ = {
 			isa = PBXGroup;
 			children = (
-				BDA2F8C019D1FD8600DA4FFD /* liburibeacon.a */,
-				BDA2F8C219D1FD8600DA4FFD /* uribeacon-sample.app */,
-				BDA2F8C419D1FD8600DA4FFD /* uribeacon-tests.xctest */,
+				BD5418881BF15FA300F175DB /* NSString+UB.h */,
+				BD5418891BF15FA300F175DB /* NSString+UB.m */,
+				BD54188A1BF15FA300F175DB /* NSURL+UB.h */,
+				BD54188B1BF15FA300F175DB /* NSURL+UB.m */,
+				BD54188C1BF15FA300F175DB /* UBConfigurableUriBeacon.h */,
+				BD54188D1BF15FA300F175DB /* UBConfigurableUriBeacon.m */,
+				BD54188E1BF15FA300F175DB /* UBConfigurableURIBeaconPrivate.h */,
+				BD54188F1BF15FA300F175DB /* UBUriBeacon.h */,
+				BD5418901BF15FA300F175DB /* UBUriBeacon.m */,
+				BD5418911BF15FA300F175DB /* UBUriBeaconPrivate.h */,
+				BD5418921BF15FA300F175DB /* UBUriBeaconReader.h */,
+				BD5418931BF15FA300F175DB /* UBUriBeaconReader.m */,
+				BD5418941BF15FA300F175DB /* UBUriBeaconScanner.h */,
+				BD5418951BF15FA300F175DB /* UBUriBeaconScanner.m */,
+				BD5418961BF15FA300F175DB /* UBUriBeaconScannerPrivate.h */,
+				BD5418971BF15FA300F175DB /* UBUriBeaconWriter.h */,
+				BD5418981BF15FA300F175DB /* UBUriBeaconWriter.m */,
+				BD5418991BF15FA300F175DB /* UBUriReader.h */,
+				BD54189A1BF15FA300F175DB /* UBUriReader.m */,
+				BD54189B1BF15FA300F175DB /* UBUriWriter.h */,
+				BD54189C1BF15FA300F175DB /* UBUriWriter.m */,
+				BD54189D1BF15FA300F175DB /* UriBeacon.h */,
 			);
-			name = Products;
+			path = uribeacon;
 			sourceTree = "<group>";
 		};
 		BDA3FA8719EF2DD700CFAA74 /* Frameworks */ = {
@@ -400,6 +426,7 @@
 		BDE9F1AF19A7E46D00AA8DFB /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				BD5418871BF15FA300F175DB /* uribeacon */,
 				BDE9F1B019A7E46D00AA8DFB /* PWMetadataRequest.h */,
 				BDE9F1B119A7E46D00AA8DFB /* PWMetadataRequest.m */,
 				BDE9F1D819A7EAFC00AA8DFB /* PWBeaconManager.h */,
@@ -480,7 +507,6 @@
 			children = (
 				BDC5A9B81B3B3D60008D9A0B /* JBChartView */,
 				BDBFD66D1A2D125700A0B5E0 /* SVPullToRefresh */,
-				BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */,
 				BD039BFA19D0E8BB005A7F37 /* MBProgressHUD.xcodeproj */,
 				BDE9F26E19ABE6DD00AA8DFB /* SDWebImage.xcodeproj */,
 			);
@@ -493,6 +519,7 @@
 				BDE9F27619ABE6DE00AA8DFB /* libSDWebImage.a */,
 				BDE9F27819ABE6DE00AA8DFB /* libSDWebImage+WebP.a */,
 				BDE9F27A19ABE6DE00AA8DFB /* libSDWebImage+MKAnnotation.a */,
+				BD5418861BF15F7200F175DB /* WebImage.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -553,7 +580,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				BDA3FAA119EF326E00CFAA74 /* PBXTargetDependency */,
 			);
 			name = today;
 			productName = today;
@@ -572,7 +598,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				BDA2F8C619D1FD9800DA4FFD /* PBXTargetDependency */,
 				BD039C0319D0E8DE005A7F37 /* PBXTargetDependency */,
 				BDE9F27C19ABE6EC00AA8DFB /* PBXTargetDependency */,
 				BDA3FA9319EF2DD700CFAA74 /* PBXTargetDependency */,
@@ -638,10 +663,6 @@
 					ProductGroup = BDE9F26F19ABE6DD00AA8DFB /* Products */;
 					ProjectRef = BDE9F26E19ABE6DD00AA8DFB /* SDWebImage.xcodeproj */;
 				},
-				{
-					ProductGroup = BDA2F8B919D1FD8600DA4FFD /* Products */;
-					ProjectRef = BDA2F8B819D1FD8600DA4FFD /* uribeacon.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -661,25 +682,11 @@
 			remoteRef = BD039BFE19D0E8BB005A7F37 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BDA2F8C019D1FD8600DA4FFD /* liburibeacon.a */ = {
+		BD5418861BF15F7200F175DB /* WebImage.framework */ = {
 			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = liburibeacon.a;
-			remoteRef = BDA2F8BF19D1FD8600DA4FFD /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		BDA2F8C219D1FD8600DA4FFD /* uribeacon-sample.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = "uribeacon-sample.app";
-			remoteRef = BDA2F8C119D1FD8600DA4FFD /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		BDA2F8C419D1FD8600DA4FFD /* uribeacon-tests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = "uribeacon-tests.xctest";
-			remoteRef = BDA2F8C319D1FD8600DA4FFD /* PBXContainerItemProxy */;
+			fileType = wrapper.framework;
+			path = WebImage.framework;
+			remoteRef = BD5418851BF15F7200F175DB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		BDE9F27619ABE6DE00AA8DFB /* libSDWebImage.a */ = {
@@ -739,10 +746,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD5418A91BF15FCF00F175DB /* UBConfigurableUriBeacon.m in Sources */,
 				BDA3FAA719EF338F00CFAA74 /* PWBeaconCell.m in Sources */,
+				BD5418A81BF15FCF00F175DB /* NSURL+UB.m in Sources */,
+				BD5418AA1BF15FCF00F175DB /* UBUriBeacon.m in Sources */,
 				BDA3FAA819EF38A600CFAA74 /* PWSignalStrengthView.m in Sources */,
+				BD5418A71BF15FCF00F175DB /* NSString+UB.m in Sources */,
+				BD5418AE1BF15FCF00F175DB /* UBUriReader.m in Sources */,
+				BD5418AD1BF15FCF00F175DB /* UBUriBeaconWriter.m in Sources */,
 				BDA3FAA519EF329900CFAA74 /* PWBeacon.m in Sources */,
 				BDA3FAA319EF329400CFAA74 /* PWBeaconManager.m in Sources */,
+				BD5418AC1BF15FCF00F175DB /* UBUriBeaconScanner.m in Sources */,
+				BD5418AB1BF15FCF00F175DB /* UBUriBeaconReader.m in Sources */,
+				BD5418B01BF1613D00F175DB /* UBUriWriter.m in Sources */,
 				BDA3FAA419EF329700CFAA74 /* PWMetadataRequest.m in Sources */,
 				BDA3FA8F19EF2DD700CFAA74 /* TodayViewController.m in Sources */,
 				BDA3FAA619EF329C00CFAA74 /* PWURLShortener.m in Sources */,
@@ -758,21 +774,30 @@
 				BDE9F1C719A7E46D00AA8DFB /* PWBeaconCell.m in Sources */,
 				BDE9F19119A7CDF100AA8DFB /* AppDelegate.m in Sources */,
 				BDFC4DD819E60C5200DC381C /* PWSimpleWebViewController.m in Sources */,
+				BD5418A31BF15FA300F175DB /* UBUriBeaconScanner.m in Sources */,
+				BD5418A41BF15FA300F175DB /* UBUriBeaconWriter.m in Sources */,
 				BDDC71091B4B20C20000581C /* JBLineChartView.m in Sources */,
+				BD5418A21BF15FA300F175DB /* UBUriBeaconReader.m in Sources */,
 				BDE9F1C819A7E46D00AA8DFB /* PWBeaconsViewController.m in Sources */,
 				BDE9F2A019AD551500AA8DFB /* PWConfigureViewController.m in Sources */,
+				BD54189E1BF15FA300F175DB /* NSString+UB.m in Sources */,
 				BDE9F1C919A7E46D00AA8DFB /* PWGradientView.m in Sources */,
+				BD5418A51BF15FA300F175DB /* UBUriReader.m in Sources */,
 				BDC5A9AC1B3B3A90008D9A0B /* PWChartViewController.m in Sources */,
 				BDE9F1E319A7FB4000AA8DFB /* PWURLShortener.m in Sources */,
 				BDE9F1C319A7E46D00AA8DFB /* PWMetadataRequest.m in Sources */,
+				BD54189F1BF15FA300F175DB /* NSURL+UB.m in Sources */,
 				BDE9F2A119AD551500AA8DFB /* PWSettingsViewController.m in Sources */,
 				BD3E51B91B4C4ED000F3ECBF /* PWBeaconChartTableViewCell.m in Sources */,
 				BDE9F18E19A7CDF100AA8DFB /* main.m in Sources */,
 				BDBFD6731A2D125700A0B5E0 /* UIScrollView+SVInfiniteScrolling.m in Sources */,
+				BD5418A61BF15FA300F175DB /* UBUriWriter.m in Sources */,
 				BDDC71081B4B20C20000581C /* JBChartView.m in Sources */,
 				BDE9F1DA19A7EAFC00AA8DFB /* PWBeaconManager.m in Sources */,
+				BD5418A01BF15FA300F175DB /* UBConfigurableUriBeacon.m in Sources */,
 				BDBFD6741A2D125700A0B5E0 /* UIScrollView+SVPullToRefresh.m in Sources */,
 				BDE9F1CC19A7E46D00AA8DFB /* PWSignalStrengthView.m in Sources */,
+				BD5418A11BF15FA300F175DB /* UBUriBeacon.m in Sources */,
 				BDE4D8BD19DF65BE007938F0 /* PWActivityIndicator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -785,11 +810,6 @@
 			name = MBProgressHUD;
 			targetProxy = BD039C0219D0E8DE005A7F37 /* PBXContainerItemProxy */;
 		};
-		BDA2F8C619D1FD9800DA4FFD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = uribeacon;
-			targetProxy = BDA2F8C519D1FD9800DA4FFD /* PBXContainerItemProxy */;
-		};
 		BDA3FA9319EF2DD700CFAA74 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = BDA3FA8519EF2DD700CFAA74 /* today */;
@@ -799,11 +819,6 @@
 			isa = PBXTargetDependency;
 			target = BDA3FA8519EF2DD700CFAA74 /* today */;
 			targetProxy = BDA3FA9519EF2DD700CFAA74 /* PBXContainerItemProxy */;
-		};
-		BDA3FAA119EF326E00CFAA74 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = uribeacon;
-			targetProxy = BDA3FAA019EF326E00CFAA74 /* PBXContainerItemProxy */;
 		};
 		BDE9F27C19ABE6EC00AA8DFB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

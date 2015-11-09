@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import "UBConfigurableUriBeacon.h"
 
-#import "UriBeacon.h"
+#import <CoreBluetooth/CoreBluetooth.h>
 
-// This part of the UI will show a configuration panel for a configurable
-// beacon. It will let the user set a URL for it.
-@interface PWConfigureViewController : UIViewController
+@class UBUriBeaconScanner;
 
-// Beacon to configure.
-@property(nonatomic, retain) UBConfigurableUriBeacon *beacon;
+@interface UBConfigurableUriBeacon (Private)
+
+- (id)initWithPeripheral:(CBPeripheral *)peripheral
+       advertisementData:(NSDictionary *)advertisementData
+                    RSSI:(NSNumber *)RSSI;
+
+@property(nonatomic, weak) UBUriBeaconScanner *scanner;
+
+- (void)_updateWithConfigurableBeacon:(UBConfigurableUriBeacon *)beacon;
 
 @end

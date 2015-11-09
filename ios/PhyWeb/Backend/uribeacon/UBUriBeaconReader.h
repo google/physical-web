@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
-#import "UriBeacon.h"
+@interface UBUriBeaconReader : NSObject
 
-// This part of the UI will show a configuration panel for a configurable
-// beacon. It will let the user set a URL for it.
-@interface PWConfigureViewController : UIViewController
+@property(nonatomic, retain) CBPeripheral *peripheral;
 
-// Beacon to configure.
-@property(nonatomic, retain) UBConfigurableUriBeacon *beacon;
+- (void)readWithCompletionBlock:(void (^)(NSError *error, NSData *data))block;
 
 @end
