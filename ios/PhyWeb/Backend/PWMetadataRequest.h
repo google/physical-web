@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <UriBeacon/UriBeacon.h>
+#import "UriBeacon.h"
 
 @protocol PWMetadataRequestDelegate;
 

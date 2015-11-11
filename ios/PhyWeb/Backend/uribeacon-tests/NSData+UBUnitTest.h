@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-#import "UriBeacon.h"
+@interface NSData (UBUnitTest)
 
-// This part of the UI will show a configuration panel for a configurable
-// beacon. It will let the user set a URL for it.
-@interface PWConfigureViewController : UIViewController
-
-// Beacon to configure.
-@property(nonatomic, retain) UBConfigurableUriBeacon *beacon;
+- (NSArray *)ub_unitTestValue;
++ (NSData *)ub_dataWithUnitTestValue:(NSArray *)array;
 
 @end
