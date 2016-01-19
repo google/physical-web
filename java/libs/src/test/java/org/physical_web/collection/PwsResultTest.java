@@ -26,20 +26,23 @@ import org.junit.Test;
 public class PwsResultTest {
   private static final String URL1 = "http://example.com";
   private static final String URL2 = "http://physical-web.org";
-  private static final String GROUPID1 = "group1";
+  private static final String ICON_URL1 = "http://example.com/favicon.ico";
+  private static final String ICON_URL2 = "http://physical-web.org/favicon.ico";
+  private static final String GROUP_ID1 = "group1";
+  private static final String GROUP_ID2 = "group2";
   private PwsResult mPwsResult1 = null;
-  private PwsResult mPwsResult2 = null;
 
   @Before
   public void setUp() {
-    mPwsResult1 = new PwsResult(URL1, URL1, null);
-    mPwsResult2 = new PwsResult(URL1, URL1, GROUPID1);
+    mPwsResult1 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
   }
 
   @Test
   public void constructorCreatesProperObject() {
     assertEquals(mPwsResult1.getRequestUrl(), URL1);
     assertEquals(mPwsResult1.getSiteUrl(), URL1);
+    assertEquals(mPwsResult1.getIconUrl(), ICON_URL1);
+    assertEquals(mPwsResult1.getGroupId(), GROUP_ID1);
   }
 
   @Test
@@ -49,41 +52,36 @@ public class PwsResultTest {
 
   @Test
   public void alikeResultsAreEqual() {
-    PwsResult pwsResult3 = new PwsResult(URL1, URL1, null);  // identical to mPwsResult1
-    PwsResult pwsResult4 = new PwsResult(URL1, URL1, GROUPID1);  // identical to mPwsResult2
-    assertEquals(mPwsResult1, pwsResult3);
-    assertEquals(mPwsResult2, pwsResult4);
+    assertEquals(mPwsResult1, new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1));
   }
 
   @Test
   public void unalikeResultsAreNotEqual() {
-    PwsResult pwsResult3 = new PwsResult(URL2, URL2, null);
-    assertNotEquals(mPwsResult1, mPwsResult2);  // groupid mismatch
-    assertNotEquals(mPwsResult2, mPwsResult1);  // groupid mismatch (reverse comparison)
-    assertNotEquals(mPwsResult1, pwsResult3);  // URL mismatch
+    assertNotEquals(mPwsResult1, new PwsResult(URL2, URL1, ICON_URL1, GROUP_ID1));
+    assertNotEquals(mPwsResult1, new PwsResult(URL1, URL2, ICON_URL1, GROUP_ID1));
+    assertNotEquals(mPwsResult1, new PwsResult(URL1, URL1, ICON_URL2, GROUP_ID1));
+    assertNotEquals(mPwsResult1, new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID2));
   }
 
   @Test
   public void compareResultToItselfReturnsZero() {
     assertEquals(mPwsResult1.compareTo(mPwsResult1), 0);
-    assertEquals(mPwsResult2.compareTo(mPwsResult2), 0);
   }
 
   @Test
   public void compareResultToAlikeResultReturnsZero() {
-    PwsResult pwsResult3 = new PwsResult(URL1, URL1, null);  // identical to mPwsResult1
-    PwsResult pwsResult4 = new PwsResult(URL1, URL1, GROUPID1);  // identical to mPwsResult2
-    assertEquals(0, mPwsResult1.compareTo(pwsResult3));
-    assertEquals(0, pwsResult3.compareTo(mPwsResult1));
-    assertEquals(0, mPwsResult2.compareTo(pwsResult4));
+    assertEquals(0, mPwsResult1.compareTo(new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1)));
   }
 
   @Test
   public void compareResultToUnalikeResultReturnsNonZero() {
-    PwsResult pwsResult3 = new PwsResult(URL2, URL2, null);
-    assertTrue(mPwsResult1.compareTo(mPwsResult2) < 0);  // null < "group1"
-    assertTrue(mPwsResult2.compareTo(mPwsResult1) > 0);
-    assertTrue(mPwsResult1.compareTo(pwsResult3) < 0);  // "example.com" < "physical-web.org"
-    assertTrue(pwsResult3.compareTo(mPwsResult1) > 0);
+    // "example.com" < "physical-web.org"
+    assertTrue(mPwsResult1.compareTo(new PwsResult(URL2, URL1, ICON_URL1, GROUP_ID1)) < 0);
+    // "example.com" < "physical-web.org"
+    assertTrue(mPwsResult1.compareTo(new PwsResult(URL1, URL2, ICON_URL1, GROUP_ID1)) < 0);
+    // "example.com/favicon.ico" < "physical-web.org/favicon.ico"
+    assertTrue(mPwsResult1.compareTo(new PwsResult(URL1, URL1, ICON_URL2, GROUP_ID1)) < 0);
+    // "group1" < "group2"
+    assertTrue(mPwsResult1.compareTo(new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID2)) < 0);
   }
 }
