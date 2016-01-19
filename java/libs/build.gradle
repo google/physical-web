@@ -52,6 +52,16 @@ findbugsMain {
     }
 }
 
+findbugsTest {
+    ignoreFailures = false
+    effort = "max"
+    reportLevel = "low"
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
 findbugs {
     reportsDir = new File(buildDir, "reports/findbugs")
     excludeFilter = new File(projectDir, "config/findbugs/exclude-filter.xml")
