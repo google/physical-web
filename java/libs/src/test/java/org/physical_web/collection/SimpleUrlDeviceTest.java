@@ -49,7 +49,7 @@ public class SimpleUrlDeviceTest {
 
   @Test
   public void getRankReturnsPointFive() {
-    PwsResult pwsResult = new PwsResult(URL1, URL1, null);
+    PwsResult pwsResult = new PwsResult(URL1, URL1, null, null);
     assertEquals(.5, mUrlDevice1.getRank(pwsResult), .0001);
   }
 

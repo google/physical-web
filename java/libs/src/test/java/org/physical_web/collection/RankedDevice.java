@@ -36,7 +36,7 @@ public class RankedDevice extends SimpleUrlDevice {
    */
   public static PwPair createRankedPair(String id, String url, String groupId, double rank) {
     UrlDevice urlDevice = new RankedDevice(id, url, rank);
-    PwsResult pwsResult = new PwsResult(url, url, groupId);
+    PwsResult pwsResult = new PwsResult(url, url, null, groupId);
     return new PwPair(urlDevice, pwsResult);
   }
 }

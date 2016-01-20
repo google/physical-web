@@ -21,6 +21,7 @@ package org.physical_web.collection;
 public class PwsResult implements Comparable<PwsResult> {
   private String mRequestUrl;
   private String mSiteUrl;
+  private String mIconUrl;
   private String mGroupId;
 
   /**
@@ -29,9 +30,10 @@ public class PwsResult implements Comparable<PwsResult> {
    * @param siteUrl The site URL, as reported by PWS
    * @param groupId The URL group ID, as reported by PWS
    */
-  PwsResult(String requestUrl, String siteUrl, String groupId) {
+  PwsResult(String requestUrl, String siteUrl, String iconUrl, String groupId) {
     mRequestUrl = requestUrl;
     mSiteUrl = siteUrl;
+    mIconUrl = iconUrl;
     mGroupId = groupId;
   }
 
@@ -56,6 +58,31 @@ public class PwsResult implements Comparable<PwsResult> {
   }
 
   /**
+   * Check if we have an icon URL.
+   * @return whether this object has an icon URL.
+   */
+  public boolean hasIconUrl() {
+    return mIconUrl != null;
+  }
+
+  /**
+   * Fetches the icon URL.
+   * The icon URL is returned by the Physical Web Service.
+   * @return The icon URL
+   */
+  public String getIconUrl() {
+    return mIconUrl;
+  }
+
+  /**
+   * Check if we have a group id.
+   * @return whether this object has a group id.
+   */
+  public boolean hasGroupId() {
+    return mGroupId != null;
+  }
+
+  /**
    * Fetches the URL group ID.
    * The group ID is returned by the Physical Web Service and is used to group similar (but not
    * necessarily identical) URLs.
@@ -74,6 +101,7 @@ public class PwsResult implements Comparable<PwsResult> {
     int hash = 1;
     hash = hash * 31 + mRequestUrl.hashCode();
     hash = hash * 31 + mSiteUrl.hashCode();
+    hash = hash * 31 + mIconUrl.hashCode();
     hash = hash * 31 + ((mGroupId == null) ? 0 : mGroupId.hashCode());
     return hash;
   }
@@ -90,11 +118,7 @@ public class PwsResult implements Comparable<PwsResult> {
     }
 
     if (other instanceof PwsResult) {
-      PwsResult otherPwsResult = (PwsResult) other;
-
-      return Utils.nullSafeCompare(mGroupId, otherPwsResult.mGroupId) == 0 &&
-          mRequestUrl.equals(otherPwsResult.mRequestUrl) &&
-          mSiteUrl.equals(otherPwsResult.mSiteUrl);
+      return compareTo((PwsResult) other) == 0;
     }
     return false;
   }
@@ -111,16 +135,25 @@ public class PwsResult implements Comparable<PwsResult> {
       return 0;
     }
 
-    int compareValue = mRequestUrl.compareTo(other.mRequestUrl);
+    // 1. mRequestUrl
+    int compareValue = Utils.nullSafeCompare(mRequestUrl, other.mRequestUrl);
     if (compareValue != 0) {
       return compareValue;
     }
 
-    compareValue = mSiteUrl.compareTo(other.mSiteUrl);
+    // 2. mSiteUrl
+    compareValue = Utils.nullSafeCompare(mSiteUrl, other.mSiteUrl);
     if (compareValue != 0) {
       return compareValue;
     }
 
+    // 3. mIconUrl
+    compareValue = Utils.nullSafeCompare(mIconUrl, other.mIconUrl);
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    // 4. mGroupId
     return Utils.nullSafeCompare(mGroupId, other.mGroupId);
   }
 }

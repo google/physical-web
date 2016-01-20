@@ -39,6 +39,7 @@ public class PhysicalWebCollection {
   private static final String METADATA_KEY = "metadata";
   private static final String REQUESTURL_KEY = "requesturl";
   private static final String SITEURL_KEY = "siteurl";
+  private static final String ICONURL_KEY = "iconurl";
   private static final String GROUPID_KEY = "groupid";
   private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
   private PwsClient mPwsClient;
@@ -132,9 +133,12 @@ public class PhysicalWebCollection {
     jsonObject.put(REQUESTURL_KEY, pwsResult.getRequestUrl());
     jsonObject.put(SITEURL_KEY, pwsResult.getSiteUrl());
 
-    String groupId = pwsResult.getGroupId();
-    if (groupId != null && !groupId.equals("")) {
-      jsonObject.put(GROUPID_KEY, groupId);
+    if (pwsResult.hasIconUrl()) {
+      jsonObject.put(ICONURL_KEY, pwsResult.getIconUrl());
+    }
+
+    if (pwsResult.hasGroupId()) {
+      jsonObject.put(GROUPID_KEY, pwsResult.getGroupId());
     }
 
     return jsonObject;
@@ -199,11 +203,15 @@ public class PhysicalWebCollection {
   private PwsResult jsonDeserializePwsResult(JSONObject jsonObject) {
     String requestUrl = jsonObject.getString(REQUESTURL_KEY);
     String siteUrl = jsonObject.getString(SITEURL_KEY);
+    String iconUrl = null;
+    if (jsonObject.has(ICONURL_KEY)) {
+      iconUrl = jsonObject.getString(ICONURL_KEY);
+    }
     String groupId = null;
     if (jsonObject.has(GROUPID_KEY)) {
       groupId = jsonObject.getString(GROUPID_KEY);
     }
-    return new PwsResult(requestUrl, siteUrl, groupId);
+    return new PwsResult(requestUrl, siteUrl, iconUrl, groupId);
   }
 
   /**

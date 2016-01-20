@@ -80,14 +80,16 @@ public class PwsClient {
         for (int i = 0; i < foundMetadata.length(); i++) {
           String requestUrl = null;
           String responseUrl = null;
+          String iconUrl = null;
           try {
             JSONObject jsonUrlMetadata = foundMetadata.getJSONObject(i);
             requestUrl = jsonUrlMetadata.getString("id");
             responseUrl = jsonUrlMetadata.getString("url");
+            iconUrl = jsonUrlMetadata.optString("icon");
           } catch (JSONException e) {
             continue;
           }
-          PwsResult pwsResult = new PwsResult(requestUrl, responseUrl, null);
+          PwsResult pwsResult = new PwsResult(requestUrl, responseUrl, iconUrl, null);
           pwsResultCallback.onPwsResult(pwsResult);
           foundUrls.add(pwsResult.getRequestUrl());
         }
