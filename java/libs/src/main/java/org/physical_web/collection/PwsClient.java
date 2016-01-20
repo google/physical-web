@@ -133,6 +133,32 @@ public class PwsClient {
   }
 
   /**
+   * Given an icon url returned by the PWS, fetch that icon.
+   * @param url The icon URL returned by the PWS.
+   * @param pwsResultIconCallback The callback to run on an HTTP response.
+   */
+  public void downloadIcon(final String url, final PwsResultIconCallback pwsResultIconCallback) {
+    BitmapRequest.RequestCallback requestCallback = new BitmapRequest.RequestCallback() {
+      public void onResponse(byte[] result) {
+        pwsResultIconCallback.onIcon(result);
+      }
+
+      public void onError(int responseCode, Exception e) {
+        pwsResultIconCallback.onError(responseCode, e);
+      }
+    };
+
+    Request request;
+    try {
+      request = new BitmapRequest(url, requestCallback);
+    } catch (MalformedURLException e) {
+      pwsResultIconCallback.onError(0, e);
+      return;
+    }
+    makeRequest(request);
+  }
+
+  /**
    * Cancel all current HTTP requests.
    */
   public void cancelAllRequests() {

@@ -14,4 +14,8 @@
     <Class name="org.physical_web.collection.PwsClient$1"/>
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
   </Match>
+  <Match>
+    <Class name="org.physical_web.collection.PwsClient$2"/>
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+  </Match>
 </FindBugsFilter>
