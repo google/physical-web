@@ -46,7 +46,9 @@ public class PhysicalWebCollection {
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<Class, UrlDeviceJsonSerializer> mUrlDeviceTypeToUrlDeviceJsonSerializer;
   private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
+  private Map<String, byte[]> mIconUrlToIconMap;
   private Set<String> mPendingBroadcastUrls;
+  private Set<String> mPendingIconUrls;
 
   /**
    * Construct a PhysicalWebCollection.
@@ -56,7 +58,9 @@ public class PhysicalWebCollection {
     mDeviceIdToUrlDeviceMap = new HashMap<>();
     mUrlDeviceTypeToUrlDeviceJsonSerializer = new HashMap<>();
     mBroadcastUrlToPwsResultMap = new HashMap<>();
+    mIconUrlToIconMap = new HashMap<>();
     mPendingBroadcastUrls = new HashSet<>();
+    mPendingIconUrls = new HashSet<>();
   }
 
   /**
@@ -73,6 +77,24 @@ public class PhysicalWebCollection {
    */
   public void addMetadata(PwsResult pwsResult) {
     mBroadcastUrlToPwsResultMap.put(pwsResult.getRequestUrl(), pwsResult);
+  }
+
+  /**
+   * Add an Icon to the collection.
+   * @param url The url of the icon.
+   * @param icon The bitmap of the icon.
+   */
+  public void addIcon(String url, byte[] icon) {
+    mIconUrlToIconMap.put(url, icon);
+  }
+
+  /**
+   * Get an Icon from the collection.
+   * @param url The url of the icon.
+   * @return The associated icon.  This will be null if there is no icon.
+   */
+  public byte[] getIcon(String url) {
+    return mIconUrlToIconMap.get(url);
   }
 
   /**
@@ -363,29 +385,66 @@ public class PhysicalWebCollection {
     mPwsClient.setPwsEndpoint(pwsEndpoint);
   }
 
+  private class AugmentedPwsResultIconCallback implements PwsResultIconCallback {
+    private String mUrl;
+    private PwsResultIconCallback mCallback;
+
+    AugmentedPwsResultIconCallback(String url, PwsResultIconCallback callback) {
+      mUrl = url;
+      mCallback = callback;
+    }
+
+    public void onIcon(byte[] icon) {
+      mPendingIconUrls.remove(mUrl);
+      mCallback.onIcon(icon);
+    }
+
+    public void onError(int httpResponseCode, Exception e) {
+      mPendingIconUrls.remove(mUrl);
+      mCallback.onError(httpResponseCode, e);
+    }
+  }
+
   /**
    * Triggers an HTTP request to be made to the PWS.
-   * This method fetches a PwsResult for all broadcast URLs that do not have a
-   * PwsResult.
+   * This method fetches a results from the PWS for all broadcast URLs,
+   * depending on the supplied parameters.
    * @param pwsResultCallback The callback to run when we get an HTTPResponse.
+   * If this value is null, we will not fetch the PwsResults, only icons.
+   * @param pwsResultIconCallback The callback to run when we get a favicon.
+   * If this value is null, we will not fetch the icons.
    */
-  public void fetchPwsResults(final PwsResultCallback pwsResultCallback) {
+  public void fetchPwsResults(final PwsResultCallback pwsResultCallback,
+                              final PwsResultIconCallback pwsResultIconCallback) {
     // Get new URLs to fetch.
-    Set<String> newUrls = new HashSet<>();
+    Set<String> newResolveUrls = new HashSet<>();
+    Set<String> newIconUrls = new HashSet<>();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
       String url = urlDevice.getUrl();
-      if (!mPendingBroadcastUrls.contains(url)
-          && !mBroadcastUrlToPwsResultMap.containsKey(url)) {
-        newUrls.add(url);
-        mPendingBroadcastUrls.add(url);
+      if (!mPendingBroadcastUrls.contains(url)) {
+        PwsResult pwsResult = mBroadcastUrlToPwsResultMap.get(url);
+        if (pwsResult == null) {
+          newResolveUrls.add(url);
+          mPendingBroadcastUrls.add(url);
+        } else if (pwsResult.hasIconUrl()
+            && !mPendingIconUrls.contains(pwsResult.getIconUrl())
+            && !mIconUrlToIconMap.containsKey(pwsResult.getIconUrl())) {
+          newIconUrls.add(pwsResult.getIconUrl());
+          mPendingIconUrls.add(pwsResult.getIconUrl());
+        }
       }
     }
 
-    // Make the request.
+    // Make the resolve request.
     PwsResultCallback augmentedCallback = new PwsResultCallback() {
       public void onPwsResult(PwsResult pwsResult) {
         mPendingBroadcastUrls.remove(pwsResult.getRequestUrl());
         addMetadata(pwsResult);
+        if (pwsResultIconCallback != null) {
+            PwsResultIconCallback augmentedIconCallback =
+                new AugmentedPwsResultIconCallback(pwsResult.getIconUrl(), pwsResultIconCallback);
+            mPwsClient.downloadIcon(pwsResult.getIconUrl(), augmentedIconCallback);
+        }
         pwsResultCallback.onPwsResult(pwsResult);
       }
 
@@ -401,11 +460,19 @@ public class PhysicalWebCollection {
         pwsResultCallback.onPwsResultError(urls, httpResponseCode, e);
       }
     };
-    if (newUrls.size() > 0) {
-      mPwsClient.resolve(newUrls, augmentedCallback);
+    if (pwsResultCallback != null && newResolveUrls.size() > 0) {
+      mPwsClient.resolve(newResolveUrls, augmentedCallback);
+    }
+
+    // Make the icon requests.
+    if (pwsResultIconCallback != null) {
+      for (final String iconUrl : newIconUrls) {
+        PwsResultIconCallback augmentedIconCallback =
+            new AugmentedPwsResultIconCallback(iconUrl, pwsResultIconCallback);
+        mPwsClient.downloadIcon(iconUrl, augmentedIconCallback);
+      }
     }
   }
-
 
   /**
    * Cancel all current HTTP requests.

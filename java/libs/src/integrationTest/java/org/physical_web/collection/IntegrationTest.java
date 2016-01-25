@@ -33,43 +33,67 @@ public class IntegrationTest {
 
   private class FetchPwsResultsTask {
     private int mNumExpected;
+    private int mNumFound;
+    private int mNumMissing;
     private Semaphore mMutex;
     private Exception mErr;
 
     public FetchPwsResultsTask(int numExpected) {
       mNumExpected = numExpected;
+      mNumFound = 0;
+      mNumMissing = 0;
       mMutex = new Semaphore(1);
       mErr = null;
+    }
+
+    private void testDone() {
+      if (mNumFound + mNumMissing == mNumExpected) {
+        mMutex.release();
+      }
+    }
+
+    private void addFound() {
+      mNumFound += 1;
+      testDone();
+    }
+
+    private void addMissing() {
+      mNumMissing += 1;
+      testDone();
+    }
+
+    private void setError(Exception e) {
+      mErr = e;
+      mMutex.release();
     }
 
     public boolean run() throws InterruptedException {
       final int numExpected = mNumExpected;
       PwsResultCallback pwsResultCallback = new PwsResultCallback() {
-        int mNumMissing = 0;
-
-        private void testDone() {
-          if (physicalWebCollection.getPwPairsSortedByRank().size() + mNumMissing == numExpected) {
-            mMutex.release();
-          }
-        }
-
         public void onPwsResult(PwsResult pwsResult) {
-          testDone();
+          addFound();
         }
 
         public void onPwsResultAbsent(String url) {
-          mNumMissing += 1;
-          testDone();
+          addMissing();
         }
 
         public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
-          mErr = e;
-          mMutex.release();
+          setError(e);
+        }
+      };
+      PwsResultIconCallback pwsResultIconCallback = new PwsResultIconCallback() {
+        public void onIcon(byte[] icon) {
+          addFound();
+        }
+
+        public void onError(int httpResponseCode, Exception e) {
+          setError(e);
         }
       };
 
       mMutex.acquire();
-      physicalWebCollection.fetchPwsResults(pwsResultCallback);
+      physicalWebCollection.fetchPwsResults(pwsResultCallback, pwsResultIconCallback);
 
       if (mMutex.tryAcquire(3, TimeUnit.SECONDS)) {
         mMutex.release();
@@ -92,7 +116,7 @@ public class IntegrationTest {
   public void resolveSomeUrls() throws InterruptedException {
     physicalWebCollection.addUrlDevice(new RankedDevice("id1", "https://google.com", .5));
     physicalWebCollection.addUrlDevice(new RankedDevice("id2", "https://goo.gl/mo6YnG", .2));
-    FetchPwsResultsTask task = new FetchPwsResultsTask(2);
+    FetchPwsResultsTask task = new FetchPwsResultsTask(4);
     assertTrue(task.run());
     assertNull(task.getException());
     List<PwPair> pwPairs = physicalWebCollection.getPwPairsSortedByRank();
