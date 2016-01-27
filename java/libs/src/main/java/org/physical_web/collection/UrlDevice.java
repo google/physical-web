@@ -15,39 +15,124 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONObject;
+
 /**
- * The interface defining a Physical Web URL device.
+ * A basic implementation of the UrlDevice interface.
  */
-public interface UrlDevice extends Comparable<UrlDevice> {
+public class UrlDevice implements Comparable<UrlDevice> {
+  private static final String ID_KEY = "id";
+  private static final String URL_KEY = "url";
+  private String mId;
+  private String mUrl;
+
   /**
-   * Fetches the ID of the UrlDevice.
+   * Construct a UrlDevice.
+   * @param id The id of the device.
+   * @param url The URL broadcasted by the device.
+   */
+  UrlDevice(String id, String url) {
+    mId = id;
+    mUrl = url;
+  }
+
+  /**
+   * Fetches the ID of the device.
    * The ID should be unique across UrlDevices.  This should even be the case when
    * one real world device is broadcasting multiple URLs.
-   * @return The ID of the UrlDevice.
+   * @return The ID of the device.
    */
-  String getId();
+  public String getId() {
+    return mId;
+  }
 
   /**
-   * Fetches the URL broadcasted by the UrlDevice.
+   * Fetches the URL broadcasted by the device.
    * @return The broadcasted URL.
    */
-  String getUrl();
+  public String getUrl() {
+    return mUrl;
+  }
 
   /**
-   * Returns the rank for a given UrlDevice and its associated PwsResult.
-   * Guidelines for values:
-   * - Rank should typically be based on quality signals from the UrlDevice
-   *   and pwsResult.  E.g. if we know the UrlDevice knows its distance from
-   *   the user, we could combine this information with the quality signal from
-   *   pwsResult.
-   * - Rank should typically be between 0 and 1, but out of bounds values will
-   *   not be rounded into range.
-   * - 0 should represent extremely low quality
-   * - .5 should represent median quality
-   * - 1 should represent extremely high quality
+   * Returns the rank of this device given its associated PwsResult.
    * @param pwsResult is the response received from the Physical Web Service
    *        for the url broadcasted by this UrlDevice.
-   * @return The rank of the UrlDevice, given its associated PwsResult.
+   * @return .5 (at the moment we don't have anything by which to judge rank)
    */
-  double getRank(PwsResult pwsResult);
+  public double getRank(PwsResult pwsResult) {
+    return .5;
+  }
+
+  /**
+   * Creates a String that represents the UrlDevice.
+   * @return The serialized UrlDevice.
+   */
+  public JSONObject jsonSerialize() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put(ID_KEY, mId);
+    jsonObject.put(URL_KEY, mUrl);
+    return jsonObject;
+  }
+
+  /**
+   * Creates a UrlDevice represented by the supplied JSON object.
+   * @param jsonObject The serialized UrlDevice.
+   * @return The deserialized UrlDevice.
+   */
+  public static UrlDevice jsonDeserialize(JSONObject jsonObject) {
+    String id = jsonObject.getString("id");
+    String url = jsonObject.getString("url");
+    return new UrlDevice(id, url);
+  }
+
+  /**
+   * Return a hash code for this UrlDevice.
+   * @return hash code
+   */
+  @Override
+  public int hashCode() {
+    int hash = 1;
+    hash = hash * 31 + mId.hashCode();
+    hash = hash * 31 + mUrl.hashCode();
+    return hash;
+  }
+
+  /**
+   * Check if two UrlDevices are equal.
+   * @param other the UrlDevice to compare to.
+   * @return true if the UrlDevices are equal
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+
+    if (other instanceof UrlDevice) {
+      UrlDevice otherUrlDevice = (UrlDevice) other;
+      return mId.equals(otherUrlDevice.getId()) &&
+          mUrl.equals(otherUrlDevice.getUrl());
+    }
+    return false;
+  }
+
+  /**
+   * Compare two UrlDevices based on device ID, breaking ties by comparing broadcast URL.
+   * @param other the UrlDevice to compare to.
+   * @return the comparison value.
+   */
+  @Override
+  public int compareTo(UrlDevice other) {
+    if (this == other) {
+      return 0;
+    }
+
+    int compareValue = mId.compareTo(other.getId());
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    return mUrl.compareTo(other.getUrl());
+  }
 }
