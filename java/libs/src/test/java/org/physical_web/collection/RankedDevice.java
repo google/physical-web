@@ -3,7 +3,7 @@ package org.physical_web.collection;
 /**
  * A mock UrlDevice with a configurable rank value.
  */
-public class RankedDevice extends SimpleUrlDevice {
+public class RankedDevice extends UrlDevice {
   private double mRank;
 
   public RankedDevice(String id, String url, double rank) {

@@ -44,7 +44,6 @@ public class PhysicalWebCollection {
   private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
   private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
-  private Map<Class, UrlDeviceJsonSerializer> mUrlDeviceTypeToUrlDeviceJsonSerializer;
   private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
   private Map<String, byte[]> mIconUrlToIconMap;
   private Set<String> mPendingBroadcastUrls;
@@ -56,7 +55,6 @@ public class PhysicalWebCollection {
   public PhysicalWebCollection() {
     mPwsClient = new PwsClient(DEFAULT_PWS_ENDPOINT);
     mDeviceIdToUrlDeviceMap = new HashMap<>();
-    mUrlDeviceTypeToUrlDeviceJsonSerializer = new HashMap<>();
     mBroadcastUrlToPwsResultMap = new HashMap<>();
     mIconUrlToIconMap = new HashMap<>();
     mPendingBroadcastUrls = new HashSet<>();
@@ -115,41 +113,6 @@ public class PhysicalWebCollection {
     return mBroadcastUrlToPwsResultMap.get(broadcastUrl);
   }
 
-  /**
-   * Add a UrlDeviceJsonSerializer to be associated with a particular class.
-   * @param urlDeviceType the class UrlDevices to serialize and deserialize with this
-   *        serializer.
-   * @param urlDeviceJsonSerializer the serializer to use in serializing UrlDevices.
-   * @param <T> the subclass of UrlDevice that the serializer will deserialize to.
-   */
-  public <T extends UrlDevice> void addUrlDeviceJsonSerializer(
-      Class<? extends T> urlDeviceType,
-      UrlDeviceJsonSerializer<T> urlDeviceJsonSerializer) {
-    mUrlDeviceTypeToUrlDeviceJsonSerializer.put(urlDeviceType, urlDeviceJsonSerializer);
-  }
-
-  @SuppressWarnings("unchecked")
-  private JSONObject jsonSerializeUrlDevice(UrlDevice urlDevice)
-      throws PhysicalWebCollectionException {
-    // Loop through the superclasses of urlDevice to see which serializer we should use.
-    for (Class urlDeviceType = urlDevice.getClass();
-         UrlDevice.class.isAssignableFrom(urlDeviceType);
-         urlDeviceType = urlDeviceType.getSuperclass()) {
-      UrlDeviceJsonSerializer urlDeviceJsonSerializer =
-          mUrlDeviceTypeToUrlDeviceJsonSerializer.get(urlDeviceType);
-      UrlDeviceJsonSerializer<UrlDevice> specificUrlDeviceJsonSerializer =
-          (UrlDeviceJsonSerializer<UrlDevice>) urlDeviceJsonSerializer;
-      if (urlDeviceJsonSerializer != null) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(TYPE_KEY, urlDevice.getClass().getName());
-        jsonObject.put(DATA_KEY, specificUrlDeviceJsonSerializer.serialize(urlDevice));
-        return jsonObject;
-      }
-    }
-    throw new PhysicalWebCollectionException(
-        "No suitable UrlDeviceJsonSerializer found for " + urlDevice.getClass().getName());
-  }
-
   private JSONObject jsonSerializePwsResult(PwsResult pwsResult) {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put(REQUESTURL_KEY, pwsResult.getRequestUrl());
@@ -177,7 +140,7 @@ public class PhysicalWebCollection {
     // Serialize the UrlDevices
     JSONArray urlDevices = new JSONArray();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
-      urlDevices.put(jsonSerializeUrlDevice(urlDevice));
+      urlDevices.put(urlDevice.jsonSerialize());
     }
     jsonObject.put(DEVICES_KEY, urlDevices);
 
@@ -190,36 +153,6 @@ public class PhysicalWebCollection {
 
     jsonObject.put(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
     return jsonObject;
-  }
-
-  @SuppressWarnings("unchecked")
-  private UrlDevice jsonDeserializeUrlDevice(JSONObject jsonObject)
-      throws PhysicalWebCollectionException {
-    // Get the type and raw data out of the json object.
-    JSONObject dataJson = jsonObject.getJSONObject(DATA_KEY);
-    String typeName = jsonObject.getString(TYPE_KEY);
-    Class urlDeviceType = null;
-    try {
-      urlDeviceType = Class.forName(typeName);
-    } catch (ClassNotFoundException e) {
-      throw new PhysicalWebCollectionException(
-          "No suitable UrlDeviceJsonSerializer found for " + typeName);
-    }
-
-    // Loop through the superclasses of urlDevice to see which serializer we should use.
-    for (;
-         UrlDevice.class.isAssignableFrom(urlDeviceType);
-         urlDeviceType = urlDeviceType.getSuperclass()) {
-      UrlDeviceJsonSerializer urlDeviceJsonSerializer =
-          mUrlDeviceTypeToUrlDeviceJsonSerializer.get(urlDeviceType);
-      UrlDeviceJsonSerializer<UrlDevice> specificUrlDeviceJsonSerializer =
-          (UrlDeviceJsonSerializer<UrlDevice>) urlDeviceJsonSerializer;
-      if (urlDeviceJsonSerializer != null) {
-        return specificUrlDeviceJsonSerializer.deserialize(dataJson);
-      }
-    }
-    throw new PhysicalWebCollectionException(
-        "No suitable UrlDeviceJsonSerializer found for " + typeName);
   }
 
   private PwsResult jsonDeserializePwsResult(JSONObject jsonObject) {
@@ -254,7 +187,7 @@ public class PhysicalWebCollection {
     JSONArray urlDevices = jsonObject.getJSONArray(DEVICES_KEY);
     for (int i = 0; i < urlDevices.length(); i++) {
       JSONObject urlDeviceJson = urlDevices.getJSONObject(i);
-      UrlDevice urlDevice = jsonDeserializeUrlDevice(urlDeviceJson);
+      UrlDevice urlDevice = UrlDevice.jsonDeserialize(urlDeviceJson);
       addUrlDevice(urlDevice);
     }
 
