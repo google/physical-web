@@ -56,7 +56,7 @@ public class PhysicalWebCollectionTest {
   @Before
   public void setUp() {
     physicalWebCollection1 = new PhysicalWebCollection();
-    UrlDevice urlDevice = new SimpleUrlDevice(ID1, URL1);
+    UrlDevice urlDevice = new UrlDevice(ID1, URL1);
     PwsResult pwsResult = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
@@ -90,17 +90,12 @@ public class PhysicalWebCollectionTest {
   }
 
   @Test
-  public void jsonSerializeWorks() throws PhysicalWebCollectionException {
-    physicalWebCollection1.addUrlDeviceJsonSerializer(SimpleUrlDevice.class,
-                                                      new SimpleUrlDeviceJsonSerializer());
+  public void jsonSerializeWorks() {
     JSONObject jsonObject = new JSONObject("{"
         + "    \"schema\": 1,"
         + "    \"devices\": [{"
-        + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
-        + "        \"data\": {"
-        + "            \"id\": \"" + ID1 + "\","
-        + "            \"url\": \"" + URL1 + "\""
-        + "        }"
+        + "        \"id\": \"" + ID1 + "\","
+        + "        \"url\": \"" + URL1 + "\""
         + "    }],"
         + "    \"metadata\": [{"
         + "        \"requesturl\": \"" + URL1 + "\","
@@ -112,25 +107,14 @@ public class PhysicalWebCollectionTest {
     JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject, true);
   }
 
-  @Test(expected = PhysicalWebCollectionException.class)
-  public void jsonSerializeWithoutSerializerThrowsException()
-      throws PhysicalWebCollectionException {
-    physicalWebCollection1.jsonSerialize();
-  }
-
   @Test
   public void jsonDeserializeWorks() throws PhysicalWebCollectionException {
     PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    physicalWebCollection.addUrlDeviceJsonSerializer(SimpleUrlDevice.class,
-                                                     new SimpleUrlDeviceJsonSerializer());
     JSONObject jsonObject = new JSONObject("{"
         + "    \"schema\": 1,"
         + "    \"devices\": [{"
-        + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
-        + "        \"data\": {"
-        + "            \"id\": \"" + ID1 + "\","
-        + "            \"url\": \"" + URL1 + "\""
-        + "        }"
+        + "        \"id\": \"" + ID1 + "\","
+        + "        \"url\": \"" + URL1 + "\""
         + "    }],"
         + "    \"metadata\": [{"
         + "        \"requesturl\": \"" + URL1 + "\","
@@ -148,23 +132,6 @@ public class PhysicalWebCollectionTest {
     assertEquals(pwsResult.getRequestUrl(), URL1);
     assertEquals(pwsResult.getSiteUrl(), URL1);
     assertEquals(pwsResult.getGroupId(), GROUP_ID1);
-  }
-
-  @Test(expected = PhysicalWebCollectionException.class)
-  public void jsonDeserializeWithoutSerializerThrowsException()
-      throws PhysicalWebCollectionException {
-    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    JSONObject jsonObject = new JSONObject("{"
-        + "    \"schema\": 1,"
-        + "    \"devices\": [{"
-        + "        \"type\": \"org.physical_web.collection.SimpleUrlDevice\","
-        + "        \"data\": {"
-        + "            \"id\": \"" + ID1 + "\","
-        + "            \"url\": \"" + URL1 + "\""
-        + "        }"
-        + "    }]"
-        + "}");
-    physicalWebCollection.jsonDeserialize(jsonObject);
   }
 
   @Test
