@@ -45,6 +45,7 @@ public class PhysicalWebCollectionTest {
   private static final String GROUP_ID1 = "group1";
   private static final String GROUP_ID2 = "group2";
   private PhysicalWebCollection physicalWebCollection1;
+  private JSONObject jsonObject1;
 
   private void addRankedDeviceAndMetadata(PhysicalWebCollection collection, String id, String url,
                                           String groupId, double rank) {
@@ -60,6 +61,19 @@ public class PhysicalWebCollectionTest {
     PwsResult pwsResult = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
+    jsonObject1 = new JSONObject("{"
+        + "    \"schema\": 1,"
+        + "    \"devices\": [{"
+        + "        \"id\": \"" + ID1 + "\","
+        + "        \"url\": \"" + URL1 + "\""
+        + "    }],"
+        + "    \"metadata\": [{"
+        + "        \"requesturl\": \"" + URL1 + "\","
+        + "        \"siteurl\": \"" + URL1 + "\","
+        + "        \"iconurl\": \"" + ICON_URL1 + "\","
+        + "        \"groupid\": \"" + GROUP_ID1 + "\""
+        + "    }]"
+        + "}");
   }
 
   @Test
@@ -91,59 +105,22 @@ public class PhysicalWebCollectionTest {
 
   @Test
   public void jsonSerializeWorks() {
-    JSONObject jsonObject = new JSONObject("{"
-        + "    \"schema\": 1,"
-        + "    \"devices\": [{"
-        + "        \"id\": \"" + ID1 + "\","
-        + "        \"url\": \"" + URL1 + "\""
-        + "    }],"
-        + "    \"metadata\": [{"
-        + "        \"requesturl\": \"" + URL1 + "\","
-        + "        \"siteurl\": \"" + URL1 + "\","
-        + "        \"iconurl\": \"" + ICON_URL1 + "\","
-        + "        \"groupid\": \"" + GROUP_ID1 + "\""
-        + "    }]"
-        + "}");
-    JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject, true);
+    JSONAssert.assertEquals(physicalWebCollection1.jsonSerialize(), jsonObject1, true);
   }
 
   @Test
   public void jsonDeserializeWorks() throws PhysicalWebCollectionException {
-    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    JSONObject jsonObject = new JSONObject("{"
-        + "    \"schema\": 1,"
-        + "    \"devices\": [{"
-        + "        \"id\": \"" + ID1 + "\","
-        + "        \"url\": \"" + URL1 + "\""
-        + "    }],"
-        + "    \"metadata\": [{"
-        + "        \"requesturl\": \"" + URL1 + "\","
-        + "        \"siteurl\": \"" + URL1 + "\","
-        + "        \"iconurl\": \"" + ICON_URL1 + "\","
-        + "        \"groupid\": \"" + GROUP_ID1 + "\""
-        + "    }]"
-        + "}");
-    physicalWebCollection.jsonDeserialize(jsonObject);
+    PhysicalWebCollection physicalWebCollection =
+        PhysicalWebCollection.jsonDeserialize(jsonObject1);
     UrlDevice urlDevice = physicalWebCollection.getUrlDeviceById(ID1);
     PwsResult pwsResult = physicalWebCollection.getMetadataByBroadcastUrl(URL1);
     assertNotNull(urlDevice);
     assertEquals(urlDevice.getId(), ID1);
     assertEquals(urlDevice.getUrl(), URL1);
+    assertNotNull(pwsResult);
     assertEquals(pwsResult.getRequestUrl(), URL1);
     assertEquals(pwsResult.getSiteUrl(), URL1);
     assertEquals(pwsResult.getGroupId(), GROUP_ID1);
-  }
-
-  @Test
-  public void jsonSerializeAndDeserializePreservesNullValues() throws Exception {
-    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    physicalWebCollection.addMetadata(new PwsResult(URL1, URL1, null, null));  // null values
-
-    PhysicalWebCollection deserializedCollection = new PhysicalWebCollection();
-    deserializedCollection.jsonDeserialize(physicalWebCollection.jsonSerialize());
-    PwsResult deserializedResult = deserializedCollection.getMetadataByBroadcastUrl(URL1);
-    assertNull(deserializedResult.getIconUrl());
-    assertNull(deserializedResult.getGroupId());
   }
 
   @Test

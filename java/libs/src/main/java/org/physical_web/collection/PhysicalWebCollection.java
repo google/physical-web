@@ -34,13 +34,7 @@ public class PhysicalWebCollection {
   private static final int SCHEMA_VERSION = 1;
   private static final String SCHEMA_VERSION_KEY = "schema";
   private static final String DEVICES_KEY = "devices";
-  private static final String ID_KEY = "id";
-  private static final String URL_KEY = "url";
   private static final String METADATA_KEY = "metadata";
-  private static final String REQUESTURL_KEY = "requesturl";
-  private static final String SITEURL_KEY = "siteurl";
-  private static final String ICONURL_KEY = "iconurl";
-  private static final String GROUPID_KEY = "groupid";
   private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
   private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
@@ -113,29 +107,6 @@ public class PhysicalWebCollection {
     return mBroadcastUrlToPwsResultMap.get(broadcastUrl);
   }
 
-  private JSONObject jsonSerializeUrlDevice(UrlDevice urlDevice) {
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put(ID_KEY, urlDevice.getId());
-    jsonObject.put(URL_KEY, urlDevice.getUrl());
-    return jsonObject;
-  }
-
-  private JSONObject jsonSerializePwsResult(PwsResult pwsResult) {
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put(REQUESTURL_KEY, pwsResult.getRequestUrl());
-    jsonObject.put(SITEURL_KEY, pwsResult.getSiteUrl());
-
-    if (pwsResult.hasIconUrl()) {
-      jsonObject.put(ICONURL_KEY, pwsResult.getIconUrl());
-    }
-
-    if (pwsResult.hasGroupId()) {
-      jsonObject.put(GROUPID_KEY, pwsResult.getGroupId());
-    }
-
-    return jsonObject;
-  }
-
   /**
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
@@ -146,14 +117,14 @@ public class PhysicalWebCollection {
     // Serialize the UrlDevices
     JSONArray urlDevices = new JSONArray();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
-      urlDevices.put(jsonSerializeUrlDevice(urlDevice));
+      urlDevices.put(urlDevice.jsonSerialize());
     }
     jsonObject.put(DEVICES_KEY, urlDevices);
 
     // Serialize the URL metadata
     JSONArray metadata = new JSONArray();
     for (PwsResult pwsResult : mBroadcastUrlToPwsResultMap.values()) {
-      metadata.put(jsonSerializePwsResult(pwsResult));
+      metadata.put(pwsResult.jsonSerialize());
     }
     jsonObject.put(METADATA_KEY, metadata);
 
@@ -161,34 +132,14 @@ public class PhysicalWebCollection {
     return jsonObject;
   }
 
-  private UrlDevice jsonDeserializeUrlDevice(JSONObject jsonObject)
-      throws PhysicalWebCollectionException {
-    // Get the type and raw data out of the json object.
-    String id = jsonObject.getString(ID_KEY);
-    String url = jsonObject.getString(URL_KEY);
-    return new UrlDevice(id, url);
-  }
-
-  private PwsResult jsonDeserializePwsResult(JSONObject jsonObject) {
-    String requestUrl = jsonObject.getString(REQUESTURL_KEY);
-    String siteUrl = jsonObject.getString(SITEURL_KEY);
-    String iconUrl = null;
-    if (jsonObject.has(ICONURL_KEY)) {
-      iconUrl = jsonObject.getString(ICONURL_KEY);
-    }
-    String groupId = null;
-    if (jsonObject.has(GROUPID_KEY)) {
-      groupId = jsonObject.getString(GROUPID_KEY);
-    }
-    return new PwsResult(requestUrl, siteUrl, iconUrl, groupId);
-  }
-
   /**
    * Populate this data structure with UrlDevices represented by a given JSON object.
    * @param jsonObject a serialized PhysicalWebCollection.
+   * @return The PhysicalWebCollection represented by the serialized object.
    * @throws PhysicalWebCollectionException on invalid or unrecognized input
    */
-  public void jsonDeserialize(JSONObject jsonObject) throws PhysicalWebCollectionException {
+  public static PhysicalWebCollection jsonDeserialize(JSONObject jsonObject)
+      throws PhysicalWebCollectionException {
     // Check the schema version
     int schemaVersion = jsonObject.getInt(SCHEMA_VERSION_KEY);
     if (schemaVersion > SCHEMA_VERSION) {
@@ -196,22 +147,25 @@ public class PhysicalWebCollection {
           "Cannot handle schema version " + schemaVersion + ".  "
           + "This library only knows of schema version " + SCHEMA_VERSION);
     }
+    PhysicalWebCollection collection = new PhysicalWebCollection();
 
     // Deserialize the UrlDevices
     JSONArray urlDevices = jsonObject.getJSONArray(DEVICES_KEY);
     for (int i = 0; i < urlDevices.length(); i++) {
       JSONObject urlDeviceJson = urlDevices.getJSONObject(i);
-      UrlDevice urlDevice = jsonDeserializeUrlDevice(urlDeviceJson);
-      addUrlDevice(urlDevice);
+      UrlDevice urlDevice = UrlDevice.jsonDeserialize(urlDeviceJson);
+      collection.addUrlDevice(urlDevice);
     }
 
     // Deserialize the URL metadata
     JSONArray metadata = jsonObject.getJSONArray(METADATA_KEY);
     for (int i = 0; i < metadata.length(); i++) {
-      JSONObject metadataPair = metadata.getJSONObject(i);
-      PwsResult pwsResult = jsonDeserializePwsResult(metadataPair);
-      addMetadata(pwsResult);
+      JSONObject pwsResultJson = metadata.getJSONObject(i);
+      PwsResult pwsResult = PwsResult.jsonDeserialize(pwsResultJson);
+      collection.addMetadata(pwsResult);
     }
+
+    return collection;
   }
 
   /**

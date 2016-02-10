@@ -17,8 +17,12 @@ package org.physical_web.collection;
 
 import static org.junit.Assert.*;
 
+import org.json.JSONObject;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * PwsResult unit test class.
@@ -31,10 +35,17 @@ public class PwsResultTest {
   private static final String GROUP_ID1 = "group1";
   private static final String GROUP_ID2 = "group2";
   private PwsResult mPwsResult1 = null;
+  private JSONObject jsonObject1 = null;
 
   @Before
   public void setUp() {
     mPwsResult1 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    jsonObject1 = new JSONObject("{"
+        + "    \"requesturl\": \"" + URL1 + "\","
+        + "    \"siteurl\": \"" + URL1 + "\","
+        + "    \"iconurl\": \"" + ICON_URL1 + "\","
+        + "    \"groupid\": \"" + GROUP_ID1 + "\""
+        + "}");
   }
 
   @Test
@@ -43,6 +54,28 @@ public class PwsResultTest {
     assertEquals(mPwsResult1.getSiteUrl(), URL1);
     assertEquals(mPwsResult1.getIconUrl(), ICON_URL1);
     assertEquals(mPwsResult1.getGroupId(), GROUP_ID1);
+  }
+
+  @Test
+  public void jsonSerializeWorks() {
+    JSONAssert.assertEquals(mPwsResult1.jsonSerialize(), jsonObject1, true);
+  }
+
+  @Test
+  public void jsonDeserializeWorks() throws PhysicalWebCollectionException {
+    PwsResult pwsResult = PwsResult.jsonDeserialize(jsonObject1);
+    assertNotNull(pwsResult);
+    assertEquals(pwsResult.getRequestUrl(), URL1);
+    assertEquals(pwsResult.getSiteUrl(), URL1);
+    assertEquals(pwsResult.getGroupId(), GROUP_ID1);
+  }
+
+  @Test
+  public void jsonSerializeAndDeserializePreservesNullValues() throws Exception {
+    PwsResult pwsResult = new PwsResult(URL1, URL1, null, null);  // null values
+    pwsResult = PwsResult.jsonDeserialize(pwsResult.jsonSerialize());
+    assertNull(pwsResult.getIconUrl());
+    assertNull(pwsResult.getGroupId());
   }
 
   @Test

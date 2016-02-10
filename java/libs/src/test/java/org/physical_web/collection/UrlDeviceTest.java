@@ -17,8 +17,12 @@ package org.physical_web.collection;
 
 import static org.junit.Assert.*;
 
+import org.json.JSONObject;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * SimpleUrlDevice unit test class.
@@ -31,10 +35,15 @@ public class UrlDeviceTest {
   private static final double RANK1 = 0.5d;
   private static final double RANK2 = 0.9d;
   private UrlDevice mUrlDevice1;
+  private JSONObject jsonObject1;
 
   @Before
   public void setUp() {
     mUrlDevice1 = new UrlDevice(ID1, URL1);
+    jsonObject1 = new JSONObject("{"
+        + "    \"id\": \"" + ID1 + "\","
+        + "    \"url\": \"" + URL1 + "\""
+        + "}");
   }
 
   @Test
@@ -51,6 +60,19 @@ public class UrlDeviceTest {
   public void getRankReturnsPointFive() {
     PwsResult pwsResult = new PwsResult(URL1, URL1, null, null);
     assertEquals(.5, mUrlDevice1.getRank(pwsResult), .0001);
+  }
+
+  @Test
+  public void jsonSerializeWorks() {
+    JSONAssert.assertEquals(mUrlDevice1.jsonSerialize(), jsonObject1, true);
+  }
+
+  @Test
+  public void jsonDeserializeWorks() {
+    UrlDevice urlDevice = UrlDevice.jsonDeserialize(jsonObject1);
+    assertNotNull(urlDevice);
+    assertEquals(urlDevice.getId(), ID1);
+    assertEquals(urlDevice.getUrl(), URL1);
   }
 
   @Test

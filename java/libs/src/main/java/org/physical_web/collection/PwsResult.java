@@ -15,10 +15,16 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONObject;
+
 /**
  * Metadata returned from the Physical Web Service for a single URL.
  */
 public class PwsResult implements Comparable<PwsResult> {
+  private static final String REQUESTURL_KEY = "requesturl";
+  private static final String SITEURL_KEY = "siteurl";
+  private static final String ICONURL_KEY = "iconurl";
+  private static final String GROUPID_KEY = "groupid";
   private String mRequestUrl;
   private String mSiteUrl;
   private String mIconUrl;
@@ -30,7 +36,7 @@ public class PwsResult implements Comparable<PwsResult> {
    * @param siteUrl The site URL, as reported by PWS
    * @param groupId The URL group ID, as reported by PWS
    */
-  PwsResult(String requestUrl, String siteUrl, String iconUrl, String groupId) {
+  public PwsResult(String requestUrl, String siteUrl, String iconUrl, String groupId) {
     mRequestUrl = requestUrl;
     mSiteUrl = siteUrl;
     mIconUrl = iconUrl;
@@ -90,6 +96,45 @@ public class PwsResult implements Comparable<PwsResult> {
    */
   public String getGroupId() {
     return mGroupId;
+  }
+
+  /**
+   * Create a JSON object that represents this data structure.
+   * @return a JSON serialization of this data structure.
+   */
+  public JSONObject jsonSerialize() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put(REQUESTURL_KEY, mRequestUrl);
+    jsonObject.put(SITEURL_KEY, mSiteUrl);
+
+    if (mIconUrl != null) {
+      jsonObject.put(ICONURL_KEY, mIconUrl);
+    }
+
+    if (mGroupId != null) {
+      jsonObject.put(GROUPID_KEY, mGroupId);
+    }
+
+    return jsonObject;
+  }
+
+  /**
+   * Populate a PwsResult with data from a given JSON object.
+   * @param jsonObject a serialized PwsResult.
+   * @return The PwsResult represented by the serialized object.
+   */
+  public static PwsResult jsonDeserialize(JSONObject jsonObject) {
+    String requestUrl = jsonObject.getString(REQUESTURL_KEY);
+    String siteUrl = jsonObject.getString(SITEURL_KEY);
+    String iconUrl = null;
+    if (jsonObject.has(ICONURL_KEY)) {
+      iconUrl = jsonObject.getString(ICONURL_KEY);
+    }
+    String groupId = null;
+    if (jsonObject.has(GROUPID_KEY)) {
+      groupId = jsonObject.getString(GROUPID_KEY);
+    }
+    return new PwsResult(requestUrl, siteUrl, iconUrl, groupId);
   }
 
   /**
