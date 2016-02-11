@@ -25,10 +25,12 @@ public class PwsResult implements Comparable<PwsResult> {
   private static final String SITEURL_KEY = "siteurl";
   private static final String ICONURL_KEY = "iconurl";
   private static final String GROUPID_KEY = "groupid";
+  private static final String EXTRA_KEY = "extra";
   private String mRequestUrl;
   private String mSiteUrl;
   private String mIconUrl;
   private String mGroupId;
+  private JSONObject mExtraData;
 
   /**
    * Construct a PwsResult.
@@ -41,6 +43,7 @@ public class PwsResult implements Comparable<PwsResult> {
     mSiteUrl = siteUrl;
     mIconUrl = iconUrl;
     mGroupId = groupId;
+    mExtraData = new JSONObject();
   }
 
   /**
@@ -99,6 +102,15 @@ public class PwsResult implements Comparable<PwsResult> {
   }
 
   /**
+   * Get extra data JSONObject.
+   * This is where client code should store custom data.
+   * @return Extra data.
+   */
+  public JSONObject getExtraData() {
+    return mExtraData;
+  }
+
+  /**
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
    */
@@ -113,6 +125,10 @@ public class PwsResult implements Comparable<PwsResult> {
 
     if (mGroupId != null) {
       jsonObject.put(GROUPID_KEY, mGroupId);
+    }
+
+    if (mExtraData.length() > 0) {
+      jsonObject.put(EXTRA_KEY, mExtraData);
     }
 
     return jsonObject;
@@ -134,11 +150,17 @@ public class PwsResult implements Comparable<PwsResult> {
     if (jsonObject.has(GROUPID_KEY)) {
       groupId = jsonObject.getString(GROUPID_KEY);
     }
-    return new PwsResult(requestUrl, siteUrl, iconUrl, groupId);
+
+    PwsResult pwsResult = new PwsResult(requestUrl, siteUrl, iconUrl, groupId);
+    if (jsonObject.has(EXTRA_KEY)) {
+      pwsResult.mExtraData = jsonObject.getJSONObject(EXTRA_KEY);
+    }
+    return pwsResult;
   }
 
   /**
    * Return a hash code for this PwsResult.
+   * This calculation does not include the extra data.
    * @return hash code
    */
   @Override
@@ -153,6 +175,7 @@ public class PwsResult implements Comparable<PwsResult> {
 
   /**
    * Check if two PwsResults are equal.
+   * This does not compare extra data.
    * @param other the PwsResult to compare to.
    * @return true if the PwsResults are equal.
    */
@@ -163,7 +186,8 @@ public class PwsResult implements Comparable<PwsResult> {
     }
 
     if (other instanceof PwsResult) {
-      return compareTo((PwsResult) other) == 0;
+      PwsResult pwsResult = (PwsResult) other;
+      return compareTo(pwsResult) == 0;
     }
     return false;
   }

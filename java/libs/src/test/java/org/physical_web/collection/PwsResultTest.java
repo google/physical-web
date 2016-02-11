@@ -40,11 +40,16 @@ public class PwsResultTest {
   @Before
   public void setUp() {
     mPwsResult1 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    mPwsResult1.getExtraData().put("key", "value");
+    String endline = "\",";
     jsonObject1 = new JSONObject("{"
-        + "    \"requesturl\": \"" + URL1 + "\","
-        + "    \"siteurl\": \"" + URL1 + "\","
-        + "    \"iconurl\": \"" + ICON_URL1 + "\","
-        + "    \"groupid\": \"" + GROUP_ID1 + "\""
+        + "    \"requesturl\": \"" + URL1 + endline
+        + "    \"siteurl\": \"" + URL1 + endline
+        + "    \"iconurl\": \"" + ICON_URL1 + endline
+        + "    \"groupid\": \"" + GROUP_ID1 + endline
+        + "    \"extra\": {"
+        + "        \"key\": \"value\""
+        + "    }"
         + "}");
   }
 
@@ -54,6 +59,11 @@ public class PwsResultTest {
     assertEquals(mPwsResult1.getSiteUrl(), URL1);
     assertEquals(mPwsResult1.getIconUrl(), ICON_URL1);
     assertEquals(mPwsResult1.getGroupId(), GROUP_ID1);
+  }
+
+  @Test
+  public void getExtraDataWorks() {
+    assertEquals(1, mPwsResult1.getExtraData().length());
   }
 
   @Test
@@ -85,7 +95,9 @@ public class PwsResultTest {
 
   @Test
   public void alikeResultsAreEqual() {
-    assertEquals(mPwsResult1, new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1));
+    PwsResult pwsResult = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    pwsResult.getExtraData().put("key", "value");
+    assertEquals(mPwsResult1, pwsResult);
   }
 
   @Test
