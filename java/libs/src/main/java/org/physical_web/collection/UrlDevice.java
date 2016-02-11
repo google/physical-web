@@ -15,19 +15,23 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONObject;
+
 /**
  * The class defining a Physical Web URL device.
  */
 public class UrlDevice {
-  protected String mId;
-  protected String mUrl;
+  private static final String ID_KEY = "id";
+  private static final String URL_KEY = "url";
+  private String mId;
+  private String mUrl;
 
   /**
    * Construct a SimpleUrlDevice.
    * @param id The id of the device.
    * @param url The URL broadcasted by the device.
    */
-  UrlDevice(String id, String url) {
+  public UrlDevice(String id, String url) {
     mId = id;
     mUrl = url;
   }
@@ -59,6 +63,29 @@ public class UrlDevice {
    */
   public double getRank(PwsResult pwsResult) {
     return .5;
+  }
+
+  /**
+   * Create a JSON object that represents this data structure.
+   * @return a JSON serialization of this data structure.
+   */
+  public JSONObject jsonSerialize() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put(ID_KEY, mId);
+    jsonObject.put(URL_KEY, mUrl);
+    return jsonObject;
+  }
+
+  /**
+   * Populate a UrlDevice with data from a given JSON object.
+   * @param jsonObject a serialized UrlDevice.
+   * @return The UrlDevice represented by the serialized object.
+   */
+  public static UrlDevice jsonDeserialize(JSONObject jsonObject) {
+      //throws PhysicalWebCollectionException {
+    String id = jsonObject.getString(ID_KEY);
+    String url = jsonObject.getString(URL_KEY);
+    return new UrlDevice(id, url);
   }
 
   /**
