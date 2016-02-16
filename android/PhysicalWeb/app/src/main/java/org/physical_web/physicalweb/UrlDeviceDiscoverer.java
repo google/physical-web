@@ -16,11 +16,12 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.collection.UrlDevice;
+
 import java.util.Date;
 
-abstract class PwoDiscoverer {
-
-  private PwoDiscoveryCallback mPwoDiscoveryCallback;
+abstract class UrlDeviceDiscoverer {
+  private UrlDeviceDiscoveryCallback mUrlDeviceDiscoveryCallback;
   private long mScanStartTime;
 
   public abstract void startScanImpl();
@@ -40,20 +41,21 @@ abstract class PwoDiscoverer {
     startScan();
   }
 
-  public void setCallback(PwoDiscoveryCallback pwoDiscoveryCallback) {
-    mPwoDiscoveryCallback = pwoDiscoveryCallback;
+  public void setCallback(UrlDeviceDiscoveryCallback urlDeviceDiscoveryCallback) {
+    mUrlDeviceDiscoveryCallback = urlDeviceDiscoveryCallback;
   }
 
-  protected PwoMetadata createPwoMetadata(String url) {
-    PwoMetadata pwoMetadata = new PwoMetadata(url, new Date().getTime() - mScanStartTime);
-    return pwoMetadata;
+  protected UrlDevice createUrlDevice(String id, String url) {
+    UrlDevice urlDevice = new UrlDevice(id, url);
+    Utils.setScanTimeMillis(urlDevice, new Date().getTime() - mScanStartTime);
+    return urlDevice;
   }
 
-  protected void reportPwo(PwoMetadata pwoMetadata) {
-    mPwoDiscoveryCallback.onPwoDiscovered(pwoMetadata);
+  protected void reportUrlDevice(UrlDevice urlDevice) {
+    mUrlDeviceDiscoveryCallback.onUrlDeviceDiscovered(urlDevice);
   }
 
-  public interface PwoDiscoveryCallback {
-    public void onPwoDiscovered(PwoMetadata pwoMetadata);
+  public interface UrlDeviceDiscoveryCallback {
+    public void onUrlDeviceDiscovered(UrlDevice urlDevice);
   }
 }

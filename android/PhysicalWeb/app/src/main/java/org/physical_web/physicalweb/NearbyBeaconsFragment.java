@@ -16,8 +16,10 @@
 
 package org.physical_web.physicalweb;
 
-import org.physical_web.physicalweb.PwoMetadata.BleMetadata;
-import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+import org.physical_web.collection.PhysicalWebCollection;
+import org.physical_web.collection.PwPair;
+import org.physical_web.collection.PwsResult;
+import org.physical_web.collection.UrlDevice;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -48,7 +50,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,8 +70,8 @@ public class NearbyBeaconsFragment extends ListFragment
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
   private static final long THIRD_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
-  private List<String> mUrlQueue;
-  private HashMap<String, PwoMetadata> mUrlToPwoMetadata = null;
+  private List<String> mGroupIdQueue;
+  private PhysicalWebCollection mPwCollection = null;
   private TextView mScanningAnimationTextView;
   private AnimationDrawable mScanningAnimationDrawable;
   private Handler mHandler;
@@ -91,8 +92,8 @@ public class NearbyBeaconsFragment extends ListFragment
     @Override
     public void run() {
       Log.d(TAG, "running first scan timeout");
-      if (!mUrlQueue.isEmpty()) {
-        emptyUrlQueue();
+      if (!mGroupIdQueue.isEmpty()) {
+        emptyGroupIdQueue();
         showListView();
       }
     }
@@ -103,7 +104,7 @@ public class NearbyBeaconsFragment extends ListFragment
     @Override
     public void run() {
       Log.d(TAG, "running second scan timeout");
-      emptyUrlQueue();
+      emptyGroupIdQueue();
       showListView();
       mSecondScanComplete = true;
     }
@@ -145,7 +146,7 @@ public class NearbyBeaconsFragment extends ListFragment
       if (!mRequestCachedPwos) {
         mDiscoveryService.restartScan();
       }
-      mUrlToPwoMetadata = mDiscoveryService.getUrlToPwoMetadataMap();
+      mPwCollection = mDiscoveryService.getPwCollection();
       startScanningDisplay(mDiscoveryService.getScanStartTime(), mDiscoveryService.hasResults());
     }
 
@@ -186,7 +187,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
-    mUrlQueue = new ArrayList<>();
+    mGroupIdQueue = new ArrayList<>();
     mHandler = new Handler();
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
@@ -242,21 +243,24 @@ public class NearbyBeaconsFragment extends ListFragment
       return;
     }
     // Get the url for the given item
-    PwoMetadata pwoMetadata = mNearbyDeviceAdapter.getItem(position);
-    Intent intent = pwoMetadata.createNavigateToUrlIntent();
+    PwPair pwPair = mNearbyDeviceAdapter.getItem(position);
+    Intent intent = Utils.createNavigateToUrlIntent(pwPair.getPwsResult());
     startActivity(intent);
   }
 
   @Override
   public void onPwoDiscoveryUpdate() {
-    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
-      if (!mUrlQueue.contains(pwoMetadata.url)
-          && !mNearbyDeviceAdapter.containsUrl(pwoMetadata.url)) {
-        mUrlQueue.add(pwoMetadata.url);
+    for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank()) {
+      String groupId = Utils.getGroupId(pwPair.getPwsResult());
+      Log.d(TAG, "groupid to add " + groupId);
+      if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
+        mNearbyDeviceAdapter.updateItem(pwPair);
+      } else if (!mGroupIdQueue.contains(groupId)) {
+        mGroupIdQueue.add(groupId);
         if (mSecondScanComplete) {
           // If we've already waited for the second scan timeout, go ahead and put the item in the
           // listview.
-          emptyUrlQueue();
+          emptyGroupIdQueue();
         }
       }
     }
@@ -277,6 +281,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private void startScanningDisplay(long scanStartTime, boolean hasResults) {
     // Start the scanning animation only if we don't haven't already been scanning
     // for long enough
+    Log.d(TAG, "startScanningDisplay " + scanStartTime + " " + hasResults);
     long elapsedMillis = new Date().getTime() - scanStartTime;
     if (elapsedMillis < FIRST_SCAN_TIME_MILLIS
         || (elapsedMillis < SECOND_SCAN_TIME_MILLIS && !hasResults)) {
@@ -302,7 +307,7 @@ public class NearbyBeaconsFragment extends ListFragment
   @Override
   public void onRefresh() {
     // Clear any stored url data
-    mUrlQueue.clear();
+    mGroupIdQueue.clear();
     mNearbyDeviceAdapter.clear();
 
     // Reconnect to the service
@@ -311,16 +316,17 @@ public class NearbyBeaconsFragment extends ListFragment
     mDiscoveryServiceConnection.connect(false);
   }
 
-  private void emptyUrlQueue() {
-    List<PwoMetadata> pwoMetadataList = new ArrayList<>();
-    for (String url : mUrlQueue) {
-      pwoMetadataList.add(mUrlToPwoMetadata.get(url));
+  private void emptyGroupIdQueue() {
+    List<PwPair> pwPairs = new ArrayList<>();
+    for (String groupId : mGroupIdQueue) {
+      Log.d(TAG, "groupid " + groupId);
+      pwPairs.add(Utils.getTopRankedPwPairByGroupId(mPwCollection, groupId));
     }
-    Collections.sort(pwoMetadataList);
-    for (PwoMetadata pwoMetadata : pwoMetadataList) {
-      mNearbyDeviceAdapter.addItem(pwoMetadata);
+    Collections.sort(pwPairs, Collections.reverseOrder());
+    for (PwPair pwPair : pwPairs) {
+      mNearbyDeviceAdapter.addItem(pwPair);
     }
-    mUrlQueue.clear();
+    mGroupIdQueue.clear();
     safeNotifyChange();
   }
 
@@ -369,33 +375,53 @@ public class NearbyBeaconsFragment extends ListFragment
 
   // Adapter for holding beacons found through scanning.
   private class NearbyBeaconsAdapter extends BaseAdapter {
-    private BeaconDisplayList mBeaconDisplayList;
+    private List<PwPair> mPwPairs;
 
     NearbyBeaconsAdapter() {
-      mBeaconDisplayList = new BeaconDisplayList();
+      mPwPairs = new ArrayList<>();
     }
 
-    public void addItem(PwoMetadata pwoMetadata) {
-      mBeaconDisplayList.addItem(pwoMetadata);
+    public void addItem(PwPair pwPair) {
+      mPwPairs.add(pwPair);
     }
 
-    public boolean containsUrl(String url) {
-      return mBeaconDisplayList.containsUrl(url);
+    public void updateItem(PwPair pwPair) {
+      String groupId = Utils.getGroupId(pwPair.getPwsResult());
+      for (int i = 0; i < mPwPairs.size(); ++i) {
+        if (Utils.getGroupId(mPwPairs.get(i).getPwsResult()).equals(groupId)) {
+          mPwPairs.set(i, pwPair);
+          return;
+        }
+      }
+      throw new RuntimeException("Cannot find PwPair with group " + groupId);
+    }
+
+    public boolean containsGroupId(String groupId) {
+      for (PwPair pwPair : mPwPairs) {
+        if (Utils.getGroupId(pwPair.getPwsResult()).equals(groupId)) {
+          return true;
+        }
+      }
+      return false;
     }
 
     @Override
     public int getCount() {
-      return mBeaconDisplayList.size();
+      return mPwPairs.size();
     }
 
     @Override
-    public PwoMetadata getItem(int i) {
-      return mBeaconDisplayList.getItem(i);
+    public PwPair getItem(int i) {
+      return mPwPairs.get(i);
     }
 
     @Override
     public long getItemId(int i) {
       return i;
+    }
+
+    private void setText(View view, int textViewId, String text) {
+      ((TextView) view.findViewById(textViewId)).setText(text);
     }
 
     @SuppressLint("InflateParams")
@@ -407,119 +433,69 @@ public class NearbyBeaconsFragment extends ListFragment
                                                          viewGroup, false);
       }
 
-      // Reference the list item views
-      TextView titleTextView = (TextView) view.findViewById(R.id.title);
-      TextView urlTextView = (TextView) view.findViewById(R.id.url);
-      TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
-      ImageView iconImageView = (ImageView) view.findViewById(R.id.icon);
-
-      // Get the metadata for the given position
-      PwoMetadata pwoMetadata = getItem(i);
-      if (pwoMetadata.hasUrlMetadata()) {
-        // If the url metadata exists
-        UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-        // Set the title text
-        titleTextView.setText(urlMetadata.title);
-        // Set the url text
-        urlTextView.setText(urlMetadata.displayUrl);
-        // Set the description text
-        descriptionTextView.setText(urlMetadata.description);
-        // Set the favicon image
-        iconImageView.setImageBitmap(urlMetadata.icon);
-      } else {
-        // If metadata does not yet exist
-        // Clear the children views content (in case this is a recycled list item view)
-        titleTextView.setText("");
-        iconImageView.setImageDrawable(null);
-        // Set the url text to be the beacon's advertised url
-        urlTextView.setText(pwoMetadata.url);
-        // Set the description text to show loading status
-        descriptionTextView.setText(R.string.metadata_loading);
-      }
+      // Display the pwsResult.
+      PwPair pwPair = getItem(i);
+      PwsResult pwsResult = pwPair.getPwsResult();
+      setText(view, R.id.title, pwsResult.getTitle());
+      setText(view, R.id.url, pwsResult.getSiteUrl());
+      setText(view, R.id.description, pwsResult.getDescription());
+      ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
+          Utils.getBitmapIcon(mPwCollection, pwsResult));
 
       if (mDebugViewEnabled) {
         // If we should show the ranging data
-        updateDebugView(pwoMetadata, view);
+        updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
-        PwsClient.getInstance(getActivity()).useDevEndpoint();
+        mPwCollection.setPwsEndpoint("https://url-caster-dev.appspot.com");
       } else {
         // Otherwise ensure it is not shown
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
-        PwsClient.getInstance(getActivity()).useProdEndpoint();
+        mPwCollection.setPwsEndpoint("https://url-caster.appspot.com");
       }
 
       return view;
     }
 
-    private void updateDebugView(PwoMetadata pwoMetadata, View view) {
+    private void updateDebugView(PwPair pwPair, View view) {
       // Ranging debug line
-      TextView txPowerView = (TextView) view.findViewById(R.id.ranging_debug_tx_power);
-      TextView rssiView = (TextView) view.findViewById(R.id.ranging_debug_rssi);
-      TextView distanceView = (TextView) view.findViewById(R.id.ranging_debug_distance);
-      TextView regionView = (TextView) view.findViewById(R.id.ranging_debug_region);
-      if (pwoMetadata.hasBleMetadata()) {
-        BleMetadata bleMetadata = pwoMetadata.bleMetadata;
-
-        int txPower = bleMetadata.txPower;
-        String txPowerString = getString(R.string.ranging_debug_tx_power_prefix) + txPower;
-        txPowerView.setText(txPowerString);
-
-        String deviceAddress = bleMetadata.deviceAddress;
-        int rssi = bleMetadata.getSmoothedRssi();
-        String rssiString = getString(R.string.ranging_debug_rssi_prefix) + rssi;
-        rssiView.setText(rssiString);
-
-        double distance = bleMetadata.getDistance();
-        String distanceString = getString(R.string.ranging_debug_distance_prefix)
-            + new DecimalFormat("##.##").format(distance);
-        distanceView.setText(distanceString);
-
-        String region = bleMetadata.getRegionString();
-        String regionString = getString(R.string.ranging_debug_region_prefix) + region;
-        regionView.setText(regionString);
+      UrlDevice urlDevice = pwPair.getUrlDevice();
+      if (Utils.isBleUrlDevice(urlDevice)) {
+        setText(view, R.id.ranging_debug_tx_power,
+            getString(R.string.ranging_debug_tx_power_prefix) + Utils.getTxPower(urlDevice));
+        setText(view, R.id.ranging_debug_rssi,
+            getString(R.string.ranging_debug_rssi_prefix) + Utils.getSmoothedRssi(urlDevice));
+        setText(view, R.id.ranging_debug_distance,
+            getString(R.string.ranging_debug_distance_prefix)
+            + new DecimalFormat("##.##").format(Utils.getDistance(urlDevice)));
+        setText(view, R.id.ranging_debug_region,
+            getString(R.string.ranging_debug_region_prefix) + Utils.getRegionString(urlDevice));
       } else {
-        txPowerView.setText("");
-        rssiView.setText("");
-        distanceView.setText("");
-        regionView.setText("");
+        setText(view, R.id.ranging_debug_tx_power, "");
+        setText(view, R.id.ranging_debug_rssi, "");
+        setText(view, R.id.ranging_debug_distance, "");
+        setText(view, R.id.ranging_debug_region, "");
       }
 
       // Metadata debug line
-      double scanTime = pwoMetadata.scanMillis / 1000.0;
-      String scanTimeString = getString(R.string.metadata_debug_scan_time_prefix)
-          + new DecimalFormat("##.##s").format(scanTime);
-      TextView scanTimeView = (TextView) view.findViewById(R.id.metadata_debug_scan_time);
-      scanTimeView.setText(scanTimeString);
+      setText(view, R.id.metadata_debug_scan_time,
+          getString(R.string.metadata_debug_scan_time_prefix)
+          + new DecimalFormat("##.##s").format(Utils.getScanTimeMillis(urlDevice) / 1000.0));
 
-      TextView rankView = (TextView) view.findViewById(R.id.metadata_debug_rank);
-      TextView pwsTripTimeView = (TextView) view.findViewById(R.id.metadata_debug_pws_trip_time);
-      TextView groupidView = (TextView) view.findViewById(R.id.metadata_debug_groupid);
-      if (pwoMetadata.hasUrlMetadata()) {
-        UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-        double rank = urlMetadata.rank;
-        String rankString = getString(R.string.metadata_debug_rank_prefix)
-            + new DecimalFormat("##.##").format(rank);
-        rankView.setText(rankString);
-
-        double pwsTripTime = pwoMetadata.pwsTripMillis / 1000.0;
-        String pwsTripTimeString = "" + getString(R.string.metadata_debug_pws_trip_time_prefix)
-            + new DecimalFormat("##.##s").format(pwsTripTime);
-        pwsTripTimeView.setText(pwsTripTimeString);
-
-        String groupidString = getString(R.string.metadata_debug_groupid_prefix)
-                + urlMetadata.groupid;
-        groupidView.setText(groupidString);
-      } else {
-        rankView.setText("");
-        pwsTripTimeView.setText("");
-        groupidView.setText("");
-      }
+      PwsResult pwsResult = pwPair.getPwsResult();
+      setText(view, R.id.metadata_debug_rank,
+          getString(R.string.metadata_debug_rank_prefix)
+          + new DecimalFormat("##.##").format(0));  // We currently do not use rank.
+      setText(view, R.id.metadata_debug_pws_trip_time,
+          getString(R.string.metadata_debug_pws_trip_time_prefix)
+          + new DecimalFormat("##.##s").format(Utils.getPwsTripTimeMillis(pwsResult) / 1000.0));
+      setText(view, R.id.metadata_debug_groupid,
+          getString(R.string.metadata_debug_groupid_prefix) + Utils.getGroupId(pwsResult));
     }
 
     public void clear() {
-      mBeaconDisplayList.clear();
+      mPwPairs.clear();
       notifyDataSetChanged();
     }
   }
