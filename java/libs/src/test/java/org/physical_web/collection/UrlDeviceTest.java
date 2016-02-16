@@ -40,9 +40,13 @@ public class UrlDeviceTest {
   @Before
   public void setUp() {
     mUrlDevice1 = new UrlDevice(ID1, URL1);
+    mUrlDevice1.getExtraData().put("key", "value");
     jsonObject1 = new JSONObject("{"
         + "    \"id\": \"" + ID1 + "\","
-        + "    \"url\": \"" + URL1 + "\""
+        + "    \"url\": \"" + URL1 + "\","
+        + "    \"extra\": {"
+        + "        \"key\": \"value\""
+        + "    }"
         + "}");
   }
 
@@ -60,6 +64,11 @@ public class UrlDeviceTest {
   public void getRankReturnsPointFive() {
     PwsResult pwsResult = new PwsResult(URL1, URL1, null, null);
     assertEquals(.5, mUrlDevice1.getRank(pwsResult), .0001);
+  }
+
+  @Test
+  public void getExtraDataWorks() {
+    assertEquals(1, mUrlDevice1.getExtraData().length());
   }
 
   @Test
@@ -82,8 +91,9 @@ public class UrlDeviceTest {
 
   @Test
   public void alikeDevicesAreEqual() {
-    UrlDevice urlDevice2 = new UrlDevice(ID1, URL1);
-    assertEquals(mUrlDevice1, urlDevice2);
+    UrlDevice urlDevice = new UrlDevice(ID1, URL1);
+    urlDevice.getExtraData().put("key", "value");
+    assertEquals(mUrlDevice1, urlDevice);
   }
 
   @Test
@@ -96,8 +106,9 @@ public class UrlDeviceTest {
 
   @Test
   public void devicesWithDifferentRankButSameInfoAreEqual() {
-    UrlDevice urlDevice2 = new RankedDevice(ID1, URL1, RANK2); // different rank
-    assertEquals(mUrlDevice1, urlDevice2); // equals should not consider rank
+    UrlDevice urlDevice = new RankedDevice(ID1, URL1, RANK2); // different rank
+    urlDevice.getExtraData().put("key", "value");
+    assertEquals(mUrlDevice1, urlDevice); // equals should not consider rank
   }
 
   @Test

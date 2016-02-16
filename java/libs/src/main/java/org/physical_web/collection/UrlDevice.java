@@ -23,8 +23,10 @@ import org.json.JSONObject;
 public class UrlDevice {
   private static final String ID_KEY = "id";
   private static final String URL_KEY = "url";
+  private static final String EXTRA_KEY = "extra";
   private String mId;
   private String mUrl;
+  private JSONObject mExtraData;
 
   /**
    * Construct a SimpleUrlDevice.
@@ -34,6 +36,7 @@ public class UrlDevice {
   public UrlDevice(String id, String url) {
     mId = id;
     mUrl = url;
+    mExtraData = new JSONObject();
   }
 
   /**
@@ -66,6 +69,15 @@ public class UrlDevice {
   }
 
   /**
+   * Get extra data JSONObject.
+   * This is where client code should store custom data.
+   * @return Extra data.
+   */
+  public JSONObject getExtraData() {
+    return mExtraData;
+  }
+
+  /**
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
    */
@@ -73,6 +85,11 @@ public class UrlDevice {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put(ID_KEY, mId);
     jsonObject.put(URL_KEY, mUrl);
+
+    if (mExtraData.length() > 0) {
+      jsonObject.put(EXTRA_KEY, mExtraData);
+    }
+
     return jsonObject;
   }
 
@@ -82,14 +99,19 @@ public class UrlDevice {
    * @return The UrlDevice represented by the serialized object.
    */
   public static UrlDevice jsonDeserialize(JSONObject jsonObject) {
-      //throws PhysicalWebCollectionException {
     String id = jsonObject.getString(ID_KEY);
     String url = jsonObject.getString(URL_KEY);
-    return new UrlDevice(id, url);
+
+    UrlDevice urlDevice = new UrlDevice(id, url);
+    if (jsonObject.has(EXTRA_KEY)) {
+      urlDevice.mExtraData = jsonObject.getJSONObject(EXTRA_KEY);
+    }
+    return urlDevice;
   }
 
   /**
    * Return a hash code for this SimpleUrlDevice.
+   * This calculation does not include the extra data.
    * @return hash code
    */
   public int hashCode() {
@@ -101,6 +123,7 @@ public class UrlDevice {
 
   /**
    * Check if two UrlDevices are equal.
+   * This does not compare extra data.
    * @param other the UrlDevice to compare to.
    * @return true if the UrlDevices are equal
    */
@@ -110,9 +133,8 @@ public class UrlDevice {
     }
 
     if (other instanceof UrlDevice) {
-      UrlDevice otherUrlDevice = (UrlDevice) other;
-      return mId.equals(otherUrlDevice.getId()) &&
-          mUrl.equals(otherUrlDevice.getUrl());
+      UrlDevice urlDevice = (UrlDevice) other;
+      return compareTo(urlDevice) == 0;
     }
     return false;
   }
