@@ -39,7 +39,6 @@
     <!-- The following is a more appropriate name, but would require special code to migrate users -->
     <!-- string name="main_prefs_key">org.physical_web.physicalweb.MAIN_PREFS</string -->
     <string name="discovery_service_prefs_key">org.physical_web.physicalweb.DISCOVERY_SERVICE_PREFS</string>
-    <string name="metadata_loading">loading&#8230;</string>
     <string name="ranging_debug_tx_power_prefix">tx: </string>
     <string name="ranging_debug_rssi_prefix">rssi: </string>
     <string name="ranging_debug_distance_prefix">distance: </string>

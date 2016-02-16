@@ -33,7 +33,7 @@ public class ScreenListenerService extends Service {
   private BroadcastReceiver mScreenStateBroadcastReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
-      Intent discoveryIntent = new Intent(context, PwoDiscoveryService.class);
+      Intent discoveryIntent = new Intent(context, UrlDeviceDiscoveryService.class);
       if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
         context.startService(discoveryIntent);
       } else if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
