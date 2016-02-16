@@ -184,6 +184,20 @@ class BeaconDisplayList {
   }
 
   /**
+   * Return true if any contained pwo has the specified URL.
+   * @param url The URL
+   * @return boolean true if present
+   */
+  public boolean containsUrl(String url) {
+    for (BeaconDisplayItem beaconDisplayItem : mDisplayList) {
+      if (beaconDisplayItem.top().url.equals(url)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Return the display list item count.
    * @return Count of displayed items
    */

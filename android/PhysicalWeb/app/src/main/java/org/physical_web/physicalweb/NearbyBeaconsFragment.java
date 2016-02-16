@@ -69,8 +69,8 @@ public class NearbyBeaconsFragment extends ListFragment
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
   private static final long THIRD_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
-  private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
-  private List<PwoMetadata> mPwoMetadataQueue;
+  private List<String> mUrlQueue;
+  private HashMap<String, PwoMetadata> mUrlToPwoMetadata = null;
   private TextView mScanningAnimationTextView;
   private AnimationDrawable mScanningAnimationDrawable;
   private Handler mHandler;
@@ -91,8 +91,8 @@ public class NearbyBeaconsFragment extends ListFragment
     @Override
     public void run() {
       Log.d(TAG, "running first scan timeout");
-      if (!mPwoMetadataQueue.isEmpty()) {
-        emptyPwoMetadataQueue();
+      if (!mUrlQueue.isEmpty()) {
+        emptyUrlQueue();
         showListView();
       }
     }
@@ -103,7 +103,7 @@ public class NearbyBeaconsFragment extends ListFragment
     @Override
     public void run() {
       Log.d(TAG, "running second scan timeout");
-      emptyPwoMetadataQueue();
+      emptyUrlQueue();
       showListView();
       mSecondScanComplete = true;
     }
@@ -141,12 +141,12 @@ public class NearbyBeaconsFragment extends ListFragment
       mDiscoveryService = localBinder.getServiceInstance();
 
       // Start the scanning display
-      startScanningDisplay(mRequestCachedPwos ? mDiscoveryService.getScanStartTime()
-                                              : new Date().getTime(),
-                           mDiscoveryService.hasResults());
-
-      // Request the metadata
-      mDiscoveryService.requestPwoMetadata(NearbyBeaconsFragment.this, mRequestCachedPwos);
+      mDiscoveryService.addCallback(NearbyBeaconsFragment.this);
+      if (!mRequestCachedPwos) {
+        mDiscoveryService.restartScan();
+      }
+      mUrlToPwoMetadata = mDiscoveryService.getUrlToPwoMetadataMap();
+      startScanningDisplay(mDiscoveryService.getScanStartTime(), mDiscoveryService.hasResults());
     }
 
     @Override
@@ -172,7 +172,7 @@ public class NearbyBeaconsFragment extends ListFragment
         return;
       }
 
-      mDiscoveryService.removeCallbacks(NearbyBeaconsFragment.this);
+      mDiscoveryService.removeCallback(NearbyBeaconsFragment.this);
       mDiscoveryService = null;
       getActivity().unbindService(this);
       stopScanningDisplay();
@@ -186,8 +186,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
-    mUrlToPwoMetadata = new HashMap<>();
-    mPwoMetadataQueue = new ArrayList<>();
+    mUrlQueue = new ArrayList<>();
     mHandler = new Handler();
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
@@ -249,21 +248,19 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   @Override
-  public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
+  public void onPwoDiscoveryUpdate() {
+    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
+      if (!mUrlQueue.contains(pwoMetadata.url)
+          && !mNearbyDeviceAdapter.containsUrl(pwoMetadata.url)) {
+        mUrlQueue.add(pwoMetadata.url);
+        if (mSecondScanComplete) {
+          // If we've already waited for the second scan timeout, go ahead and put the item in the
+          // listview.
+          emptyUrlQueue();
+        }
+      }
+    }
     safeNotifyChange();
-  }
-
-  @Override
-  public void onUrlMetadataAbsent(PwoMetadata pwoMetadata) {
-  }
-
-  @Override
-  public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
-    safeNotifyChange();
-  }
-
-  @Override
-  public void onUrlMetadataIconError(PwoMetadata pwoMetadata) {
   }
 
   private void stopScanningDisplay() {
@@ -305,8 +302,7 @@ public class NearbyBeaconsFragment extends ListFragment
   @Override
   public void onRefresh() {
     // Clear any stored url data
-    mUrlToPwoMetadata.clear();
-    mPwoMetadataQueue.clear();
+    mUrlQueue.clear();
     mNearbyDeviceAdapter.clear();
 
     // Reconnect to the service
@@ -315,25 +311,16 @@ public class NearbyBeaconsFragment extends ListFragment
     mDiscoveryServiceConnection.connect(false);
   }
 
-  @Override
-  public void onPwoDiscovered(PwoMetadata pwoMetadata) {
-    if (!mUrlToPwoMetadata.containsKey(pwoMetadata.url)) {
-      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
-      mPwoMetadataQueue.add(pwoMetadata);
-      if (mSecondScanComplete) {
-        // If we've already waited for the second scan timeout, go ahead and put the item in the
-        // listview.
-        emptyPwoMetadataQueue();
-      }
+  private void emptyUrlQueue() {
+    List<PwoMetadata> pwoMetadataList = new ArrayList<>();
+    for (String url : mUrlQueue) {
+      pwoMetadataList.add(mUrlToPwoMetadata.get(url));
     }
-  }
-
-  private void emptyPwoMetadataQueue() {
-    Collections.sort(mPwoMetadataQueue);
-    for (PwoMetadata pwoMetadata : mPwoMetadataQueue) {
+    Collections.sort(pwoMetadataList);
+    for (PwoMetadata pwoMetadata : pwoMetadataList) {
       mNearbyDeviceAdapter.addItem(pwoMetadata);
     }
-    mPwoMetadataQueue.clear();
+    mUrlQueue.clear();
     safeNotifyChange();
   }
 
@@ -390,6 +377,10 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public void addItem(PwoMetadata pwoMetadata) {
       mBeaconDisplayList.addItem(pwoMetadata);
+    }
+
+    public boolean containsUrl(String url) {
+      return mBeaconDisplayList.containsUrl(url);
     }
 
     @Override

@@ -131,9 +131,8 @@ public class PwoDiscoveryService extends Service
   /**
    * Callback for subscribers to this service.
    */
-  public interface PwoResponseCallback extends PwoDiscoverer.PwoDiscoveryCallback,
-                                               PwsClient.ResolveScanCallback,
-                                               PwsClient.DownloadIconCallback {
+  public interface PwoResponseCallback {
+    public void onPwoDiscoveryUpdate();
   }
 
   public PwoDiscoveryService() {
@@ -268,9 +267,7 @@ public class PwoDiscoveryService extends Service
 
   @Override
   public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
-    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
-      pwoResponseCallback.onUrlMetadataReceived(pwoMetadata);
-    }
+    triggerCallback();
     if (!pwoMetadata.urlMetadata.iconUrl.isEmpty()) {
       PwsClient.getInstance(this).downloadIcon(pwoMetadata, this);
     }
@@ -279,24 +276,18 @@ public class PwoDiscoveryService extends Service
 
   @Override
   public void onUrlMetadataAbsent(PwoMetadata pwoMetadata) {
-    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
-      pwoResponseCallback.onUrlMetadataAbsent(pwoMetadata);
-    }
+    triggerCallback();
   }
 
   @Override
   public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
-    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
-      pwoResponseCallback.onUrlMetadataIconReceived(pwoMetadata);
-    }
+    triggerCallback();
     updateNotifications();
   }
 
   @Override
   public void onUrlMetadataIconError(PwoMetadata pwoMetadata) {
-    for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
-      pwoResponseCallback.onUrlMetadataIconError(pwoMetadata);
-    }
+    triggerCallback();
   }
 
   @Override
@@ -318,8 +309,12 @@ public class PwoDiscoveryService extends Service
       storedPwoMetadata = pwoMetadata;
     }
 
+    triggerCallback();
+  }
+
+  private void triggerCallback() {
     for (PwoResponseCallback pwoResponseCallback : mPwoResponseCallbacks) {
-      pwoResponseCallback.onPwoDiscovered(storedPwoMetadata);
+      pwoResponseCallback.onPwoDiscoveryUpdate();
     }
   }
 
@@ -499,24 +494,11 @@ public class PwoDiscoveryService extends Service
     return pendingIntent;
   }
 
-  public void requestPwoMetadata(PwoResponseCallback pwoResponseCallback,
-                                 boolean requestCachedPwos) {
+  public void addCallback(PwoResponseCallback pwoResponseCallback) {
     mPwoResponseCallbacks.add(pwoResponseCallback);
-    if (requestCachedPwos) {
-      for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
-        pwoResponseCallback.onPwoDiscovered(pwoMetadata);
-      }
-    } else {
-      // If the client isn't requesting cached PWOs, let's restart the scanners so that those
-      // scanners that only discover a PWO once (and not repeatedly) will have an opportunity
-      // to report all results.
-      for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-        pwoDiscoverer.restartScan();
-      }
-    }
   }
 
-  public void removeCallbacks(PwoResponseCallback pwoResponseCallback) {
+  public void removeCallback(PwoResponseCallback pwoResponseCallback) {
     mPwoResponseCallbacks.remove(pwoResponseCallback);
   }
 
@@ -524,7 +506,21 @@ public class PwoDiscoveryService extends Service
     return mScanStartTime;
   }
 
+  public void restartScan() {
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.stopScan();
+    }
+    mScanStartTime = new Date().getTime();
+    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
+      pwoDiscoverer.startScan();
+    }
+  }
+
   public boolean hasResults() {
-   return !mUrlToPwoMetadata.isEmpty();
+    return !mUrlToPwoMetadata.isEmpty();
+  }
+
+  public HashMap<String, PwoMetadata> getUrlToPwoMetadataMap() {
+    return mUrlToPwoMetadata;
   }
 }
