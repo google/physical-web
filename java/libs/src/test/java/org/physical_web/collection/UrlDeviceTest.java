@@ -62,7 +62,7 @@ public class UrlDeviceTest {
 
   @Test
   public void getRankReturnsPointFive() {
-    PwsResult pwsResult = new PwsResult(URL1, URL1, null, null);
+    PwsResult pwsResult = new PwsResult(URL1, URL1, "title1", "description1", null, null);
     assertEquals(.5, mUrlDevice1.getRank(pwsResult), .0001);
   }
 

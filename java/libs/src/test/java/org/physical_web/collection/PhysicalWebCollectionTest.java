@@ -40,6 +40,10 @@ public class PhysicalWebCollectionTest {
   private static final String URL2 = "http://physical-web.org";
   private static final String URL3a = "http://example.com/#a";
   private static final String URL3b = "http://example.com/#b";
+  private static final String TITLE1 = "title1";
+  private static final String TITLE2 = "title2";
+  private static final String DESCRIPTION1 = "description1";
+  private static final String DESCRIPTION2 = "description2";
   private static final String ICON_URL1 = "http://example.com/favicon.ico";
   private static final String ICON_URL2 = "http://physical-web.org/favicon.ico";
   private static final String GROUP_ID1 = "group1";
@@ -58,7 +62,7 @@ public class PhysicalWebCollectionTest {
   public void setUp() {
     physicalWebCollection1 = new PhysicalWebCollection();
     UrlDevice urlDevice = new UrlDevice(ID1, URL1);
-    PwsResult pwsResult = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    PwsResult pwsResult = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
     jsonObject1 = new JSONObject("{"
@@ -70,6 +74,8 @@ public class PhysicalWebCollectionTest {
         + "    \"metadata\": [{"
         + "        \"requesturl\": \"" + URL1 + "\","
         + "        \"siteurl\": \"" + URL1 + "\","
+        + "        \"title\": \"" + TITLE1 + "\","
+        + "        \"description\": \"" + DESCRIPTION1 + "\","
         + "        \"iconurl\": \"" + ICON_URL1 + "\","
         + "        \"groupid\": \"" + GROUP_ID1 + "\""
         + "    }]"

@@ -30,6 +30,10 @@ import org.skyscreamer.jsonassert.JSONAssert;
 public class PwsResultTest {
   private static final String URL1 = "http://example.com";
   private static final String URL2 = "http://physical-web.org";
+  private static final String TITLE1 = "title1";
+  private static final String TITLE2 = "title2";
+  private static final String DESCRIPTION1 = "description1";
+  private static final String DESCRIPTION2 = "description2";
   private static final String ICON_URL1 = "http://example.com/favicon.ico";
   private static final String ICON_URL2 = "http://physical-web.org/favicon.ico";
   private static final String GROUP_ID1 = "group1";
@@ -39,12 +43,14 @@ public class PwsResultTest {
 
   @Before
   public void setUp() {
-    mPwsResult1 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    mPwsResult1 = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     mPwsResult1.getExtraData().put("key", "value");
     String endline = "\",";
     jsonObject1 = new JSONObject("{"
         + "    \"requesturl\": \"" + URL1 + endline
         + "    \"siteurl\": \"" + URL1 + endline
+        + "    \"title\": \"" + TITLE1 + endline
+        + "    \"description\": \"" + DESCRIPTION1 + endline
         + "    \"iconurl\": \"" + ICON_URL1 + endline
         + "    \"groupid\": \"" + GROUP_ID1 + endline
         + "    \"extra\": {"
@@ -57,6 +63,8 @@ public class PwsResultTest {
   public void constructorCreatesProperObject() {
     assertEquals(mPwsResult1.getRequestUrl(), URL1);
     assertEquals(mPwsResult1.getSiteUrl(), URL1);
+    assertEquals(mPwsResult1.getTitle(), TITLE1);
+    assertEquals(mPwsResult1.getDescription(), DESCRIPTION1);
     assertEquals(mPwsResult1.getIconUrl(), ICON_URL1);
     assertEquals(mPwsResult1.getGroupId(), GROUP_ID1);
   }
@@ -82,7 +90,8 @@ public class PwsResultTest {
 
   @Test
   public void jsonSerializeAndDeserializePreservesNullValues() throws Exception {
-    PwsResult pwsResult = new PwsResult(URL1, URL1, null, null);  // null values
+    PwsResult pwsResult =
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, null, null);  // null values
     pwsResult = PwsResult.jsonDeserialize(pwsResult.jsonSerialize());
     assertNull(pwsResult.getIconUrl());
     assertNull(pwsResult.getGroupId());
@@ -95,17 +104,25 @@ public class PwsResultTest {
 
   @Test
   public void alikeResultsAreEqual() {
-    PwsResult pwsResult = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    PwsResult pwsResult = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     pwsResult.getExtraData().put("key", "value");
     assertEquals(mPwsResult1, pwsResult);
   }
 
   @Test
   public void unalikeResultsAreNotEqual() {
-    assertNotEquals(mPwsResult1, new PwsResult(URL2, URL1, ICON_URL1, GROUP_ID1));
-    assertNotEquals(mPwsResult1, new PwsResult(URL1, URL2, ICON_URL1, GROUP_ID1));
-    assertNotEquals(mPwsResult1, new PwsResult(URL1, URL1, ICON_URL2, GROUP_ID1));
-    assertNotEquals(mPwsResult1, new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID2));
+    assertNotEquals(mPwsResult1,
+        new PwsResult(URL2, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1));
+    assertNotEquals(mPwsResult1,
+        new PwsResult(URL1, URL2, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1));
+    assertNotEquals(mPwsResult1,
+        new PwsResult(URL1, URL1, TITLE2, DESCRIPTION1, ICON_URL1, GROUP_ID1));
+    assertNotEquals(mPwsResult1,
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION2, ICON_URL1, GROUP_ID1));
+    assertNotEquals(mPwsResult1,
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL2, GROUP_ID1));
+    assertNotEquals(mPwsResult1,
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID2));
   }
 
   @Test
@@ -115,18 +132,29 @@ public class PwsResultTest {
 
   @Test
   public void compareResultToAlikeResultReturnsZero() {
-    assertEquals(0, mPwsResult1.compareTo(new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1)));
+    PwsResult pwsResult = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
+    assertEquals(0, mPwsResult1.compareTo(pwsResult));
   }
 
   @Test
   public void compareResultToUnalikeResultReturnsNonZero() {
     // "example.com" < "physical-web.org"
-    assertTrue(mPwsResult1.compareTo(new PwsResult(URL2, URL1, ICON_URL1, GROUP_ID1)) < 0);
+    assertTrue(mPwsResult1.compareTo(
+        new PwsResult(URL2, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1)) < 0);
     // "example.com" < "physical-web.org"
-    assertTrue(mPwsResult1.compareTo(new PwsResult(URL1, URL2, ICON_URL1, GROUP_ID1)) < 0);
+    assertTrue(mPwsResult1.compareTo(
+        new PwsResult(URL1, URL2, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1)) < 0);
+    // "title1" < "title2"
+    assertTrue(mPwsResult1.compareTo(
+        new PwsResult(URL1, URL1, TITLE2, DESCRIPTION1, ICON_URL1, GROUP_ID1)) < 0);
+    // "description1" < "description2"
+    assertTrue(mPwsResult1.compareTo(
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION2, ICON_URL1, GROUP_ID1)) < 0);
     // "example.com/favicon.ico" < "physical-web.org/favicon.ico"
-    assertTrue(mPwsResult1.compareTo(new PwsResult(URL1, URL1, ICON_URL2, GROUP_ID1)) < 0);
+    assertTrue(mPwsResult1.compareTo(
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL2, GROUP_ID1)) < 0);
     // "group1" < "group2"
-    assertTrue(mPwsResult1.compareTo(new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID2)) < 0);
+    assertTrue(mPwsResult1.compareTo(
+        new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID2)) < 0);
   }
 }

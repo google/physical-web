@@ -28,6 +28,10 @@ public class PwPairTest {
   private static final String ID2 = "id2";
   private static final String URL1 = "http://example.com";
   private static final String URL2 = "http://physical-web.org";
+  private static final String TITLE1 = "title1";
+  private static final String TITLE2 = "title2";
+  private static final String DESCRIPTION1 = "description1";
+  private static final String DESCRIPTION2 = "description2";
   private static final String ICON_URL1 = "http://example.com/favicon.ico";
   private static final String ICON_URL2 = "http://physical-web.org/favicon.ico";
   private static final String GROUP_ID1 = "group1";
@@ -41,7 +45,7 @@ public class PwPairTest {
   @Before
   public void setUp() {
     mUrlDevice1 = new UrlDevice(ID1, URL1);
-    mPwsResult1 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    mPwsResult1 = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     mPwPair1 = new PwPair(mUrlDevice1, mPwsResult1);
   }
 
@@ -59,7 +63,7 @@ public class PwPairTest {
   @Test
   public void alikePairsAreEqual() {
     UrlDevice urlDevice2 = new UrlDevice(ID1, URL1);
-    PwsResult pwsResult2 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    PwsResult pwsResult2 = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     UrlDevice urlDevice3 = new RankedDevice(ID1, URL1, RANK1);
     PwPair pwPair2 = new PwPair(urlDevice2, pwsResult2); // identical PwPair
     PwPair pwPair3 = new PwPair(urlDevice3, mPwsResult1); // same info, but uses a RankedDevice
@@ -69,7 +73,7 @@ public class PwPairTest {
 
   @Test
   public void unalikePairsAreNotEqual() {
-    PwsResult pwsResult2 = new PwsResult(URL1, URL2, ICON_URL1, GROUP_ID1);
+    PwsResult pwsResult2 = new PwsResult(URL1, URL2, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     UrlDevice urlDevice2 = new UrlDevice(ID2, URL1);
     UrlDevice urlDevice3 = new RankedDevice(ID1, URL1, RANK2);
     PwPair pwPair2 = new PwPair(mUrlDevice1, pwsResult2); // different URL metadata
@@ -88,7 +92,7 @@ public class PwPairTest {
   @Test
   public void comparePairToAlikePairReturnsZero() {
     UrlDevice urlDevice2 = new UrlDevice(ID1, URL1);
-    PwsResult pwsResult2 = new PwsResult(URL1, URL1, ICON_URL1, GROUP_ID1);
+    PwsResult pwsResult2 = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
     UrlDevice urlDevice3 = new RankedDevice(ID1, URL1, RANK1);
     PwPair pwPair2 = new PwPair(urlDevice2, pwsResult2); // identical PwPair
     PwPair pwPair3 = new PwPair(urlDevice3, mPwsResult1); // same info, but uses a RankedDevice
@@ -101,7 +105,7 @@ public class PwPairTest {
   public void comparePairToUnalikePairReturnsNonZero() {
     UrlDevice urlDevice2 = new UrlDevice(ID2, URL1);
     UrlDevice urlDevice3 = new RankedDevice(ID1, URL1, RANK2);
-    PwsResult pwsResult2 = new PwsResult(URL2, URL2, ICON_URL2, GROUP_ID2);
+    PwsResult pwsResult2 = new PwsResult(URL2, URL2, TITLE1, DESCRIPTION1, ICON_URL2, GROUP_ID2);
     PwPair pwPair2 = new PwPair(urlDevice2, mPwsResult1);
     PwPair pwPair3 = new PwPair(urlDevice3, mPwsResult1);
     PwPair pwPair4 = new PwPair(mUrlDevice1, pwsResult2);
