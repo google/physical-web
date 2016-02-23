@@ -297,6 +297,7 @@ public class PhysicalWebCollection {
 
     public void onIcon(byte[] icon) {
       mPendingIconUrls.remove(mUrl);
+      addIcon(mUrl, icon);
       mCallback.onIcon(icon);
     }
 
