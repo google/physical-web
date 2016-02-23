@@ -158,4 +158,16 @@ public class PhysicalWebCollectionTest {
     assertEquals(groupedPairs.get(2).getPwsResult().getGroupId(), GROUP_ID1);
     assertEquals(groupedPairs.get(2).getUrlDevice().getId(), ID1);
   }
+
+  @Test
+  public void getTopRankedPwPairByGroupIdWorks() {
+    PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
+    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUP_ID1, .1);  // Group 1
+    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL2, GROUP_ID1, .2);  // Better rank
+    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUP_ID2, .3);  // Group 2
+    assertNull(physicalWebCollection.getTopRankedPwPairByGroupId("notagroup"));
+    PwPair pwPair = physicalWebCollection.getTopRankedPwPairByGroupId(GROUP_ID1);
+    assertNotNull(pwPair);
+    assertEquals(ID2, pwPair.getUrlDevice().getId());
+  }
 }
