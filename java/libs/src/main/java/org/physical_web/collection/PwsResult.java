@@ -23,11 +23,15 @@ import org.json.JSONObject;
 public class PwsResult implements Comparable<PwsResult> {
   private static final String REQUESTURL_KEY = "requesturl";
   private static final String SITEURL_KEY = "siteurl";
+  private static final String TITLE_KEY = "title";
+  private static final String DESCRIPTION_KEY = "description";
   private static final String ICONURL_KEY = "iconurl";
   private static final String GROUPID_KEY = "groupid";
   private static final String EXTRA_KEY = "extra";
   private String mRequestUrl;
   private String mSiteUrl;
+  private String mTitle;
+  private String mDescription;
   private String mIconUrl;
   private String mGroupId;
   private JSONObject mExtraData;
@@ -38,10 +42,14 @@ public class PwsResult implements Comparable<PwsResult> {
    * @param siteUrl The site URL, as reported by PWS
    * @param groupId The URL group ID, as reported by PWS
    */
-  public PwsResult(String requestUrl, String siteUrl, String iconUrl, String groupId) {
+  public PwsResult(
+      String requestUrl, String siteUrl, String title, String description, String iconUrl,
+      String groupId) {
     mRequestUrl = requestUrl;
     mSiteUrl = siteUrl;
     mIconUrl = iconUrl;
+    mTitle = title;
+    mDescription = description;
     mGroupId = groupId;
     mExtraData = new JSONObject();
   }
@@ -64,6 +72,24 @@ public class PwsResult implements Comparable<PwsResult> {
    */
   public String getSiteUrl() {
     return mSiteUrl;
+  }
+
+  /**
+   * Fetches the title.
+   * The title is parsed from the title tag of the web page.
+   * @return The title
+   */
+  public String getTitle() {
+    return mTitle;
+  }
+
+  /**
+   * Fetches the description.
+   * The description is a snippet of text describing the contents of the web page.
+   * @return The description
+   */
+  public String getDescription() {
+    return mDescription;
   }
 
   /**
@@ -118,6 +144,8 @@ public class PwsResult implements Comparable<PwsResult> {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put(REQUESTURL_KEY, mRequestUrl);
     jsonObject.put(SITEURL_KEY, mSiteUrl);
+    jsonObject.put(TITLE_KEY, mTitle);
+    jsonObject.put(DESCRIPTION_KEY, mDescription);
 
     if (mIconUrl != null) {
       jsonObject.put(ICONURL_KEY, mIconUrl);
@@ -142,6 +170,8 @@ public class PwsResult implements Comparable<PwsResult> {
   public static PwsResult jsonDeserialize(JSONObject jsonObject) {
     String requestUrl = jsonObject.getString(REQUESTURL_KEY);
     String siteUrl = jsonObject.getString(SITEURL_KEY);
+    String title = jsonObject.getString(TITLE_KEY);
+    String description = jsonObject.getString(DESCRIPTION_KEY);
     String iconUrl = null;
     if (jsonObject.has(ICONURL_KEY)) {
       iconUrl = jsonObject.getString(ICONURL_KEY);
@@ -151,7 +181,7 @@ public class PwsResult implements Comparable<PwsResult> {
       groupId = jsonObject.getString(GROUPID_KEY);
     }
 
-    PwsResult pwsResult = new PwsResult(requestUrl, siteUrl, iconUrl, groupId);
+    PwsResult pwsResult = new PwsResult(requestUrl, siteUrl, title, description, iconUrl, groupId);
     if (jsonObject.has(EXTRA_KEY)) {
       pwsResult.mExtraData = jsonObject.getJSONObject(EXTRA_KEY);
     }
@@ -168,6 +198,8 @@ public class PwsResult implements Comparable<PwsResult> {
     int hash = 1;
     hash = hash * 31 + mRequestUrl.hashCode();
     hash = hash * 31 + mSiteUrl.hashCode();
+    hash = hash * 31 + mTitle.hashCode();
+    hash = hash * 31 + mDescription.hashCode();
     hash = hash * 31 + mIconUrl.hashCode();
     hash = hash * 31 + ((mGroupId == null) ? 0 : mGroupId.hashCode());
     return hash;
@@ -216,13 +248,25 @@ public class PwsResult implements Comparable<PwsResult> {
       return compareValue;
     }
 
-    // 3. mIconUrl
+    // 3. mTitle
+    compareValue = Utils.nullSafeCompare(mTitle, other.mTitle);
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    // 4. mDescription
+    compareValue = Utils.nullSafeCompare(mDescription, other.mDescription);
+    if (compareValue != 0) {
+      return compareValue;
+    }
+
+    // 5. mIconUrl
     compareValue = Utils.nullSafeCompare(mIconUrl, other.mIconUrl);
     if (compareValue != 0) {
       return compareValue;
     }
 
-    // 4. mGroupId
+    // 6. mGroupId
     return Utils.nullSafeCompare(mGroupId, other.mGroupId);
   }
 }
