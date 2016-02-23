@@ -220,6 +220,19 @@ public class PhysicalWebCollection {
   }
 
   /**
+   * Return the top-ranked PwPair for a given group ID.
+   * @return a PwPair.
+   */
+  public PwPair getTopRankedPwPairByGroupId(String groupId) {
+    for (PwPair pwPair : getGroupedPwPairsSortedByRank()) {
+      if (pwPair.getPwsResult().getGroupId().equals(groupId)) {
+        return pwPair;
+      }
+    }
+    return null;
+  }
+
+  /**
    * If a site URL appears multiple times in the pairs list, keep only the first example.
    * @param allPwPairs input PwPairs list.
    * @return filtered PwPairs list with all duplicated site URLs removed.
