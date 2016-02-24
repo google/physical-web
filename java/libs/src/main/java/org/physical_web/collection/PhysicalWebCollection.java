@@ -299,7 +299,7 @@ public class PhysicalWebCollection {
     mPwsClient.setPwsEndpoint(pwsEndpoint);
   }
 
-  private class AugmentedPwsResultIconCallback implements PwsResultIconCallback {
+  private class AugmentedPwsResultIconCallback extends PwsResultIconCallback {
     private String mUrl;
     private PwsResultIconCallback mCallback;
 
@@ -308,12 +308,14 @@ public class PhysicalWebCollection {
       mCallback = callback;
     }
 
+    @Override
     public void onIcon(byte[] icon) {
       mPendingIconUrls.remove(mUrl);
       addIcon(mUrl, icon);
       mCallback.onIcon(icon);
     }
 
+    @Override
     public void onError(int httpResponseCode, Exception e) {
       mPendingIconUrls.remove(mUrl);
       mCallback.onError(httpResponseCode, e);
@@ -351,9 +353,10 @@ public class PhysicalWebCollection {
     }
 
     // Make the resolve request.
+    final Set<String> finalResolveUrls = newResolveUrls;
     PwsResultCallback augmentedCallback = new PwsResultCallback() {
+      @Override
       public void onPwsResult(PwsResult pwsResult) {
-        mPendingBroadcastUrls.remove(pwsResult.getRequestUrl());
         addMetadata(pwsResult);
         if (pwsResultIconCallback != null) {
             PwsResultIconCallback augmentedIconCallback =
@@ -363,16 +366,22 @@ public class PhysicalWebCollection {
         pwsResultCallback.onPwsResult(pwsResult);
       }
 
+      @Override
       public void onPwsResultAbsent(String url) {
-        mPendingBroadcastUrls.remove(url);
         pwsResultCallback.onPwsResultAbsent(url);
       }
 
+      @Override
       public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
-        for (String url : urls) {
+        pwsResultCallback.onPwsResultError(urls, httpResponseCode, e);
+      }
+
+      @Override
+      public void onResponseReceived(long durationMillis) {
+        for (String url : finalResolveUrls) {
           mPendingBroadcastUrls.remove(url);
         }
-        pwsResultCallback.onPwsResultError(urls, httpResponseCode, e);
+        pwsResultCallback.onResponseReceived(durationMillis);
       }
     };
     if (pwsResultCallback != null && newResolveUrls.size() > 0) {

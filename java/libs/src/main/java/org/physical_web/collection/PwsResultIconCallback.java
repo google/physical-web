@@ -16,14 +16,14 @@
 package org.physical_web.collection;
 
 /**
- * Callback to implement for requests made to the Physical Web Service.
+ * Callback to implement for requests made to fetch icons.
  */
-public interface PwsResultIconCallback {
+public abstract class PwsResultIconCallback {
   /**
    * Handle a valid PwsResult.
    * @param icon The icon returned from the HTTP request.
    */
-  void onIcon(byte[] icon);
+  public abstract void onIcon(byte[] icon);
 
   /**
    * Handle an error that occurred while attempting to use the Physical Web
@@ -32,5 +32,5 @@ public interface PwsResultIconCallback {
    *        Web Service.  This will be 0 if a response was never received.
    * @param e The encountered exception.
    */
-  void onError(int httpResponseCode, Exception e);
+  public void onError(int httpResponseCode, Exception e) {}
 }
