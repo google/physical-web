@@ -32,9 +32,17 @@ import java.util.Set;
  * HTTP client that makes requests to the Physical Web Service.
  */
 public class PwsClient {
+  private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
   private static final String RESOLVE_SCAN_PATH = "resolve-scan";
   private String mPwsEndpoint;
   private List<Thread> mThreads;
+
+  /**
+   * Construct a PwsClient.
+   */
+  public PwsClient() {
+    this(DEFAULT_PWS_ENDPOINT);
+  }
 
   /**
    * Construct a PwsClient.
