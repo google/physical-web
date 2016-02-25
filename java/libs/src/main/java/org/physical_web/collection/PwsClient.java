@@ -91,6 +91,7 @@ public class PwsClient {
           String title = null;
           String description = null;
           String iconUrl = null;
+          String groupId = null;
           try {
             JSONObject jsonUrlMetadata = foundMetadata.getJSONObject(i);
             requestUrl = jsonUrlMetadata.getString("id");
@@ -98,11 +99,12 @@ public class PwsClient {
             title = jsonUrlMetadata.getString("title");
             description = jsonUrlMetadata.getString("description");
             iconUrl = jsonUrlMetadata.optString("icon");
+            groupId = jsonUrlMetadata.optString("groupId");
           } catch (JSONException e) {
             continue;
           }
           PwsResult pwsResult =
-              new PwsResult(requestUrl, responseUrl, title, description, iconUrl, null);
+              new PwsResult(requestUrl, responseUrl, title, description, iconUrl, groupId);
           pwsResultCallback.onPwsResult(pwsResult);
           foundUrls.add(pwsResult.getRequestUrl());
         }
