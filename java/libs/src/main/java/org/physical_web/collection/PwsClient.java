@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -64,8 +65,15 @@ public class PwsClient {
   public void resolve(final Collection<String> broadcastUrls,
                       final PwsResultCallback pwsResultCallback) {
     // Create the response callback.
+    final long startTime = new Date().getTime();
     JsonObjectRequest.RequestCallback requestCallback = new JsonObjectRequest.RequestCallback() {
+      private void recordResponse() {
+        pwsResultCallback.onResponseReceived(new Date().getTime() - startTime);
+      }
+
       public void onResponse(JSONObject result) {
+        recordResponse();
+
         // Build the metadata from the response.
         JSONArray foundMetadata;
         try {
@@ -108,6 +116,7 @@ public class PwsClient {
       }
 
       public void onError(int responseCode, Exception e) {
+        recordResponse();
         pwsResultCallback.onPwsResultError(broadcastUrls, responseCode, e);
       }
     };
