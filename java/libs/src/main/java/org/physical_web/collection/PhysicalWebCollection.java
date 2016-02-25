@@ -35,7 +35,6 @@ public class PhysicalWebCollection {
   private static final String SCHEMA_VERSION_KEY = "schema";
   private static final String DEVICES_KEY = "devices";
   private static final String METADATA_KEY = "metadata";
-  private static final String DEFAULT_PWS_ENDPOINT = "https://url-caster.appspot.com";
   private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
@@ -47,7 +46,7 @@ public class PhysicalWebCollection {
    * Construct a PhysicalWebCollection.
    */
   public PhysicalWebCollection() {
-    mPwsClient = new PwsClient(DEFAULT_PWS_ENDPOINT);
+    mPwsClient = new PwsClient();
     mDeviceIdToUrlDeviceMap = new HashMap<>();
     mBroadcastUrlToPwsResultMap = new HashMap<>();
     mIconUrlToIconMap = new HashMap<>();
