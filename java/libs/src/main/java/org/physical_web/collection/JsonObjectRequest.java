@@ -56,6 +56,7 @@ class JsonObjectRequest extends Request<JSONObject> {
    * @param urlConnection The HTTP connection.
    */
   public void writeToUrlConnection(HttpURLConnection urlConnection) throws IOException {
+    urlConnection.setDoOutput(true);
     urlConnection.setRequestProperty("Content-Type", "application/json");
     urlConnection.setRequestProperty("Accept", "application/json");
     urlConnection.setRequestMethod("POST");
