@@ -76,7 +76,6 @@ abstract class Request<T> extends Thread {
     // Make the request
     try {
       urlConnection = (HttpURLConnection) mUrl.openConnection();
-      urlConnection.setDoOutput(true);
       writeToUrlConnection(urlConnection);
       responseCode = urlConnection.getResponseCode();
       inputStream = new BufferedInputStream(urlConnection.getInputStream());
