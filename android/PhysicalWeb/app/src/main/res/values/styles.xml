@@ -1,0 +1,51 @@
+<resources>
+
+    <style name="RobotoEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="CustomAppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:actionOverflowButtonStyle">@style/ActionBar.OverFlow</item>
+        <item name="android:itemTextAppearance">@style/ActionBar.MenuItemTextAppearance</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:popupMenuStyle">@style/ActionBar.PopupMenu</item>
+        <item name="android:dropDownListViewStyle">@style/ActionBar.PopupMenuListView</item>
+    </style>
+
+    <style name="ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/action_bar_background_color</item>
+        <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
+        <item name="android:icon">@android:color/transparent</item>
+
+    </style>
+
+    <style name="ActionBar.TitleTextStyle"
+           parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/action_bar_title_text_color</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="ActionBar.OverFlow" parent="@android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/settings_xxhdpi</item>
+    </style>
+
+    <style name="ActionBar.PopupMenu" parent="@android:style/Widget.Holo.PopupMenu">
+        <item name="android:popupBackground">@drawable/menu_item_background</item>
+    </style>
+
+    <style name="ActionBar.MenuItemTextAppearance">
+        <item name="android:textColor">@color/menu_item_text_color</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ActionBar.PopupMenuListView" parent="@android:style/Widget.Holo.ListView.DropDown">
+        <item name="android:divider">#FFFFFF</item>
+        <item name="android:dividerHeight">0dp</item>
+    </style>
+
+    <style name="Theme.NoActionBar" parent="@style/Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <Match>
+    <Class name="org.physical_web.collection.PhysicalWebCollection"/>
+    <Method name="~json(Des|S)erializeUrlDevice"/>
+    <Bug pattern="DM_STRING_CTOR"/>
+  </Match>
+  <Match>
+    <Class name="org.physical_web.collection.PwPair"/>
+    <Method name="equals"/>
+    <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+  </Match>
+  <Match>
+    <Class name="org.physical_web.collection.PwsClient$1"/>
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+  </Match>
+  <Match>
+    <Class name="org.physical_web.collection.PwsClient$2"/>
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+  </Match>
+</FindBugsFilter>

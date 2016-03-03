@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="header_color">#1C47C1</color>
+    <color name="url_color">#099F39</color>
+    <color name="description_color">#545454</color>
+    <color name="config_save_url_button">#4285f4</color>
+    <color name="menu_item_text_color">#333333</color>
+    <color name="action_bar_title_text_color">#5A5A5A</color>
+    <color name="action_bar_background_color">#FFFFFF</color>
+    <color name="swipe_refresh_widget_first_color">#70a2d3</color>
+    <color name="swipe_refresh_widget_second_color">#c2c2c2</color>
+</resources>

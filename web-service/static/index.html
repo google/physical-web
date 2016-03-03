@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<!--
+Copyright 2015 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<html>
+  <head>
+
+    <script>
+
+    var resolveScan = function(successCallback) {
+      var forceUpdate = document.getElementById("forceUpdate");
+      var resolveQuery = document.getElementById("resolvequery");
+      successCallback = successCallback || function() {};
+
+      var request = new XMLHttpRequest();
+
+      request.onreadystatechange = function(e) {
+        if(request.readyState == 4 && request.status == 200) {
+          successCallback(JSON.parse(request.responseText));
+        }
+      };
+
+      query = {
+          "objects": [
+            { "url": resolveQuery.value, "force": forceUpdate.checked }
+          ]
+      };
+      request.open("POST", "/resolve-scan");
+      request.send(JSON.stringify(query));
+    };
+
+    window.onload = function() {
+      var form = document.getElementById("resolveForm");
+      var resolveResponseOutput = document.getElementById("resolveResponse");
+      var responseHeader = document.querySelector("#response-header");
+      form.onsubmit = function(event) {
+        if (form.reportValidity()) {
+          resolveResponseOutput.innerText = '';
+          resolveScan(function(data) {
+            responseHeader.style.display = "inline";
+            resolveResponseOutput.innerText = JSON.stringify(data, undefined, 2);
+          });
+        }
+        event.preventDefault();
+      };
+    };
+    </script>
+
+  </head>
+  <body>
+    <h2>/resolve-scan</h2>
+    <form id="resolveForm">
+    <p>
+    <b>URL</b> <input type="url" id="resolvequery" size=40 value="http://example.com" required pattern="https?://.+">
+    <input type="checkbox" id="forceUpdate">Bypass cache
+    </p>
+    <div>
+    <button>Run</button>
+    </div>
+    </form>
+    <p>
+    <b id="response-header" style="display: none;">Response</b>
+    <pre id="resolveResponse" style="word-wrap: break-word;"></pre>
+    </p>
+  </body>
+</html>

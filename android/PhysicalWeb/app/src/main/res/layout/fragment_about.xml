@@ -1,0 +1,49 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#358ee8"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        tools:ignore="Overdraw">
+
+    <WebView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/about_webview"
+            android:layout_weight="1"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="16dp"
+            android:gravity="bottom">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/about_app_title"
+                android:textColor="#ffffff"
+                android:textSize="12sp"/>
+
+        <TextView
+                android:id="@+id/version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:textColor="#ffffff"
+                android:textSize="12sp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"/>
+    </LinearLayout>
+
+</LinearLayout>
+

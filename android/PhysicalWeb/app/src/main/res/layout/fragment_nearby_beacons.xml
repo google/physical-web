@@ -1,0 +1,35 @@
+<org.physical_web.physicalweb.SwipeRefreshWidget
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/swipe_refresh_widget">
+
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#ffffffff">
+
+        <ListView
+            android:id="@android:id/list"
+            android:alpha="0"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:divider="@null">
+        </ListView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty_nearby_beacons_list_text"
+            android:textSize="16sp"
+            android:textColor="#5A5A5A"
+            android:alpha="0"
+            android:drawableTop="@drawable/scanning_animation"
+            android:drawablePadding="16dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="260dp"
+            android:layout_centerHorizontal="true"
+            android:id="@id/android:empty"/>
+
+    </RelativeLayout>
+
+</org.physical_web.physicalweb.SwipeRefreshWidget>

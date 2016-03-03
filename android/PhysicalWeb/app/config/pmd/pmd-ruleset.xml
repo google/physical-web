@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Android Application Rules"
+    xmlns="http://pmd.sf.net/ruleset/1.0.0"
+    xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd"
+    xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd">
+
+    <description>Custom ruleset for Android application</description>
+
+    <exclude-pattern>.*/R.java</exclude-pattern>
+    <exclude-pattern>.*/gen/.*</exclude-pattern>
+    <exclude-pattern>.*/ble/UriBeacon.java</exclude-pattern>
+    <exclude-pattern>.*/ble/Utils.java</exclude-pattern>
+
+    <rule ref="rulesets/java/android.xml">
+        <!-- Config.LOGD deprecated in API level 4 !-->
+        <exclude name="ProtectLogD" />
+        <!-- Config.LOGV deprecated in API level 4 !-->
+        <exclude name="ProtectLogV" />
+    </rule>
+    <rule ref="rulesets/java/clone.xml" />
+    <rule ref="rulesets/java/finalizers.xml" />
+    <rule ref="rulesets/java/imports.xml" />
+    <rule ref="rulesets/java/logging-java.xml" />
+    <rule ref="rulesets/java/braces.xml" />
+    <rule ref="rulesets/java/strings.xml" />
+    <rule ref="rulesets/java/basic.xml">
+        <exclude name="AvoidUsingHardCodedIP" />
+    </rule>
+    <rule ref="rulesets/java/naming.xml">
+        <exclude name="AbstractNaming" />
+        <exclude name="LongVariable" />
+        <exclude name="LongMethodName" />
+        <exclude name="ShortClassName" />
+        <exclude name="ShortMethodName" />
+        <exclude name="ShortVariable" />
+        <exclude name="VariableNamingConventions" />
+    </rule>
+</ruleset>

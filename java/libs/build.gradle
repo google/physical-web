@@ -1,0 +1,98 @@
+plugins {
+    id 'checkstyle'
+    id 'findbugs'
+    id 'java'
+    id 'pmd'
+}
+
+repositories {
+    jcenter()
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integrationTest/java')
+        }
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
+dependencies {
+    compile 'org.json:json:20140107'
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.skyscreamer:jsonassert:1.2.3'
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+
+findbugsMain {
+    ignoreFailures = false
+    effort = "max"
+    reportLevel = "low"
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+findbugsTest {
+    ignoreFailures = false
+    effort = "max"
+    reportLevel = "low"
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+findbugs {
+    reportsDir = new File(buildDir, "reports/findbugs")
+    excludeFilter = new File(projectDir, "config/findbugs/exclude-filter.xml")
+}
+
+checkstyle {
+    configProperties.checkstyleSuppressionsPath =
+            new File(projectDir, "config/checkstyle/suppressions.xml")
+}
+
+pmdMain {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+pmd {
+    ignoreFailures = false
+    ruleSetFiles = files(new File(projectDir, "config/pmd/pmd-ruleset.xml"))
+    ruleSets = []
+    reportsDir = new File(buildDir, "reports/findbugs")
+}
+
+javadoc {
+    source = sourceSets.main.java
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.withType(Test) {
+    reports.html.destination = file("${reporting.baseDir}/${name}")
+}
+
+integrationTest.dependsOn assemble

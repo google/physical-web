@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:paddingStart="18dp"
+              android:paddingEnd="18dp"
+              android:paddingTop="18dp"
+              android:paddingBottom="18dp"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/firstBeaconLayout">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/first_beacon_main_layout">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="11">
+                    <TextView
+                        android:id="@+id/title_firstBeacon"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/header_color"
+                        android:maxLines="1"
+                        android:ellipsize="end">
+                    </TextView>
+                    <TextView
+                        android:id="@+id/url_firstBeacon"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/url_color"
+                        android:maxLines="1"
+                        android:ellipsize="end">
+                    </TextView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:gravity="end">
+                    <ImageView
+                        android:id="@+id/icon_firstBeacon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="6dp"
+                        android:contentDescription="@string/nearby_beacon_favicon_content_description">
+                    </ImageView>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/description_firstBeacon"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:fontFamily="arial-sans-serif"
+                    android:textColor="@color/description_color"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="1.5dp">
+                </TextView>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial-sans-serif"
+            android:textColor="@color/description_color"
+            android:id="@+id/firstBeacon_one_click_action"
+            android:visibility="gone"
+            android:gravity="end"
+            android:paddingTop="36dp">
+        </TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="18dp"
+        android:id="@+id/secondBeaconLayout">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/second_beacon_main_layout">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="11">
+                    <TextView
+                        android:id="@+id/title_secondBeacon"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/header_color"
+                        android:maxLines="1"
+                        android:ellipsize="end">
+                    </TextView>
+                    <TextView
+                        android:id="@+id/url_secondBeacon"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/url_color"
+                        android:maxLines="1"
+                        android:ellipsize="end">
+                    </TextView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:gravity="end">
+                    <ImageView
+                        android:id="@+id/icon_secondBeacon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="6dp"
+                        android:contentDescription="@string/nearby_beacon_favicon_content_description">
+                    </ImageView>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/description_secondBeacon"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:fontFamily="arial-sans-serif"
+                    android:textColor="@color/description_color"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:lineSpacingExtra="1.5dp">
+                </TextView>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:fontFamily="arial-sans-serif"
+            android:textColor="@color/description_color"
+            android:id="@+id/secondBeacon_one_click_action"
+            android:visibility="gone"
+            android:gravity="end"
+            android:paddingTop="36dp">
+        </TextView>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/otherBeaconsLayout"
+        android:paddingTop="36dp"
+        android:paddingBottom="9dp">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/notification_view_more_beacons"
+            android:textSize="14sp"
+            android:fontFamily="san-serif-medium"
+            android:textColor="@color/description_color"
+            android:ellipsize="end"
+            android:lineSpacingExtra="1.5dp"
+            android:gravity="end">
+        </TextView>
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
