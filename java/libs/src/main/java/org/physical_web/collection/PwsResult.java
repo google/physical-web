@@ -15,6 +15,7 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -38,20 +39,176 @@ public class PwsResult implements Comparable<PwsResult> {
 
   /**
    * Construct a PwsResult.
-   * @param requestUrl The request URL, as broadcasted by the device
-   * @param siteUrl The site URL, as reported by PWS
-   * @param groupId The URL group ID, as reported by PWS
+   * @param requestUrl The request URL, as broadcasted by the device.
+   * @param siteUrl The site URL, as reported by the PWS.
+   * @param title The site title, as reported by the PWS.
+   * @param description The site description, as reported by the PWS.
+   * @param iconUrl The site icon URL, as reported by the PWS.
+   * @param groupId The URL group ID, as reported by the PWS.
+   * @param extraData Extra data to associate with this UrlDevice.
    */
   public PwsResult(
       String requestUrl, String siteUrl, String title, String description, String iconUrl,
-      String groupId) {
+      String groupId, JSONObject extraData) {
     mRequestUrl = requestUrl;
     mSiteUrl = siteUrl;
-    mIconUrl = iconUrl;
-    mTitle = title;
-    mDescription = description;
-    mGroupId = groupId;
-    mExtraData = new JSONObject();
+    mIconUrl = (iconUrl == null || iconUrl.isEmpty()) ? null : iconUrl;
+    mTitle = (title == null || title.isEmpty()) ? null : title;
+    mDescription = (description == null || description.isEmpty()) ? null : description;
+    mGroupId = (groupId == null || groupId.isEmpty()) ? null : groupId;
+    mExtraData = extraData == null ? new JSONObject() : new JSONObject(extraData.toString());
+  }
+
+  /**
+   * Construct a PwsResult.
+   * @param requestUrl The request URL, as broadcasted by the device.
+   * @param siteUrl The site URL, as reported by the PWS.
+   */
+  public PwsResult(String requestUrl, String siteUrl) {
+    this(requestUrl, siteUrl, null, null, null, null, null);
+  }
+
+  /**
+   * Builder class for constructing PwsResults.
+   */
+  public static class Builder {
+    private String mNewRequestUrl;
+    private String mNewSiteUrl;
+    private String mNewTitle;
+    private String mNewDescription;
+    private String mNewIconUrl;
+    private String mNewGroupId;
+    private JSONObject mNewExtraData;
+
+    /**
+     * Construct a PwsResult Builder.
+     * @param requestUrl The request URL, as broadcasted by the device.
+     * @param siteUrl The site URL, as reported by the PWS.
+     */
+    public Builder(String requestUrl, String siteUrl) {
+      mNewRequestUrl = requestUrl;
+      mNewSiteUrl = siteUrl;
+      mNewTitle = null;
+      mNewDescription = null;
+      mNewIconUrl = null;
+      mNewGroupId = null;
+      mNewExtraData = new JSONObject();
+    }
+
+    /**
+     * Construct a PwsResult Builder.
+     * @param pwsResult the PWSResult to clone.
+     */
+    public Builder(PwsResult pwsResult) {
+      mNewRequestUrl = pwsResult.mRequestUrl;
+      mNewSiteUrl = pwsResult.mSiteUrl;
+      mNewIconUrl = pwsResult.mIconUrl;
+      mNewTitle = pwsResult.mTitle;
+      mNewDescription = pwsResult.mDescription;
+      mNewGroupId = pwsResult.mGroupId;
+      mNewExtraData = new JSONObject(pwsResult.mExtraData.toString());
+    }
+
+    /**
+     * Sets a group ID.
+     * @param iconUrl The site icon URL, as reported by the PWS.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder setIconUrl(String iconUrl) {
+      mNewIconUrl = iconUrl;
+      return this;
+    }
+
+    /**
+     * Sets a group ID.
+     * @param title The site title, as reported by the PWS.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder setTitle(String title) {
+      mNewTitle = title;
+      return this;
+    }
+
+    /**
+     * Sets a description.
+     * @param description The site description, as reported by the PWS.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder setDescription(String description) {
+      mNewDescription = description;
+      return this;
+    }
+
+    /**
+     * Sets a group ID.
+     * @param groupId The URL group ID, as reported by the PWS.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder setGroupId(String groupId) {
+      mNewGroupId = groupId;
+      return this;
+    }
+
+    /**
+     * Sets a JSONObject to be the base extra data.
+     * @param extraData the base extra data.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder setExtra(JSONObject extraData) {
+      mNewExtraData = extraData == null ? new JSONObject() : new JSONObject(extraData.toString());
+      return this;
+    }
+
+    /**
+     * Stores a boolean as extra data.
+     * @param value The value to store.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, boolean value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Stores an int as extra data.
+     * @param value The value to store.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, int value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Stores an long as extra data.
+     * @param value The value to store.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, long value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Stores an object as extra data.
+     * @param value The value to store.  Any object of type JSONObject, JSONArray, String, Boolean,
+     *     Integer, Long, Double, NULL, or null. May not be NaNs or infinities.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, Object value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Creates a PWSResult from data provided to the builder.
+     * @return The constructed PwsResult.
+     */
+    public PwsResult build() {
+      return new PwsResult(
+          mNewRequestUrl, mNewSiteUrl, mNewTitle, mNewDescription, mNewIconUrl, mNewGroupId,
+          mNewExtraData);
+    }
   }
 
   /**
@@ -75,12 +232,28 @@ public class PwsResult implements Comparable<PwsResult> {
   }
 
   /**
+   * Check if we have a title.
+   * @return whether this object has a title.
+   */
+  public boolean hasTitle() {
+    return mTitle != null;
+  }
+
+  /**
    * Fetches the title.
    * The title is parsed from the title tag of the web page.
    * @return The title
    */
   public String getTitle() {
     return mTitle;
+  }
+
+  /**
+   * Check if we have a description.
+   * @return whether this object has a description.
+   */
+  public boolean hasDescription() {
+    return mDescription != null;
   }
 
   /**
@@ -128,12 +301,51 @@ public class PwsResult implements Comparable<PwsResult> {
   }
 
   /**
-   * Get extra data JSONObject.
-   * This is where client code should store custom data.
-   * @return Extra data.
+   * Get extra boolean value.
+   * @return The stored value or null if it doesn't exist in specified form.
    */
-  public JSONObject getExtraData() {
-    return mExtraData;
+  public boolean getExtraBoolean(String key) {
+    return mExtraData.optBoolean(key);
+  }
+
+  /**
+   * Get extra int value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public double getExtraInt(String key) {
+    return mExtraData.optInt(key);
+  }
+
+  /**
+   * Get extra long value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public double getExtraLong(String key) {
+    return mExtraData.optLong(key);
+  }
+
+  /**
+   * Get extra double value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public double getExtraDouble(String key) {
+    return mExtraData.optDouble(key);
+  }
+
+  /**
+   * Get extra JSONArray value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public JSONArray getExtraJSONArray(String key) {
+    return mExtraData.optJSONArray(key);
+  }
+
+  /**
+   * Get extra JSONObject value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public JSONObject getExtraJSONObject(String key) {
+    return mExtraData.optJSONObject(key);
   }
 
   /**
@@ -144,21 +356,21 @@ public class PwsResult implements Comparable<PwsResult> {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put(REQUESTURL_KEY, mRequestUrl);
     jsonObject.put(SITEURL_KEY, mSiteUrl);
-    jsonObject.put(TITLE_KEY, mTitle);
-    jsonObject.put(DESCRIPTION_KEY, mDescription);
-
+    if (mTitle != null) {
+      jsonObject.put(TITLE_KEY, mTitle);
+    }
+    if (mDescription != null) {
+      jsonObject.put(DESCRIPTION_KEY, mDescription);
+    }
     if (mIconUrl != null) {
       jsonObject.put(ICONURL_KEY, mIconUrl);
     }
-
     if (mGroupId != null) {
       jsonObject.put(GROUPID_KEY, mGroupId);
     }
-
     if (mExtraData.length() > 0) {
       jsonObject.put(EXTRA_KEY, mExtraData);
     }
-
     return jsonObject;
   }
 
@@ -168,24 +380,13 @@ public class PwsResult implements Comparable<PwsResult> {
    * @return The PwsResult represented by the serialized object.
    */
   public static PwsResult jsonDeserialize(JSONObject jsonObject) {
-    String requestUrl = jsonObject.getString(REQUESTURL_KEY);
-    String siteUrl = jsonObject.getString(SITEURL_KEY);
-    String title = jsonObject.getString(TITLE_KEY);
-    String description = jsonObject.getString(DESCRIPTION_KEY);
-    String iconUrl = null;
-    if (jsonObject.has(ICONURL_KEY)) {
-      iconUrl = jsonObject.getString(ICONURL_KEY);
-    }
-    String groupId = null;
-    if (jsonObject.has(GROUPID_KEY)) {
-      groupId = jsonObject.getString(GROUPID_KEY);
-    }
-
-    PwsResult pwsResult = new PwsResult(requestUrl, siteUrl, title, description, iconUrl, groupId);
-    if (jsonObject.has(EXTRA_KEY)) {
-      pwsResult.mExtraData = jsonObject.getJSONObject(EXTRA_KEY);
-    }
-    return pwsResult;
+    return new Builder(jsonObject.getString(REQUESTURL_KEY), jsonObject.getString(SITEURL_KEY))
+        .setExtra(jsonObject.optJSONObject(EXTRA_KEY))
+        .setTitle(jsonObject.optString(TITLE_KEY))
+        .setDescription(jsonObject.optString(DESCRIPTION_KEY))
+        .setIconUrl(jsonObject.optString(ICONURL_KEY))
+        .setGroupId(jsonObject.optString(GROUPID_KEY))
+        .build();
   }
 
   /**

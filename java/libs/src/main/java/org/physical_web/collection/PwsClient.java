@@ -94,25 +94,19 @@ public class PwsClient {
         // Loop through the metadata for each url.
         Set<String> foundUrls = new HashSet<>();
         for (int i = 0; i < foundMetadata.length(); i++) {
-          String requestUrl = null;
-          String responseUrl = null;
-          String title = null;
-          String description = null;
-          String iconUrl = null;
-          String groupId = null;
+          PwsResult pwsResult = null;
           try {
             JSONObject jsonUrlMetadata = foundMetadata.getJSONObject(i);
-            requestUrl = jsonUrlMetadata.getString("id");
-            responseUrl = jsonUrlMetadata.getString("url");
-            title = jsonUrlMetadata.getString("title");
-            description = jsonUrlMetadata.getString("description");
-            iconUrl = jsonUrlMetadata.optString("icon");
-            groupId = jsonUrlMetadata.optString("groupId");
+            pwsResult = new PwsResult.Builder(
+                jsonUrlMetadata.getString("id"), jsonUrlMetadata.getString("url"))
+                .setTitle(jsonUrlMetadata.optString("title"))
+                .setDescription(jsonUrlMetadata.optString("description"))
+                .setIconUrl(jsonUrlMetadata.optString("icon"))
+                .setGroupId(jsonUrlMetadata.optString("groupId"))
+                .build();
           } catch (JSONException e) {
             continue;
           }
-          PwsResult pwsResult =
-              new PwsResult(requestUrl, responseUrl, title, description, iconUrl, groupId);
           pwsResultCallback.onPwsResult(pwsResult);
           foundUrls.add(pwsResult.getRequestUrl());
         }

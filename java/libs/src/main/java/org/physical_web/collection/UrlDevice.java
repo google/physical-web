@@ -15,6 +15,7 @@
  */
 package org.physical_web.collection;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -24,19 +25,118 @@ public class UrlDevice {
   private static final String ID_KEY = "id";
   private static final String URL_KEY = "url";
   private static final String EXTRA_KEY = "extra";
-  private String mId;
-  private String mUrl;
-  private JSONObject mExtraData;
+  private final String mId;
+  private final String mUrl;
+  private final JSONObject mExtraData;
 
   /**
-   * Construct a SimpleUrlDevice.
+   * Construct a UrlDevice.
+   * @param id The id of the device.
+   * @param url The URL broadcasted by the device.
+   * @param extraData Extra data to associate with this UrlDevice.
+   */
+  private UrlDevice(String id, String url, JSONObject extraData) {
+    mId = id;
+    mUrl = url;
+    mExtraData = extraData == null ? new JSONObject() : new JSONObject(extraData.toString());
+  }
+
+  /**
+   * Construct a UrlDevice.
    * @param id The id of the device.
    * @param url The URL broadcasted by the device.
    */
   public UrlDevice(String id, String url) {
-    mId = id;
-    mUrl = url;
-    mExtraData = new JSONObject();
+    this(id, url, null);
+  }
+
+  /**
+   * Builder class for constructing UrlDevices.
+   */
+  public static class Builder {
+    private String mNewId;
+    private String mNewUrl;
+    private JSONObject mNewExtraData;
+
+    /**
+     * Construct a UrlDevice Builder.
+     * @param id The id of the device.
+     * @param url The URL broadcasted by the device.
+     */
+    public Builder(String id, String url) {
+      mNewId = id;
+      mNewUrl = url;
+      mNewExtraData = new JSONObject();
+    }
+
+    /**
+     * Construct a UrlDevice Builder.
+     * @param urlDevice the UrlDevice to clone.
+     */
+    public Builder(UrlDevice urlDevice) {
+      mNewId = urlDevice.mId;
+      mNewUrl = urlDevice.mUrl;
+      mNewExtraData = new JSONObject(urlDevice.mExtraData.toString());
+    }
+
+    /**
+     * Sets a JSONObject to be the base extra data.
+     * @param extraData the base extra data.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder setExtra(JSONObject extraData) {
+      mNewExtraData = extraData == null ? new JSONObject() : new JSONObject(extraData.toString());
+      return this;
+    }
+
+    /**
+     * Stores a boolean as extra data.
+     * @param value The value to store.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, boolean value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Stores an int as extra data.
+     * @param value The value to store.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, int value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Stores an long as extra data.
+     * @param value The value to store.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, long value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Stores an object as extra data.
+     * @param value The value to store.  Any object of type JSONObject, JSONArray, String, Boolean,
+     *     Integer, Long, Double, NULL, or null. May not be NaNs or infinities.
+     * @return the Builder object for chaining operations.
+     */
+    public Builder addExtra(String key, Object value) {
+      mNewExtraData.put(key, value);
+      return this;
+    }
+
+    /**
+     * Creates a UrlDevice from data provided to the builder.
+     * @return The constructed UrlDevice.
+     */
+    public UrlDevice build() {
+      return new UrlDevice(mNewId, mNewUrl, mNewExtraData);
+    }
   }
 
   /**
@@ -58,6 +158,54 @@ public class UrlDevice {
   }
 
   /**
+   * Get extra boolean value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public boolean getExtraBoolean(String key) {
+    return mExtraData.optBoolean(key);
+  }
+
+  /**
+   * Get extra int value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public double getExtraInt(String key) {
+    return mExtraData.optInt(key);
+  }
+
+  /**
+   * Get extra long value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public double getExtraLong(String key) {
+    return mExtraData.optLong(key);
+  }
+
+  /**
+   * Get extra double value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public double getExtraDouble(String key) {
+    return mExtraData.optDouble(key);
+  }
+
+  /**
+   * Get extra JSONArray value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public JSONArray getExtraJSONArray(String key) {
+    return mExtraData.optJSONArray(key);
+  }
+
+  /**
+   * Get extra JSONObject value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public JSONObject getExtraJSONObject(String key) {
+    return mExtraData.optJSONObject(key);
+  }
+
+  /**
    * Returns the rank of this device given its associated PwsResult.
    * @param pwsResult is the response received from the Physical Web Service
    *        for the url broadcasted by this UrlDevice.
@@ -66,15 +214,6 @@ public class UrlDevice {
    */
   public double getRank(PwsResult pwsResult) {
     return .5;
-  }
-
-  /**
-   * Get extra data JSONObject.
-   * This is where client code should store custom data.
-   * @return Extra data.
-   */
-  public JSONObject getExtraData() {
-    return mExtraData;
   }
 
   /**
@@ -99,14 +238,9 @@ public class UrlDevice {
    * @return The UrlDevice represented by the serialized object.
    */
   public static UrlDevice jsonDeserialize(JSONObject jsonObject) {
-    String id = jsonObject.getString(ID_KEY);
-    String url = jsonObject.getString(URL_KEY);
-
-    UrlDevice urlDevice = new UrlDevice(id, url);
-    if (jsonObject.has(EXTRA_KEY)) {
-      urlDevice.mExtraData = jsonObject.getJSONObject(EXTRA_KEY);
-    }
-    return urlDevice;
+    return new Builder(jsonObject.getString(ID_KEY), jsonObject.getString(URL_KEY))
+       .setExtra(jsonObject.optJSONObject(EXTRA_KEY))
+       .build();
   }
 
   /**

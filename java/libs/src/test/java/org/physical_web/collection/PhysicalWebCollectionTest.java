@@ -62,7 +62,12 @@ public class PhysicalWebCollectionTest {
   public void setUp() {
     physicalWebCollection1 = new PhysicalWebCollection();
     UrlDevice urlDevice = new UrlDevice(ID1, URL1);
-    PwsResult pwsResult = new PwsResult(URL1, URL1, TITLE1, DESCRIPTION1, ICON_URL1, GROUP_ID1);
+    PwsResult pwsResult = new PwsResult.Builder(URL1, URL1)
+        .setTitle(TITLE1)
+        .setDescription(DESCRIPTION1)
+        .setIconUrl(ICON_URL1)
+        .setGroupId(GROUP_ID1)
+        .build();
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
     jsonObject1 = new JSONObject("{"

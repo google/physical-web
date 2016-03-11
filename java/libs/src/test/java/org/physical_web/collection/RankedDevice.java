@@ -36,7 +36,11 @@ public class RankedDevice extends UrlDevice {
    */
   public static PwPair createRankedPair(String id, String url, String groupId, double rank) {
     UrlDevice urlDevice = new RankedDevice(id, url, rank);
-    PwsResult pwsResult = new PwsResult(url, url, "title1", "description1", null, groupId);
+    PwsResult pwsResult = new PwsResult.Builder(url, url)
+        .setTitle("title1")
+        .setDescription("description1")
+        .setGroupId(groupId)
+        .build();
     return new PwPair(urlDevice, pwsResult);
   }
 }
