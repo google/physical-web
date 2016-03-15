@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Physical Web</title>
+    <meta name="description" content="Walk up and use anything">
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+	<link rel="icon" 
+	      type="image/png" 
+	      href="images/logo-black.png">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Physical-web by google</title>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-55334818-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <img style="float:left; padding-right:10px; padding-top:7px" src="./images/logo-white.png" height=42px>
+        <h1>Physical Web</h1>
+        <h2>Walk up and use anything</h2>
+        <a href="https://github.com/google/physical-web" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+<h3>What is this?</h3>
+<p>The Physical Web is an open source approach to unleash the core superpower of the web: interaction on demand. People should be able to walk up to any smart device - a vending machine, a poster, a toy, a bus stop, a rental car - and not have to download an app first. Everything should be just a tap away.</p>
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/1yaLPRgtlR0" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<p>We're developing it out in the open as we do all things related to the web. While Google is creating <a href="http://blog.chromium.org/2016/02/the-physical-web-expands-to-chrome-for_10.html">an initial implementation</a>, we hope others join in as well.</p>
+
+<h3>Why is this important?</h3>
+<p>The number of smart devices is going to explode, and the assumption that each new device will require its own application just isn't realistic. We need a system that lets anyone interact with any device at any time. The Physical Web isn't about replacing native apps: it's about enabling interaction when native apps just aren't practical.</p>
+
+
+<h3>How does this change things?</h3>
+<p>Once any smart device can have a web address, the overhead of a dedicated app is no longer required for simple interactions. The Physical Web approach unlocks use cases that would never be practical if a dedicated app were required:</p>
+<ul>
+<li>A cat collar can let you call to find the owner</li>
+<li>A bus can tell you its next stop</li>
+<li>A parking meter can let you pay using your phone and the cloud</li>
+<li>Any store, no matter how small, can offer an online experience when you walk in</li>
+<li>A shared car service can broadcast a signup page, allowing you to immediately drive away</li>
+<li>Industrial equipment can offer diagnostics</li>
+</ul>
+<p>Each of these examples, taken by itself, is modestly useful. Taken as a whole, however, they imply a vast "long tail" where anything can offer information and utility.</p>
+<p>So many people ask what is the ‘killer app’ for the Physical Web. That’s a bit like asking what is the killer app for the web itself. When any place and object can offer a web page for help, information, configuration, or use, we’ll unlock millions of things, rather than a single killer product.</p>
+
+<h3>What can you build?</h3>
+<p>This <a href="http://google.github.io/physical-web/cookbook/">Cookbook article</a> shows a wide range of experiences that can be built using the Physical Web.</p>
+
+<h3>How does it work?</h3>
+<p>A small utility on the phone scans for URLs that are nearby. We are  using the open <a href="https://github.com/google/eddystone">Eddystone-URL</a> Bluetooth beacon format to find nearby URLs without requiring any centralized registrar. Here is a <a href="https://developers.google.com/beacons/">list of many beacon makers</a> that are already supporting Eddystone. We also support finding URLs through Wifi using mDNS and uPnP.</p>
+
+<p>To learn more, visit the <a href="http://www.github.com/google/physical-web">project on GitHub</a>.</p>
+</section>
+
+      </div>
+    </div>
+  </body>
+</html>
