@@ -36,10 +36,11 @@ import lxml.etree
 ENABLE_EXPERIMENTAL = app_identity.get_application_id().endswith('-dev')
 PHYSICAL_WEB_USER_AGENT = 'Mozilla/5.0' # TODO: Find a more descriptive string.
 BASE_URL = 'https://' + app_identity.get_application_id() + '.appspot.com'
+DEFAULT_SECURE_ONLY = False
 
 ################################################################################
 
-def BuildResponse(objects):
+def BuildResponse(objects, secure_only):
     metadata_output = []
     unresolved_output = []
 
@@ -79,6 +80,10 @@ def BuildResponse(objects):
         if fragment == '':
             fragment = parsed_url.fragment
         finalUrl = urlunsplit((scheme, netloc, path, query, fragment))
+
+        if secure_only and scheme != 'https':
+            append_invalid()
+            continue
 
         device_data = {}
         device_data['id'] = url

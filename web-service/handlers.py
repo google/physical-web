@@ -72,10 +72,12 @@ class ResolveScan(webapp2.RequestHandler):
         try:
             input_object = json.loads(input_data) # TODO: Data is not sanitised.
             objects = input_object.get('objects', [])
+            secure_only = bool(input_object.get('secureOnly', helpers.DEFAULT_SECURE_ONLY))
         except:
             objects = []
+            secure_only = helpers.DEFAULT_SECURE_ONLY
 
-        output = helpers.BuildResponse(objects)
+        output = helpers.BuildResponse(objects, secure_only)
 
         self.response.headers['Content-Type'] = 'application/json'
         json_data = json.dumps(output);
