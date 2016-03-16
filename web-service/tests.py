@@ -119,6 +119,18 @@ class TestResolveScan(PwsTest):
         self.assertEqual(len(result['metadata']), 0)
         #self.assertEqual(len(result['unresolved']), 1)
 
+    def test_secure_only(self):
+        result = self.call({
+            'objects': [
+                { 'url': 'https://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe' },
+                { 'url': 'http://www.lemonde.fr/' },
+            ],
+            'secureOnly': True
+        })
+        self.assertIn('metadata', result)
+        self.assertEqual(len(result['metadata']), 1)
+        self.assertEqual(result['metadata'][0]['id'],
+                         'https://en.wikipedia.org/wiki/Le_D%C3%A9jeuner_sur_l%E2%80%99herbe')
 
     def test_rssi_ranking(self):
         result = self.call({
