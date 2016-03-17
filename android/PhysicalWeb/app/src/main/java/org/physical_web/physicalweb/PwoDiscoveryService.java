@@ -16,7 +16,13 @@
 
 package org.physical_web.physicalweb;
 
-import org.physical_web.physicalweb.PwoMetadata.UrlMetadata;
+import org.physical_web.collection.PhysicalWebCollection;
+import org.physical_web.collection.PhysicalWebCollectionException;
+import org.physical_web.collection.PwPair;
+import org.physical_web.collection.PwsResult;
+import org.physical_web.collection.PwsResultCallback;
+import org.physical_web.collection.PwsResultIconCallback;
+import org.physical_web.collection.UrlDevice;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -25,7 +31,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Binder;
 import android.os.Build;
@@ -38,14 +43,12 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -63,16 +66,15 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class PwoDiscoveryService extends Service
-                                 implements PwsClient.ResolveScanCallback,
-                                            PwsClient.DownloadIconCallback,
-                                            PwoDiscoverer.PwoDiscoveryCallback {
+                                 implements UrlDeviceDiscoverer.UrlDeviceDiscoveryCallback {
 
   private static final String TAG = "PwoDiscoveryService";
   private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
   private static final String PREFS_VERSION_KEY = "prefs_version";
   private static final String SCAN_START_TIME_KEY = "scan_start_time";
   private static final String PWO_METADATA_KEY = "pwo_metadata";
-  private static final int PREFS_VERSION = 1;
+  private static final String PW_COLLECTION_KEY = "pw_collection";
+  private static final int PREFS_VERSION = 2;
   private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
   private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
   private static final int SUMMARY_NOTIFICATION_ID = 25;
@@ -90,9 +92,9 @@ public class PwoDiscoveryService extends Service
   private long mScanStartTime;
   private Handler mHandler;
   private NotificationManagerCompat mNotificationManager;
-  private HashMap<String, PwoMetadata> mUrlToPwoMetadata;
-  private List<PwoDiscoverer> mPwoDiscoverers;
+  private List<UrlDeviceDiscoverer> mUrlDeviceDiscoverers;
   private List<PwoResponseCallback> mPwoResponseCallbacks;
+  private PhysicalWebCollection mPwCollection;
 
   // Notification of urls happens as follows:
   // 0. Begin scan
@@ -140,20 +142,20 @@ public class PwoDiscoveryService extends Service
 
   private void initialize() {
     mNotificationManager = NotificationManagerCompat.from(this);
-    mPwoDiscoverers = new ArrayList<>();
+    mUrlDeviceDiscoverers = new ArrayList<>();
 
     // disable mDNS PWO discovery for pre-M devices
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-      mPwoDiscoverers.add(new MdnsPwoDiscoverer(this));
+      mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
-    mPwoDiscoverers.add(new SsdpPwoDiscoverer(this));
-    mPwoDiscoverers.add(new BlePwoDiscoverer(this));
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.setCallback(this);
+    mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
+    mUrlDeviceDiscoverers.add(new BleUrlDeviceDiscoverer(this));
+    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
+      urlDeviceDiscoverer.setCallback(this);
     }
     mPwoResponseCallbacks = new ArrayList<>();
     mHandler = new Handler();
-    mUrlToPwoMetadata = new HashMap<>();
+    mPwCollection = new PhysicalWebCollection();
     mCanUpdateNotifications = false;
   }
 
@@ -176,20 +178,13 @@ public class PwoDiscoveryService extends Service
     }
 
     // Restore the cached metadata
-    Set<String> serializedPwoMetadata = prefs.getStringSet(PWO_METADATA_KEY,
-                                                           new HashSet<String>());
-    for (String pwoMetadataStr : serializedPwoMetadata) {
-      PwoMetadata pwoMetadata;
-      try {
-        pwoMetadata = PwoMetadata.fromJsonStr(pwoMetadataStr);
-      } catch (JSONException e) {
-        Log.e(TAG, "Could not deserialize PWO cache item: " + e);
-        continue;
-      }
-      onPwoDiscovered(pwoMetadata);
-      if (pwoMetadata.hasBleMetadata()) {
-        pwoMetadata.bleMetadata.updateRegionInfo();
-      }
+    try {
+      JSONObject serializedCollection = new JSONObject(prefs.getString(PW_COLLECTION_KEY, null));
+      mPwCollection = PhysicalWebCollection.jsonDeserialize(serializedCollection);
+    } catch (JSONException e) {
+      Log.e(TAG, "Could not restore Physical Web collection cache", e);
+    } catch (PhysicalWebCollectionException e) {
+      Log.e(TAG, "Could not restore Physical Web collection cache", e);
     }
   }
 
@@ -202,8 +197,8 @@ public class PwoDiscoveryService extends Service
     mNotificationManager.cancelAll();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.startScan();
+    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
+      urlDeviceDiscoverer.startScan();
     }
   }
 
@@ -229,24 +224,13 @@ public class PwoDiscoveryService extends Service
   }
 
   private void saveCache() {
-    // Serialize the PwoMetadata
-    Set<String> serializedPwoMetadata = new HashSet<>();
-    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
-      try {
-        serializedPwoMetadata.add(pwoMetadata.toJsonStr());
-      } catch (JSONException e) {
-        Log.e(TAG, "Could not serialize PWO cache item: " + e);
-        continue;
-      }
-    }
-
     // Write the PwoMetadata
     String preferencesKey = getString(R.string.discovery_service_prefs_key);
     SharedPreferences prefs = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = prefs.edit();
     editor.putInt(PREFS_VERSION_KEY, PREFS_VERSION);
     editor.putLong(SCAN_START_TIME_KEY, mScanStartTime);
-    editor.putStringSet(PWO_METADATA_KEY, serializedPwoMetadata);
+    editor.putString(PW_COLLECTION_KEY, mPwCollection.jsonSerialize().toString());
     editor.apply();
   }
 
@@ -257,8 +241,8 @@ public class PwoDiscoveryService extends Service
     // Stop the scanners
     mHandler.removeCallbacks(mFirstScanTimeout);
     mHandler.removeCallbacks(mSecondScanTimeout);
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.stopScan();
+    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
+      urlDeviceDiscoverer.stopScan();
     }
 
     saveCache();
@@ -266,49 +250,45 @@ public class PwoDiscoveryService extends Service
   }
 
   @Override
-  public void onUrlMetadataReceived(PwoMetadata pwoMetadata) {
-    triggerCallback();
-    if (!pwoMetadata.urlMetadata.iconUrl.isEmpty()) {
-      PwsClient.getInstance(this).downloadIcon(pwoMetadata, this);
-    }
-    updateNotifications();
-  }
+  public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
+    mPwCollection.addUrlDevice(urlDevice);
+    mPwCollection.fetchPwsResults(new PwsResultCallback() {
+      long mPwsTripTimeMillis = 0;
 
-  @Override
-  public void onUrlMetadataAbsent(PwoMetadata pwoMetadata) {
-    triggerCallback();
-  }
-
-  @Override
-  public void onUrlMetadataIconReceived(PwoMetadata pwoMetadata) {
-    triggerCallback();
-    updateNotifications();
-  }
-
-  @Override
-  public void onUrlMetadataIconError(PwoMetadata pwoMetadata) {
-    triggerCallback();
-  }
-
-  @Override
-  public void onPwoDiscovered(PwoMetadata pwoMetadata) {
-    PwoMetadata storedPwoMetadata = mUrlToPwoMetadata.get(pwoMetadata.url);
-    if (storedPwoMetadata == null) {
-      mUrlToPwoMetadata.put(pwoMetadata.url, pwoMetadata);
-      // We need to make sure the urlMetadata is populated.  This could be a fresh pwoMetadata for
-      // which we have not fetched urlMetadata, or it could be a cached pwoMetadata for which the
-      // urlMetadata fetching process was prematurely terminated.
-      if (pwoMetadata.hasUrlMetadata()) {
-        UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-        if (urlMetadata.icon == null && !urlMetadata.iconUrl.isEmpty()) {
-          PwsClient.getInstance(this).downloadIcon(pwoMetadata, this);
-        }
-      } else {
-        PwsClient.getInstance(this).findUrlMetadata(pwoMetadata, this, TAG);
+      @Override
+      public void onPwsResult(PwsResult pwsResult) {
+        Utils.setPwsTripTimeMillis(pwsResult, mPwsTripTimeMillis);
+        triggerCallback();
+        updateNotifications();
       }
-      storedPwoMetadata = pwoMetadata;
-    }
 
+      @Override
+      public void onPwsResultAbsent(String url) {
+        triggerCallback();
+      }
+
+      @Override
+      public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
+        Log.d(TAG, "PwsResultError: " + httpResponseCode + " ", e);
+        triggerCallback();
+      }
+
+      @Override
+      public void onResponseReceived(long durationMillis) {
+        mPwsTripTimeMillis = durationMillis;
+      }
+    }, new PwsResultIconCallback() {
+      @Override
+      public void onIcon(byte[] icon) {
+        triggerCallback();
+      }
+
+      @Override
+      public void onError(int httpResponseCode, Exception e) {
+        Log.d(TAG, "PwsResultError: " + httpResponseCode + " ", e);
+        triggerCallback();
+      }
+    });
     triggerCallback();
   }
 
@@ -326,60 +306,42 @@ public class PwoDiscoveryService extends Service
       return;
     }
 
-    List<PwoMetadata> pwoMetadataList = getSortedPwoMetadataWithUrlMetadata();
+    List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank();
 
     // If no beacons have been found
-    if (pwoMetadataList.size() == 0) {
+    if (pwPairs.size() == 0) {
       // Remove all existing notifications
       mNotificationManager.cancelAll();
-    } else if (pwoMetadataList.size() == 1) {
-      updateNearbyBeaconNotification(true, pwoMetadataList.get(0), NEAREST_BEACON_NOTIFICATION_ID);
+    } else if (pwPairs.size() == 1) {
+      updateNearbyBeaconNotification(true, pwPairs.get(0), NEAREST_BEACON_NOTIFICATION_ID);
     } else {
       // Create a summary notification for both beacon notifications.
       // Do this first so that we don't first show the individual notifications
-      updateSummaryNotification(pwoMetadataList);
+      updateSummaryNotification(pwPairs);
       // Create or update a notification for second beacon
-      updateNearbyBeaconNotification(false, pwoMetadataList.get(1),
+      updateNearbyBeaconNotification(false, pwPairs.get(1),
                                      SECOND_NEAREST_BEACON_NOTIFICATION_ID);
       // Create or update a notification for first beacon. Needs to be added last to show up top
-      updateNearbyBeaconNotification(false, pwoMetadataList.get(0),
+      updateNearbyBeaconNotification(false, pwPairs.get(0),
                                      NEAREST_BEACON_NOTIFICATION_ID);
 
     }
   }
 
-  private List<PwoMetadata> getSortedPwoMetadataWithUrlMetadata() {
-    List<PwoMetadata> pwoMetadataList = new ArrayList<>(mUrlToPwoMetadata.size());
-    for (PwoMetadata pwoMetadata : mUrlToPwoMetadata.values()) {
-      if (pwoMetadata.hasUrlMetadata()) {
-        pwoMetadataList.add(pwoMetadata);
-      }
-    }
-    Collections.sort(pwoMetadataList);
-    return pwoMetadataList;
-  }
-
   /**
    * Create or update a notification with the given id for the beacon with the given address.
    */
-  private void updateNearbyBeaconNotification(boolean single, PwoMetadata pwoMetadata,
-                                              int notificationId) {
-    UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-    // Create an intent that will open the browser to the beacon's url
-    // if the user taps on the notification
-    PendingIntent pendingIntent = pwoMetadata.createNavigateToUrlPendingIntent(this);
-
-    String title = urlMetadata.title;
-    String description = urlMetadata.description;
-    Bitmap icon = urlMetadata.icon;
+  private void updateNearbyBeaconNotification(boolean single, PwPair pwPair, int notificationId) {
+    PwsResult pwsResult = pwPair.getPwsResult();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     builder.setSmallIcon(R.drawable.ic_notification)
-        .setLargeIcon(icon)
-        .setContentTitle(title)
-        .setContentText(description)
+        .setLargeIcon(Utils.getBitmapIcon(mPwCollection, pwsResult))
+        .setContentTitle(pwsResult.getTitle())
+        .setContentText(pwsResult.getDescription())
         .setPriority(NOTIFICATION_PRIORITY)
-        .setContentIntent(pendingIntent);
-    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && pwoMetadata.isPublic) {
+        .setContentIntent(Utils.createNavigateToUrlPendingIntent(pwsResult, this));
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+        && Utils.isPublic(pwPair.getUrlDevice())) {
       builder.setVisibility(NOTIFICATION_VISIBILITY);
     }
     // For some reason if there is only one notification and you call setGroup
@@ -396,14 +358,13 @@ public class PwoDiscoveryService extends Service
    * Create or update the a single notification that is a collapsed version
    * of the top two beacon notifications.
    */
-  private void updateSummaryNotification(List<PwoMetadata> pwoMetadataList) {
-    int numNearbyBeacons = pwoMetadataList.size();
+  private void updateSummaryNotification(List<PwPair> pwPairs) {
+    int numNearbyBeacons = pwPairs.size();
     String contentTitle = String.valueOf(numNearbyBeacons);
     Resources resources = getResources();
     contentTitle += " " + resources.getQuantityString(R.plurals.numFoundBeacons, numNearbyBeacons,
                                                       numNearbyBeacons);
     String contentText = getString(R.string.summary_notification_pull_down);
-    PendingIntent pendingIntent = createReturnToAppPendingIntent();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     builder.setSmallIcon(R.drawable.ic_notification)
         .setContentTitle(contentTitle)
@@ -412,14 +373,14 @@ public class PwoDiscoveryService extends Service
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setGroupSummary(true)
         .setPriority(NOTIFICATION_PRIORITY)
-        .setContentIntent(pendingIntent);
+        .setContentIntent(createReturnToAppPendingIntent());
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       builder.setVisibility(NOTIFICATION_VISIBILITY);
     }
     Notification notification = builder.build();
 
     // Create the big view for the notification (viewed by pulling down)
-    RemoteViews remoteViews = updateSummaryNotificationRemoteViews(pwoMetadataList);
+    RemoteViews remoteViews = updateSummaryNotificationRemoteViews(pwPairs);
     notification.bigContentView = remoteViews;
 
     mNotificationManager.notify(SUMMARY_NOTIFICATION_ID, notification);
@@ -428,12 +389,12 @@ public class PwoDiscoveryService extends Service
   /**
    * Create the big view for the summary notification.
    */
-  private RemoteViews updateSummaryNotificationRemoteViews(List<PwoMetadata> pwoMetadataList) {
+  private RemoteViews updateSummaryNotificationRemoteViews(List<PwPair> pwPairs) {
     RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification_big_view);
 
     // Fill in the data for the top two beacon views
-    updateSummaryNotificationRemoteViewsFirstBeacon(pwoMetadataList.get(0), remoteViews);
-    updateSummaryNotificationRemoteViewsSecondBeacon(pwoMetadataList.get(1), remoteViews);
+    updateSummaryNotificationRemoteViewsFirstBeacon(pwPairs.get(0), remoteViews);
+    updateSummaryNotificationRemoteViewsSecondBeacon(pwPairs.get(1), remoteViews);
 
     // Create a pending intent that will open the physical web app
     // TODO(cco3): Use a clickListener on the VIEW MORE button to do this
@@ -443,13 +404,14 @@ public class PwoDiscoveryService extends Service
     return remoteViews;
   }
 
-  private void updateSummaryNotificationRemoteViewsFirstBeacon(PwoMetadata pwoMetadata,
+  private void updateSummaryNotificationRemoteViewsFirstBeacon(PwPair pwPair,
                                                                RemoteViews remoteViews) {
-    UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-    remoteViews.setImageViewBitmap(R.id.icon_firstBeacon, urlMetadata.icon);
-    remoteViews.setTextViewText(R.id.title_firstBeacon, urlMetadata.title);
-    remoteViews.setTextViewText(R.id.url_firstBeacon, urlMetadata.displayUrl);
-    remoteViews.setTextViewText(R.id.description_firstBeacon, urlMetadata.description);
+    PwsResult pwsResult = pwPair.getPwsResult();
+    remoteViews.setImageViewBitmap(
+        R.id.icon_firstBeacon, Utils.getBitmapIcon(mPwCollection, pwsResult));
+    remoteViews.setTextViewText(R.id.title_firstBeacon, pwsResult.getTitle());
+    remoteViews.setTextViewText(R.id.url_firstBeacon, pwsResult.getSiteUrl());
+    remoteViews.setTextViewText(R.id.description_firstBeacon, pwsResult.getDescription());
     // Recolor notifications to have light text for non-Lollipop devices
     if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
       remoteViews.setTextColor(R.id.title_firstBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
@@ -460,18 +422,19 @@ public class PwoDiscoveryService extends Service
 
     // Create an intent that will open the browser to the beacon's url
     // if the user taps the notification
-    PendingIntent pendingIntent = pwoMetadata.createNavigateToUrlPendingIntent(this);
-    remoteViews.setOnClickPendingIntent(R.id.first_beacon_main_layout, pendingIntent);
+    remoteViews.setOnClickPendingIntent(R.id.first_beacon_main_layout,
+        Utils.createNavigateToUrlPendingIntent(pwsResult, this));
     remoteViews.setViewVisibility(R.id.firstBeaconLayout, View.VISIBLE);
   }
 
-  private void updateSummaryNotificationRemoteViewsSecondBeacon(PwoMetadata pwoMetadata,
+  private void updateSummaryNotificationRemoteViewsSecondBeacon(PwPair pwPair,
                                                                 RemoteViews remoteViews) {
-    UrlMetadata urlMetadata = pwoMetadata.urlMetadata;
-    remoteViews.setImageViewBitmap(R.id.icon_secondBeacon, urlMetadata.icon);
-    remoteViews.setTextViewText(R.id.title_secondBeacon, urlMetadata.title);
-    remoteViews.setTextViewText(R.id.url_secondBeacon, urlMetadata.displayUrl);
-    remoteViews.setTextViewText(R.id.description_secondBeacon, urlMetadata.description);
+    PwsResult pwsResult = pwPair.getPwsResult();
+    remoteViews.setImageViewBitmap(
+        R.id.icon_secondBeacon, Utils.getBitmapIcon(mPwCollection, pwsResult));
+    remoteViews.setTextViewText(R.id.title_secondBeacon, pwsResult.getTitle());
+    remoteViews.setTextViewText(R.id.url_secondBeacon, pwsResult.getSiteUrl());
+    remoteViews.setTextViewText(R.id.description_secondBeacon, pwsResult.getDescription());
     // Recolor notifications to have light text for non-Lollipop devices
     if (!(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
       remoteViews.setTextColor(R.id.title_secondBeacon, NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR);
@@ -482,8 +445,8 @@ public class PwoDiscoveryService extends Service
 
     // Create an intent that will open the browser to the beacon's url
     // if the user taps the notification
-    PendingIntent pendingIntent = pwoMetadata.createNavigateToUrlPendingIntent(this);
-    remoteViews.setOnClickPendingIntent(R.id.second_beacon_main_layout, pendingIntent);
+    remoteViews.setOnClickPendingIntent(R.id.second_beacon_main_layout,
+        Utils.createNavigateToUrlPendingIntent(pwsResult, this));
     remoteViews.setViewVisibility(R.id.secondBeaconLayout, View.VISIBLE);
   }
 
@@ -507,20 +470,20 @@ public class PwoDiscoveryService extends Service
   }
 
   public void restartScan() {
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.stopScan();
+    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
+      urlDeviceDiscoverer.stopScan();
     }
     mScanStartTime = new Date().getTime();
-    for (PwoDiscoverer pwoDiscoverer : mPwoDiscoverers) {
-      pwoDiscoverer.startScan();
+    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
+      urlDeviceDiscoverer.startScan();
     }
   }
 
   public boolean hasResults() {
-    return !mUrlToPwoMetadata.isEmpty();
+    return !mPwCollection.getGroupedPwPairsSortedByRank().isEmpty();
   }
 
-  public HashMap<String, PwoMetadata> getUrlToPwoMetadataMap() {
-    return mUrlToPwoMetadata;
+  public PhysicalWebCollection getPwCollection() {
+    return mPwCollection;
   }
 }

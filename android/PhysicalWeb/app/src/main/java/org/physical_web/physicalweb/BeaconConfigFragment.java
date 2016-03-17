@@ -16,6 +16,10 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.collection.PwsClient;
+import org.physical_web.collection.PwsResult;
+import org.physical_web.collection.PwsResultCallback;
+
 import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -55,6 +59,7 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -171,7 +176,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPause();
     mScanningAnimation.stop();
     scanLeDevice(false);
-    PwsClient.getInstance(getActivity()).cancelAllRequests(TAG);
+    UrlShortenerClient.getInstance(getActivity()).cancelAllRequests(TAG);
     if (mUriBeaconConfig != null) {
       mUriBeaconConfig.closeUriBeacon();
     }
@@ -258,20 +263,18 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       setEditCardUrl(url);
     }
 
-    // Create the callback object to set the url
-    PwsClient.ResolveScanCallback resolveScanCallback = new PwsClient.ResolveScanCallback() {
+    // Populate the field with a URL.
+    new PwsClient().resolve(Arrays.asList(url), new PwsResultCallback() {
       @Override
-      public void onUrlMetadataReceived(PwoMetadata pwoMetadata){
-        setEditCardUrl(pwoMetadata.urlMetadata.siteUrl);
+      public void onPwsResult(PwsResult pwsResult) {
+        setEditCardUrl(pwsResult.getSiteUrl());
       }
 
       @Override
-      public void onUrlMetadataAbsent(PwoMetadata pwoMetadata){
+      public void onPwsResultAbsent(String url) {
         setEditCardUrl(url);
       }
-    };
-    PwoMetadata pwoMetadata = new PwoMetadata(url, 0);
-    PwsClient.getInstance(getActivity()).findUrlMetadata(pwoMetadata, resolveScanCallback, TAG);
+    });
   }
 
   public void onBeaconConfigWriteUrlComplete(final int status) {
@@ -406,7 +409,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       url = "http://" + url;
     }
     // Create the callback object to set the url
-    PwsClient.ShortenUrlCallback urlSetter = new PwsClient.ShortenUrlCallback() {
+    UrlShortenerClient.ShortenUrlCallback urlSetter = new UrlShortenerClient.ShortenUrlCallback() {
       @Override
       public void onUrlShortened(String newUrl) {
         setUriBeaconUrl(newUrl);
@@ -427,7 +430,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       setUriBeaconUrl(url);
     } else {
       // Shorten the url if necessary
-      PwsClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
+      UrlShortenerClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
     }
   }
 

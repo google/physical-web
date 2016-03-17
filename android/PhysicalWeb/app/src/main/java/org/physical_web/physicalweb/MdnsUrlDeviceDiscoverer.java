@@ -16,15 +16,16 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.collection.UrlDevice;
+
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 import android.webkit.URLUtil;
 
-class MdnsPwoDiscoverer extends PwoDiscoverer {
-
-  private static final String TAG = "MdnsPwoDiscoverer";
+class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
+  private static final String TAG = "MdnsUrlDeviceDiscoverer";
   NsdManager.DiscoveryListener mDiscoveryListener = new NsdManager.DiscoveryListener() {
 
     @Override
@@ -38,9 +39,10 @@ class MdnsPwoDiscoverer extends PwoDiscoverer {
       Log.d(TAG, "Service discovery success" + service);
       String name = service.getServiceName();
       if (URLUtil.isNetworkUrl(name)) {
-        PwoMetadata pwoMetadata = createPwoMetadata(name);
-        pwoMetadata.isPublic = false;
-        reportPwo(pwoMetadata);
+        String id = TAG + service.getHost() + service.getPort();
+        UrlDevice urlDevice = createUrlDevice(id, name);
+        Utils.setPrivate(urlDevice);
+        reportUrlDevice(urlDevice);
       }
     }
 
@@ -81,7 +83,7 @@ class MdnsPwoDiscoverer extends PwoDiscoverer {
   private State mState;
   private boolean toRestart;
 
-  public MdnsPwoDiscoverer(Context context) {
+  public MdnsUrlDeviceDiscoverer(Context context) {
     mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
     mState = State.STOPPED;
     toRestart = false;
