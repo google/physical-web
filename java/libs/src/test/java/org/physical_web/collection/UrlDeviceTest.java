@@ -39,8 +39,9 @@ public class UrlDeviceTest {
 
   @Before
   public void setUp() {
-    mUrlDevice1 = new UrlDevice(ID1, URL1);
-    mUrlDevice1.getExtraData().put("key", "value");
+    mUrlDevice1 = new UrlDevice.Builder(ID1, URL1)
+        .addExtra("key", "value")
+        .build();
     jsonObject1 = new JSONObject("{"
         + "    \"id\": \"" + ID1 + "\","
         + "    \"url\": \"" + URL1 + "\","
@@ -62,13 +63,11 @@ public class UrlDeviceTest {
 
   @Test
   public void getRankReturnsPointFive() {
-    PwsResult pwsResult = new PwsResult(URL1, URL1, "title1", "description1", null, null);
+    PwsResult pwsResult = new PwsResult.Builder(URL1, URL1)
+        .setTitle("title1")
+        .setDescription("description1")
+        .build();
     assertEquals(.5, mUrlDevice1.getRank(pwsResult), .0001);
-  }
-
-  @Test
-  public void getExtraDataWorks() {
-    assertEquals(1, mUrlDevice1.getExtraData().length());
   }
 
   @Test
@@ -91,32 +90,26 @@ public class UrlDeviceTest {
 
   @Test
   public void alikeDevicesAreEqual() {
-    UrlDevice urlDevice = new UrlDevice(ID1, URL1);
-    urlDevice.getExtraData().put("key", "value");
+    UrlDevice urlDevice = new UrlDevice.Builder(ID1, URL1)
+        .addExtra("key", "value")
+        .build();
     assertEquals(mUrlDevice1, urlDevice);
   }
 
   @Test
-  public void devicesWithDifferentClassButSameInfoAreEqual() {
-    UrlDevice simpleUrlDevice = new UrlDevice(ID1, URL1);
-    UrlDevice rankedDevice = new RankedDevice(ID1, URL1, RANK1);
-    assertEquals(rankedDevice, simpleUrlDevice);
-    assertEquals(simpleUrlDevice, rankedDevice);
-  }
-
-  @Test
   public void devicesWithDifferentRankButSameInfoAreEqual() {
-    UrlDevice urlDevice = new RankedDevice(ID1, URL1, RANK2); // different rank
-    urlDevice.getExtraData().put("key", "value");
-    assertEquals(mUrlDevice1, urlDevice); // equals should not consider rank
+    UrlDevice urlDevice1 = new RankedDevice(ID1, URL1, RANK1); // different rank
+    UrlDevice urlDevice2 = new RankedDevice(ID1, URL1, RANK2); // different rank
+    assertEquals(urlDevice1, urlDevice2); // equals should not consider rank
   }
 
   @Test
   public void unalikeDevicesAreNotEqual() {
+    UrlDevice urlDevice1 = new UrlDevice(ID1, URL1);
     UrlDevice urlDevice2 = new UrlDevice(ID1, URL2); // same id, different url
     UrlDevice urlDevice3 = new UrlDevice(ID2, URL1); // same url, different id
-    assertNotEquals(mUrlDevice1, urlDevice2);
-    assertNotEquals(mUrlDevice1, urlDevice3);
+    assertNotEquals(urlDevice1, urlDevice2);
+    assertNotEquals(urlDevice1, urlDevice3);
   }
 
   @Test
