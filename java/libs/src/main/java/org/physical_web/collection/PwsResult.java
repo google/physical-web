@@ -16,6 +16,7 @@
 package org.physical_web.collection;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -302,49 +303,189 @@ public class PwsResult implements Comparable<PwsResult> {
 
   /**
    * Get extra boolean value.
-   * @return The stored value or null if it doesn't exist in specified form.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
    */
-  public boolean getExtraBoolean(String key) {
+  public boolean getExtraBoolean(String key) throws JSONException {
+    return mExtraData.getBoolean(key);
+  }
+
+  /**
+   * Get extra boolean value.
+   * @param key The key of the stored value.
+   * @return The stored value or false if it doesn't exist in specified form.
+   */
+  public boolean optExtraBoolean(String key) {
     return mExtraData.optBoolean(key);
   }
 
   /**
-   * Get extra int value.
-   * @return The stored value or null if it doesn't exist in specified form.
+   * Get extra boolean value.
+   * @param key The key of the stored value.
+   * @param defaultValue The value to return if the key does not exist or the value cannot be
+   *     coerced into the necessary type.
+   * @return The stored value or the provided default if it doesn't exist in specified form.
    */
-  public double getExtraInt(String key) {
+  public boolean optExtraBoolean(String key, boolean defaultValue) {
+    return mExtraData.optBoolean(key, defaultValue);
+  }
+
+  /**
+   * Get extra int value.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
+   */
+  public int getExtraInt(String key) throws JSONException {
+    return mExtraData.getInt(key);
+  }
+
+  /**
+   * Get extra int value.
+   * @param key The key of the stored value.
+   * @return The stored value or 0 if it doesn't exist in specified form.
+   */
+  public int optExtraInt(String key) {
     return mExtraData.optInt(key);
   }
 
   /**
-   * Get extra long value.
-   * @return The stored value or null if it doesn't exist in specified form.
+   * Get extra int value.
+   * @param key The key of the stored value.
+   * @param defaultValue The value to return if the key does not exist or the value cannot be
+   *     coerced into the necessary type.
+   * @return The stored value or the provided default if it doesn't exist in specified form.
    */
-  public double getExtraLong(String key) {
+  public int optExtraInt(String key, int defaultValue) {
+    return mExtraData.optInt(key, defaultValue);
+  }
+
+  /**
+   * Get extra long value.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
+   */
+  public long getExtraLong(String key) throws JSONException {
+    return mExtraData.getLong(key);
+  }
+
+  /**
+   * Get extra long value.
+   * @param key The key of the stored value.
+   * @return The stored value or 0 if it doesn't exist in specified form.
+   */
+  public long optExtraLong(String key) {
     return mExtraData.optLong(key);
   }
 
   /**
-   * Get extra double value.
-   * @return The stored value or null if it doesn't exist in specified form.
+   * Get extra long value.
+   * @param key The key of the stored value.
+   * @param defaultValue The value to return if the key does not exist or the value cannot be
+   *     coerced into the necessary type.
+   * @return The stored value or the provided default if it doesn't exist in specified form.
    */
-  public double getExtraDouble(String key) {
+  public long optExtraLong(String key, long defaultValue) {
+    return mExtraData.optLong(key, defaultValue);
+  }
+
+  /**
+   * Get extra double value.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
+   */
+  public double getExtraDouble(String key) throws JSONException {
+    return mExtraData.getDouble(key);
+  }
+
+  /**
+   * Get extra double value.
+   * @param key The key of the stored value.
+   * @return The stored value or 0 if it doesn't exist in specified form.
+   */
+  public double optExtraDouble(String key) {
     return mExtraData.optDouble(key);
   }
 
   /**
-   * Get extra JSONArray value.
+   * Get extra double value.
+   * @param key The key of the stored value.
+   * @param defaultValue The value to return if the key does not exist or the value cannot be
+   *     coerced into the necessary type.
+   * @return The stored value or the provided default if it doesn't exist in specified form.
+   */
+  public double optExtraDouble(String key, double defaultValue) {
+    return mExtraData.optDouble(key, defaultValue);
+  }
+
+  /**
+   * Get extra String value.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
+   */
+  public String getExtraString(String key) throws JSONException {
+    return mExtraData.getString(key);
+  }
+
+  /**
+   * Get extra String value.
+   * @param key The key of the stored value.
    * @return The stored value or null if it doesn't exist in specified form.
    */
-  public JSONArray getExtraJSONArray(String key) {
+  public String optExtraString(String key) {
+    return mExtraData.optString(key);
+  }
+
+  /**
+   * Get extra String value.
+   * @param key The key of the stored value.
+   * @param defaultValue The value to return if the key does not exist or the value cannot be
+   *     coerced into the necessary type.
+   * @return The stored value or the provided default if it doesn't exist in specified form.
+   */
+  public String optExtraString(String key, String defaultValue) {
+    return mExtraData.optString(key, defaultValue);
+  }
+
+  /**
+   * Get extra JSONArray value.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
+   */
+  public JSONArray getExtraJSONArray(String key) throws JSONException {
+    return mExtraData.getJSONArray(key);
+  }
+
+  /**
+   * Get extra JSONArray value.
+   * @param key The key of the stored value.
+   * @return The stored value or null if it doesn't exist in specified form.
+   */
+  public JSONArray optExtraJSONArray(String key) {
     return mExtraData.optJSONArray(key);
   }
 
   /**
    * Get extra JSONObject value.
+   * @param key The key of the stored value.
+   * @return The stored value.
+   * @throws JSONException If the mapping doesn't exist or is not the required type.
+   */
+  public JSONObject getExtraJSONObject(String key) throws JSONException {
+    return mExtraData.getJSONObject(key);
+  }
+
+  /**
+   * Get extra JSONObject value.
+   * @param key The key of the stored value.
    * @return The stored value or null if it doesn't exist in specified form.
    */
-  public JSONObject getExtraJSONObject(String key) {
+  public JSONObject optExtraJSONObject(String key) {
     return mExtraData.optJSONObject(key);
   }
 
