@@ -16,6 +16,7 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.collection.UrlDevice;
 import org.physical_web.physicalweb.ble.ScanRecord;
 import org.physical_web.physicalweb.ble.UriBeacon;
 
@@ -29,8 +30,9 @@ import android.webkit.URLUtil;
 
 import java.util.List;
 
-class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanCallback {
-  private static final String TAG = "BlePwoDiscoverer";
+class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
+                             implements BluetoothAdapter.LeScanCallback {
+  private static final String TAG = "BleUrlDeviceDiscoverer";
   private static final ParcelUuid URIBEACON_SERVICE_UUID =
       ParcelUuid.fromString("0000FED8-0000-1000-8000-00805F9B34FB");
   private static final ParcelUuid EDDYSTONE_URL_SERVICE_UUID =
@@ -39,7 +41,7 @@ class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanC
   private Parcelable[] mScanFilterUuids;
   private boolean isRunning;
 
-  public BlePwoDiscoverer(Context context) {
+  public BleUrlDeviceDiscoverer(Context context) {
     final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(
         Context.BLUETOOTH_SERVICE);
     mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -77,10 +79,12 @@ class BlePwoDiscoverer extends PwoDiscoverer implements BluetoothAdapter.LeScanC
       return;
     }
 
-    PwoMetadata pwoMetadata = createPwoMetadata(url);
-    pwoMetadata.setBleMetadata(device.getAddress(), rssi, uriBeacon.getTxPowerLevel());
-    pwoMetadata.bleMetadata.updateRegionInfo();
-    reportPwo(pwoMetadata);
+    UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress(), url)
+        .setRssi(rssi)
+        .setTxPower(uriBeacon.getTxPowerLevel())
+        .build();
+    Utils.updateRegion(urlDevice);
+    reportUrlDevice(urlDevice);
   }
 
   @Override

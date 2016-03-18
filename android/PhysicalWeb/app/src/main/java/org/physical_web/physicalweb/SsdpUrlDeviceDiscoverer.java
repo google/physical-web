@@ -27,15 +27,14 @@ import java.io.IOException;
 /**
  * This class discovers Physical Web URI/URLs over SSDP.
  */
-
-public class SsdpPwoDiscoverer extends PwoDiscoverer implements Ssdp.SsdpCallback {
+public class SsdpUrlDeviceDiscoverer extends UrlDeviceDiscoverer implements Ssdp.SsdpCallback {
   private static final String TAG = "SsdpPwoDiscoverer";
   private static final String PHYSICAL_WEB_SSDP_TYPE = "urn:physical-web-org:device:Basic:1";
   private Context mContext;
   private Thread mThread;
   private Ssdp mSsdp;
 
-  public SsdpPwoDiscoverer(Context context) {
+  public SsdpUrlDeviceDiscoverer(Context context) {
     mContext = context;
   }
 
@@ -86,9 +85,7 @@ public class SsdpPwoDiscoverer extends PwoDiscoverer implements Ssdp.SsdpCallbac
       new Thread(new Runnable() {
         @Override
         public void run() {
-          PwoMetadata pwoMetadata = createPwoMetadata(url);
-          pwoMetadata.isPublic = false;
-          reportPwo(pwoMetadata);
+          reportUrlDevice(createUrlDeviceBuilder(TAG + url, url).build());
         }
       }).start();
     }
