@@ -1,3 +1,0 @@
-include ':app', ':libs'
-
-project(':libs').projectDir = new File('../../java/libs')
