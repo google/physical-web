@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>The Physical Web</title>
+  <meta name="description" content="">
+
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link href="/physical-web/assets/images/apple-touch-60x60-9a0175c37fffcb78a37bf5110dabdf8dc6446c7eac9bc186067f87c8db223996.png" rel="apple-touch-icon">
+  <link href="/physical-web/assets/images/apple-touch-76x76-7a3108342975a1fc8c46064729b3938f57a380a9f5265e676ffac23073660ca3.png" rel="apple-touch-icon" sizes="76x76">
+  <link href="/physical-web/assets/images/apple-touch-120x120-8bf6db590e66835915417defd06e61dffc7e9c1345e90b03210ddd46f49f5286.png" rel="apple-touch-icon" sizes="120x120">
+  <link href="/physical-web/assets/images/apple-touch-152x152-9042e990f0ddefbbced1d341b818261471af0a50d7dad39a330b2742bf18e9de.png" rel="apple-touch-icon" sizes="152x152">
+
+  <link href='https://fonts.googleapis.com/css?family=PT+Sans|PT+Sans+Narrow:700,400|Open+Sans:400,800,700' rel='stylesheet' type='text/css'>
+
+  <link type="text/css" rel="stylesheet" href="/physical-web/assets/style-aeda5dc64f3b76668e7bdba3c29e9f31be937e57611a7dd015e5cbd79e0dd272.css">
+  <script type="text/javascript" src="/physical-web/assets/main-d0aabd8039523cf1d7f715c16abb1521849ae9c48819fd31b354bb83d59b9423.js"></script>
+  <script type="text/javascript" src="/physical-web/assets/analytics-b4a67de5639c90512b4ab9fd94d04571ead938d7a98e9a49d85cf6ad8cb640c7.js"></script>
+</head>
+
+  <body class="sidebar">
+    <header id="page-header">
+  <div class="container">
+    <a href="/physical-web/" class="brand" title="The Physical Web"><img src="/physical-web/assets/images/logo-58493165669b6f30c9e4b73c8c8748956467bfc8abc3b606dab5c7a096c5a010.svg" alt="Physical Web Logo"></a>
+    <nav id="mainnav">
+      <span>Start Building Now!&nbsp;></span>
+      <a href="/physical-web/resources">Resources</a>
+      <a href="/physical-web/faq">FAQ</a>
+      <a href="/physical-web/examples">Examples</a>
+    </nav>
+  </div>
+</header>
+
+    <button id="menu-toggle">
+  <span class="sr">Toggle navigation</span>
+  <i class="icon-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </i>
+</button>
+<div class="two-column-layout">
+  <div class="row">
+    <div id="sidenav">
+      <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#examples">Examples</a></li>
+<li class="toc-entry toc-h2"><a href="#informational-content">Informational content</a></li>
+<li class="toc-entry toc-h4"><a href="#info-page">Info Page</a></li>
+<li class="toc-entry toc-h4"><a href="#swarm-page">Swarm Page</a></li>
+<li class="toc-entry toc-h4"><a href="#moving-beacon">Moving Beacon</a></li>
+<li class="toc-entry toc-h2"><a href="#richer-experiences">Richer experiences</a></li>
+<li class="toc-entry toc-h4"><a href="#push-notifications">Push Notifications</a></li>
+<li class="toc-entry toc-h4"><a href="#parking-meter">Parking Meter</a></li>
+<li class="toc-entry toc-h4"><a href="#voting-wall">Voting Wall</a></li>
+<li class="toc-entry toc-h4"><a href="#photo-wall">Photo Wall</a></li>
+<li class="toc-entry toc-h2"><a href="#web-bluetooth">Web Bluetooth</a></li>
+<li class="toc-entry toc-h4"><a href="#childrens-toy">Children's Toy</a></li>
+<li class="toc-entry toc-h4"><a href="#remote-control">Remote Control</a></li>
+</ul>
+    </div>
+    <div class="main">
+      <div class="container">
+        <div class="content">
+          <h1>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h1>
+<p>We want to show you simple patterns of use for the Physical Web, highlighting a range of ways you can use it.
+</p>
+
+
+<h2 id="simple-static-beacon">
+<a id="informational-content" class="anchor" href="#informational-content" aria-hidden="true"><span class="octicon octicon-link"></span></a>Informational content</h2>
+<p>With just a web page and a beacon, you can annotate a place or an object with informational content. Below are a few examples.
+</p>
+
+<h4>
+<a id="info-page" class="anchor" href="#info-page" aria-hidden="true"><span class="octicon octicon-link"></span></a>Info Page</h4>
+<p>The beacon might broadcast a URL that points to a page with relevant information. For example, a movie poster could point to a page with the movie's trailer and showtimes. An identifier for the movie poster's location can be encoded into the broadcasted URL such that the webpage can filter for theatres nearby.
+</p>
+
+<h4>
+<a id="swarm-page" class="anchor" href="#swarm-page" aria-hidden="true"><span class="octicon octicon-link"></span></a>Swarm Page</h4>
+<p>Several beacons are placed into a space that is too large to be covered by a single beacon, and each broadcasts exactly the same URL. The user’s mobile device will de-duplicate URLs and only show one listing on the user’s device. For example, a mall could use this technique to cover a large space and surface its interactive map.
+</p>
+
+<h4>
+<a id="moving-beacon" class="anchor" href="#moving-beacon" aria-hidden="true"><span class="octicon octicon-link"></span></a>Moving Beacon</h4>
+<p>Beacons don't have to be stationary. A dog collar, for example, could broadcast a URL providing basic information about the dog. If the dog is lost, its owner can update the page to reflect this status. Individuals who discover the nearby URL can then learn that the dog is lost and take appropriate action:
+</p>
+
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/-Y77cUI_z30" frameborder="0" allowfullscreen=""></iframe>
+</div>
+
+<h2 id="dive-deeper">
+<a id="richer-experiences" class="anchor" href="#richer-experiences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Richer experiences</h2>
+<p>More compelling and interactive experiences are possible when the broadcasted page is a web application using modern features of the web platform. Below are a few examples.
+</p>
+
+
+<h4>
+<a id="push-notifications" class="anchor" href="#push-notifications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Push Notifications</h4>
+<p>The beacon might broadcast the URL of a web page that implements push notifications via a <a href="http://www.html5rocks.com/en/tutorials/service-worker/introduction/">service worker</a>. For example, a restaurant could create a queuing application to alert customers when their table is ready (thereby replacing its LED buzzers!). Users can open the queuing web application, take a “digital spot” in line, and get a notification when their table is ready:
+</p>
+
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/b0GDk-53fTo" frameborder="0" allowfullscreen=""></iframe>
+</div>
+
+<h4>
+<a id="parking-meter" class="anchor" href="#parking-meter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parking Meter</h4>
+<p>An internet-connected parking meter could broadcast a URL that uses websockets to directly connect to the parking meter. From the web page, the user can fulfill a payment transaction to add additional time to the meter:
+</p>
+
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/ysxB_PXFImE" frameborder="0" allowfullscreen=""></iframe>
+</div>
+
+<h4>
+<a id="voting-wall" class="anchor" href="#voting-wall" aria-hidden="true"><span class="octicon octicon-link"></span></a>Voting Wall</h4>
+<p>Individuals could walk up to an interactive voting wall and vote up questions as they are asked:
+</p>
+
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/0SDJrRk3YC8" frameborder="0" allowfullscreen=""></iframe>
+</div>
+
+<h4>
+<a id="photo-wall" class="anchor" href="#photo-wall" aria-hidden="true"><span class="octicon octicon-link"></span></a>Photo Wall</h4>
+<p>A large display could act as an interactive photo wall, where users walking nearby can upload their photos. Users would simply have to take our their phone, find the photo wall via the Physical Web, and add a photo: 
+</p>
+
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/-e7yWs38UIQ" frameborder="0" allowfullscreen=""></iframe>
+</div>
+
+<h2 id="new-possibilities">
+<a id="web-bluetooth" class="anchor" href="#web-bluetooth" aria-hidden="true"><span class="octicon octicon-link"></span></a>Web Bluetooth</h2>
+
+<p>A new experimental web API called <a href="https://github.com/WebBluetoothCG/web-bluetooth">web bluetooth</a> will enable web pages to connect directly to nearby Bluetooth devices. 
+</p>
+
+<p>Web bluetooth enables devices to offer advanced interactions without requiring a connection to the internet. For example, the previously mentioned parking meter could directly connect to the user’s mobile device over bluetooth. A direct bluetooth connection between an object and a mobile device reduces network latency and offers an inexpensive way to enable more ubiquitous interactivity.
+</p>
+
+<h4>
+<a id="childrens-toy" class="anchor" href="#childrens-toy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Children's Toy</h4>
+<p>A toy might broadcast a URL to a web page that enables direction connection to the toy itself. Parents could easily configure and personalize the toy from the page:
+</p>
+
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/PwK3ccOJ6EY" frameborder="0" allowfullscreen=""></iframe>
+</div>
+
+<h4>
+<a id="remote-control" class="anchor" href="#remote-control" aria-hidden="true"><span class="octicon octicon-link"></span></a>Remote Control</h4>
+<p>A toy might broadcast a URL to a web page that enables you to control and steer it directly via the web bluetooth API:
+</p>
+<div class="embed-container">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/6z9ED4fmi1w" frameborder="0" allowfullscreen=""></iframe>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var toc = "true";
+  var layout = "sidebar";
+  window.console.log("TOC: ", toc);
+  window.console.log("Layout: ", layout);
+</script>
+    <footer id="page-footer">
+  <div class="container">
+    <h2>Learn more</h2>
+    <div class="content">
+      <a href="/physical-web/resources" class="button">Explore Resources</a>
+      <a href="/physical-web/faq" class="button">Read Frequently Asked Questions</a>
+      <a href="/physical-web/examples" class="button">Explore Examples</a>
+    </div>
+  </div>
+</footer>
+
+  </body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>The Physical Web</title>
+  <meta name="description" content="">
+
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link href="/physical-web/assets/images/apple-touch-60x60-9a0175c37fffcb78a37bf5110dabdf8dc6446c7eac9bc186067f87c8db223996.png" rel="apple-touch-icon">
+  <link href="/physical-web/assets/images/apple-touch-76x76-7a3108342975a1fc8c46064729b3938f57a380a9f5265e676ffac23073660ca3.png" rel="apple-touch-icon" sizes="76x76">
+  <link href="/physical-web/assets/images/apple-touch-120x120-8bf6db590e66835915417defd06e61dffc7e9c1345e90b03210ddd46f49f5286.png" rel="apple-touch-icon" sizes="120x120">
+  <link href="/physical-web/assets/images/apple-touch-152x152-9042e990f0ddefbbced1d341b818261471af0a50d7dad39a330b2742bf18e9de.png" rel="apple-touch-icon" sizes="152x152">
+
+  <link href='https://fonts.googleapis.com/css?family=PT+Sans|PT+Sans+Narrow:700,400|Open+Sans:400,800,700' rel='stylesheet' type='text/css'>
+
+  <link type="text/css" rel="stylesheet" href="/physical-web/assets/style-aeda5dc64f3b76668e7bdba3c29e9f31be937e57611a7dd015e5cbd79e0dd272.css">
+  <script type="text/javascript" src="/physical-web/assets/main-d0aabd8039523cf1d7f715c16abb1521849ae9c48819fd31b354bb83d59b9423.js"></script>
+  <script type="text/javascript" src="/physical-web/assets/analytics-b4a67de5639c90512b4ab9fd94d04571ead938d7a98e9a49d85cf6ad8cb640c7.js"></script>
+</head>
+
+  <body class="default">
+    <header id="page-header">
+  <div class="container">
+    <a href="/physical-web/" class="brand" title="The Physical Web"><img src="/physical-web/assets/images/logo-58493165669b6f30c9e4b73c8c8748956467bfc8abc3b606dab5c7a096c5a010.svg" alt="Physical Web Logo"></a>
+    <nav id="mainnav">
+      <span>Start Building Now!&nbsp;></span>
+      <a href="/physical-web/resources">Resources</a>
+      <a href="/physical-web/faq">FAQ</a>
+      <a href="/physical-web/examples">Examples</a>
+    </nav>
+  </div>
+</header>
+
+    <div id="page-content">
+  <section id="faq" class="faqs container">
+    <div class="row">
+      <div class="col-full">
+        
+        <div class="content">
+          <h1>FAQs</h1>
+          <ul class="faq-list">
+            <li>
+              <a class="toggle-faq">Why is the Physical Web built on top of the web?</a>
+              <div>
+                <p>The Physical Web’s core value proposition is to enable users to have information at their fingertips no matter their physical context. This information can take the form of a simple static web page to a more robust web application. A few examples might include:</p><br>
+                <ul>
+                  <li>A dog collar could allow passerby to call a service to find the owner</li>
+                  <li>A bus that could alert users of its next stop</li>
+                  <li>A city rent-a-bike service could enable users to sign up on the spot</li>
+                  <li>A home appliance could offer an interactive tutorial.</li>
+                  <li>An industrial robot could display diagnostic information.</li>
+                  <li>A mall that could offer a map.</li>
+                </ul><br>
+                <p>Each of these examples, taken by itself, is modesty useful. In the aggregate, they imply a vast “long tail” of interaction where anything can offer information and utility. The web enables the low friction and ephemerality to enable this kind of interaction on demand.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">Why does the Physical Web use URLs?</a>
+              <div>
+                <p>URLs are the fundamental building blocks of the web -- they are both flexible and decentralized. URLs allow any developer to have a digital presence without requiring a central gatekeeper to bottleneck access to the ecosystem. This is a core principle of the web and one that the Physical Web leverages to lower the barrier to entry.</p><br>
+                <p>The flexibility of URLs affords the opportunity to experiment with URL + ID models that utlimately do utilize a central server (e.g. exampleserver.com/?id=12345). In many ways, this highlights how URLs can be scaled to a variety of use cases.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">Why does Physical Web used Bluetooth Low Energy? </a>
+              <div>
+                <p>There are many ways to broadcast a URL. Today, the Physical Web uses Bluetooth Low Energy (BLE) because of its ubiquity on mobile devices today. Additionally, it is highly energy efficient -- many bluetooth beacons today have multi-year battery lives.</p><br>
+                <p>However, this does not preclude the possibility of Physical Web catering to alternate transport protocols in the future. Early potential options include mDNS and uPnP over WiFi.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">What does the openness of the Physical Web refer to?</a>
+              <div>
+                <p>The Physical Web is designed to be interoperable at every level of the stack -- from the beacons used to broadcast URLs to scanners used to gather these URLs to the proxy used to filter and sort URLs. Users will ultimately be able to choose which services are appropriate for their use case.</p><br>
+                <p>In this vein, we have also open sourced sample implementations of Physical Web scanners for iOS and Android, along with an open source proxy service. These are included in our <a href="https://github.com/google/physical-web">Github</a>.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">How does the Physical Web address potential security concerns?</a>
+              <div>
+                <p>URLs in the Physical Web are broadcast such that any device with a Physical Web scanner can detect them. The use of a proxy service prevents a beacon deployer from monitoring each event in which a user passes by the beacon. Additionally, Physical Web deployments are encouraged only in public spaces.</p><br>
+                <p>The Physical Web also benefits from the web security model, given that it is built on top of URLs. Some of these benefits include:</p><br>
+
+                <ul>
+                  <li>Certain implementations of the Physical Web require that the broadcast URL be over HTTPS (e.g. Chrome)</li>
+                  <li>The URL could be obfuscated (e.g. using a non-branded domain)</li>
+                  <li>A rotating token on the beacon would constantly alter the URL</li>
+                  <li>The web page could require a login</li>
+                </ul>
+
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">How does the Physical Web address potential spam?</a>
+              <div>
+                <p>The proxy service used plays the role of a spam filter -- malicious URLs will be filtered away, and less valuable and useful URLs will be displayed lower in the list of URLs. This service is in many ways analogous to a search engine, which is tasked with minimizing spam by providing super ranking of results. Over time, the proxy service will improve in its ability to rank down spam.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">How can Physical Web results be viewed?</a>
+              <div>
+                <p>Different implementations of the Physical Web might offer different user experiences for users to discover nearby URLs.</p><br>
+
+                <p>For example, on Android, the open source implementation and the <a href="/physical-web/try-physical-web">Chrome implementation</a> surface Physical Web results via low priority notifications, which do not vibrate the user’s device. This ensures that the user’s workflow is not interrupted and that results appear only when the user proactively seeks them out.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">Will the Physical Web display a very long list of URLs to the user?</a>
+              <div>
+                <p>Today, there is not a large number of beacons in the environment, but over time, this number will increase if the Physical Web gains in prominence. Proxy services will play the role of not only filtering unwanted URLs but also ranking and sorting URLs that users see. Over time, these will grow in sophistication to rank URLs in the order of usefulness to the user, using signals such as distance between the user’s device and the nearby beacon.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">How does Physical Web affect battery life?</a>
+              <div>
+                <p>Ultimately, this is dependent on the design of the Physical Web implementation. The open source and Chrome implementations only scan for nearby beacons when the device screen is on, which significantly reduces the battery impact.</p>
+              </div>
+            </li>
+            <li>
+              <a class="toggle-faq">Which platforms are supported?</a>
+              <div>
+                <p>Both iOS and Android offer bluetooth scanning APIs at the platform level on which Physical Web clients can be built. The open source Physical Web implementations on <a href="https://github.com/google/physical-web">Github</a> include both iOS and Android. Additionally, the Chrome implementation of Physical Web is available on iOS and Android.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+    <footer id="page-footer">
+  <div class="container">
+    <h2>Learn more</h2>
+    <div class="content">
+      <a href="/physical-web/resources" class="button">Explore Resources</a>
+      <a href="/physical-web/faq" class="button">Read Frequently Asked Questions</a>
+      <a href="/physical-web/examples" class="button">Explore Examples</a>
+    </div>
+  </div>
+</footer>
+
+  </body>
+</html>

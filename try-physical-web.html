@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>The Physical Web</title>
+  <meta name="description" content="">
+
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link href="/physical-web/assets/images/apple-touch-60x60-9a0175c37fffcb78a37bf5110dabdf8dc6446c7eac9bc186067f87c8db223996.png" rel="apple-touch-icon">
+  <link href="/physical-web/assets/images/apple-touch-76x76-7a3108342975a1fc8c46064729b3938f57a380a9f5265e676ffac23073660ca3.png" rel="apple-touch-icon" sizes="76x76">
+  <link href="/physical-web/assets/images/apple-touch-120x120-8bf6db590e66835915417defd06e61dffc7e9c1345e90b03210ddd46f49f5286.png" rel="apple-touch-icon" sizes="120x120">
+  <link href="/physical-web/assets/images/apple-touch-152x152-9042e990f0ddefbbced1d341b818261471af0a50d7dad39a330b2742bf18e9de.png" rel="apple-touch-icon" sizes="152x152">
+
+  <link href='https://fonts.googleapis.com/css?family=PT+Sans|PT+Sans+Narrow:700,400|Open+Sans:400,800,700' rel='stylesheet' type='text/css'>
+
+  <link type="text/css" rel="stylesheet" href="/physical-web/assets/style-aeda5dc64f3b76668e7bdba3c29e9f31be937e57611a7dd015e5cbd79e0dd272.css">
+  <script type="text/javascript" src="/physical-web/assets/main-d0aabd8039523cf1d7f715c16abb1521849ae9c48819fd31b354bb83d59b9423.js"></script>
+  <script type="text/javascript" src="/physical-web/assets/analytics-b4a67de5639c90512b4ab9fd94d04571ead938d7a98e9a49d85cf6ad8cb640c7.js"></script>
+</head>
+
+  <body class="sidebar">
+    <header id="page-header">
+  <div class="container">
+    <a href="/physical-web/" class="brand" title="The Physical Web"><img src="/physical-web/assets/images/logo-58493165669b6f30c9e4b73c8c8748956467bfc8abc3b606dab5c7a096c5a010.svg" alt="Physical Web Logo"></a>
+    <nav id="mainnav">
+      <span>Start Building Now!&nbsp;></span>
+      <a href="/physical-web/resources">Resources</a>
+      <a href="/physical-web/faq">FAQ</a>
+      <a href="/physical-web/examples">Examples</a>
+    </nav>
+  </div>
+</header>
+
+    <button id="menu-toggle">
+  <span class="sr">Toggle navigation</span>
+  <i class="icon-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </i>
+</button>
+<div class="two-column-layout">
+  <div class="row">
+    <div id="sidenav">
+      <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#setting-up-physical-web-in-chrome">Setting up Physical Web in Chrome</a></li>
+<li class="toc-entry toc-h2"><a href="#ios">iOS</a></li>
+<li class="toc-entry toc-h2"><a href="#android">Android</a></li>
+<li class="toc-entry toc-h2"><a href="#potential-issues">Potential issues</a></li>
+</ul>
+    </div>
+    <div class="main">
+      <div class="container">
+        <div class="content">
+          <h1>
+<a id="setting-up-physical-web-in-chrome" class="anchor" href="#setting-up-physical-web-in-chrome" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up Physical Web in Chrome</h1>
+<p>The Physical Web enables you to discover web pages associated with everyday objects and locations. It is powered by bluetooth low energy (BLE) beacons that broadcast URLs using the Eddystone format. Various mobile browsers are working to display these URLs. This document explains how to use the Physical Web on Chrome.
+
+</p><p>If you experience any issues with this setup process, reach out to <a href="mailto:physical-web-discuss@googlegroups.com">physical-web-discuss@googlegroups.com</a>.</p>
+
+<h2 id="ios">
+<a id="ios" class="anchor" href="#ios" aria-hidden="true"><span class="octicon octicon-link"></span></a>iOS</h2>
+<p>As of July 2015, Chrome for iOS supports the Physical Web. You can take the following steps to discover Physical Web URLs via Chrome for iOS:</p>
+<ol>
+  <li>
+    Turn on Bluetooth if not enabled.
+    <img src="/physical-web/assets/images/image01-24389daa2fa63841c322c974c538d806fb704408c3bf9f9e49363afec8f4e11a.png" srcset="/physical-web/assets/images/image01@2x-c89692c50b5333e16ba0218a004dc7e33a6cebed01b10b4431b84b23fc298935.png 2x" alt="Turn on Bluetooth">
+  </li>
+  <li>
+    Swipe down notification shade to visit ‘Today’ view. Scroll to the bottom and tap ‘Edit’.<br>
+    <img src="/physical-web/assets/images/image02-ac6ba0aa01183f74e6a846aea71b021ff6a8d52dc5598e5fb5605fae01998fe8.png" alt="">
+  </li>
+  <li>
+    Scroll down to the ‘Do not include’ section and add the Chrome widget.
+    <div class="row">
+      <img src="/physical-web/assets/images/image03-36f40accaa462b557ea20610f5209acaadf60d9a2e959886a28e413413f04a30.png" alt="Scroll to 'Do not include' section">
+      <img src="/physical-web/assets/images/image04-4e9f4672fffa56801a5db6fcca14fa388a37f16a974a64bea242135743e4d714.png" alt="Add the Chrome widget">
+    </div>
+  </li>
+  <li>
+    Click ‘Done’ and scroll to the Chrome widget. Opt in to the Physical Web.
+    <img src="/physical-web/assets/images/image05-656d9b05da34784495986e63919f1a785572bda9e4c9883da23c50477fd4ddad.png" alt="">
+  </li>
+  <li>
+    Go near beacons broadcasting Eddystone-URL sites. You should now see beacons in the widget.
+    <img src="/physical-web/assets/images/image06-8057877b079f57fce655ffae09f2b3127772d34d6230240128b4eb2998fbe2f0.png" alt="">
+  </li>
+</ol>
+<h2 id="android">
+<a id="android" class="anchor" href="#android" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android</h2>
+<p>The Physical Web is available starting Chrome version 49 and on devices running Android KitKat (4.4) and above. When you are near a beacon for the first time (and if you have Bluetooth enabled) you will receive a notification describing the Physical Web.</p>
+<p>If you’d like to explicitly turn on Physical Web, try the following:</p>
+<ol>
+  <li>
+    Check that you have an active data connection as well as Bluetooth and Location turned on. The notification shade provides an easy way to check that these requirements are met:
+    <img src="/physical-web/assets/images/image07-48ee16064bb907cddb0eb2e823cfa3b628f886e8c43ddc0f7233dd09c4fc1e7a.png" srcset="/physical-web/assets/images/image07@2x-6be3e76acd4c39999f9b17c85e088482b98bb14b79f9c3cb32169857a3b1735d.png 2x" alt="Check active data connection, bluetooth and location turned on">
+  </li>
+  <li>
+    Enable the Physical Web privacy option from within Chrome in Privacy settings:
+    <div class="row">
+      <img src="/physical-web/assets/images/image08-b178c71a9b01407fdcdc129f5581f7b37cdedc31a07101dd14fa41fdd667765f.png" srcset="/physical-web/assets/images/image08@2x-2a588cc2fad46021f862a975ea86730967fd0b17d5822f5280423d5487c4dcd4.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+      <img src="/physical-web/assets/images/image09-7ab425b326d7508365f28a9d1bab0cdfa9e0a960494485edd231b91348746aab.png" srcset="/physical-web/assets/images/image09@2x-970b78d016e6abae1f49e4656df7aceda661278b044d4258848f1ca0f2b51ade.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+    </div>
+    <div class="row">
+      <img src="/physical-web/assets/images/image10-bfbe0cf88df7bd6eff204a3eceb772680a970253bc23f7ed0972145e1d9b5680.png" srcset="/physical-web/assets/images/image10@2x-14c30135f256b3d8d67a090655683163806414489cd5ac9a8fa3d221dea172bc.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+      <img src="/physical-web/assets/images/image11-4fb78e5317aa1d2c713cbbfe70e760afcc6eca9e16436b853d3ef9026daa0c35.png" srcset="/physical-web/assets/images/image11@2x-62641df5d742250c14f720e4d9b0bbba74b87f8d0af06a2080bd39d9c1abcda1.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+    </div>
+    <img src="/physical-web/assets/images/image12-ac01858ce4ca5b345dcb84f0970ea50ea047c4e6779d66c66089173b37b42663.png" srcset="/physical-web/assets/images/image12@2x-4aad5a84421608b39657e61a32e5f64c6d9ea40f4984b9fcc0f04fc333312706.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings"> 
+
+    <p><strong>(Marshmallow ONLY)</strong> On Marshmallow (Android 6.0) devices, the Physical Web requires that Chrome is granted the Location runtime permission.  If you have not already granted this permission, enabling the Physical Web privacy option will automatically prompt you to grant it.  This step is not necessary on pre-Marshmallow versions of Android.</p>
+    <img src="/physical-web/assets/images/image13-5b703fb08fb6c8a6aa22e39647e9e126d67ca03a483851932523321edf5f6657.png" srcset="/physical-web/assets/images/image13@2x-85210461ab3842a55f41cc529ac10a79ff4ab6676d73bf85bc82301790740851.png 2x" alt="On Marshmallow (Android 6.0) devices, the Physical Web requires that Chrome is granted the Location runtime permission.">
+  </li>
+  <li>
+    To see URLs when you are nearby a beacon in the future, swipe down on your notification shade to see a low priority notification informing you of nearby Physical Web URLs.
+    <img src="/physical-web/assets/images/image14-afb529ea61b9baba4cd10c54b1fb10cca5b7fa92a7826fd7ebbb49e671bc6060.png" srcset="/physical-web/assets/images/image14@2x-4d7092d9270f2c9b9411f6d91b925db6977564e8dd4b0de84d28578fdfda64f8.png 2x" alt="swipe down on your notification shade to see a low priority notification">
+  </li>
+  <li>
+    Tap on notification. You will see a list of nearby URLs.
+  </li>
+</ol>
+<h2 id="issues">
+<a id="potential-issues" class="anchor" href="#potential-issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Potential issues</h2>
+<ol>
+  <li>
+    <p><strong>I don’t see any URLs around after successfully going through these steps.</strong></p>
+    <p>It’s possible there aren’t any BLE beacons nearby. If you have a compatible Nexus device (Nexus 6, Nexus 9, Galaxy Note 4, Galaxy S6, Galaxy Tab S), you can create a virtual beacon using the <a href="https://play.google.com/store/apps/details?id=com.uriio">Beacon Toy app.</a> Otherwise, consider setting up your own beacon.</p>
+
+    <p>Additionally, nearby broadcasted URLs must be public. The URL will be accessed by a Google service to resolve the URL and retrieve page metadata. If the page is not accessible from the Internet (for instance, it requires authentication or is only accessible from an internal network) then it will not appear in the list of results.</p>
+
+    <p>Finally, all URLs must resolve to an HTTPS URL. For our users’ security, we require all Physical Web pages be served over HTTPS. You may use a URL shortener that generates HTTP URLs as long as the shortened URL resolves to an HTTPS URL.</p>
+  </li>
+  <li>
+    <p><strong>On Android, sometimes I see URLs, but sometimes they don’t show up.</strong></p>
+    <p>There is a known issue that can cause the Physical Web list to be empty even after receiving a notification indicating that Physical Web pages are nearby. This can usually be resolved by refreshing the Physical Web list, but not always. As a workaround, force-quit Chrome and turn the device’s screen off and on again to trigger a new scan for nearby devices.</p>
+  </li>
+</ol>
+        
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var toc = "true";
+  var layout = "sidebar";
+  window.console.log("TOC: ", toc);
+  window.console.log("Layout: ", layout);
+</script>
+    <footer id="page-footer">
+  <div class="container">
+    <h2>Learn more</h2>
+    <div class="content">
+      <a href="/physical-web/resources" class="button">Explore Resources</a>
+      <a href="/physical-web/faq" class="button">Read Frequently Asked Questions</a>
+      <a href="/physical-web/examples" class="button">Explore Examples</a>
+    </div>
+  </div>
+</footer>
+
+  </body>
+</html>
