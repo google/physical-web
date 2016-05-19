@@ -1,5 +1,7 @@
 ## mDNS Support
 
+**Due to several issues, mDNS support is currently disabled this app!  We intend to revisit (and hopefully reenable) this feature in the future.**
+
 The Physical Web is about getting URLs into the physical world. However, this isn't limited to just Bluetooth Low Energy (BLE) beacons. [mDNS](http://en.wikipedia.org/wiki/Multicast_DNS) is a service broadcast technique used in Wi-Fi networks. It has two advantages over BLE: 
 
 1. Only people logged into your Wi-Fi can see the mDNS URLs. This means that in an apartment, your neighbors can't see your devices.
