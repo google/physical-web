@@ -1,7 +1,6 @@
 #The Physical Web#
 
 <img align="left" src="https://raw.githubusercontent.com/google/physical-web/master/documentation/images/logo/logo-black.png" hspace="15" width="70px" style="float: left">
-The Physical Web is not shipping yet nor is it a Google product. This is an early-stage experimental project and we're developing it out in the open as we do all things related to the web. This should only be of interest to developers looking to test out this feature and provide us feedback.
 
 The Physical Web is an effort to extend the core superpower of the web - the URL - to everyday physical objects. Our core premise is that you should be able to walk up to any “smart” physical object (e.g. a vending machine, a poster, a toy, a bus stop, a rental car) and interact with it without first downloading an app. The user experience of smart objects should be much like links in a web browser: i.e., just tap and use.
 
