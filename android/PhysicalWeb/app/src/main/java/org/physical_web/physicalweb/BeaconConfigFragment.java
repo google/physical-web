@@ -261,18 +261,28 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     Log.d(TAG, "onReadUrlComplete" + "  url:  " + url);
     if (!isShortUrl(url)) {
       setEditCardUrl(url);
+      return;
     }
 
     // Populate the field with a URL.
     new PwsClient().resolve(Arrays.asList(url), new PwsResultCallback() {
+      public void runSetEditCardUrlOnUiThread(final String url){
+        getActivity().runOnUiThread(new Runnable(){
+          @Override
+          public void run() {
+            setEditCardUrl(url);
+          }
+        });
+      }
+
       @Override
       public void onPwsResult(PwsResult pwsResult) {
-        setEditCardUrl(pwsResult.getSiteUrl());
+        runSetEditCardUrlOnUiThread(pwsResult.getSiteUrl());
       }
 
       @Override
       public void onPwsResultAbsent(String url) {
-        setEditCardUrl(url);
+        runSetEditCardUrlOnUiThread(url);
       }
     });
   }
