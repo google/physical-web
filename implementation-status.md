@@ -8,7 +8,8 @@ Feature                   | iOS       | Android
 ------------------------- | :-------: | :-------: 
 Eddystone-URL scanning    | ✓         | ✓          
 Notifications             |           | ✓          
-Favicon support           |           | ✓          
+Favicon support           |           | ✓     
+HTTPS only                |           | ✓
 
 ### Notes
 
