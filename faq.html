@@ -127,6 +127,12 @@
                 <p>Both iOS and Android offer bluetooth scanning APIs at the platform level on which Physical Web clients can be built. The open source Physical Web implementations on <a href="https://github.com/google/physical-web">Github</a> include both iOS and Android. Additionally, the Chrome implementation of Physical Web is available on iOS and Android.</p>
               </div>
             </li>
+            <li>
+              <a class="toggle-faq">Why does the title and description not update in the Physical Web notification?</a>
+              <div>
+                <p>The proxy service might cache metadata for a certain amount of time before displaying a result. For example, in the Chrome implementation, the proxy service caches metadata for at least 5 minutes in order to provide a fast response. It does not obey "no-cache" HTTP headers.</p>
+              </div>
+            </li>
           </ul>
         </div>
       </div>
