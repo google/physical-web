@@ -454,13 +454,13 @@ public class NearbyBeaconsFragment extends ListFragment
         updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
-        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT);
+        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
         UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
       } else {
         // Otherwise ensure it is not shown
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
-        mPwCollection.setPwsEndpoint(Utils.PROD_ENDPOINT);
+        Utils.setPwsEndpoint(getActivity(), mPwCollection);
         UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
       }
 

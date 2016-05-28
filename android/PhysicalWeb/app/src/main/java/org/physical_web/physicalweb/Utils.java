@@ -18,6 +18,7 @@ package org.physical_web.physicalweb;
 
 import org.physical_web.collection.PhysicalWebCollection;
 import org.physical_web.collection.PwPair;
+import org.physical_web.collection.PwsClient;
 import org.physical_web.collection.PwsResult;
 import org.physical_web.collection.UrlDevice;
 
@@ -42,7 +43,11 @@ import java.net.URISyntaxException;
  */
 class Utils {
   public static final String PROD_ENDPOINT = "https://url-caster.appspot.com";
+  public static final int PROD_ENDPOINT_VERSION = 1;
   public static final String DEV_ENDPOINT = "https://url-caster-dev.appspot.com";
+  public static final int DEV_ENDPOINT_VERSION = 1;
+  public static final String GOOGLE_ENDPOINT = "https://physicalweb.googleapis.com";
+  public static final int GOOGLE_ENDPOINT_VERSION = 2;
   private static final String SCANTIME_KEY = "scantime";
   private static final String PUBLIC_KEY = "public";
   private static final String RSSI_KEY = "rssi";
@@ -52,6 +57,34 @@ class Utils {
 
   private static void throwEncodeException(JSONException e) {
     throw new RuntimeException("Could not encode JSON", e);
+  }
+
+  private static String getApiKey(Context context){
+    int resourceId = context.getResources().getIdentifier("google_api_key", "string",
+                                                          context.getPackageName());
+    return resourceId != 0 ? context.getString(resourceId) : "";
+  }
+
+  public static void setPwsEndpoint(Context context, PwsClient pwsClient){
+    String apiKey = getApiKey(context);
+    String pwsEndpoint = PROD_ENDPOINT;
+    int apiVersion = PROD_ENDPOINT_VERSION;
+    if (!apiKey.isEmpty()){
+      pwsEndpoint = GOOGLE_ENDPOINT;
+      apiVersion = GOOGLE_ENDPOINT_VERSION;
+    }
+    pwsClient.setEndpoint(pwsEndpoint, apiVersion, apiKey);
+  }
+
+  public static void setPwsEndpoint(Context context, PhysicalWebCollection physicalWebCollection){
+    String apiKey = getApiKey(context);
+    String pwsEndpoint = PROD_ENDPOINT;
+    int apiVersion = PROD_ENDPOINT_VERSION;
+    if (!apiKey.isEmpty()){
+      pwsEndpoint = GOOGLE_ENDPOINT;
+      apiVersion = GOOGLE_ENDPOINT_VERSION;
+    }
+    physicalWebCollection.setPwsEndpoint(pwsEndpoint, apiVersion, apiKey);
   }
 
   public static Intent createNavigateToUrlIntent(PwsResult pwsResult) {

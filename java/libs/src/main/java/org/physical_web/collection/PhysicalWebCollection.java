@@ -291,11 +291,22 @@ public class PhysicalWebCollection {
   }
 
   /**
-   * Set the URL for making PWS requests.
+   * Set the URL, the API version, the API Key for making PWS requests.
    * @param pwsEndpoint The new PWS endpoint.
+   * @param pwsApiVersion The new PWS API version.
    */
-  public void setPwsEndpoint(String pwsEndpoint) {
-    mPwsClient.setPwsEndpoint(pwsEndpoint);
+  public void setPwsEndpoint(String pwsEndpoint, int pwsApiVersion) {
+    mPwsClient.setEndpoint(pwsEndpoint, pwsApiVersion);
+  }
+
+  /**
+   * Set the URL, the API version, the API Key for making PWS requests.
+   * @param pwsEndpoint The new PWS endpoint.
+   * @param pwsApiVersion The new PWS API version.
+   * @param pwsApiKey The new PWS API key.
+   */
+  public void setPwsEndpoint(String pwsEndpoint, int pwsApiVersion, String pwsApiKey) {
+    mPwsClient.setEndpoint(pwsEndpoint, pwsApiVersion, pwsApiKey);
   }
 
   private class AugmentedPwsResultIconCallback extends PwsResultIconCallback {
