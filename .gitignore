@@ -24,3 +24,5 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+
+/android/PhysicalWeb/app/src/main/res/values/keys.xml
