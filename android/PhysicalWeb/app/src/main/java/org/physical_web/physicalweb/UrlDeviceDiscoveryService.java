@@ -155,6 +155,7 @@ public class UrlDeviceDiscoveryService extends Service
     mUrlDeviceDiscoveryListeners = new ArrayList<>();
     mHandler = new Handler();
     mPwCollection = new PhysicalWebCollection();
+    Utils.setPwsEndpoint(this, mPwCollection);
     mCanUpdateNotifications = false;
   }
 
@@ -180,6 +181,7 @@ public class UrlDeviceDiscoveryService extends Service
     try {
       JSONObject serializedCollection = new JSONObject(prefs.getString(PW_COLLECTION_KEY, null));
       mPwCollection = PhysicalWebCollection.jsonDeserialize(serializedCollection);
+      Utils.setPwsEndpoint(this, mPwCollection);
     } catch (JSONException e) {
       Log.e(TAG, "Could not restore Physical Web collection cache", e);
     } catch (PhysicalWebCollectionException e) {
