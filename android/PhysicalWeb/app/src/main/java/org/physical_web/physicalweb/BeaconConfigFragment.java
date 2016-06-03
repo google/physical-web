@@ -105,10 +105,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   public BeaconConfigFragment() {
   }
 
-  public static BeaconConfigFragment newInstance() {
-    return new BeaconConfigFragment();
-  }
-
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -187,6 +183,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_settings).setVisible(false);
   }
 
   /**

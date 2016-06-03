@@ -25,9 +25,12 @@ import org.physical_web.collection.UrlDevice;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import org.uribeacon.scan.util.RangingUtils;
 import org.uribeacon.scan.util.RegionResolver;
@@ -59,32 +62,71 @@ class Utils {
     throw new RuntimeException("Could not encode JSON", e);
   }
 
+  private static int getGoogleApiKeyResourceId(Context context){
+    return context.getResources().getIdentifier("google_api_key", "string",
+                                                context.getPackageName());
+  }
+
   private static String getApiKey(Context context){
-    int resourceId = context.getResources().getIdentifier("google_api_key", "string",
-                                                          context.getPackageName());
+    int resourceId = getGoogleApiKeyResourceId(context);
     return resourceId != 0 ? context.getString(resourceId) : "";
+  }
+
+  private static String getCurrentPwsEndpoint(Context context){
+    String defaultEndpoint = isGoogleApiKeyAvailable(context) ?
+      convertToSettingsEndpointFormat(GOOGLE_ENDPOINT, GOOGLE_ENDPOINT_VERSION) :
+      convertToSettingsEndpointFormat(PROD_ENDPOINT, PROD_ENDPOINT_VERSION);
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+    return sharedPref.getString(context.getString(R.string.pws_endpoint_setting_key),
+                                defaultEndpoint);
+  }
+
+  private static String getCurrentPwsEndpointUrl(Context context){
+    String endpoint = getCurrentPwsEndpoint(context);
+    return endpoint.split(",")[0];
+  }
+
+  private static int getCurrentPwsEndpointVersion(Context context){
+    String endpoint = getCurrentPwsEndpoint(context);
+    return Integer.parseInt(endpoint.split(",")[1]);
+  }
+
+  public static String convertToSettingsEndpointFormat(String pwsUrl, int pwsVerion){
+    return pwsUrl + "," + pwsVerion;
   }
 
   public static void setPwsEndpoint(Context context, PwsClient pwsClient){
     String apiKey = getApiKey(context);
-    String pwsEndpoint = PROD_ENDPOINT;
-    int apiVersion = PROD_ENDPOINT_VERSION;
-    if (!apiKey.isEmpty()){
-      pwsEndpoint = GOOGLE_ENDPOINT;
-      apiVersion = GOOGLE_ENDPOINT_VERSION;
+    String pwsEndpoint = getCurrentPwsEndpointUrl(context);
+    int apiVersion = getCurrentPwsEndpointVersion(context);
+    // Check for case where last saved settings was the Google PWS, but user has reinstalled
+    // the app without the API key.
+    if (apiVersion >= 2 && apiKey.isEmpty()){
+      pwsEndpoint = PROD_ENDPOINT;
+      apiVersion = PROD_ENDPOINT_VERSION;
+      Toast.makeText(context, R.string.error_api_key_no_longer_available,
+                     Toast.LENGTH_SHORT).show();
     }
     pwsClient.setEndpoint(pwsEndpoint, apiVersion, apiKey);
   }
 
   public static void setPwsEndpoint(Context context, PhysicalWebCollection physicalWebCollection){
     String apiKey = getApiKey(context);
-    String pwsEndpoint = PROD_ENDPOINT;
-    int apiVersion = PROD_ENDPOINT_VERSION;
-    if (!apiKey.isEmpty()){
-      pwsEndpoint = GOOGLE_ENDPOINT;
-      apiVersion = GOOGLE_ENDPOINT_VERSION;
+    String pwsEndpoint = getCurrentPwsEndpointUrl(context);
+    int apiVersion = getCurrentPwsEndpointVersion(context);
+    // Check for case where last saved settings was the Google PWS, but user has reinstalled
+    // the app without the API key.
+    if (apiVersion >= 2 && apiKey.isEmpty()){
+      pwsEndpoint = PROD_ENDPOINT;
+      apiVersion = PROD_ENDPOINT_VERSION;
+      Toast.makeText(context, R.string.error_api_key_no_longer_available,
+                     Toast.LENGTH_SHORT).show();
     }
     physicalWebCollection.setPwsEndpoint(pwsEndpoint, apiVersion, apiKey);
+  }
+
+  public static boolean isGoogleApiKeyAvailable(Context context){
+    return getGoogleApiKeyResourceId(context) != 0;
   }
 
   public static Intent createNavigateToUrlIntent(PwsResult pwsResult) {
