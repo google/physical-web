@@ -195,7 +195,7 @@ public class UrlDeviceDiscoveryService extends Service
     initialize();
     restoreCache();
 
-    mNotificationManager.cancelAll();
+    cancelNotifications();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
     for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
@@ -222,6 +222,11 @@ public class UrlDeviceDiscoveryService extends Service
   @Override
   public void onRebind(Intent intent) {
     mIsBound = true;
+  }
+  private void cancelNotifications() {
+    mNotificationManager.cancel(NEAREST_BEACON_NOTIFICATION_ID);
+    mNotificationManager.cancel(SECOND_NEAREST_BEACON_NOTIFICATION_ID);
+    mNotificationManager.cancel(SUMMARY_NOTIFICATION_ID);
   }
 
   private void saveCache() {
@@ -315,7 +320,7 @@ public class UrlDeviceDiscoveryService extends Service
     // If no beacons have been found
     if (pwPairs.size() == 0) {
       // Remove all existing notifications
-      mNotificationManager.cancelAll();
+      cancelNotifications();
     } else if (pwPairs.size() == 1) {
       updateNearbyBeaconNotification(true, pwPairs.get(0), NEAREST_BEACON_NOTIFICATION_ID);
     } else {

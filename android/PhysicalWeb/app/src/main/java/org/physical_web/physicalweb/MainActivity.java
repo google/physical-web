@@ -24,15 +24,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 /**
  * The main entry point for the app.
  */
 
 public class MainActivity extends Activity {
+  private static final String TAG  = "MainActivity";
   private static final int REQUEST_ENABLE_BT = 0;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
 
@@ -85,6 +86,7 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    Log.d(TAG, "resumed MainActivity");
     BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
     BluetoothAdapter btAdapter = btManager != null ? btManager.getAdapter() : null;
     if (btAdapter == null) {
