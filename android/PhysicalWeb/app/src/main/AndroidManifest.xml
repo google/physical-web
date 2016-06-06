@@ -77,6 +77,7 @@
         <service
             android:name=".PhysicalWebBroadcastService"
             android:enabled="true"
+            android:stopWithTask="false"
             android:exported="false">
         </service>
 

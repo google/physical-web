@@ -31,18 +31,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
-import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
-import org.physical_web.physicalweb.ble.UriBeacon;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
+import org.physical_web.physicalweb.ble.UriBeacon;
 /**
   * Shares URLs via bluetooth.
   * Also interfaces with PWS to shorten URLs that are too long for Eddystone URLs.
@@ -56,11 +59,13 @@ public class PhysicalWebBroadcastService extends Service {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
     private static final int BROADCASTING_NOTIFICATION_ID = 6;
     public static final String DISPLAY_URL_KEY = "displayUrl";
+    public static final String PREVIOUS_BROADCAST_URL_KEY = "previousUrl";
     public static final int MAX_URI_LENGTH = 18;
     private NotificationManagerCompat mNotificationManager;
     private Handler mHandler = new Handler();
     private String mDisplayUrl;
     private String mShareUrl;
+    private boolean mStartedByRestart;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -98,10 +103,15 @@ public class PhysicalWebBroadcastService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        fetchBroadcastData(intent);
+        if (mDisplayUrl == null){
+            stopSelf();
+            return START_STICKY;
+        }
         Log.d(TAG, "SERVICE onStartCommand");
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
-        mDisplayUrl = intent.getStringExtra(DISPLAY_URL_KEY);
+
         Log.d(TAG, mDisplayUrl);
 
         if (hasValidUrlLength(mDisplayUrl) && checkAndHandleAsciiUrl(mDisplayUrl)) {
@@ -128,8 +138,20 @@ public class PhysicalWebBroadcastService extends Service {
             };
             UrlShortenerClient.getInstance(this).shortenUrl(mDisplayUrl, urlSetter, TAG);
         }
-        // Keep the service running
         return START_STICKY;
+    }
+
+    private void fetchBroadcastData(Intent intent){
+        mStartedByRestart = intent == null;
+        if (intent == null){
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+            mDisplayUrl = sharedPrefs.getString(PREVIOUS_BROADCAST_URL_KEY, null);
+            return;
+        }
+        mDisplayUrl = intent.getStringExtra(DISPLAY_URL_KEY);
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+            .putString(PREVIOUS_BROADCAST_URL_KEY, mDisplayUrl)
+            .commit();
     }
 
     private static boolean hasValidUrlLength(String url) {
@@ -178,8 +200,10 @@ public class PhysicalWebBroadcastService extends Service {
         public void onStartSuccess(AdvertiseSettings advertiseSettings) {
             Log.d(TAG, "URL is broadcasting");
             createNotification();
-            Toast.makeText(getApplicationContext(), getString(R.string.url_broadcast),
-                Toast.LENGTH_LONG).show();
+            if (!mStartedByRestart) {
+                Toast.makeText(getApplicationContext(), getString(R.string.url_broadcast),
+                    Toast.LENGTH_LONG).show();
+            }
         }
 
         // Fires when the URL could not be advertised
