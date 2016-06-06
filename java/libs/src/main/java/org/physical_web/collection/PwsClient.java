@@ -86,7 +86,7 @@ public class PwsClient {
    */
   public void setEndpoint(String pwsEndpoint, int pwsApiVersion, String pwsApiKey) {
     if ((pwsApiKey == null || pwsApiKey.isEmpty()) && pwsApiVersion >= 2){
-      throw new RuntimeException("API Version 2 or higher requires and API key");
+      throw new RuntimeException("API Version 2 or higher requires an API key");
     }
     mPwsEndpoint = pwsEndpoint;
     apiVersion = pwsApiVersion;

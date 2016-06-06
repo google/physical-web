@@ -75,6 +75,10 @@ public class MainActivity extends Activity {
       case R.id.action_about:
         showAboutFragment();
         return true;
+      // If the settings menu item was selected
+      case R.id.action_settings:
+        showSettingsFragment();
+        return true;
       // If the action bar up button was pressed
       case android.R.id.home:
         getFragmentManager().popBackStack();
@@ -141,7 +145,7 @@ public class MainActivity extends Activity {
    * Show the fragment configuring a beacon.
    */
   private void showBeaconConfigFragment() {
-    BeaconConfigFragment beaconConfigFragment = BeaconConfigFragment.newInstance();
+    BeaconConfigFragment beaconConfigFragment = new BeaconConfigFragment();
     getFragmentManager().beginTransaction()
         .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
                              R.anim.fade_in_activity, R.anim.fade_out_fragment)
@@ -150,11 +154,21 @@ public class MainActivity extends Activity {
         .commit();
   }
 
+  private void showSettingsFragment(){
+    SettingsFragment settingsFragment = new SettingsFragment();
+    getFragmentManager().beginTransaction()
+        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
+                             R.anim.fade_in_activity, R.anim.fade_out_fragment)
+        .replace(R.id.main_activity_container, settingsFragment)
+        .addToBackStack(null)
+        .commit();
+  }
+
   /**
    * Show the fragment displaying information about this application.
    */
   private void showAboutFragment() {
-    AboutFragment aboutFragment = AboutFragment.newInstance();
+    AboutFragment aboutFragment = new AboutFragment();
     getFragmentManager().beginTransaction()
         .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
                              R.anim.fade_in_activity, R.anim.fade_out_fragment)
