@@ -23,7 +23,11 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,23 +39,16 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
   private static final String TAG  = "MainActivity";
   private static final int REQUEST_ENABLE_BT = 0;
+  private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
+  private boolean checkingPermissions =false;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    checkingPermissions=false;
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-  }
-
-  /**
-   * Ensures Bluetooth is available on the beacon and it is enabled. If not,
-   * displays a dialog requesting user permission to enable Bluetooth.
-   */
-  private void ensureBluetoothIsEnabled(BluetoothAdapter bluetoothAdapter) {
-    if (!bluetoothAdapter.isEnabled()) {
-      Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-      startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    }
   }
 
   @Override
@@ -83,28 +80,91 @@ public class MainActivity extends Activity {
     return super.onOptionsItemSelected(item);
   }
 
+  /**
+   * Ensures Bluetooth is available on the beacon and it is enabled. If not,
+   * displays a dialog requesting user permission to enable Bluetooth.
+   */
+  private void ensureBluetoothIsEnabled(BluetoothAdapter bluetoothAdapter) {
+    checkingPermissions = true;
+    if (!bluetoothAdapter.isEnabled()) {
+      Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+      startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+      return;
+    }
+    ensureLocationPermissionIsEnabled();
+  }
+
+  @Override
+  protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+    Log.d(TAG, "onActivityResult");
+    if (requestCode == REQUEST_ENABLE_BT && resultCode == -1) {
+      ensureLocationPermissionIsEnabled();
+      return;
+    }
+    Toast.makeText(this, getString(R.string.bt_on), Toast.LENGTH_LONG).show();
+    finish();
+  }
+
   @Override
   protected void onResume() {
     super.onResume();
-    Log.d(TAG, "resumed MainActivity");
-    BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-    BluetoothAdapter btAdapter = btManager != null ? btManager.getAdapter() : null;
-    if (btAdapter == null) {
-      Toast.makeText(getApplicationContext(),
-              R.string.error_bluetooth_support, Toast.LENGTH_LONG).show();
-      finish();
+    if(!checkingPermissions){
+      Log.d(TAG, "resumed MainActivity");
+      BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+      BluetoothAdapter btAdapter = btManager != null ? btManager.getAdapter() : null;
+      if (btAdapter == null) {
+        Toast.makeText(getApplicationContext(),
+            R.string.error_bluetooth_support, Toast.LENGTH_LONG).show();
+        finish();
+        return;
+      }
+      if (checkIfUserHasOptedIn()) {
+        ensureBluetoothIsEnabled(btAdapter);
+      } else {
+        // Show the oob activity
+        Intent intent = new Intent(this, OobActivity.class);
+        startActivity(intent);
+      }
+    }
+    
+  }
+
+  private void finishLoad() {
+    showNearbyBeaconsFragment();
+    Intent intent = new Intent(this, ScreenListenerService.class);
+    startService(intent);
+  }
+
+  private void ensureLocationPermissionIsEnabled() {
+    if (Build.VERSION.SDK_INT >=23 && ContextCompat.checkSelfPermission(getApplicationContext(),android.Manifest.
+        permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this,
+          new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},REQUEST_LOCATION);
       return;
     }
-    if (checkIfUserHasOptedIn()) {
-      ensureBluetoothIsEnabled(btAdapter);
-      showNearbyBeaconsFragment();
-      Intent intent = new Intent(this, ScreenListenerService.class);
-      startService(intent);
-    } else {
-      // Show the oob activity
-      Intent intent = new Intent(this, OobActivity.class);
-      startActivity(intent);
-    }
+    checkingPermissions = false;
+    finishLoad();
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+          String permissions[], int[] grantResults) {
+      switch (requestCode) {
+          case REQUEST_LOCATION: {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+              checkingPermissions = false;
+              finishLoad();
+            } else {
+              Toast.makeText(getApplicationContext(),
+                  getString(R.string.loc_permission), Toast.LENGTH_LONG).show();
+              finish();
+            }
+            break;
+          }
+          default:
+      }
   }
 
   @Override
@@ -125,7 +185,7 @@ public class MainActivity extends Activity {
       // Create the fragment
       getFragmentManager().beginTransaction()
           .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(),
-                   NEARBY_BEACONS_FRAGMENT_TAG)
+              NEARBY_BEACONS_FRAGMENT_TAG)
           .commit();
       // If the fragment does exist
     } else {
@@ -166,7 +226,7 @@ public class MainActivity extends Activity {
   private boolean checkIfUserHasOptedIn() {
     String preferencesKey = getString(R.string.main_prefs_key);
     SharedPreferences sharedPreferences = getSharedPreferences(preferencesKey,
-                                                               Context.MODE_PRIVATE);
+        Context.MODE_PRIVATE);
     return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
 }
