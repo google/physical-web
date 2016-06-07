@@ -125,6 +125,10 @@ class Utils {
     physicalWebCollection.setPwsEndpoint(pwsEndpoint, apiVersion, apiKey);
   }
 
+  public static void setPwsEndPointToGoogle(Context context, PwsClient pwsClient){
+    pwsClient.setEndpoint(GOOGLE_ENDPOINT, GOOGLE_ENDPOINT_VERSION, getApiKey(context));
+  }
+
   public static boolean isGoogleApiKeyAvailable(Context context){
     return getGoogleApiKeyResourceId(context) != 0;
   }
