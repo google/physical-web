@@ -37,7 +37,7 @@
             android:name=".BroadcastActivity"
             android:label="@string/app_name"
             android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.NoDisplay"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
