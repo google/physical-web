@@ -38,11 +38,12 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
-import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
-import org.physical_web.physicalweb.ble.UriBeacon;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
+import org.physical_web.physicalweb.ble.UriBeacon;
 /**
   * Shares URLs via bluetooth.
   * Also interfaces with PWS to shorten URLs that are too long for Eddystone URLs.

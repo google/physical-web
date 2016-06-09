@@ -26,8 +26,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,13 +41,13 @@ public class MainActivity extends Activity {
   private static final int REQUEST_ENABLE_BT = 0;
   private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
-  private boolean checkingPermissions =false;
+  private boolean mCheckingPermissions = false;
 
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    checkingPermissions=false;
     super.onCreate(savedInstanceState);
+    mCheckingPermissions = false;
     setContentView(R.layout.activity_main);
   }
 
@@ -84,8 +84,8 @@ public class MainActivity extends Activity {
    * Ensures Bluetooth is available on the beacon and it is enabled. If not,
    * displays a dialog requesting user permission to enable Bluetooth.
    */
-  private void ensureBluetoothIsEnabled(BluetoothAdapter bluetoothAdapter) {
-    checkingPermissions = true;
+  private void ensureBluetoothAndLocationIsEnabled(BluetoothAdapter bluetoothAdapter) {
+    mCheckingPermissions = true;
     if (!bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
       startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -108,7 +108,7 @@ public class MainActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    if(!checkingPermissions){
+    if (!mCheckingPermissions) {
       Log.d(TAG, "resumed MainActivity");
       BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
       BluetoothAdapter btAdapter = btManager != null ? btManager.getAdapter() : null;
@@ -119,52 +119,53 @@ public class MainActivity extends Activity {
         return;
       }
       if (checkIfUserHasOptedIn()) {
-        ensureBluetoothIsEnabled(btAdapter);
+        Log.d(TAG, "checkingPermissions");
+        ensureBluetoothAndLocationIsEnabled(btAdapter);
       } else {
         // Show the oob activity
         Intent intent = new Intent(this, OobActivity.class);
         startActivity(intent);
       }
     }
-    
+  }
+
+  private void ensureLocationPermissionIsEnabled() {
+    if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this, new String[]{
+          android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+      return;
+    }
+    mCheckingPermissions = false;
+    finishLoad();
   }
 
   private void finishLoad() {
+    Log.d(TAG, "Showing Fragment");
     showNearbyBeaconsFragment();
     Intent intent = new Intent(this, ScreenListenerService.class);
     startService(intent);
   }
 
-  private void ensureLocationPermissionIsEnabled() {
-    if (Build.VERSION.SDK_INT >=23 && ContextCompat.checkSelfPermission(getApplicationContext(),android.Manifest.
-        permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this,
-          new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},REQUEST_LOCATION);
-      return;
-    }
-    checkingPermissions = false;
-    finishLoad();
-  }
-
   @Override
   public void onRequestPermissionsResult(int requestCode,
-          String permissions[], int[] grantResults) {
-      switch (requestCode) {
-          case REQUEST_LOCATION: {
-            // If request is cancelled, the result arrays are empty.
-            if (grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-              checkingPermissions = false;
-              finishLoad();
-            } else {
-              Toast.makeText(getApplicationContext(),
-                  getString(R.string.loc_permission), Toast.LENGTH_LONG).show();
-              finish();
-            }
-            break;
-          }
-          default:
+      String permissions[], int[] grantResults) {
+    switch (requestCode) {
+      case REQUEST_LOCATION: {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          mCheckingPermissions = false;
+          finishLoad();
+        } else {
+          Toast.makeText(getApplicationContext(),
+              getString(R.string.loc_permission), Toast.LENGTH_LONG).show();
+          finish();
+        }
+        break;
       }
+      default:
+    }
   }
 
   @Override
