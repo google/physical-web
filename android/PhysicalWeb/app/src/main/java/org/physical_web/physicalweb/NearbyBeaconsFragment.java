@@ -208,6 +208,7 @@ public class NearbyBeaconsFragment extends ListFragment
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
   }
 
+  @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container,
                            Bundle savedInstanceState) {
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
