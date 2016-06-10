@@ -17,7 +17,6 @@
 package org.physical_web.physicalweb;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
@@ -32,6 +31,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 /**
  * The main entry point for the app.
  */
@@ -42,7 +42,6 @@ public class MainActivity extends Activity {
   private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
   private boolean mCheckingPermissions = false;
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +88,7 @@ public class MainActivity extends Activity {
    * displays a dialog requesting user permission to enable Bluetooth.
    */
   private void ensureBluetoothAndLocationIsEnabled(BluetoothAdapter bluetoothAdapter) {
+    // Acquire lock
     mCheckingPermissions = true;
     if (!bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -109,9 +109,42 @@ public class MainActivity extends Activity {
     finish();
   }
 
+  private void ensureLocationPermissionIsEnabled() {
+    if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this,
+        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this, new String[]{
+          android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+      return;
+    }
+    // Release lock
+    mCheckingPermissions = false;
+    finishLoad();
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+      String permissions[], int[] grantResults) {
+    switch (requestCode) {
+      case REQUEST_LOCATION: {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0
+            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          mCheckingPermissions = false;
+        } else {
+          Toast.makeText(getApplicationContext(),
+              getString(R.string.loc_permission), Toast.LENGTH_LONG).show();
+          finish();
+        }
+        break;
+      }
+      default:
+    }
+  }
+
   @Override
   protected void onResume() {
     super.onResume();
+    // Lock to prevent onResume from running until all permissions are granted
     if (!mCheckingPermissions) {
       Log.d(TAG, "resumed MainActivity");
       BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
@@ -133,72 +166,22 @@ public class MainActivity extends Activity {
     }
   }
 
-  private void ensureLocationPermissionIsEnabled() {
-    if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this,
-        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this, new String[]{
-          android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
-      return;
-    }
-    mCheckingPermissions = false;
-    finishLoad();
+  public boolean isCheckingPermissions() {
+    return mCheckingPermissions;
   }
 
   private void finishLoad() {
-    Log.d(TAG, "Showing Fragment");
-    showNearbyBeaconsFragment();
     Intent intent = new Intent(this, ScreenListenerService.class);
     startService(intent);
-  }
-
-  @Override
-  public void onRequestPermissionsResult(int requestCode,
-      String permissions[], int[] grantResults) {
-    switch (requestCode) {
-      case REQUEST_LOCATION: {
-        // If request is cancelled, the result arrays are empty.
-        if (grantResults.length > 0
-            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          mCheckingPermissions = false;
-          finishLoad();
-        } else {
-          Toast.makeText(getApplicationContext(),
-              getString(R.string.loc_permission), Toast.LENGTH_LONG).show();
-          finish();
-        }
-        break;
-      }
-      default:
-    }
-  }
-
-  @Override
-  protected void onNewIntent(Intent intent) {
-    super.onNewIntent(intent);
-    setIntent(intent);
-  }
-
-  /**
-   * Show the fragment scanning nearby UriBeacons.
-   */
-  private void showNearbyBeaconsFragment() {
-    // Look for an instance of the nearby beacons fragment
-    Fragment nearbyBeaconsFragment =
-        getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
-    // If the fragment does not exist
-    if (nearbyBeaconsFragment == null) {
-      // Create the fragment
+    NearbyBeaconsFragment nearbyBeaconsFragment =
+        (NearbyBeaconsFragment) getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
+    if (nearbyBeaconsFragment != null) {
+      nearbyBeaconsFragment.restartScan();
+    } else  {
       getFragmentManager().beginTransaction()
-          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(),
+          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(this),
               NEARBY_BEACONS_FRAGMENT_TAG)
           .commit();
-      // If the fragment does exist
-    } else {
-      // If the fragment is not currently visible
-      if (!nearbyBeaconsFragment.isVisible()) {
-        // Assume another fragment is visible, so pop that fragment off the stack
-        getFragmentManager().popBackStack();
-      }
     }
   }
 
