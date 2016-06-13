@@ -257,7 +257,11 @@ public class UrlDeviceDiscoveryService extends Service
 
   @Override
   public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
-    mPwCollection.addUrlDevice(urlDevice);
+    // check if device has already been discovered
+    if (mPwCollection.addUrlDevice(urlDevice)) {
+      return;
+    }
+    // if we have found a new device
     mPwCollection.fetchPwsResults(new PwsResultCallback() {
       long mPwsTripTimeMillis = 0;
 
