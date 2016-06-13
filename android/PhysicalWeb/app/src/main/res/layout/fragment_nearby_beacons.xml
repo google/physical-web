@@ -10,7 +10,6 @@
 
         <ListView
             android:id="@android:id/list"
-            android:alpha="0"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:divider="@null">
@@ -28,7 +27,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="260dp"
             android:layout_centerHorizontal="true"
-            android:id="@id/android:empty"/>
+            android:id="@android:id/empty"/>
 
     </RelativeLayout>
 
