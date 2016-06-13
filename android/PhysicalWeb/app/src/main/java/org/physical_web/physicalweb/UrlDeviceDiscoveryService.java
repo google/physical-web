@@ -257,47 +257,50 @@ public class UrlDeviceDiscoveryService extends Service
 
   @Override
   public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
-    mPwCollection.addUrlDevice(urlDevice);
-    mPwCollection.fetchPwsResults(new PwsResultCallback() {
-      long mPwsTripTimeMillis = 0;
+    boolean alreadyFound = mPwCollection.addUrlDevice(urlDevice);
+    if (!alreadyFound){
+      mPwCollection.fetchPwsResults(new PwsResultCallback() {
+        long mPwsTripTimeMillis = 0;
 
-      @Override
-      public void onPwsResult(PwsResult pwsResult) {
-        PwsResult replacement = new Utils.PwsResultBuilder(pwsResult)
-            .setPwsTripTimeMillis(pwsResult, mPwsTripTimeMillis)
-            .build();
-        mPwCollection.addMetadata(replacement);
-        triggerCallback();
-        updateNotifications();
-      }
+        @Override
+        public void onPwsResult(PwsResult pwsResult) {
+          PwsResult replacement = new Utils.PwsResultBuilder(pwsResult)
+              .setPwsTripTimeMillis(pwsResult, mPwsTripTimeMillis)
+              .build();
+          mPwCollection.addMetadata(replacement);
+          triggerCallback();
+          updateNotifications();
+        }
 
-      @Override
-      public void onPwsResultAbsent(String url) {
-        triggerCallback();
-      }
+        @Override
+        public void onPwsResultAbsent(String url) {
+          triggerCallback();
+        }
 
-      @Override
-      public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
-        Log.d(TAG, "PwsResultError: " + httpResponseCode + " ", e);
-        triggerCallback();
-      }
+        @Override
+        public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
+          Log.d(TAG, "PwsResultError: " + httpResponseCode + " ", e);
+          triggerCallback();
+        }
 
-      @Override
-      public void onResponseReceived(long durationMillis) {
-        mPwsTripTimeMillis = durationMillis;
-      }
-    }, new PwsResultIconCallback() {
-      @Override
-      public void onIcon(byte[] icon) {
-        triggerCallback();
-      }
+        @Override
+        public void onResponseReceived(long durationMillis) {
+          mPwsTripTimeMillis = durationMillis;
+        }
+      }, new PwsResultIconCallback() {
+        @Override
+        public void onIcon(byte[] icon) {
+          triggerCallback();
+        }
 
-      @Override
-      public void onError(int httpResponseCode, Exception e) {
-        Log.d(TAG, "PwsResultError: " + httpResponseCode + " ", e);
-        triggerCallback();
-      }
-    });
+        @Override
+        public void onError(int httpResponseCode, Exception e) {
+          Log.d(TAG, "PwsResultError: " + httpResponseCode + " ", e);
+          triggerCallback();
+        }
+      });
+      triggerCallback();      
+    }
     triggerCallback();
   }
 
