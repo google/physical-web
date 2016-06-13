@@ -80,6 +80,9 @@ public class NearbyBeaconsFragment extends ListFragment
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
+  private boolean mFirstTime;
+  private DiscoveryServiceConnection mDiscoveryServiceConnection;
+  private MainActivity mMainActivity;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -181,10 +184,11 @@ public class NearbyBeaconsFragment extends ListFragment
       stopScanningDisplay();
     }
   }
-  private DiscoveryServiceConnection mDiscoveryServiceConnection = new DiscoveryServiceConnection();
 
-  public static NearbyBeaconsFragment newInstance() {
-    return new NearbyBeaconsFragment();
+  public static NearbyBeaconsFragment newInstance(MainActivity activity) {
+    NearbyBeaconsFragment fragment = new NearbyBeaconsFragment();
+    fragment.mMainActivity = activity;
+    return fragment;
   }
 
   private void initialize(View rootView) {
@@ -206,13 +210,15 @@ public class NearbyBeaconsFragment extends ListFragment
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
+    mDiscoveryServiceConnection = new DiscoveryServiceConnection();
   }
 
   @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container,
                            Bundle savedInstanceState) {
+    mFirstTime = true;
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
-    initialize(rootView);
+      initialize(rootView);
     return rootView;
   }
 
@@ -222,7 +228,17 @@ public class NearbyBeaconsFragment extends ListFragment
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
     getListView().setVisibility(View.INVISIBLE);
-    mDiscoveryServiceConnection.connect(true);
+    if (mFirstTime && !mMainActivity.isCheckingPermissions()) {
+      restartScan();
+    }
+    mFirstTime = false;
+  }
+
+  public void restartScan() {
+    if (mDiscoveryServiceConnection != null) {
+      mDiscoveryServiceConnection.disconnect();
+      mDiscoveryServiceConnection.connect(true);
+    }
   }
 
   @Override
