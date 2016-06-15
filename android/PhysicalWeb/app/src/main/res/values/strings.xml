@@ -36,9 +36,20 @@
     <string name="stop">Stop</string>
     <string name="pws_endpoint_setting_display">Physical Web Service</string>
     <string name="pws_endpoint_setting_key">pws_endpoint</string>
+    <string name="custom_pws_endpoint_key">custom_pws_endpoint</string>
+    <string name="custom_pws_endpoint_title">Custom Physical Web Service Endpoint</string>
+    <string name="custom_pws_url_display">Custom Physical Web Service URL</string>
+    <string name="custom_pws_url_key">custom_pws_url</string>
+    <string name="custom_pws_version_default">1</string>
+    <string name="custom_pws_version_display">Custom Physical Web Service API version</string>
+    <string name="custom_pws_version_key">custom_pws_version</string>
+    <string name="custom_pws_api_key_default"></string>
+    <string name="custom_pws_api_key_display">Custom Physical Web Service API key</string>
+    <string name="custom_pws_api_key_key">custom_pws_key</string>
     <string name="google_pws">Google Physical Web Service</string>
     <string name="prod_pws">Production Open Source Physical Web Service</string>
     <string name="dev_pws">Development Open Source Physical Web Service</string>
+    <string name="custom_pws">Custom Physical Web Service</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
@@ -64,8 +75,8 @@
     <string name="url_shortening_error">URL is too long. Please use a shortener.</string>
     <string name="url_charset_error">Non-ASCII characters unsupported in URL. Please use a shortener.</string>
     <string name="error_bluetooth_support">Device does not support Bluetooth</string>
-    <string name="error_api_key_no_longer_available">Google API key no longer available, please update settings.</string>
+    <string name="error_api_key_no_longer_available">API key not available, please update settings.</string>
+    <string name="error_pws_endpoint_not_configured_properly">Physical Web Service not configured properly. Switching to default settings.</string>
     <string name="pws_filtered_url_unknown">Other clients may filter your URL.</string>
     <string name="pws_filtered_url_http">Other clients may filter your URL because it is not HTTPS.</string>
-
 </resources>

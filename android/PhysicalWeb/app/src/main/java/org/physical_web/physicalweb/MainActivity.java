@@ -48,6 +48,7 @@ public class MainActivity extends Activity {
     super.onCreate(savedInstanceState);
     mCheckingPermissions = false;
     setContentView(R.layout.activity_main);
+    Utils.setSharedPreferencesDefaultValues(this);
   }
 
   @Override
