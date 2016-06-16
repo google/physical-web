@@ -78,7 +78,6 @@ public class NearbyBeaconsFragment extends ListFragment
   private boolean mSecondScanComplete;
   private boolean mFirstTime;
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
-  private MainActivity mMainActivity;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -184,12 +183,6 @@ public class NearbyBeaconsFragment extends ListFragment
     }
   }
 
-  public static NearbyBeaconsFragment newInstance(MainActivity activity) {
-    NearbyBeaconsFragment fragment = new NearbyBeaconsFragment();
-    fragment.mMainActivity = activity;
-    return fragment;
-  }
-
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
     mGroupIdQueue = new ArrayList<>();
@@ -226,7 +219,7 @@ public class NearbyBeaconsFragment extends ListFragment
     super.onResume();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-    if (mFirstTime && !mMainActivity.isCheckingPermissions()) {
+    if (mFirstTime && !PermissionCheck.getInstance().isCheckingPermissions()) {
       restartScan();
     }
     mFirstTime = false;
@@ -234,7 +227,6 @@ public class NearbyBeaconsFragment extends ListFragment
 
   public void restartScan() {
     if (mDiscoveryServiceConnection != null) {
-      mDiscoveryServiceConnection.disconnect();
       mDiscoveryServiceConnection.connect(true);
     }
   }
