@@ -15,6 +15,8 @@
  */
 package org.physical_web.collection;
 
+import org.apache.commons.codec.binary.Base64;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,6 +37,8 @@ public class PhysicalWebCollection {
   private static final String SCHEMA_VERSION_KEY = "schema";
   private static final String DEVICES_KEY = "devices";
   private static final String METADATA_KEY = "metadata";
+  private static final String ICON_MAP_KEY = "iconmap";
+  private static final String ICON_KEY = "icon";
   private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
@@ -106,7 +110,7 @@ public class PhysicalWebCollection {
    * Fetches cached URL metadata using the URL broadcasted by the Physical Web device.
    * @param broadcastUrl The URL broadcasted by the device.
    * @return Cached metadata relevant to the given URL.
-   */
+ */
   public PwsResult getMetadataByBroadcastUrl(String broadcastUrl) {
     return mBroadcastUrlToPwsResultMap.get(broadcastUrl);
   }
@@ -127,10 +131,20 @@ public class PhysicalWebCollection {
 
     // Serialize the URL metadata
     JSONArray metadata = new JSONArray();
+    JSONArray iconMap = new JSONArray();
     for (PwsResult pwsResult : mBroadcastUrlToPwsResultMap.values()) {
       metadata.put(pwsResult.jsonSerialize());
+      JSONObject icon = new JSONObject();
+      if (getIcon(pwsResult.getIconUrl()) == null){
+        icon.put(ICON_KEY, new byte[0]);
+      } else {
+        icon.put(ICON_KEY, new String(Base64.encodeBase64(getIcon(pwsResult.getIconUrl()))));
+        System.out.println("icons in:" + getIcon(pwsResult.getIconUrl()).length);
+      }
+      iconMap.put(icon);
     }
     jsonObject.put(METADATA_KEY, metadata);
+    jsonObject.put(ICON_MAP_KEY, iconMap);
 
     jsonObject.put(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
     return jsonObject;
@@ -163,12 +177,18 @@ public class PhysicalWebCollection {
 
     // Deserialize the URL metadata
     JSONArray metadata = jsonObject.getJSONArray(METADATA_KEY);
+    JSONArray icons = jsonObject.getJSONArray(ICON_MAP_KEY);
     for (int i = 0; i < metadata.length(); i++) {
       JSONObject pwsResultJson = metadata.getJSONObject(i);
       PwsResult pwsResult = PwsResult.jsonDeserialize(pwsResultJson);
+      JSONObject icon = icons.getJSONObject(i);
+      byte[] iconDecode = Base64.decodeBase64(icon.getString(ICON_KEY).getBytes());
+      System.out.println("icons out:" + iconDecode.length);
+      if (iconDecode.length > 0) {
+        collection.addIcon(pwsResult.getIconUrl(), iconDecode);
+      }
       collection.addMetadata(pwsResult);
     }
-
     return collection;
   }
 

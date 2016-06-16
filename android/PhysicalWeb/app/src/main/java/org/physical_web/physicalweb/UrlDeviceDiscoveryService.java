@@ -194,7 +194,7 @@ public class UrlDeviceDiscoveryService extends Service
     super.onCreate();
     initialize();
     restoreCache();
-
+    triggerCallback();
     cancelNotifications();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
@@ -211,6 +211,7 @@ public class UrlDeviceDiscoveryService extends Service
 
   @Override
   public boolean onUnbind(Intent intent) {
+    triggerCallback();
     mIsBound = false;
     if (mSecondScanComplete) {
       stopSelf();
@@ -257,11 +258,8 @@ public class UrlDeviceDiscoveryService extends Service
 
   @Override
   public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
-    // check if device has already been discovered
-    if (mPwCollection.addUrlDevice(urlDevice)) {
-      return;
-    }
-    // if we have found a new device
+    // add Device and fetch results
+    mPwCollection.addUrlDevice(urlDevice);
     mPwCollection.fetchPwsResults(new PwsResultCallback() {
       long mPwsTripTimeMillis = 0;
 

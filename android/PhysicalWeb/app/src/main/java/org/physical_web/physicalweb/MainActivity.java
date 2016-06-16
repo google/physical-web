@@ -42,12 +42,14 @@ public class MainActivity extends Activity {
   private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
   private boolean mCheckingPermissions = false;
+  private PermissionCheck mPermissionCheck;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mCheckingPermissions = false;
     setContentView(R.layout.activity_main);
+    mPermissionCheck = PermissionCheck.getInstance();
+    mPermissionCheck.setCheckingPermissions(false);
   }
 
   @Override
@@ -87,9 +89,9 @@ public class MainActivity extends Activity {
    * Ensures Bluetooth is available on the beacon and it is enabled. If not,
    * displays a dialog requesting user permission to enable Bluetooth.
    */
-  private void ensureBluetoothAndLocationIsEnabled(BluetoothAdapter bluetoothAdapter) {
+  private void checkPermissions(BluetoothAdapter bluetoothAdapter) {
     // Acquire lock
-    mCheckingPermissions = true;
+    mPermissionCheck.setCheckingPermissions(true);
     if (!bluetoothAdapter.isEnabled()) {
       Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
       startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
@@ -116,8 +118,7 @@ public class MainActivity extends Activity {
           android.Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
       return;
     }
-    // Release lock
-    mCheckingPermissions = false;
+    mPermissionCheck.setCheckingPermissions(false);
     finishLoad();
   }
 
@@ -129,7 +130,7 @@ public class MainActivity extends Activity {
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0
             && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          mCheckingPermissions = false;
+          mPermissionCheck.setCheckingPermissions(false);
         } else {
           Toast.makeText(getApplicationContext(),
               getString(R.string.loc_permission), Toast.LENGTH_LONG).show();
@@ -145,7 +146,7 @@ public class MainActivity extends Activity {
   protected void onResume() {
     super.onResume();
     // Lock to prevent onResume from running until all permissions are granted
-    if (!mCheckingPermissions) {
+    if (!mPermissionCheck.isCheckingPermissions()) {
       Log.d(TAG, "resumed MainActivity");
       BluetoothManager btManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
       BluetoothAdapter btAdapter = btManager != null ? btManager.getAdapter() : null;
@@ -157,17 +158,13 @@ public class MainActivity extends Activity {
       }
       if (checkIfUserHasOptedIn()) {
         Log.d(TAG, "checkingPermissions");
-        ensureBluetoothAndLocationIsEnabled(btAdapter);
+        checkPermissions(btAdapter);
       } else {
         // Show the oob activity
         Intent intent = new Intent(this, OobActivity.class);
         startActivity(intent);
       }
     }
-  }
-
-  public boolean isCheckingPermissions() {
-    return mCheckingPermissions;
   }
 
   private void finishLoad() {
@@ -179,7 +176,7 @@ public class MainActivity extends Activity {
       nearbyBeaconsFragment.restartScan();
     } else  {
       getFragmentManager().beginTransaction()
-          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(this),
+          .replace(R.id.main_activity_container, NearbyBeaconsFragment.newInstance(),
               NEARBY_BEACONS_FRAGMENT_TAG)
           .commit();
     }
