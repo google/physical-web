@@ -107,6 +107,7 @@ public class NearbyBeaconsFragment extends ListFragment
       emptyGroupIdQueue();
       mSecondScanComplete = true;
       mSwipeRefreshWidget.setRefreshing(false);
+      mScanningAnimationTextView.setAlpha(0f);
     }
   };
 

@@ -155,7 +155,9 @@ public class UrlDeviceDiscoveryService extends Service
     mUrlDeviceDiscoveryListeners = new ArrayList<>();
     mHandler = new Handler();
     mPwCollection = new PhysicalWebCollection();
-    Utils.setPwsEndpoint(this, mPwCollection);
+    if (!Utils.setPwsEndpoint(this, mPwCollection)) {
+      Utils.warnUserOnMissingApiKey(this);
+    }
     mCanUpdateNotifications = false;
   }
 

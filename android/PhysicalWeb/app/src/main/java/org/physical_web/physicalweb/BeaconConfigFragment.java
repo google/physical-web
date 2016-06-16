@@ -264,7 +264,9 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
 
 
     PwsClient pwsClient = new PwsClient();
-    Utils.setPwsEndpoint(getActivity(), pwsClient);
+    if (Utils.setPwsEndpoint(getActivity(), pwsClient)){
+      Utils.warnUserOnMissingApiKey(getActivity());
+    }
     // Populate the field with a URL.
     pwsClient.resolve(Arrays.asList(url), new PwsResultCallback() {
       public void runSetEditCardUrlOnUiThread(final String url){

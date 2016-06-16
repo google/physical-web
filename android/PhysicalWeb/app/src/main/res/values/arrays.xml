@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string-array name="custom_pws_version_entries">
+    <item>Version 1</item>
+    <item>Version 2</item>
+  </string-array>
+
+  <string-array name="custom_pws_version_values">
+    <item>1</item>
+    <item>2</item>
+  </string-array>
+</resources>
