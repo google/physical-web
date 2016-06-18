@@ -196,7 +196,6 @@ public class UrlDeviceDiscoveryService extends Service
     super.onCreate();
     initialize();
     restoreCache();
-
     cancelNotifications();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
@@ -259,11 +258,10 @@ public class UrlDeviceDiscoveryService extends Service
 
   @Override
   public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
-    // check if device has already been discovered
-    if (mPwCollection.addUrlDevice(urlDevice)) {
-      return;
-    }
-    // if we have found a new device
+    // Add Device and fetch results
+    // Don't short circuit because icons
+    // and metadata may not be fetched
+    mPwCollection.addUrlDevice(urlDevice);
     mPwCollection.fetchPwsResults(new PwsResultCallback() {
       long mPwsTripTimeMillis = 0;
 

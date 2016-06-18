@@ -15,14 +15,18 @@
  */
 package org.physical_web.collection;
 
+import org.apache.commons.codec.binary.Base64;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +39,7 @@ public class PhysicalWebCollection {
   private static final String SCHEMA_VERSION_KEY = "schema";
   private static final String DEVICES_KEY = "devices";
   private static final String METADATA_KEY = "metadata";
+  private static final String ICON_MAP_KEY = "iconmap";
   private PwsClient mPwsClient;
   private Map<String, UrlDevice> mDeviceIdToUrlDeviceMap;
   private Map<String, PwsResult> mBroadcastUrlToPwsResultMap;
@@ -132,6 +137,13 @@ public class PhysicalWebCollection {
     }
     jsonObject.put(METADATA_KEY, metadata);
 
+    JSONObject iconMap = new JSONObject();
+    for (String iconUrl : mIconUrlToIconMap.keySet()) {
+      iconMap.put(iconUrl, new String(Base64.encodeBase64(getIcon(iconUrl)),
+          Charset.forName("UTF-8")));
+    }
+    jsonObject.put(ICON_MAP_KEY, iconMap);
+
     jsonObject.put(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
     return jsonObject;
   }
@@ -169,6 +181,12 @@ public class PhysicalWebCollection {
       collection.addMetadata(pwsResult);
     }
 
+    JSONObject iconMap = jsonObject.getJSONObject(ICON_MAP_KEY);
+    for (Iterator<String> iconUrls = iconMap.keys(); iconUrls.hasNext();) {
+      String iconUrl = iconUrls.next();
+      collection.addIcon(iconUrl, Base64.decodeBase64(
+          iconMap.getString(iconUrl).getBytes(Charset.forName("UTF-8"))));
+    }
     return collection;
   }
 

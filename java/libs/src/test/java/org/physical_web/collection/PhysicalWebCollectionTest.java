@@ -48,6 +48,7 @@ public class PhysicalWebCollectionTest {
   private static final String ICON_URL2 = "http://physical-web.org/favicon.ico";
   private static final String GROUP_ID1 = "group1";
   private static final String GROUP_ID2 = "group2";
+  private static final byte[] ICON1 = new byte[] { 0x10 , 0x00 };
   private PhysicalWebCollection physicalWebCollection1;
   private JSONObject jsonObject1;
 
@@ -70,6 +71,7 @@ public class PhysicalWebCollectionTest {
         .build();
     physicalWebCollection1.addUrlDevice(urlDevice);
     physicalWebCollection1.addMetadata(pwsResult);
+    physicalWebCollection1.addIcon(ICON_URL1, ICON1);
     jsonObject1 = new JSONObject("{"
         + "    \"schema\": 1,"
         + "    \"devices\": [{"
@@ -83,7 +85,10 @@ public class PhysicalWebCollectionTest {
         + "        \"description\": \"" + DESCRIPTION1 + "\","
         + "        \"iconurl\": \"" + ICON_URL1 + "\","
         + "        \"groupid\": \"" + GROUP_ID1 + "\""
-        + "    }]"
+        + "    }],"
+        + "    \"iconmap\": {"
+        + "        \"" + ICON_URL1 + "\": \"" + "EAA=" + "\""
+        + "    }"
         + "}");
   }
 
