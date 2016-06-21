@@ -117,6 +117,14 @@ public class PhysicalWebCollection {
   }
 
   /**
+   * Gets all UrlDevices stored in the collection
+   * @return List of UrlDevices
+   */
+  public List<UrlDevice> getUrlDevices() {
+    return (List) new ArrayList(mDeviceIdToUrlDeviceMap.values());
+  }
+
+  /**
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
    */
