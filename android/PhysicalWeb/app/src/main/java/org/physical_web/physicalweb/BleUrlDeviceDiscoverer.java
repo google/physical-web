@@ -83,6 +83,7 @@ class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
         .setRssi(rssi)
         .setTxPower(uriBeacon.getTxPowerLevel())
         .build();
+    urlDevice.putDist(Utils.getDistance(urlDevice));
     Utils.updateRegion(urlDevice);
     reportUrlDevice(urlDevice);
   }

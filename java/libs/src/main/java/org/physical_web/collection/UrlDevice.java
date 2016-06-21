@@ -140,6 +140,10 @@ public class UrlDevice {
     }
   }
 
+  public void putDist(double dist) {
+    mExtraData.put("dist",dist);
+  }
+
   /**
    * Fetches the ID of the device.
    * The ID should be unique across UrlDevices.  This should even be the case when
@@ -354,7 +358,7 @@ public class UrlDevice {
    * TODO(cco3): Move ranking outside of this class
    */
   public double getRank(PwsResult pwsResult) {
-    return .5;
+    return mExtraData.getDouble("dist");
   }
 
   /**

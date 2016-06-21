@@ -329,7 +329,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "groupid " + groupId);
       pwPairs.add(Utils.getTopRankedPwPairByGroupId(mPwCollection, groupId));
     }
-    Collections.sort(pwPairs, Collections.reverseOrder());
+    Collections.sort(pwPairs);
     for (PwPair pwPair : pwPairs) {
       mNearbyDeviceAdapter.addItem(pwPair);
     }
