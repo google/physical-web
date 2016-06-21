@@ -201,7 +201,7 @@ public class PhysicalWebCollection {
     List<PwPair> allPwPairs = getPwPairs();
 
     // Sort the list in descending order.
-    Collections.sort(allPwPairs, Collections.reverseOrder());
+    Collections.sort(allPwPairs);
 
     // Filter the list.
     return removeDuplicateSiteUrls(allPwPairs);
@@ -220,7 +220,7 @@ public class PhysicalWebCollection {
     List<PwPair> groupedPwPairs = removeDuplicateGroupIds(allPwPairs, null);
 
     // Sort by descending rank.
-    Collections.sort(groupedPwPairs, Collections.reverseOrder());
+    Collections.sort(groupedPwPairs);
 
     // Remove duplicate site URLs.
     return removeDuplicateSiteUrls(groupedPwPairs);
