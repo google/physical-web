@@ -95,6 +95,8 @@ public class SettingsFragment extends PreferenceFragment
         key.equals(getString(R.string.custom_pws_api_key_key))) {
       updatePwsPreference();
       updatePwsList();
+    } else if (key.equals(getString(R.string.pws_endpoint_setting_key))) {
+      Utils.deleteCache(getActivity());
     }
   }
 

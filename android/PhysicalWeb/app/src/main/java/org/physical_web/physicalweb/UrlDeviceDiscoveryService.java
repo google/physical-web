@@ -199,9 +199,13 @@ public class UrlDeviceDiscoveryService extends Service
     cancelNotifications();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
-    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
-      urlDeviceDiscoverer.startScan();
-    }
+    startScan();
+  }
+
+  @Override
+  public int onStartCommand(Intent intent, int flags, int startId) {
+    startScan();
+    return START_STICKY;
   }
 
   @Override
@@ -248,10 +252,7 @@ public class UrlDeviceDiscoveryService extends Service
     // Stop the scanners
     mHandler.removeCallbacks(mFirstScanTimeout);
     mHandler.removeCallbacks(mSecondScanTimeout);
-    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
-      urlDeviceDiscoverer.stopScan();
-    }
-
+    stopScan();
     saveCache();
     super.onDestroy();
   }
@@ -482,14 +483,22 @@ public class UrlDeviceDiscoveryService extends Service
     return mScanStartTime;
   }
 
-  public void restartScan() {
-    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
-      urlDeviceDiscoverer.stopScan();
-    }
-    mScanStartTime = new Date().getTime();
+  private void startScan() {
     for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
       urlDeviceDiscoverer.startScan();
     }
+  }
+
+  private void stopScan() {
+    for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
+      urlDeviceDiscoverer.stopScan();
+    }
+  }
+
+  public void restartScan() {
+    stopScan();
+    mScanStartTime = new Date().getTime();
+    startScan();
   }
 
   public boolean hasResults() {
@@ -498,5 +507,14 @@ public class UrlDeviceDiscoveryService extends Service
 
   public PhysicalWebCollection getPwCollection() {
     return mPwCollection;
+  }
+
+  public void clearCache() {
+    stopScan();
+    mScanStartTime = new Date().getTime();
+    Utils.setPwsEndpoint(this, mPwCollection);
+    mPwCollection.clear();
+    saveCache();
+    startScan();
   }
 }

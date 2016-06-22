@@ -23,12 +23,15 @@ import org.physical_web.collection.PwsResult;
 import org.physical_web.collection.UrlDevice;
 
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -80,6 +83,30 @@ class Utils {
       return apiVersion >= 2 && apiKey.isEmpty();
     }
 
+  }
+
+  private static class ClearCacheDiscoveryServiceConnection implements ServiceConnection {
+    private Context mContext;
+
+    @Override
+    public synchronized void onServiceConnected(ComponentName className, IBinder service) {
+      // Get the service
+      UrlDeviceDiscoveryService.LocalBinder localBinder =
+          (UrlDeviceDiscoveryService.LocalBinder) service;
+      localBinder.getServiceInstance().clearCache();
+      mContext.unbindService(this);
+    }
+
+    @Override
+    public synchronized void onServiceDisconnected(ComponentName className) {
+    }
+
+    public synchronized void connect(Context context) {
+      mContext = context;
+      Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
+      mContext.startService(intent);
+      mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
   }
 
   private static void throwEncodeException(JSONException e) {
@@ -139,6 +166,13 @@ class Utils {
     return sharedPref.getString(context.getString(R.string.custom_pws_api_key_key), "");
   }
 
+  /**
+   * Delete the cached results from the UrlDeviceDisoveryService.
+   * @param context The context for the service.
+   */
+  public static void deleteCache(Context context) {
+    new ClearCacheDiscoveryServiceConnection().connect(context);
+  }
 
   /**
    * Format the endpoint URL, version, and API key.

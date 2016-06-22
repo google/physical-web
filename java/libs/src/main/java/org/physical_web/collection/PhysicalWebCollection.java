@@ -90,6 +90,18 @@ public class PhysicalWebCollection {
   }
 
   /**
+   * Clear results and devices.
+   */
+  public void clear(){
+    mDeviceIdToUrlDeviceMap.clear();
+    mBroadcastUrlToPwsResultMap.clear();
+    mIconUrlToIconMap.clear();
+    mPendingBroadcastUrls.clear();
+    mPendingIconUrls.clear();
+    mFailedResolveUrls.clear();
+  }
+
+  /**
    * Get an Icon from the collection.
    * @param url The url of the icon.
    * @return The associated icon.  This will be null if there is no icon.
