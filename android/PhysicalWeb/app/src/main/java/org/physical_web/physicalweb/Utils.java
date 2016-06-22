@@ -205,10 +205,9 @@ class Utils {
    * @param endpoint The endpoint formatted for SharedPreferences.
    */
   public static void setPwsEndpointPreference(Context context, String endpoint) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    SharedPreferences.Editor editor = sharedPref.edit();
-    editor.putString(context.getString(R.string.pws_endpoint_setting_key),
-                     endpoint).commit();
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+        .putString(context.getString(R.string.pws_endpoint_setting_key), endpoint)
+        .apply();
   }
 
   /**
