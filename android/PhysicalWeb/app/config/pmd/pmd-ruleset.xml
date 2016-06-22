@@ -11,12 +11,6 @@
     <exclude-pattern>.*/ble/UriBeacon.java</exclude-pattern>
     <exclude-pattern>.*/ble/Utils.java</exclude-pattern>
 
-    <rule ref="rulesets/java/android.xml">
-        <!-- Config.LOGD deprecated in API level 4 !-->
-        <exclude name="ProtectLogD" />
-        <!-- Config.LOGV deprecated in API level 4 !-->
-        <exclude name="ProtectLogV" />
-    </rule>
     <rule ref="rulesets/java/clone.xml" />
     <rule ref="rulesets/java/finalizers.xml" />
     <rule ref="rulesets/java/imports.xml" />
@@ -29,7 +23,6 @@
     <rule ref="rulesets/java/naming.xml">
         <exclude name="AbstractNaming" />
         <exclude name="LongVariable" />
-        <exclude name="LongMethodName" />
         <exclude name="ShortClassName" />
         <exclude name="ShortMethodName" />
         <exclude name="ShortVariable" />
