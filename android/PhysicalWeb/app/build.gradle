@@ -1,7 +1,10 @@
+plugins {
+    id 'checkstyle'
+    id 'findbugs'
+    id 'pmd'
+}
+
 apply plugin: 'com.android.application'
-apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
-apply plugin: 'pmd'
 
 android {
     compileSdkVersion 23
@@ -70,6 +73,10 @@ dependencies {
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
     compile 'com.android.support:appcompat-v7:23.4.0'
+}
+
+checkstyle {
+    toolVersion = "6.19"
 }
 
 task checkstyle(type: Checkstyle) {

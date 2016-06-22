@@ -56,7 +56,7 @@ public class BroadcastActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (Build.VERSION.SDK_INT < 21){
+        if (Build.VERSION.SDK_INT < 21) {
             Toast.makeText(this, getString(R.string.ble_os_error),
                 Toast.LENGTH_LONG).show();
             return;
@@ -69,8 +69,8 @@ public class BroadcastActivity extends Activity {
         }
     }
 
-    private void checkBleAndStart(){
-        if (hasBleAdvertiseCapability()){
+    private void checkBleAndStart() {
+        if (hasBleAdvertiseCapability()) {
             parseAndHandleUrl();
         } else {
             Toast.makeText(this, getString(R.string.ble_error),
@@ -106,7 +106,7 @@ public class BroadcastActivity extends Activity {
         return true;
     }
 
-    private void parseAndHandleUrl(){
+    private void parseAndHandleUrl() {
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
@@ -122,7 +122,7 @@ public class BroadcastActivity extends Activity {
         }
     }
 
-    private void startBroadcastService(String url){
+    private void startBroadcastService(String url) {
         Intent intent = new Intent(this, PhysicalWebBroadcastService.class);
         intent.putExtra(PhysicalWebBroadcastService.DISPLAY_URL_KEY, url);
         startService(intent);
