@@ -155,6 +155,9 @@ public class UrlDeviceDiscoveryService extends Service
     mUrlDeviceDiscoveryListeners = new ArrayList<>();
     mHandler = new Handler();
     mPwCollection = new PhysicalWebCollection();
+    if (!Utils.setPwsEndpoint(this, mPwCollection)) {
+      Utils.warnUserOnMissingApiKey(this);
+    }
     mCanUpdateNotifications = false;
   }
 
@@ -180,6 +183,7 @@ public class UrlDeviceDiscoveryService extends Service
     try {
       JSONObject serializedCollection = new JSONObject(prefs.getString(PW_COLLECTION_KEY, null));
       mPwCollection = PhysicalWebCollection.jsonDeserialize(serializedCollection);
+      Utils.setPwsEndpoint(this, mPwCollection);
     } catch (JSONException e) {
       Log.e(TAG, "Could not restore Physical Web collection cache", e);
     } catch (PhysicalWebCollectionException e) {
@@ -192,8 +196,7 @@ public class UrlDeviceDiscoveryService extends Service
     super.onCreate();
     initialize();
     restoreCache();
-
-    mNotificationManager.cancelAll();
+    cancelNotifications();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
     for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
@@ -220,6 +223,11 @@ public class UrlDeviceDiscoveryService extends Service
   @Override
   public void onRebind(Intent intent) {
     mIsBound = true;
+  }
+  private void cancelNotifications() {
+    mNotificationManager.cancel(NEAREST_BEACON_NOTIFICATION_ID);
+    mNotificationManager.cancel(SECOND_NEAREST_BEACON_NOTIFICATION_ID);
+    mNotificationManager.cancel(SUMMARY_NOTIFICATION_ID);
   }
 
   private void saveCache() {
@@ -250,6 +258,9 @@ public class UrlDeviceDiscoveryService extends Service
 
   @Override
   public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
+    // Add Device and fetch results
+    // Don't short circuit because icons
+    // and metadata may not be fetched
     mPwCollection.addUrlDevice(urlDevice);
     mPwCollection.fetchPwsResults(new PwsResultCallback() {
       long mPwsTripTimeMillis = 0;
@@ -313,7 +324,7 @@ public class UrlDeviceDiscoveryService extends Service
     // If no beacons have been found
     if (pwPairs.size() == 0) {
       // Remove all existing notifications
-      mNotificationManager.cancelAll();
+      cancelNotifications();
     } else if (pwPairs.size() == 1) {
       updateNearbyBeaconNotification(true, pwPairs.get(0), NEAREST_BEACON_NOTIFICATION_ID);
     } else {

@@ -60,6 +60,7 @@ import org.uribeacon.scan.util.RegionResolver;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -103,10 +104,6 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
   };
 
   public BeaconConfigFragment() {
-  }
-
-  public static BeaconConfigFragment newInstance() {
-    return new BeaconConfigFragment();
   }
 
   @Override
@@ -187,6 +184,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     super.onPrepareOptionsMenu(menu);
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_settings).setVisible(false);
   }
 
   /**
@@ -264,8 +262,13 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
       return;
     }
 
+
+    PwsClient pwsClient = new PwsClient();
+    if (Utils.setPwsEndpoint(getActivity(), pwsClient)){
+      Utils.warnUserOnMissingApiKey(getActivity());
+    }
     // Populate the field with a URL.
-    new PwsClient().resolve(Arrays.asList(url), new PwsResultCallback() {
+    pwsClient.resolve(Arrays.asList(url), new PwsResultCallback() {
       public void runSetEditCardUrlOnUiThread(final String url){
         getActivity().runOnUiThread(new Runnable(){
           @Override
@@ -418,6 +421,9 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     if (!URLUtil.isNetworkUrl(url)) {
       url = "http://" + url;
     }
+
+    warnUserIfGooglePwsWouldFilterUrl(url);
+
     // Create the callback object to set the url
     UrlShortenerClient.ShortenUrlCallback urlSetter = new UrlShortenerClient.ShortenUrlCallback() {
       @Override
@@ -441,6 +447,36 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
     } else {
       // Shorten the url if necessary
       UrlShortenerClient.getInstance(getActivity()).shortenUrl(url, urlSetter, TAG);
+    }
+  }
+
+  private void warnUserIfGooglePwsWouldFilterUrl(String url){
+    if (Utils.isGoogleApiKeyAvailable(getActivity())){
+      PwsClient pwsClient = new PwsClient();
+      Utils.setPwsEndPointToGoogle(getActivity(), pwsClient);
+      pwsClient.resolve(Arrays.asList(url), new PwsResultCallback() {
+        public void showToastOnUiThread(final int messageId){
+          getActivity().runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+              Toast.makeText(getActivity(), messageId, Toast.LENGTH_LONG).show();
+            }
+          });
+        }
+
+        @Override
+        public void onPwsResult(PwsResult pwsResult) {
+        }
+
+        @Override
+        public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
+          if (urls.iterator().next().toLowerCase().startsWith("https")){
+            showToastOnUiThread(R.string.pws_filtered_url_unknown);
+          } else {
+            showToastOnUiThread(R.string.pws_filtered_url_http);
+          }
+        }
+      });
     }
   }
 

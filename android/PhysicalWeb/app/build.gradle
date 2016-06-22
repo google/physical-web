@@ -4,13 +4,13 @@ apply plugin: 'findbugs'
 apply plugin: 'pmd'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 15
         versionName "0.1.856"
     }
@@ -68,8 +68,7 @@ dependencies {
 
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
-
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:23.0.1'
 }
 
 task checkstyle(type: Checkstyle) {

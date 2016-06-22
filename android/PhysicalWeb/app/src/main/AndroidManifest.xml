@@ -33,6 +33,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name=".BroadcastActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".UrlDeviceDiscoveryService"
@@ -60,6 +72,12 @@
         </service>
         <service
             android:name="org.uribeacon.config.GattService"
+            android:exported="false">
+        </service>
+        <service
+            android:name=".PhysicalWebBroadcastService"
+            android:enabled="true"
+            android:stopWithTask="false"
             android:exported="false">
         </service>
 

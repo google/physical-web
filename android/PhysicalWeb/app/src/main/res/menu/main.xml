@@ -5,12 +5,16 @@
 
     <item android:title="@string/action_config"
           app:showAsAction="never"
-          android:orderInCategory="100"
+          android:orderInCategory="1"
           android:id="@+id/action_config"/>
+
+    <item android:title="@string/action_settings"
+          app:showAsAction="never"
+          android:orderInCategory="2"
+          android:id="@+id/action_settings"/>
 
     <item android:title="@string/action_about"
           app:showAsAction="never"
-          android:orderInCategory="100"
+          android:orderInCategory="3"
           android:id="@+id/action_about"/>
-
 </menu>

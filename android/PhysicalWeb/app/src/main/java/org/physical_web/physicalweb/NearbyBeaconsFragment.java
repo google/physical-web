@@ -21,9 +21,6 @@ import org.physical_web.collection.PwPair;
 import org.physical_web.collection.PwsResult;
 import org.physical_web.collection.UrlDevice;
 
-import android.animation.Animator;
-import android.animation.Animator.AnimatorListener;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ListFragment;
 import android.content.ComponentName;
@@ -40,7 +37,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -80,6 +76,8 @@ public class NearbyBeaconsFragment extends ListFragment
   private SwipeRefreshWidget mSwipeRefreshWidget;
   private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
+  private boolean mFirstTime;
+  private DiscoveryServiceConnection mDiscoveryServiceConnection;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -95,7 +93,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "running first scan timeout");
       if (!mGroupIdQueue.isEmpty()) {
         emptyGroupIdQueue();
-        showListView();
+        mSwipeRefreshWidget.setRefreshing(false);
       }
     }
   };
@@ -106,8 +104,9 @@ public class NearbyBeaconsFragment extends ListFragment
     public void run() {
       Log.d(TAG, "running second scan timeout");
       emptyGroupIdQueue();
-      showListView();
       mSecondScanComplete = true;
+      mSwipeRefreshWidget.setRefreshing(false);
+      mScanningAnimationTextView.setAlpha(0f);
     }
   };
 
@@ -149,6 +148,8 @@ public class NearbyBeaconsFragment extends ListFragment
         mDiscoveryService.restartScan();
       }
       mPwCollection = mDiscoveryService.getPwCollection();
+      // Make sure cached results get placed in the mGroupIdQueue.
+      onUrlDeviceDiscoveryUpdate();
       startScanningDisplay(mDiscoveryService.getScanStartTime(), mDiscoveryService.hasResults());
     }
 
@@ -181,11 +182,6 @@ public class NearbyBeaconsFragment extends ListFragment
       stopScanningDisplay();
     }
   }
-  private DiscoveryServiceConnection mDiscoveryServiceConnection = new DiscoveryServiceConnection();
-
-  public static NearbyBeaconsFragment newInstance() {
-    return new NearbyBeaconsFragment();
-  }
 
   private void initialize(View rootView) {
     setHasOptionsMenu(true);
@@ -206,10 +202,13 @@ public class NearbyBeaconsFragment extends ListFragment
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
+    mDiscoveryServiceConnection = new DiscoveryServiceConnection();
   }
 
+  @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container,
                            Bundle savedInstanceState) {
+    mFirstTime = true;
     View rootView = layoutInflater.inflate(R.layout.fragment_nearby_beacons, container, false);
     initialize(rootView);
     return rootView;
@@ -220,8 +219,16 @@ public class NearbyBeaconsFragment extends ListFragment
     super.onResume();
     getActivity().getActionBar().setTitle(R.string.title_nearby_beacons);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-    getListView().setVisibility(View.INVISIBLE);
-    mDiscoveryServiceConnection.connect(true);
+    if (mFirstTime && !PermissionCheck.getInstance().isCheckingPermissions()) {
+      restartScan();
+    }
+    mFirstTime = false;
+  }
+
+  public void restartScan() {
+    if (mDiscoveryServiceConnection != null) {
+      mDiscoveryServiceConnection.connect(true);
+    }
   }
 
   @Override
@@ -266,7 +273,7 @@ public class NearbyBeaconsFragment extends ListFragment
         }
       }
     }
-    safeNotifyChange();
+    notifyChangeOnUiThread();
   }
 
   private void stopScanningDisplay() {
@@ -287,20 +294,18 @@ public class NearbyBeaconsFragment extends ListFragment
     long elapsedMillis = new Date().getTime() - scanStartTime;
     if (elapsedMillis < FIRST_SCAN_TIME_MILLIS
         || (elapsedMillis < SECOND_SCAN_TIME_MILLIS && !hasResults)) {
+      mNearbyDeviceAdapter.clear();
       mScanningAnimationTextView.setAlpha(1f);
       mScanningAnimationDrawable.start();
-      getListView().setVisibility(View.INVISIBLE);
     } else {
-      showListView();
+      mSwipeRefreshWidget.setRefreshing(false);
     }
 
     // Schedule the timeouts
-    // We delay at least 50 milliseconds to give the discovery service a chance to
-    // give us cached results.
     mSecondScanComplete = false;
-    long firstDelay = Math.max(FIRST_SCAN_TIME_MILLIS - elapsedMillis, 50);
-    long secondDelay = Math.max(SECOND_SCAN_TIME_MILLIS - elapsedMillis, 50);
-    long thirdDelay = Math.max(THIRD_SCAN_TIME_MILLIS - elapsedMillis, 50);
+    long firstDelay = Math.max(FIRST_SCAN_TIME_MILLIS - elapsedMillis, 0);
+    long secondDelay = Math.max(SECOND_SCAN_TIME_MILLIS - elapsedMillis, 0);
+    long thirdDelay = Math.max(THIRD_SCAN_TIME_MILLIS - elapsedMillis, 0);
     mHandler.postDelayed(mFirstScanTimeout, firstDelay);
     mHandler.postDelayed(mSecondScanTimeout, secondDelay);
     mHandler.postDelayed(mThirdScanTimeout, thirdDelay);
@@ -329,55 +334,21 @@ public class NearbyBeaconsFragment extends ListFragment
       mNearbyDeviceAdapter.addItem(pwPair);
     }
     mGroupIdQueue.clear();
-    safeNotifyChange();
+    notifyChangeOnUiThread();
   }
 
-  private void showListView() {
-    if (getListView().getVisibility() == View.VISIBLE) {
-      return;
-    }
-
-    mSwipeRefreshWidget.setRefreshing(false);
-    getListView().setAlpha(0f);
-    getListView().setVisibility(View.VISIBLE);
-    safeNotifyChange();
-    ObjectAnimator alphaAnimation = ObjectAnimator.ofFloat(getListView(), "alpha", 0f, 1f);
-    alphaAnimation.setDuration(400);
-    alphaAnimation.setInterpolator(new DecelerateInterpolator());
-    alphaAnimation.addListener(new AnimatorListener() {
-      @Override
-      public void onAnimationStart(Animator animation) {
-      }
-      @Override
-      public void onAnimationEnd(Animator animation) {
-        mScanningAnimationTextView.setAlpha(0f);
-        mScanningAnimationDrawable.stop();
-      }
-      @Override
-      public void onAnimationRepeat(Animator animation) {
-      }
-      @Override
-      public void onAnimationCancel(Animator animation) {
-      }
-    });
-    alphaAnimation.start();
-  }
 
   /**
-   * Notify the view that the underlying data has been changed.
+   * Notify the view on the UI thread that the underlying data has been changed.
    *
-   * We need to make sure the view is visible because if it's not,
-   * the view will become visible when we notify it.
    */
-  private void safeNotifyChange() {
-    if (getListView().getVisibility() == View.VISIBLE) {
-      new Handler(Looper.getMainLooper()).post(new Runnable() {
-        @Override
-        public void run() {
-          mNearbyDeviceAdapter.notifyDataSetChanged();
-        }
-      });
-    }
+  private void notifyChangeOnUiThread() {
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        mNearbyDeviceAdapter.notifyDataSetChanged();
+      }
+    });
   }
 
   // Adapter for holding beacons found through scanning.
@@ -454,13 +425,13 @@ public class NearbyBeaconsFragment extends ListFragment
         updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
-        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT);
+        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
         UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
       } else {
         // Otherwise ensure it is not shown
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
-        mPwCollection.setPwsEndpoint(Utils.PROD_ENDPOINT);
+        Utils.setPwsEndpoint(getActivity(), mPwCollection);
         UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
       }
 

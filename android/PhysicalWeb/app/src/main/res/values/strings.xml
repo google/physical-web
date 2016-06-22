@@ -8,8 +8,7 @@
     <string name="config_edit_url_label">URL</string>
     <string name="config_save_url_button">SAVE URL</string>
     <string name="about_version_label">Version</string>
-    <string name="nearby_beacon_favicon_content_description">favicon for the given URL for this
-        entry</string>
+    <string name="nearby_beacon_favicon_content_description">favicon for the given URL for this entry</string>
     <string name="config_searching_for_beacons_text">Put your beacon into config mode</string>
     <string name="config_found_near_beacon">Beacon found!</string>
     <string name="config_found_far_beacon">Move Beacon closer!</string>
@@ -19,18 +18,43 @@
     <string name="title_edit_urls">Edit URLs</string>
     <string name="title_nearby_beacons">Nearby Beacons</string>
     <string name="title_about">About</string>
+    <string name="title_settings">Settings</string>
     <string name="empty_nearby_beacons_list_text">Searching for beacons</string>
     <string name="about_app_title">Physical Web</string>
-    <string name="url_getting_started">        https://google.github.io/physical-web/mobile/android/getting-started.html</string>
+    <string name="url_getting_started">https://google.github.io/physical-web/mobile/android/getting-started.html</string>
     <string name="config_no_beacons_found">No beacons found</string>
     <string name="notification_view_more_beacons">VIEW MORE</string>
     <string name="config_url_read_error">Error Reading URL</string>
+    <string name="bt_on">Turn Bluetooth on to broadcast</string>
+    <string name="ble_os_error">Bluetooth LE advertising is not supported by your OS</string>
+    <string name="no_url_error">Couldn\'t find URL to broadcast</string>
+    <string name="ble_error">Bluetooth LE advertising is not supported on this device</string>
+    <string name="url_broadcast">URL is broadcasting!</string>
+    <string name="broadcast_notif">Physical Web is broadcasting a URL</string>
+    <string name="shorten_error">Could not shorten URL</string>
+    <string name="loc_permission">Needs Location permission</string>
+    <string name="stop">Stop</string>
+    <string name="pws_endpoint_setting_display">Physical Web Service</string>
+    <string name="pws_endpoint_setting_key">pws_endpoint</string>
+    <string name="custom_pws_endpoint_key">custom_pws_endpoint</string>
+    <string name="custom_pws_endpoint_title">Custom Physical Web Service Endpoint</string>
+    <string name="custom_pws_url_display">Custom Physical Web Service URL</string>
+    <string name="custom_pws_url_key">custom_pws_url</string>
+    <string name="custom_pws_version_default">1</string>
+    <string name="custom_pws_version_display">Custom Physical Web Service API version</string>
+    <string name="custom_pws_version_key">custom_pws_version</string>
+    <string name="custom_pws_api_key_default"></string>
+    <string name="custom_pws_api_key_display">Custom Physical Web Service API key</string>
+    <string name="custom_pws_api_key_key">custom_pws_key</string>
+    <string name="google_pws">Google Physical Web Service</string>
+    <string name="prod_pws">Production Open Source Physical Web Service</string>
+    <string name="dev_pws">Development Open Source Physical Web Service</string>
+    <string name="custom_pws">Custom Physical Web Service</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
         <item quantity="other">Beacons Nearby</item>
     </plurals>
-
     <string name="title_activity_oob">OobActivity</string>
     <string name="action_settings">Settings</string>
     <string name="oob_accept_and_continue">ACCEPT &amp; CONTINUE</string>
@@ -51,5 +75,8 @@
     <string name="url_shortening_error">URL is too long. Please use a shortener.</string>
     <string name="url_charset_error">Non-ASCII characters unsupported in URL. Please use a shortener.</string>
     <string name="error_bluetooth_support">Device does not support Bluetooth</string>
-
+    <string name="error_api_key_no_longer_available">API key not available, please update settings.</string>
+    <string name="error_pws_endpoint_not_configured_properly">Physical Web Service not configured properly. Switching to default settings.</string>
+    <string name="pws_filtered_url_unknown">Other clients may filter your URL.</string>
+    <string name="pws_filtered_url_http">Other clients may filter your URL because it is not HTTPS.</string>
 </resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="@string/pws_endpoint_setting_key"
+        android:title="@string/pws_endpoint_setting_display"
+        android:dialogTitle="@string/pws_endpoint_setting_display" />
+    <PreferenceCategory
+        android:key="@string/custom_pws_endpoint_key"
+        android:title="@string/custom_pws_endpoint_title"
+        android:persistent="false">
+
+        <EditTextPreference
+            android:key="@string/custom_pws_url_key"
+            android:title="@string/custom_pws_url_display"
+            android:dialogTitle="@string/custom_pws_url_display" />
+
+        <ListPreference
+            android:key="@string/custom_pws_version_key"
+            android:title="@string/custom_pws_version_display"
+            android:dialogTitle="@string/custom_pws_version_display"
+            android:entries="@array/custom_pws_version_entries"
+            android:entryValues="@array/custom_pws_version_values"
+            android:defaultValue="@string/custom_pws_version_default" />
+
+        <EditTextPreference
+            android:key="@string/custom_pws_api_key_key"
+            android:title="@string/custom_pws_api_key_display"
+            android:dialogTitle="@string/custom_pws_api_key_display" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
