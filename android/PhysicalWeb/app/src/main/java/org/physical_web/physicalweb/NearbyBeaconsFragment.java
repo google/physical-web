@@ -265,7 +265,8 @@ public class NearbyBeaconsFragment extends ListFragment
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank()) {
+        for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
+            Utils.newDistanceComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
           Log.d(TAG, "groupid to add " + groupId);
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
