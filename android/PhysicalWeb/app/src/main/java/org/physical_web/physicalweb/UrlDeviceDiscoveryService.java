@@ -184,6 +184,12 @@ public class UrlDeviceDiscoveryService extends Service
       JSONObject serializedCollection = new JSONObject(prefs.getString(PW_COLLECTION_KEY, null));
       mPwCollection = PhysicalWebCollection.jsonDeserialize(serializedCollection);
       Utils.setPwsEndpoint(this, mPwCollection);
+      // replace TxPower and RSSI data after restoring cache
+      for (UrlDevice urlDevice : mPwCollection.getUrlDevices()) {
+        if (Utils.isBleUrlDevice(urlDevice)) {
+          Utils.updateRegion(urlDevice);
+        }
+      }
     } catch (JSONException e) {
       Log.e(TAG, "Could not restore Physical Web collection cache", e);
     } catch (PhysicalWebCollectionException e) {
