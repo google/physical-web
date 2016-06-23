@@ -17,6 +17,7 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -59,7 +60,8 @@
         </service>
 
         <receiver
-            android:name=".AutostartPwoDiscoveryServiceReceiver">
+            android:name=".AutostartPwoDiscoveryServiceReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

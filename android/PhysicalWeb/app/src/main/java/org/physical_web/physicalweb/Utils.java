@@ -23,12 +23,15 @@ import org.physical_web.collection.PwsResult;
 import org.physical_web.collection.UrlDevice;
 
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -37,6 +40,9 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import org.json.JSONException;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -59,6 +65,27 @@ class Utils {
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
 
+  public static Comparator<PwPair> newDistanceComparator() {
+    return new Comparator<PwPair>() {
+      public Map<String, Double> cachedDistances = new HashMap<>();
+
+      public double getDistance(UrlDevice urlDevice) {
+        if (cachedDistances.containsKey(urlDevice.getId())) {
+          return cachedDistances.get(urlDevice.getId());
+        }
+        double distance = Utils.getDistance(urlDevice);
+        cachedDistances.put(urlDevice.getId(), distance);
+        return distance;
+      }
+
+      @Override
+      public int compare(PwPair lhs, PwPair rhs) {
+        return Double.compare(getDistance(lhs.getUrlDevice()),
+            getDistance(rhs.getUrlDevice()));
+      }
+    };
+  }
+
   private static class PwsEndpoint {
     public String url;
     public int apiVersion;
@@ -80,6 +107,30 @@ class Utils {
       return apiVersion >= 2 && apiKey.isEmpty();
     }
 
+  }
+
+  private static class ClearCacheDiscoveryServiceConnection implements ServiceConnection {
+    private Context mContext;
+
+    @Override
+    public synchronized void onServiceConnected(ComponentName className, IBinder service) {
+      // Get the service
+      UrlDeviceDiscoveryService.LocalBinder localBinder =
+          (UrlDeviceDiscoveryService.LocalBinder) service;
+      localBinder.getServiceInstance().clearCache();
+      mContext.unbindService(this);
+    }
+
+    @Override
+    public synchronized void onServiceDisconnected(ComponentName className) {
+    }
+
+    public synchronized void connect(Context context) {
+      mContext = context;
+      Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
+      mContext.startService(intent);
+      mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
   }
 
   private static void throwEncodeException(JSONException e) {
@@ -139,6 +190,13 @@ class Utils {
     return sharedPref.getString(context.getString(R.string.custom_pws_api_key_key), "");
   }
 
+  /**
+   * Delete the cached results from the UrlDeviceDisoveryService.
+   * @param context The context for the service.
+   */
+  public static void deleteCache(Context context) {
+    new ClearCacheDiscoveryServiceConnection().connect(context);
+  }
 
   /**
    * Format the endpoint URL, version, and API key.
@@ -171,10 +229,9 @@ class Utils {
    * @param endpoint The endpoint formatted for SharedPreferences.
    */
   public static void setPwsEndpointPreference(Context context, String endpoint) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    SharedPreferences.Editor editor = sharedPref.edit();
-    editor.putString(context.getString(R.string.pws_endpoint_setting_key),
-                     endpoint).commit();
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+        .putString(context.getString(R.string.pws_endpoint_setting_key), endpoint)
+        .apply();
   }
 
   /**
@@ -296,6 +353,18 @@ class Utils {
     return PendingIntent.getActivity(context, requestID, intent, 0);
   }
 
+  public static PwPair getTopRankedPwPairByGroupId(
+      PhysicalWebCollection pwCollection, String groupId) {
+    // This does the same thing as the PhysicalWebCollection method, only it uses our custom
+    // getGroupId method.
+    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank(newDistanceComparator())) {
+      if (getGroupId(pwPair.getPwsResult()).equals(groupId)) {
+        return pwPair;
+      }
+    }
+    return null;
+  }
+
   /**
    * Decode the downloaded icon to a Bitmap.
    * @param pwCollection The collection where the icon is stored.
@@ -405,24 +474,6 @@ class Utils {
       }
     }
     return pwsResult.getGroupId();
-  }
-
-  /**
-   * Gets the top ranked result for a given groupId.
-   * @param pwCollection The collection of results.
-   * @param groupId The groupId for the results.
-   * @return The pair with the highest ranking for the groupId.
-   */
-  public static PwPair getTopRankedPwPairByGroupId(
-      PhysicalWebCollection pwCollection, String groupId) {
-    // This does the same thing as the PhysicalWebCollection method, only it uses our custom
-    // getGroupId method.
-    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank()) {
-      if (getGroupId(pwPair.getPwsResult()).equals(groupId)) {
-        return pwPair;
-      }
-    }
-    return null;
   }
 
   /**

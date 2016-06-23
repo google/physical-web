@@ -43,7 +43,6 @@
     <string name="custom_pws_version_default">1</string>
     <string name="custom_pws_version_display">Custom Physical Web Service API version</string>
     <string name="custom_pws_version_key">custom_pws_version</string>
-    <string name="custom_pws_api_key_default"></string>
     <string name="custom_pws_api_key_display">Custom Physical Web Service API key</string>
     <string name="custom_pws_api_key_key">custom_pws_key</string>
     <string name="google_pws">Google Physical Web Service</string>

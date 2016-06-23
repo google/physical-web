@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -87,6 +88,18 @@ public class PhysicalWebCollection {
    */
   public void addIcon(String url, byte[] icon) {
     mIconUrlToIconMap.put(url, icon);
+  }
+
+  /**
+   * Clear results and devices.
+   */
+  public void clear(){
+    mDeviceIdToUrlDeviceMap.clear();
+    mBroadcastUrlToPwsResultMap.clear();
+    mIconUrlToIconMap.clear();
+    mPendingBroadcastUrls.clear();
+    mPendingIconUrls.clear();
+    mFailedResolveUrls.clear();
   }
 
   /**
@@ -194,14 +207,15 @@ public class PhysicalWebCollection {
    * Return a list of PwPairs sorted by rank in descending order.
    * These PwPairs will be deduplicated by siteUrls (favoring the PwPair with
    * the highest rank).
+   * @param comparator to sort pairs by
    * @return a sorted list of PwPairs.
    */
-  public List<PwPair> getPwPairsSortedByRank() {
+  public List<PwPair> getPwPairsSortedByRank(Comparator<PwPair> comparator) {
     // Get all valid PwPairs.
     List<PwPair> allPwPairs = getPwPairs();
 
     // Sort the list in descending order.
-    Collections.sort(allPwPairs, Collections.reverseOrder());
+    Collections.sort(allPwPairs, comparator);
 
     // Filter the list.
     return removeDuplicateSiteUrls(allPwPairs);
@@ -210,9 +224,10 @@ public class PhysicalWebCollection {
   /**
    * Return a list of PwPairs sorted by rank in descending order, including only the top-ranked
    * pair from each group.
+   * @param comparator to sort pairs by
    * @return a sorted list of PwPairs.
    */
-  public List<PwPair> getGroupedPwPairsSortedByRank() {
+  public List<PwPair> getGroupedPwPairsSortedByRank(Comparator<PwPair> comparator) {
     // Get all valid PwPairs.
     List<PwPair> allPwPairs = getPwPairs();
 
@@ -220,7 +235,7 @@ public class PhysicalWebCollection {
     List<PwPair> groupedPwPairs = removeDuplicateGroupIds(allPwPairs, null);
 
     // Sort by descending rank.
-    Collections.sort(groupedPwPairs, Collections.reverseOrder());
+    Collections.sort(groupedPwPairs, comparator);
 
     // Remove duplicate site URLs.
     return removeDuplicateSiteUrls(groupedPwPairs);
@@ -230,7 +245,7 @@ public class PhysicalWebCollection {
    * Return a list of all pairs of valid URL devices and corresponding URL metadata.
    * @return list of PwPairs.
    */
-  private List<PwPair> getPwPairs() {
+  public List<PwPair> getPwPairs() {
     List<PwPair> allPwPairs = new ArrayList<>();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
       PwsResult pwsResult = mBroadcastUrlToPwsResultMap.get(urlDevice.getUrl());
@@ -243,10 +258,12 @@ public class PhysicalWebCollection {
 
   /**
    * Return the top-ranked PwPair for a given group ID.
+   * @param groupId
+   * @param comparator to sort pairs by
    * @return a PwPair.
    */
-  public PwPair getTopRankedPwPairByGroupId(String groupId) {
-    for (PwPair pwPair : getGroupedPwPairsSortedByRank()) {
+  public PwPair getTopRankedPwPairByGroupId(String groupId, Comparator<PwPair> comparator) {
+    for (PwPair pwPair : getGroupedPwPairsSortedByRank(comparator)) {
       if (pwPair.getPwsResult().getGroupId().equals(groupId)) {
         return pwPair;
       }
