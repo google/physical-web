@@ -18,7 +18,7 @@ package org.physical_web.collection;
 /**
  * A physical web pair represents a UrlDevice and its corresponding PwsResult.
  */
-public class PwPair implements Comparable<PwPair> {
+public class PwPair {
   private final UrlDevice mUrlDevice;
   private final PwsResult mPwsResult;
 
@@ -30,14 +30,6 @@ public class PwPair implements Comparable<PwPair> {
   public PwPair(UrlDevice urlDevice, PwsResult pwsResult) {
     mUrlDevice = urlDevice;
     mPwsResult = pwsResult;
-  }
-
-  /**
-   * Get the rank for the UrlDevice/PwsResult pair.
-   * @return the rank.
-   */
-  public double getRank() {
-    return mUrlDevice.getRank(mPwsResult);
   }
 
   /**
@@ -54,62 +46,5 @@ public class PwPair implements Comparable<PwPair> {
    */
   public PwsResult getPwsResult() {
     return mPwsResult;
-  }
-
-  /**
-   * Return a hash code for this PwPair.
-   * @return hash code
-   */
-  @Override
-  public int hashCode() {
-    int hash = 1;
-    hash = hash * 31 + Double.valueOf(getRank()).hashCode();
-    hash = hash * 31 + mUrlDevice.hashCode();
-    hash = hash * 31 + mPwsResult.hashCode();
-    return hash;
-  }
-
-  /**
-   * Check if two PwPairs are equal.
-   * @param other the PwPair to compare to.
-   * @return true if the PwPairs are equal.
-   */
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-
-    if (other instanceof PwPair) {
-      PwPair otherPwPair = (PwPair) other;
-      return getRank() == otherPwPair.getRank() &&
-          mUrlDevice.equals(otherPwPair.mUrlDevice) &&
-          mPwsResult.equals(otherPwPair.mPwsResult);
-    }
-    return false;
-  }
-
-  /**
-   * Compare two PwPairs based on rank, breaking ties by comparing UrlDevice and PwsResult.
-   * @param other the PwPair to compare to.
-   * @return the comparison value.
-   */
-  @Override
-  public int compareTo(PwPair other) {
-    if (this == other) {
-      return 0;
-    }
-
-    int compareValue = Double.compare(getRank(), other.getRank());
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    compareValue = mUrlDevice.compareTo(other.mUrlDevice);
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    return mPwsResult.compareTo(other.mPwsResult);
   }
 }

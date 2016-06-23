@@ -31,12 +31,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class IntegrationTest {
   private PhysicalWebCollection physicalWebCollection;
-  private Comparator<PwPair> distanceSort = new Comparator<PwPair>(){
+  private static Comparator<PwPair> testComparator = new Comparator<PwPair>() {
     @Override
     public int compare(PwPair lhs, PwPair rhs) {
-      return lhs.compareTo(rhs);
+      return lhs.getUrlDevice().getId().compareTo(rhs.getUrlDevice().getId());
     }
   };
+
   private class FetchPwsResultsTask {
     private int mNumExpected;
     private int mNumFound;
@@ -125,7 +126,7 @@ public class IntegrationTest {
     FetchPwsResultsTask task = new FetchPwsResultsTask(4);
     assertTrue(task.run());
     assertNull(task.getException());
-    List<PwPair> pwPairs = physicalWebCollection.getPwPairsSortedByRank(distanceSort);
+    List<PwPair> pwPairs = physicalWebCollection.getPwPairsSortedByRank(testComparator);
     assertEquals(2, pwPairs.size());
     assertEquals("https://www.google.com/", pwPairs.get(0).getPwsResult().getSiteUrl());
     assertEquals("https://github.com/google/physical-web",

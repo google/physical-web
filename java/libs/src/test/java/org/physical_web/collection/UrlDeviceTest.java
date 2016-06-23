@@ -62,15 +62,6 @@ public class UrlDeviceTest {
   }
 
   @Test
-  public void getRankReturnsPointFive() {
-    PwsResult pwsResult = new PwsResult.Builder(URL1, URL1)
-        .setTitle("title1")
-        .setDescription("description1")
-        .build();
-    assertEquals(.5, mUrlDevice1.getRank(pwsResult), .0001);
-  }
-
-  @Test
   public void jsonSerializeWorks() {
     JSONAssert.assertEquals(mUrlDevice1.jsonSerialize(), jsonObject1, true);
   }
@@ -97,13 +88,6 @@ public class UrlDeviceTest {
   }
 
   @Test
-  public void devicesWithDifferentRankButSameInfoAreEqual() {
-    UrlDevice urlDevice1 = new RankedDevice(ID1, URL1, RANK1); // different rank
-    UrlDevice urlDevice2 = new RankedDevice(ID1, URL1, RANK2); // different rank
-    assertEquals(urlDevice1, urlDevice2); // equals should not consider rank
-  }
-
-  @Test
   public void unalikeDevicesAreNotEqual() {
     UrlDevice urlDevice1 = new UrlDevice(ID1, URL1);
     UrlDevice urlDevice2 = new UrlDevice(ID1, URL2); // same id, different url
@@ -115,22 +99,6 @@ public class UrlDeviceTest {
   @Test
   public void compareDeviceToItselfReturnsZero() {
     assertEquals(mUrlDevice1.compareTo(mUrlDevice1), 0);
-  }
-
-  @Test
-  public void compareDeviceToAlikeDeviceReturnsZero() {
-    UrlDevice urlDevice2 = new UrlDevice(ID1, URL1);
-    UrlDevice urlDevice3 = new RankedDevice(ID1, URL1, RANK1);
-    assertEquals(mUrlDevice1.compareTo(urlDevice2), 0); // identical device
-    assertEquals(mUrlDevice1.compareTo(urlDevice3), 0); // same info, but uses a RankedDevice
-    assertEquals(urlDevice3.compareTo(mUrlDevice1), 0); // reverse comparison
-  }
-
-  @Test
-  public void compareDeviceWithDifferentRankReturnsZero() {
-    UrlDevice urlDevice2 = new RankedDevice(ID1, URL1, RANK2); // different rank
-    assertEquals(mUrlDevice1.compareTo(urlDevice2), 0); // compareTo should not consider rank
-    assertEquals(urlDevice2.compareTo(mUrlDevice1), 0);
   }
 
   @Test
