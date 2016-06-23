@@ -62,6 +62,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -470,7 +471,7 @@ public class BeaconConfigFragment extends Fragment implements TextView.OnEditorA
 
         @Override
         public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
-          if (urls.iterator().next().toLowerCase().startsWith("https")){
+          if (urls.iterator().next().toLowerCase(Locale.US).startsWith("https")) {
             showToastOnUiThread(R.string.pws_filtered_url_unknown);
           } else {
             showToastOnUiThread(R.string.pws_filtered_url_http);

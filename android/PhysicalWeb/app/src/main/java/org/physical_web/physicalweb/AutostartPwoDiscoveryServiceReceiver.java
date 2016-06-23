@@ -26,6 +26,11 @@ import android.content.SharedPreferences;
  */
 public class AutostartPwoDiscoveryServiceReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
+    // Make sure we don't get spoofed with the wrong action.
+    if (!intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+      return;
+    }
+
     // Make sure the user has opted in
     String preferencesKey = context.getString(R.string.main_prefs_key);
     SharedPreferences sharedPreferences =

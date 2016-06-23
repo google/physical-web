@@ -49,9 +49,10 @@ android {
 
     lintOptions {
         // We'll get to fixing the icon later
-        disable 'IconLauncherShape', 'IconDensities', 'IconMissingDensityFolder', 'LongLogTag'
-        // Travis requires an older api at the moment
-        disable 'OldTargetApi'
+        disable 'GoogleAppIndexingWarning', 'IconLauncherShape', 'IconDensities',
+            'IconMissingDensityFolder', 'LongLogTag'
+        abortOnError true
+        warningsAsErrors true
     }
 }
 
@@ -68,7 +69,7 @@ dependencies {
 
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
-    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:appcompat-v7:23.4.0'
 }
 
 task checkstyle(type: Checkstyle) {
