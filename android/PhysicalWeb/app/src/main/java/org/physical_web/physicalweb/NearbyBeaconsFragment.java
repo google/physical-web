@@ -259,7 +259,8 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onUrlDeviceDiscoveryUpdate() {
-    for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank()) {
+    for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
+        Utils.newDistanceComparator())) {
       String groupId = Utils.getGroupId(pwPair.getPwsResult());
       Log.d(TAG, "groupid to add " + groupId);
       if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
@@ -325,11 +326,12 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private void emptyGroupIdQueue() {
     List<PwPair> pwPairs = new ArrayList<>();
+
     for (String groupId : mGroupIdQueue) {
       Log.d(TAG, "groupid " + groupId);
       pwPairs.add(Utils.getTopRankedPwPairByGroupId(mPwCollection, groupId));
     }
-    Collections.sort(pwPairs, Collections.reverseOrder());
+    Collections.sort(pwPairs, Utils.newDistanceComparator());
     for (PwPair pwPair : pwPairs) {
       mNearbyDeviceAdapter.addItem(pwPair);
     }

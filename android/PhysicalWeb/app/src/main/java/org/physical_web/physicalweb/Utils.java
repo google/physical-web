@@ -40,6 +40,9 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import org.json.JSONException;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -61,6 +64,27 @@ class Utils {
   private static final String PWSTRIPTIME_KEY = "pwstriptime";
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
+
+  public static Comparator<PwPair> newDistanceComparator() {
+    return new Comparator<PwPair>() {
+      public Map<String, Double> cachedDistances = new HashMap<>();
+
+      public double getDistance(UrlDevice urlDevice) {
+        if (cachedDistances.containsKey(urlDevice.getId())) {
+          return cachedDistances.get(urlDevice.getId());
+        }
+        double distance = Utils.getDistance(urlDevice);
+        cachedDistances.put(urlDevice.getId(), distance);
+        return distance;
+      }
+
+      @Override
+      public int compare(PwPair lhs, PwPair rhs) {
+        return Double.compare(getDistance(lhs.getUrlDevice()),
+            getDistance(rhs.getUrlDevice()));
+      }
+    };
+  }
 
   private static class PwsEndpoint {
     public String url;
@@ -329,6 +353,18 @@ class Utils {
     return PendingIntent.getActivity(context, requestID, intent, 0);
   }
 
+  public static PwPair getTopRankedPwPairByGroupId(
+      PhysicalWebCollection pwCollection, String groupId) {
+    // This does the same thing as the PhysicalWebCollection method, only it uses our custom
+    // getGroupId method.
+    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank(newDistanceComparator())) {
+      if (getGroupId(pwPair.getPwsResult()).equals(groupId)) {
+        return pwPair;
+      }
+    }
+    return null;
+  }
+
   /**
    * Decode the downloaded icon to a Bitmap.
    * @param pwCollection The collection where the icon is stored.
@@ -438,24 +474,6 @@ class Utils {
       }
     }
     return pwsResult.getGroupId();
-  }
-
-  /**
-   * Gets the top ranked result for a given groupId.
-   * @param pwCollection The collection of results.
-   * @param groupId The groupId for the results.
-   * @return The pair with the highest ranking for the groupId.
-   */
-  public static PwPair getTopRankedPwPairByGroupId(
-      PhysicalWebCollection pwCollection, String groupId) {
-    // This does the same thing as the PhysicalWebCollection method, only it uses our custom
-    // getGroupId method.
-    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank()) {
-      if (getGroupId(pwPair.getPwsResult()).equals(groupId)) {
-        return pwPair;
-      }
-    }
-    return null;
   }
 
   /**

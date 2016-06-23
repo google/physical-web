@@ -320,7 +320,8 @@ public class UrlDeviceDiscoveryService extends Service
       return;
     }
 
-    List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank();
+    List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank(
+        Utils.newDistanceComparator());
 
     // If no beacons have been found
     if (pwPairs.size() == 0) {
@@ -502,7 +503,7 @@ public class UrlDeviceDiscoveryService extends Service
   }
 
   public boolean hasResults() {
-    return !mPwCollection.getGroupedPwPairsSortedByRank().isEmpty();
+    return !mPwCollection.getPwPairs().isEmpty();
   }
 
   public PhysicalWebCollection getPwCollection() {
