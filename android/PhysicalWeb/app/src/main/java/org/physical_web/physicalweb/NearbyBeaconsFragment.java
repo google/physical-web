@@ -259,22 +259,29 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onUrlDeviceDiscoveryUpdate() {
-    for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
-        Utils.newDistanceComparator())) {
-      String groupId = Utils.getGroupId(pwPair.getPwsResult());
-      Log.d(TAG, "groupid to add " + groupId);
-      if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
-        mNearbyDeviceAdapter.updateItem(pwPair);
-      } else if (!mGroupIdQueue.contains(groupId)) {
-        mGroupIdQueue.add(groupId);
-        if (mSecondScanComplete) {
-          // If we've already waited for the second scan timeout, go ahead and put the item in the
-          // listview.
-          emptyGroupIdQueue();
+    // Since this callback is given on a background thread and we want
+    // to update the list adapter (which can only be done on the UI thread)
+    // we have to interact with the adapter on the UI thread.
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank()) {
+          String groupId = Utils.getGroupId(pwPair.getPwsResult());
+          Log.d(TAG, "groupid to add " + groupId);
+          if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
+            mNearbyDeviceAdapter.updateItem(pwPair);
+          } else if (!mGroupIdQueue.contains(groupId)) {
+            mGroupIdQueue.add(groupId);
+            if (mSecondScanComplete) {
+              // If we've already waited for the second scan timeout,
+              // go ahead and put the item in the listview.
+              emptyGroupIdQueue();
+            }
+          }
         }
+        mNearbyDeviceAdapter.notifyDataSetChanged();
       }
-    }
-    notifyChangeOnUiThread();
+    });
   }
 
   private void stopScanningDisplay() {
@@ -336,21 +343,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mNearbyDeviceAdapter.addItem(pwPair);
     }
     mGroupIdQueue.clear();
-    notifyChangeOnUiThread();
-  }
-
-
-  /**
-   * Notify the view on the UI thread that the underlying data has been changed.
-   *
-   */
-  private void notifyChangeOnUiThread() {
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        mNearbyDeviceAdapter.notifyDataSetChanged();
-      }
-    });
+    mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
   // Adapter for holding beacons found through scanning.
