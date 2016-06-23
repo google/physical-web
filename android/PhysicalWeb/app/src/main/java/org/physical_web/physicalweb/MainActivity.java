@@ -193,7 +193,7 @@ public class MainActivity extends Activity {
         .commit();
   }
 
-  private void showSettingsFragment(){
+  private void showSettingsFragment() {
     SettingsFragment settingsFragment = new SettingsFragment();
     getFragmentManager().beginTransaction()
         .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,

@@ -16,6 +16,8 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
+import org.physical_web.physicalweb.ble.UriBeacon;
 
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
@@ -44,14 +46,11 @@ import android.widget.Toast;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
-import org.physical_web.physicalweb.ble.UriBeacon;
 /**
-  * Shares URLs via bluetooth.
-  * Also interfaces with PWS to shorten URLs that are too long for Eddystone URLs.
-  * Lastly, it surfaces a persistent notification whenever a URL is currently being broadcast.
-**/
-
+ * Shares URLs via bluetooth.
+ * Also interfaces with PWS to shorten URLs that are too long for Eddystone URLs.
+ * Lastly, it surfaces a persistent notification whenever a URL is currently being broadcast.
+ **/
 @TargetApi(21)
 public class PhysicalWebBroadcastService extends Service {
 
@@ -104,7 +103,7 @@ public class PhysicalWebBroadcastService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         fetchBroadcastData(intent);
-        if (mDisplayUrl == null){
+        if (mDisplayUrl == null) {
             stopSelf();
             return START_STICKY;
         }
@@ -141,9 +140,9 @@ public class PhysicalWebBroadcastService extends Service {
         return START_STICKY;
     }
 
-    private void fetchBroadcastData(Intent intent){
+    private void fetchBroadcastData(Intent intent) {
         mStartedByRestart = intent == null;
-        if (intent == null){
+        if (intent == null) {
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
             mDisplayUrl = sharedPrefs.getString(PREVIOUS_BROADCAST_URL_KEY, null);
             return;
