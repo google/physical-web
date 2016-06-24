@@ -22,7 +22,7 @@ import org.json.JSONObject;
 /**
  * Metadata returned from the Physical Web Service for a single URL.
  */
-public class PwsResult implements Comparable<PwsResult> {
+public class PwsResult {
   private static final String REQUESTURL_KEY = "requesturl";
   private static final String SITEURL_KEY = "siteurl";
   private static final String TITLE_KEY = "title";
@@ -528,87 +528,5 @@ public class PwsResult implements Comparable<PwsResult> {
         .setIconUrl(jsonObject.optString(ICONURL_KEY))
         .setGroupId(jsonObject.optString(GROUPID_KEY))
         .build();
-  }
-
-  /**
-   * Return a hash code for this PwsResult.
-   * This calculation does not include the extra data.
-   * @return hash code
-   */
-  @Override
-  public int hashCode() {
-    int hash = 1;
-    hash = hash * 31 + mRequestUrl.hashCode();
-    hash = hash * 31 + mSiteUrl.hashCode();
-    hash = hash * 31 + mTitle.hashCode();
-    hash = hash * 31 + mDescription.hashCode();
-    hash = hash * 31 + mIconUrl.hashCode();
-    hash = hash * 31 + ((mGroupId == null) ? 0 : mGroupId.hashCode());
-    return hash;
-  }
-
-  /**
-   * Check if two PwsResults are equal.
-   * This does not compare extra data.
-   * @param other the PwsResult to compare to.
-   * @return true if the PwsResults are equal.
-   */
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-
-    if (other instanceof PwsResult) {
-      PwsResult pwsResult = (PwsResult) other;
-      return compareTo(pwsResult) == 0;
-    }
-    return false;
-  }
-
-  /**
-   * Compare two PwsResults based on request URL alphabetical ordering, breaking ties by comparing
-   * site URL and group ID.
-   * @param other the PwsResult to compare to.
-   * @return the comparison value.
-   */
-  @Override
-  public int compareTo(PwsResult other) {
-    if (this == other) {
-      return 0;
-    }
-
-    // 1. mRequestUrl
-    int compareValue = Utils.nullSafeCompare(mRequestUrl, other.mRequestUrl);
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    // 2. mSiteUrl
-    compareValue = Utils.nullSafeCompare(mSiteUrl, other.mSiteUrl);
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    // 3. mTitle
-    compareValue = Utils.nullSafeCompare(mTitle, other.mTitle);
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    // 4. mDescription
-    compareValue = Utils.nullSafeCompare(mDescription, other.mDescription);
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    // 5. mIconUrl
-    compareValue = Utils.nullSafeCompare(mIconUrl, other.mIconUrl);
-    if (compareValue != 0) {
-      return compareValue;
-    }
-
-    // 6. mGroupId
-    return Utils.nullSafeCompare(mGroupId, other.mGroupId);
   }
 }

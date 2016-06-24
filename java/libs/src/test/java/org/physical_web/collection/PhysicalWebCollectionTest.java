@@ -22,10 +22,10 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.skyscreamer.jsonassert.JSONAssert;
-
 import java.util.Comparator;
 import java.util.List;
+
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * PhysicalWebCollection unit test class.
@@ -52,19 +52,13 @@ public class PhysicalWebCollectionTest {
   private static final byte[] ICON1 = new byte[] { 0x10 , 0x00 };
   private PhysicalWebCollection physicalWebCollection1;
   private JSONObject jsonObject1;
-  private static Comparator<PwPair> distanceSort = new Comparator<PwPair>(){
+
+  private static Comparator<PwPair> testComparator = new Comparator<PwPair>() {
     @Override
     public int compare(PwPair lhs, PwPair rhs) {
-      return rhs.compareTo(lhs);
+      return lhs.getUrlDevice().getId().compareTo(rhs.getUrlDevice().getId());
     }
   };
-
-  private void addRankedDeviceAndMetadata(PhysicalWebCollection collection, String id, String url,
-                                          String groupId, double rank) {
-    PwPair rankedPair = RankedDevice.createRankedPair(id, url, groupId, rank);
-    collection.addUrlDevice(rankedPair.getUrlDevice());
-    collection.addMetadata(rankedPair.getPwsResult());
-  }
 
   @Before
   public void setUp() {
@@ -146,44 +140,56 @@ public class PhysicalWebCollectionTest {
     assertEquals(pwsResult.getGroupId(), GROUP_ID1);
   }
 
+  public static void addPair(PhysicalWebCollection collection,
+      String id, String url, String groupId) {
+    UrlDevice urlDevice = new UrlDevice(id, url);
+    PwsResult pwsResult = new PwsResult.Builder(url, url)
+      .setTitle("title1")
+      .setDescription("description1")
+      .setGroupId(groupId)
+      .build();
+    collection.addUrlDevice(urlDevice);
+    collection.addMetadata(pwsResult);
+  }
+
   @Test
   public void getPwPairsSortedByRankWorks() {
     PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, null, .1);
-    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL2, null, .5);
-    addRankedDeviceAndMetadata(physicalWebCollection, ID3, URL2, null, .9);  // Duplicate URL
-    List<PwPair> pwPairs = physicalWebCollection.getPwPairsSortedByRank(distanceSort);
+    addPair(physicalWebCollection, ID1, URL1, null);
+    addPair(physicalWebCollection, ID2, URL2, null);
+    addPair(physicalWebCollection, ID3, URL2, null);  // Duplicate URL
+    List<PwPair> pwPairs = physicalWebCollection.getPwPairsSortedByRank(testComparator);
     assertEquals(pwPairs.size(), 2);
-    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID3);
-    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID1);
+    assertEquals(pwPairs.get(0).getUrlDevice().getId(), ID1);
+    assertEquals(pwPairs.get(1).getUrlDevice().getId(), ID2);
   }
 
   @Test
   public void getGroupedPwPairsSortedByRankWorks() {
     PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUP_ID1, .1);  // Group 1
-    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL2, null, .6);  // Ungrouped
-    addRankedDeviceAndMetadata(physicalWebCollection, ID3, URL2, null, .7);  // Duplicate URL
-    addRankedDeviceAndMetadata(physicalWebCollection, ID4, URL3a, GROUP_ID2, .5);  // Group 2
-    addRankedDeviceAndMetadata(physicalWebCollection, ID5, URL3b, GROUP_ID2, .9);  // Also group 2
-    List<PwPair> groupedPairs = physicalWebCollection.getGroupedPwPairsSortedByRank(distanceSort);
+    addPair(physicalWebCollection, ID1, URL1, GROUP_ID1);  // Group 1
+    addPair(physicalWebCollection, ID2, URL2, null);  // Ungrouped
+    addPair(physicalWebCollection, ID3, URL2, null);  // Duplicate URL
+    addPair(physicalWebCollection, ID4, URL3a, GROUP_ID2);  // Group 2
+    addPair(physicalWebCollection, ID5, URL3b, GROUP_ID2);  // Also group 2
+    List<PwPair> groupedPairs = physicalWebCollection.getGroupedPwPairsSortedByRank(testComparator);
     assertEquals(groupedPairs.size(), 3);
-    assertEquals(groupedPairs.get(0).getPwsResult().getGroupId(), GROUP_ID2);
-    assertEquals(groupedPairs.get(0).getUrlDevice().getId(), ID5);
+    assertEquals(groupedPairs.get(0).getPwsResult().getGroupId(), GROUP_ID1);
+    assertEquals(groupedPairs.get(0).getUrlDevice().getId(), ID1);
     assertEquals(groupedPairs.get(1).getPwsResult().getGroupId(), null);
-    assertEquals(groupedPairs.get(1).getUrlDevice().getId(), ID3);
-    assertEquals(groupedPairs.get(2).getPwsResult().getGroupId(), GROUP_ID1);
-    assertEquals(groupedPairs.get(2).getUrlDevice().getId(), ID1);
+    assertEquals(groupedPairs.get(1).getUrlDevice().getId(), ID2);
+    assertEquals(groupedPairs.get(2).getPwsResult().getGroupId(), GROUP_ID2);
+    assertEquals(groupedPairs.get(2).getUrlDevice().getId(), ID4);
   }
 
   @Test
   public void getTopRankedPwPairByGroupIdWorks() {
     PhysicalWebCollection physicalWebCollection = new PhysicalWebCollection();
-    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUP_ID1, .1);  // Group 1
-    addRankedDeviceAndMetadata(physicalWebCollection, ID2, URL2, GROUP_ID1, .2);  // Better rank
-    addRankedDeviceAndMetadata(physicalWebCollection, ID1, URL1, GROUP_ID2, .3);  // Group 2
-    assertNull(physicalWebCollection.getTopRankedPwPairByGroupId("notagroup", distanceSort));
-    PwPair pwPair = physicalWebCollection.getTopRankedPwPairByGroupId(GROUP_ID1, distanceSort);
+    addPair(physicalWebCollection, ID1, URL1, GROUP_ID1);  // Group 1
+    addPair(physicalWebCollection, ID2, URL2, GROUP_ID1);  // Better rank
+    addPair(physicalWebCollection, ID1, URL1, GROUP_ID2);  // Group 2
+    assertNull(physicalWebCollection.getTopRankedPwPairByGroupId("notagroup", testComparator));
+    PwPair pwPair = physicalWebCollection.getTopRankedPwPairByGroupId(GROUP_ID1, testComparator);
     assertNotNull(pwPair);
     assertEquals(ID2, pwPair.getUrlDevice().getId());
   }

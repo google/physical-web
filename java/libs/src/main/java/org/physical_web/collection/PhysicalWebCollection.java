@@ -130,7 +130,7 @@ public class PhysicalWebCollection {
   }
 
   /**
-   * Gets all UrlDevices stored in the collection
+   * Gets all UrlDevices stored in the collection.
    * @return List of UrlDevices
    */
   public List<UrlDevice> getUrlDevices() {
@@ -240,7 +240,7 @@ public class PhysicalWebCollection {
     List<PwPair> allPwPairs = getPwPairs();
 
     // Group pairs with the same groupId, keeping only the top-ranked PwPair.
-    List<PwPair> groupedPwPairs = removeDuplicateGroupIds(allPwPairs, null);
+    List<PwPair> groupedPwPairs = removeDuplicateGroupIds(allPwPairs, null, comparator);
 
     // Sort by descending rank.
     Collections.sort(groupedPwPairs, comparator);
@@ -305,7 +305,7 @@ public class PhysicalWebCollection {
    * @return Filtered PwPairs list.
    */
   private static List<PwPair> removeDuplicateGroupIds(List<PwPair> allPairs,
-                                                      Map<String, UrlGroup> outGroupMap) {
+      Map<String, UrlGroup> outGroupMap, Comparator<PwPair> comparator) {
     List<PwPair> filteredPairs = new ArrayList<>();
     Map<String, UrlGroup> groupMap = outGroupMap;
     if (groupMap == null) {
@@ -332,7 +332,7 @@ public class PhysicalWebCollection {
     }
 
     for (UrlGroup urlGroup : groupMap.values()) {
-      filteredPairs.add(urlGroup.getTopPair());
+      filteredPairs.add(urlGroup.getTopPair(comparator));
     }
 
     return filteredPairs;
