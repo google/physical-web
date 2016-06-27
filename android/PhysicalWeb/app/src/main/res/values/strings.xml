@@ -49,6 +49,11 @@
     <string name="prod_pws">Production Open Source Physical Web Service</string>
     <string name="dev_pws">Development Open Source Physical Web Service</string>
     <string name="custom_pws">Custom Physical Web Service</string>
+    <string name="scan_settings_key">scan_settings</string>
+    <string name="scan_settings_title">Scan Settings</string>
+    <string name="mDNS_key">mDNS</string>
+    <string name="mDNS_title">Enable mDNS</string>
+    <string name="mDNS_summary">Enabling mDNS allows you to find items on the local network.</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>
