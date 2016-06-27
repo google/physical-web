@@ -27,7 +27,6 @@ import org.physical_web.collection.UrlDevice;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -36,6 +35,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -162,8 +162,7 @@ public class UrlDeviceDiscoveryService extends Service
 
   private void restoreCache() {
     // Make sure we are trying to load the right version of the cache
-    String preferencesKey = getString(R.string.discovery_service_prefs_key);
-    SharedPreferences prefs = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     int prefsVersion = prefs.getInt(PREFS_VERSION_KEY, 0);
     long now = new Date().getTime();
     if (prefsVersion != PREFS_VERSION) {
@@ -241,13 +240,11 @@ public class UrlDeviceDiscoveryService extends Service
 
   private void saveCache() {
     // Write the PW Collection
-    String preferencesKey = getString(R.string.discovery_service_prefs_key);
-    SharedPreferences prefs = getSharedPreferences(preferencesKey, Context.MODE_PRIVATE);
-    SharedPreferences.Editor editor = prefs.edit();
-    editor.putInt(PREFS_VERSION_KEY, PREFS_VERSION);
-    editor.putLong(SCAN_START_TIME_KEY, mScanStartTime);
-    editor.putString(PW_COLLECTION_KEY, mPwCollection.jsonSerialize().toString());
-    editor.apply();
+    PreferenceManager.getDefaultSharedPreferences(this).edit()
+        .putInt(PREFS_VERSION_KEY, PREFS_VERSION)
+        .putLong(SCAN_START_TIME_KEY, mScanStartTime)
+        .putString(PW_COLLECTION_KEY, mPwCollection.jsonSerialize().toString())
+        .apply();
   }
 
   @Override

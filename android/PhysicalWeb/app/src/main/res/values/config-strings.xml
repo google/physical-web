@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="url_getting_started">https://google.github.io/physical-web/mobile/android/getting-started.html</string>
+    <string name="pws_endpoint_setting_key">pws_endpoint</string>
+    <string name="custom_pws_endpoint_key">custom_pws_endpoint</string>
+    <string name="custom_pws_url_key">custom_pws_url</string>
+    <string name="custom_pws_version_key">custom_pws_version</string>
+    <string name="custom_pws_api_key_key">custom_pws_key</string>
+    <string name="scan_settings_key">scan_settings</string>
+    <string name="mDNS_key">mDNS</string>
+</resources>

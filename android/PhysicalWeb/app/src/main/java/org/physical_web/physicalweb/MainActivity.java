@@ -19,9 +19,7 @@ package org.physical_web.physicalweb;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -154,7 +152,7 @@ public class MainActivity extends Activity {
         finish();
         return;
       }
-      if (checkIfUserHasOptedIn()) {
+      if (Utils.checkIfUserHasOptedIn(this)) {
         Log.d(TAG, "checkingPermissions");
         checkPermissions(btAdapter);
       } else {
@@ -214,12 +212,5 @@ public class MainActivity extends Activity {
         .replace(R.id.main_activity_container, aboutFragment)
         .addToBackStack(null)
         .commit();
-  }
-
-  private boolean checkIfUserHasOptedIn() {
-    String preferencesKey = getString(R.string.main_prefs_key);
-    SharedPreferences sharedPreferences = getSharedPreferences(preferencesKey,
-        Context.MODE_PRIVATE);
-    return sharedPreferences.getBoolean(getString(R.string.user_opted_in_flag), false);
   }
 }
