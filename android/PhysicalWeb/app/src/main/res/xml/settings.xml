@@ -28,4 +28,17 @@
             android:dialogTitle="@string/custom_pws_api_key_display" />
 
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="@string/scan_settings_key"
+        android:title="@string/scan_settings_title"
+        android:persistent="false">
+
+        <CheckBoxPreference
+           android:key="@string/mDNS_key"
+           android:title="@string/mDNS_title"
+           android:summary="@string/mDNS_summary"
+           android:defaultValue="false" />
+    </PreferenceCategory>
+
 </PreferenceScreen>

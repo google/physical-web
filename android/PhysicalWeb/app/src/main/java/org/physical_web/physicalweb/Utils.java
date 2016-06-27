@@ -322,6 +322,16 @@ class Utils {
   }
 
   /**
+   * Get the saved setting for enabling mDNS folder.
+   * @param context The context for the SharedPreferences.
+   * @return The enable mDNS folder setting.
+   */
+  public static boolean getMdnsEnabled(Context context) {
+    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+    return sharedPref.getBoolean(context.getString(R.string.mDNS_key), false);
+  }
+
+  /**
    * Toast the user to indicate the API key is missing.
    * @param context The context for the resources.
    */
@@ -353,6 +363,12 @@ class Utils {
     return PendingIntent.getActivity(context, requestID, intent, 0);
   }
 
+  /**
+   * Gets the top ranked PwPair with the given groupId.
+   * @param pwCollection The collection of PwPairs.
+   * @param groupId The group id of the requested PwPair.
+   * @return The top ranked PwPair with a given group id if it exist.
+   */
   public static PwPair getTopRankedPwPairByGroupId(
       PhysicalWebCollection pwCollection, String groupId) {
     // This does the same thing as the PhysicalWebCollection method, only it uses our custom

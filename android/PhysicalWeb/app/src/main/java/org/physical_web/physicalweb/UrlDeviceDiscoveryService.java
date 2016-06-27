@@ -143,8 +143,7 @@ public class UrlDeviceDiscoveryService extends Service
     mNotificationManager = NotificationManagerCompat.from(this);
     mUrlDeviceDiscoverers = new ArrayList<>();
 
-    // disable mDNS PWO discovery for pre-M devices
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+    if (Utils.getMdnsEnabled(this)) {
       mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
