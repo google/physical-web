@@ -186,8 +186,8 @@ public class MainActivity extends Activity {
   private void showBeaconConfigFragment() {
     BeaconConfigFragment beaconConfigFragment = new BeaconConfigFragment();
     getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
-                             R.anim.fade_in_activity, R.anim.fade_out_fragment)
+        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
+                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
         .replace(R.id.main_activity_container, beaconConfigFragment)
         .addToBackStack(null)
         .commit();
@@ -196,8 +196,8 @@ public class MainActivity extends Activity {
   private void showSettingsFragment() {
     SettingsFragment settingsFragment = new SettingsFragment();
     getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
-                             R.anim.fade_in_activity, R.anim.fade_out_fragment)
+        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
+                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
         .replace(R.id.main_activity_container, settingsFragment)
         .addToBackStack(null)
         .commit();
@@ -209,8 +209,8 @@ public class MainActivity extends Activity {
   private void showAboutFragment() {
     AboutFragment aboutFragment = new AboutFragment();
     getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.anim.fade_in_and_slide_up_fragment, R.anim.fade_out_fragment,
-                             R.anim.fade_in_activity, R.anim.fade_out_fragment)
+        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
+                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
         .replace(R.id.main_activity_container, aboutFragment)
         .addToBackStack(null)
         .commit();
