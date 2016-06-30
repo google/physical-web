@@ -48,6 +48,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -321,9 +322,8 @@ public class UrlDeviceDiscoveryService extends Service
     if (!mCanUpdateNotifications) {
       return;
     }
-
     List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank(
-        Utils.newDistanceComparator());
+        new Utils.PwPairComparator());
 
     // If no beacons have been found
     if (pwPairs.size() == 0) {

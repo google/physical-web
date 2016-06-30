@@ -53,7 +53,8 @@ android {
     lintOptions {
         // We'll get to fixing the icon later
         disable 'GoogleAppIndexingWarning', 'IconLauncherShape', 'IconDensities',
-            'IconMissingDensityFolder', 'LongLogTag', 'GradleCompatible', 'OldTargetApi'
+            'IconMissingDensityFolder', 'LongLogTag', 'GradleCompatible', 'OldTargetApi',
+            'GradleDependency'
         abortOnError true
         warningsAsErrors true
     }
