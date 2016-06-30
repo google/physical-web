@@ -53,7 +53,7 @@ android {
     lintOptions {
         // We'll get to fixing the icon later
         disable 'GoogleAppIndexingWarning', 'IconLauncherShape', 'IconDensities',
-            'IconMissingDensityFolder', 'LongLogTag'
+            'IconMissingDensityFolder', 'LongLogTag', 'GradleCompatible', 'OldTargetApi'
         abortOnError true
         warningsAsErrors true
     }
@@ -72,7 +72,7 @@ dependencies {
 
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:24.0.0'
 }
 
 checkstyle {

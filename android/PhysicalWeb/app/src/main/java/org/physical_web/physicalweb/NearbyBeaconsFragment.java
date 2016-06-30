@@ -78,6 +78,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private boolean mSecondScanComplete;
   private boolean mFirstTime;
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
+  private boolean missedEmptyGroupIdQueue = false;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -202,6 +203,29 @@ public class NearbyBeaconsFragment extends ListFragment
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
+    SwipeDismissListViewTouchListener touchListener =
+      new SwipeDismissListViewTouchListener(
+              listView,
+              new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                  @Override
+                  public boolean canDismiss(int position) {
+                      return true;
+                  }
+
+                  @Override
+                  public void onDismiss(ListView listView, int position) {
+                    if (missedEmptyGroupIdQueue) {
+                      missedEmptyGroupIdQueue = false;
+                      emptyGroupIdQueue();
+                    }
+                  }
+              });
+    // Uncomment to implement swiping to dismiss
+    listView.setOnTouchListener(touchListener);
+    
+    // Setting this scroll listener is required to ensure that during ListView scrolling,
+    // we don't look for swipes.
+    listView.setOnScrollListener(touchListener.makeScrollListener());
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
   }
 
@@ -265,6 +289,9 @@ public class NearbyBeaconsFragment extends ListFragment
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
+        if (SwipeDismissListViewTouchListener.isLocked()) {
+          return;
+        }
         for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
             Utils.newDistanceComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
@@ -333,6 +360,10 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   private void emptyGroupIdQueue() {
+    if (SwipeDismissListViewTouchListener.isLocked()) {
+      missedEmptyGroupIdQueue = true;
+      return;
+    }
     List<PwPair> pwPairs = new ArrayList<>();
 
     for (String groupId : mGroupIdQueue) {
