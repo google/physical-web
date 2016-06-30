@@ -23,12 +23,22 @@
                 android:orientation="vertical"
                 android:layout_weight="1"
                 android:gravity="start">
+
             <ImageView
                     android:id="@+id/icon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginTop="6dp"
                     android:contentDescription="@string/nearby_beacon_favicon_content_description">
+            </ImageView>
+
+            <ImageView
+                    android:id="@+id/star"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="6dp"
+                    android:clickable="true"
+                    android:contentDescription="@string/nearby_beacon_star_description">
             </ImageView>
         </LinearLayout>
 

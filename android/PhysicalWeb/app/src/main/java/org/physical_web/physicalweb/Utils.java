@@ -40,11 +40,13 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import org.json.JSONException;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class is for various static utilities, largely for manipulation of data structures provided
@@ -56,6 +58,7 @@ class Utils {
   public static final String DEV_ENDPOINT = "https://url-caster-dev.appspot.com";
   public static final int DEV_ENDPOINT_VERSION = 1;
   public static final String GOOGLE_ENDPOINT = "https://physicalweb.googleapis.com";
+  public static final String FAVORITES_KEY = "fav";
   public static final int GOOGLE_ENDPOINT_VERSION = 2;
   private static final String SCANTIME_KEY = "scantime";
   private static final String PUBLIC_KEY = "public";
@@ -64,27 +67,69 @@ class Utils {
   private static final String PWSTRIPTIME_KEY = "pwstriptime";
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
+  private static Set<String> mFavoriteUrls = new HashSet<>();
 
-  public static Comparator<PwPair> newDistanceComparator() {
-    return new Comparator<PwPair>() {
-      public Map<String, Double> cachedDistances = new HashMap<>();
+  // Compares PwPairs by first considering if it has been favorited
+  // and then considering distance
+  public static class PwPairComparator implements Comparator<PwPair> {
+    private Set<String> mFavorites = mFavoriteUrls;
+    public Map<String, Double> mCachedDistances;
+    
+    PwPairComparator() {
+      mCachedDistances = new HashMap<>();
+    }
 
-      public double getDistance(UrlDevice urlDevice) {
-        if (cachedDistances.containsKey(urlDevice.getId())) {
-          return cachedDistances.get(urlDevice.getId());
-        }
-        double distance = Utils.getDistance(urlDevice);
-        cachedDistances.put(urlDevice.getId(), distance);
-        return distance;
+    public double getDistance(UrlDevice urlDevice) {
+      if (mCachedDistances.containsKey(urlDevice.getId())) {
+        return mCachedDistances.get(urlDevice.getId());
       }
+      double distance = Utils.getDistance(urlDevice);
+      mCachedDistances.put(urlDevice.getId(), distance);
+      return distance;
+    }
 
-      @Override
-      public int compare(PwPair lhs, PwPair rhs) {
+    @Override
+    public int compare(PwPair lhs, PwPair rhs) {
+      String lSite = lhs.getPwsResult().getSiteUrl();
+      String rSite = rhs.getPwsResult().getSiteUrl();
+      if (mFavorites.contains(lSite) == mFavorites.contains(rSite)) {
         return Double.compare(getDistance(lhs.getUrlDevice()),
-            getDistance(rhs.getUrlDevice()));
+          getDistance(rhs.getUrlDevice()));
+      } else {
+        if (mFavorites.contains(lSite)) {
+          return -1;
+        }
+        return 1;
       }
-    };
+    }
   }
+
+  // Check if URL has been favorited
+  public static boolean isFavorite(String siteUrl) {
+    return mFavoriteUrls.contains(siteUrl);
+  }
+
+  // Toggle URL's favorite status
+  public static void toggleFavorite(String siteUrl) {
+    if (isFavorite(siteUrl)) {
+      mFavoriteUrls.remove(siteUrl);
+      return;
+    }
+    mFavoriteUrls.add(siteUrl);
+  }
+
+  public static void saveFavorites(Context context) {
+    // Write the PW Collection
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+      .putStringSet(Utils.FAVORITES_KEY, mFavoriteUrls)
+      .apply();
+  }
+
+  public static void restoreFavorites(Context context) {
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    mFavoriteUrls = prefs.getStringSet(Utils.FAVORITES_KEY, new HashSet<String>());
+  }
+
 
   private static class PwsEndpoint {
     public String url;
@@ -373,7 +418,8 @@ class Utils {
       PhysicalWebCollection pwCollection, String groupId) {
     // This does the same thing as the PhysicalWebCollection method, only it uses our custom
     // getGroupId method.
-    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank(newDistanceComparator())) {
+    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank(
+        new PwPairComparator())) {
       if (getGroupId(pwPair.getPwsResult()).equals(groupId)) {
         return pwPair;
       }

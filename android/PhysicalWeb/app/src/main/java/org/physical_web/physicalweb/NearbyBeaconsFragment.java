@@ -27,6 +27,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,11 +44,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -203,6 +209,7 @@ public class NearbyBeaconsFragment extends ListFragment
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
+    Utils.restoreFavorites(getActivity());
   }
 
   @Override
@@ -266,7 +273,7 @@ public class NearbyBeaconsFragment extends ListFragment
       @Override
       public void run() {
         for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
-            Utils.newDistanceComparator())) {
+            new Utils.PwPairComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
           Log.d(TAG, "groupid to add " + groupId);
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
@@ -339,7 +346,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "groupid " + groupId);
       pwPairs.add(Utils.getTopRankedPwPairByGroupId(mPwCollection, groupId));
     }
-    Collections.sort(pwPairs, Utils.newDistanceComparator());
+    Collections.sort(pwPairs, new Utils.PwPairComparator());
     for (PwPair pwPair : pwPairs) {
       mNearbyDeviceAdapter.addItem(pwPair);
     }
@@ -415,6 +422,29 @@ public class NearbyBeaconsFragment extends ListFragment
       setText(view, R.id.description, pwsResult.getDescription());
       ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
           Utils.getBitmapIcon(mPwCollection, pwsResult));
+
+      final String siteUrl = pwsResult.getSiteUrl();
+      if (Utils.isFavorite(pwsResult.getSiteUrl())) {
+        ((ImageView) view.findViewById(R.id.star)).setImageResource(
+            android.R.drawable.btn_star_big_on);
+      } else {
+        ((ImageView) view.findViewById(R.id.star)).setImageResource(
+            android.R.drawable.btn_star_big_off);
+      }
+      view.findViewById(R.id.star).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          if (Utils.isFavorite(siteUrl)) {
+            ((ImageView) v.findViewById(R.id.star)).setImageResource(
+                android.R.drawable.btn_star_big_off);
+          } else {
+            ((ImageView) v.findViewById(R.id.star)).setImageResource(
+                android.R.drawable.btn_star_big_on);
+          }
+          Utils.toggleFavorite(siteUrl);
+          Utils.saveFavorites(getActivity());
+        }
+      });
 
       if (mDebugViewEnabled) {
         // If we should show the ranging data
