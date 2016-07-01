@@ -17,74 +17,62 @@
 package org.physical_web.physicalweb;
 
 import android.content.Context;
-import android.net.nsd.NsdManager;
-import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 import android.webkit.URLUtil;
 
+import com.youview.tinydnssd.DiscoverResolver;
+import com.youview.tinydnssd.MDNSDiscover;
+
+import java.util.Map;
+
+
 class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
-  private static final String TAG = "MdnsUrlDeviceDiscoverer";
-  NsdManager.DiscoveryListener mDiscoveryListener = new NsdManager.DiscoveryListener() {
-
-    @Override
-    public void onDiscoveryStarted(String regType) {
-      Log.d(TAG, "Service discovery started");
-      mState = State.STARTED;
-    }
-
-    @Override
-    public void onServiceFound(NsdServiceInfo service) {
-      Log.d(TAG, "Service discovery success" + service);
-      String name = service.getServiceName();
-      if (URLUtil.isNetworkUrl(name)) {
-        String id = TAG + service.getHost() + service.getPort();
-        reportUrlDevice(createUrlDeviceBuilder(id, name)
-            .setPrivate()
-            .build());
-      }
-    }
-
-    @Override
-    public void onServiceLost(NsdServiceInfo service) {
-      Log.e(TAG, "service lost" + service);
-    }
-
-    @Override
-    public void onDiscoveryStopped(String serviceType) {
-      Log.i(TAG, "Discovery stopped: " + serviceType);
-      mState = State.STOPPED;
-      if (toRestart) {
-        toRestart = false;
-        startScan();
-      }
-    }
-
-    @Override
-    public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-      Log.e(TAG, "Discovery failed: Error code:" + errorCode);
-      mNsdManager.stopServiceDiscovery(this);
-    }
-
-    @Override
-    public void onStopDiscoveryFailed(String serviceType, int errorCode) {
-      Log.e(TAG, "Discovery failed: Error code:" + errorCode);
-      mNsdManager.stopServiceDiscovery(this);
-    }
-  };
-  private static final String MDNS_SERVICE_TYPE = "_http._tcp.";
-  private NsdManager mNsdManager;
+  private static final String TAG = "mdns";
+  DiscoverResolver resolver;
+  private static final String MDNS_SERVICE_TYPE = "_physicalweb._tcp";
   private enum State {
     STOPPED,
     WAITING,
     STARTED,
   }
   private State mState;
-  private boolean toRestart;
 
   public MdnsUrlDeviceDiscoverer(Context context) {
-    mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
     mState = State.STOPPED;
-    toRestart = false;
+    resolver = new DiscoverResolver(context, MDNS_SERVICE_TYPE,
+    new DiscoverResolver.Listener() {
+      @Override
+      public void onServicesChanged(Map<String, MDNSDiscover.Result> services) {
+        for (MDNSDiscover.Result result : services.values()) {
+            // access the Bluetooth MAC from the TXT record
+            String url = result.txt.dict.get("url");
+            Log.d(TAG, url);
+            String id = TAG + result.srv.fqdn + result.srv.port;
+            String title = "";
+            String description = "";
+            if (result.txt.dict.containsKey("public") &&
+                result.txt.dict.get("public").equals("false")) {
+              if (result.txt.dict.containsKey("title")) {
+                title = result.txt.dict.get("title");
+              }
+              if (result.txt.dict.containsKey("description")) {
+                description = result.txt.dict.get("description");
+              }
+              reportUrlDevice(createUrlDeviceBuilder(id, url)
+                .setPrivate()
+                .setTitle(title)
+                .setDescription(description)
+                .build());
+              continue;
+            }
+            if (URLUtil.isNetworkUrl(url)) {
+              reportUrlDevice(createUrlDeviceBuilder(id, url)
+                .setPrivate()
+                .build());
+            }
+        }
+      }
+    });
   }
 
   @Override
@@ -93,7 +81,7 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
       return;
     }
     mState = State.WAITING;
-    mNsdManager.discoverServices(MDNS_SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
+    resolver.start();
   }
 
   @Override
@@ -102,12 +90,6 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
       return;
     }
     mState = State.WAITING;
-    mNsdManager.stopServiceDiscovery(mDiscoveryListener);
-  }
-
-  @Override
-  public synchronized void restartScan() {
-    toRestart = true;
-    stopScan();
+    resolver.stop();
   }
 }

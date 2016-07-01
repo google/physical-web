@@ -265,6 +265,12 @@ public class UrlDeviceDiscoveryService extends Service
     // Don't short circuit because icons
     // and metadata may not be fetched
     mPwCollection.addUrlDevice(urlDevice);
+    if (Utils.isLocalDevice(urlDevice)) {
+      mPwCollection.addMetadata(new PwsResult.Builder(urlDevice.getUrl(), urlDevice.getUrl())
+        .setTitle(Utils.getTitle(urlDevice))
+        .setDescription(Utils.getDescription(urlDevice))
+        .build());
+    }
     mPwCollection.fetchPwsResults(new PwsResultCallback() {
       long mPwsTripTimeMillis = 0;
 

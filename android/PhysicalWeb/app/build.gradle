@@ -73,6 +73,7 @@ dependencies {
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
     compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.youview:tinydnssd:1.2.7'
 }
 
 checkstyle {
