@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Folder"
+        android:textSize="20sp"
+        android:fontFamily="sans-serif"
+        android:textColor="#FFFFFF"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:background="#464646"
+        android:paddingStart="18dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="6dp" />
