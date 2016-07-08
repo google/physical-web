@@ -22,17 +22,25 @@ import org.physical_web.collection.PwsClient;
 import org.physical_web.collection.PwsResult;
 import org.physical_web.collection.UrlDevice;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.view.View;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import org.uribeacon.scan.util.RangingUtils;
@@ -42,11 +50,14 @@ import org.json.JSONException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 /**
  * This class is for various static utilities, largely for manipulation of data structures provided
@@ -67,7 +78,17 @@ class Utils {
   private static final String PWSTRIPTIME_KEY = "pwstriptime";
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
+  private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
+  private static final int NEAREST_BEACON_NOTIFICATION_ID = 23;
+  private static final int SECOND_NEAREST_BEACON_NOTIFICATION_ID = 24;
+  private static final int SUMMARY_NOTIFICATION_ID = 25;
+  private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
+  private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
+  private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
+  private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_MIN;
+  private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static Set<String> mFavoriteUrls = new HashSet<>();
+  public static Set<String> mBlockedUrls = new HashSet<>();
 
   // Compares PwPairs by first considering if it has been favorited
   // and then considering distance
@@ -121,15 +142,60 @@ class Utils {
   public static void saveFavorites(Context context) {
     // Write the PW Collection
     PreferenceManager.getDefaultSharedPreferences(context).edit()
-      .putStringSet(Utils.FAVORITES_KEY, mFavoriteUrls)
+      .putStringSet(FAVORITES_KEY, mFavoriteUrls)
       .apply();
   }
 
   public static void restoreFavorites(Context context) {
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    mFavoriteUrls = prefs.getStringSet(Utils.FAVORITES_KEY, new HashSet<String>());
+    mFavoriteUrls = new HashSet<>(PreferenceManager.getDefaultSharedPreferences(
+        context).getStringSet(FAVORITES_KEY, new HashSet<String>()));
   }
 
+  public static boolean containsFavorite(List<PwPair> pairs) {
+    for (PwPair pair : pairs) {
+      if (isFavorite(pair.getPwsResult().getSiteUrl())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Check if URL has been favorited
+  public static boolean isBlocked(String siteUrl) {
+    try {
+      return mBlockedUrls.contains(new URI(siteUrl).getHost());
+    } catch (URISyntaxException e) {
+      return false;
+    }
+  }
+
+  // Toggle URL's favorite status
+  public static void addBlocked(String siteUrl) {
+    try {
+      mBlockedUrls.add(new URI(siteUrl).getHost());
+    } catch (URISyntaxException e) {
+      return;
+    }
+  }
+
+  public static void removeBlocked(String host) {
+    if (mBlockedUrls.contains(host)) {
+      mBlockedUrls.remove(host);
+    }
+  }
+
+  public static void saveBlocked(Context context) {
+    // Write the PW Collection
+    
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+      .putStringSet("blocked", mBlockedUrls)
+      .apply();
+  }
+
+  public static void restoreBlocked(Context context) {
+    mBlockedUrls = new HashSet<>(PreferenceManager.getDefaultSharedPreferences(
+        context).getStringSet("blocked", new HashSet<String>()));
+  }
 
   private static class PwsEndpoint {
     public String url;
@@ -372,8 +438,18 @@ class Utils {
    * @return The enable mDNS folder setting.
    */
   public static boolean getMdnsEnabled(Context context) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    return sharedPref.getBoolean(context.getString(R.string.mDNS_key), false);
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.mDNS_key), false);
+  }
+
+  /**
+   * Get the saved setting for enabling mDNS folder.
+   * @param context The context for the SharedPreferences.
+   * @return The enable mDNS folder setting.
+   */
+  public static boolean getDebugViewEnabled(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.debug_view_key), false);
   }
 
   /**

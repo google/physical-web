@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -80,10 +81,12 @@ public class NearbyBeaconsFragment extends ListFragment
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private SwipeRefreshWidget mSwipeRefreshWidget;
-  private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
   private boolean mFirstTime;
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
+  private boolean missedEmptyGroupIdQueue = false;
+  private Set<Integer> open;
+  private SwipeDismissListViewTouchListener touchListener;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -128,7 +131,13 @@ public class NearbyBeaconsFragment extends ListFragment
   private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener =
       new AdapterView.OnItemLongClickListener() {
     public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-      mDebugViewEnabled = !mDebugViewEnabled;
+      if (open.contains(position)) {
+        open.remove(position);
+        Log.d(TAG,"out");
+      } else {
+        open.add(position);
+        Log.d(TAG,"in");
+      }
       mNearbyDeviceAdapter.notifyDataSetChanged();
       return true;
     }
@@ -193,6 +202,7 @@ public class NearbyBeaconsFragment extends ListFragment
     setHasOptionsMenu(true);
     mGroupIdQueue = new ArrayList<>();
     mHandler = new Handler();
+    open = new HashSet<>();
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color,
@@ -208,8 +218,37 @@ public class NearbyBeaconsFragment extends ListFragment
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
+    touchListener =
+      new SwipeDismissListViewTouchListener(
+              listView,
+              new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                  @Override
+                  public boolean canDismiss(int position) {
+                      return true;
+                  }
+
+                  @Override
+                  public void onDismiss(ListView listView, int position) {
+                    if (open.contains(position)) {
+                      open.remove(position);
+                    }
+                    Utils.addBlocked(mNearbyDeviceAdapter.getItem(position).getPwsResult().getSiteUrl());
+                    Utils.saveBlocked(getActivity());
+                    if (missedEmptyGroupIdQueue) {
+                      missedEmptyGroupIdQueue = false;
+                      emptyGroupIdQueue();
+                    }
+                  }
+              });
+    // Uncomment to implement swiping to dismiss
+    listView.setOnTouchListener(touchListener);
+    
+    // Setting this scroll listener is required to ensure that during ListView scrolling,
+    // we don't look for swipes.
+    listView.setOnScrollListener(touchListener.makeScrollListener());
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
     Utils.restoreFavorites(getActivity());
+    Utils.restoreBlocked(getActivity());
   }
 
   @Override
@@ -272,13 +311,16 @@ public class NearbyBeaconsFragment extends ListFragment
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
+        if (SwipeDismissListViewTouchListener.isLocked()) {
+          return;
+        }
         for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
             new Utils.PwPairComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
           Log.d(TAG, "groupid to add " + groupId);
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
             mNearbyDeviceAdapter.updateItem(pwPair);
-          } else if (!mGroupIdQueue.contains(groupId)) {
+          } else if (!mGroupIdQueue.contains(groupId) && !Utils.isBlocked(pwPair.getPwsResult().getSiteUrl())) {
             mGroupIdQueue.add(groupId);
             if (mSecondScanComplete) {
               // If we've already waited for the second scan timeout,
@@ -340,6 +382,10 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   private void emptyGroupIdQueue() {
+    if (SwipeDismissListViewTouchListener.isLocked()) {
+      missedEmptyGroupIdQueue = true;
+      return;
+    }
     List<PwPair> pwPairs = new ArrayList<>();
 
     for (String groupId : mGroupIdQueue) {
@@ -422,31 +468,43 @@ public class NearbyBeaconsFragment extends ListFragment
       setText(view, R.id.description, pwsResult.getDescription());
       ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
           Utils.getBitmapIcon(mPwCollection, pwsResult));
-
       final String siteUrl = pwsResult.getSiteUrl();
-      if (Utils.isFavorite(pwsResult.getSiteUrl())) {
-        ((ImageView) view.findViewById(R.id.star)).setImageResource(
-            android.R.drawable.btn_star_big_on);
-      } else {
-        ((ImageView) view.findViewById(R.id.star)).setImageResource(
-            android.R.drawable.btn_star_big_off);
-      }
-      view.findViewById(R.id.star).setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          if (Utils.isFavorite(siteUrl)) {
-            ((ImageView) v.findViewById(R.id.star)).setImageResource(
-                android.R.drawable.btn_star_big_off);
-          } else {
-            ((ImageView) v.findViewById(R.id.star)).setImageResource(
-                android.R.drawable.btn_star_big_on);
-          }
-          Utils.toggleFavorite(siteUrl);
-          Utils.saveFavorites(getActivity());
+        if (Utils.isFavorite(pwsResult.getSiteUrl())) {
+          ((ImageView) view.findViewById(R.id.star)).setImageResource(R.drawable.ic_star_black_24dp);
+        } else {
+          ((ImageView) view.findViewById(R.id.star)).setImageResource(0);
         }
-      });
+        ((Button) view.findViewById(R.id.star_button)).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            Utils.toggleFavorite(siteUrl);
+            Utils.saveFavorites(getActivity());
+            notifyDataSetChanged();
+          }
+        });
+        final View v = view;
+        final int i2 = i;
+        ((Button) view.findViewById(R.id.block_button)).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            open.remove(i2);
+            touchListener.performDismiss(v,i2);
+            Utils.addBlocked(siteUrl);
+            Utils.saveBlocked(getActivity());
+          }
+        });
 
-      if (mDebugViewEnabled) {
+      if (open.contains(i)) {
+        view.findViewById(R.id.star_block_container).setVisibility(View.VISIBLE);
+        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
+        UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
+      } else {
+        view.findViewById(R.id.star_block_container).setVisibility(View.GONE);
+        Utils.setPwsEndpoint(getActivity(), mPwCollection);
+        UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
+      }
+
+      if (Utils.getDebugViewEnabled(getActivity())) {
         // If we should show the ranging data
         updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);

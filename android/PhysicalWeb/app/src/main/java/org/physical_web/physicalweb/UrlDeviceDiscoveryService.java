@@ -48,7 +48,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -81,7 +80,8 @@ public class UrlDeviceDiscoveryService extends Service
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
-  private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_MIN;
+  private static final int NOTIFICATION_PRIORITY_MIN = NotificationCompat.PRIORITY_MIN;
+  private static final int NOTIFICATION_PRIORITY_DEFAULT = NotificationCompat.PRIORITY_DEFAULT;
   private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
@@ -325,24 +325,32 @@ public class UrlDeviceDiscoveryService extends Service
     if (!mCanUpdateNotifications) {
       return;
     }
-    List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank(
-        new Utils.PwPairComparator());
+
+    List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank(new Utils.PwPairComparator());
+    int size = 0;
+    List<PwPair> notBlockedPwPairs = new ArrayList<>();
+    for (PwPair i : pwPairs) {
+      if (!Utils.isBlocked(i.getPwsResult().getSiteUrl())) {
+        size +=1;
+        notBlockedPwPairs.add(i);
+      }
+    }
 
     // If no beacons have been found
-    if (pwPairs.size() == 0) {
+    if (size == 0) {
       // Remove all existing notifications
       cancelNotifications();
-    } else if (pwPairs.size() == 1) {
-      updateNearbyBeaconNotification(true, pwPairs.get(0), NEAREST_BEACON_NOTIFICATION_ID);
+    } else if (size == 1) {
+      updateNearbyBeaconNotification(true, notBlockedPwPairs.get(0), NEAREST_BEACON_NOTIFICATION_ID);
     } else {
       // Create a summary notification for both beacon notifications.
       // Do this first so that we don't first show the individual notifications
-      updateSummaryNotification(pwPairs);
+      updateSummaryNotification(notBlockedPwPairs);
       // Create or update a notification for second beacon
-      updateNearbyBeaconNotification(false, pwPairs.get(1),
+      updateNearbyBeaconNotification(false, notBlockedPwPairs.get(1),
                                      SECOND_NEAREST_BEACON_NOTIFICATION_ID);
       // Create or update a notification for first beacon. Needs to be added last to show up top
-      updateNearbyBeaconNotification(false, pwPairs.get(0),
+      updateNearbyBeaconNotification(false, notBlockedPwPairs.get(0),
                                      NEAREST_BEACON_NOTIFICATION_ID);
 
     }
@@ -358,7 +366,7 @@ public class UrlDeviceDiscoveryService extends Service
         .setLargeIcon(Utils.getBitmapIcon(mPwCollection, pwsResult))
         .setContentTitle(pwsResult.getTitle())
         .setContentText(pwsResult.getDescription())
-        .setPriority(NOTIFICATION_PRIORITY)
+        .setPriority((Utils.isFavorite(pwPair.getPwsResult().getSiteUrl())) ? NOTIFICATION_PRIORITY_DEFAULT : NOTIFICATION_PRIORITY_MIN)
         .setContentIntent(Utils.createNavigateToUrlPendingIntent(pwsResult, this));
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
         && Utils.isPublic(pwPair.getUrlDevice())) {
@@ -392,7 +400,7 @@ public class UrlDeviceDiscoveryService extends Service
         .setSmallIcon(R.drawable.ic_notification)
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setGroupSummary(true)
-        .setPriority(NOTIFICATION_PRIORITY)
+        .setPriority(Utils.containsFavorite(pwPairs) ? NOTIFICATION_PRIORITY_DEFAULT : NOTIFICATION_PRIORITY_MIN)
         .setContentIntent(createReturnToAppPendingIntent());
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       builder.setVisibility(NOTIFICATION_VISIBILITY);

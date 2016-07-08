@@ -55,6 +55,10 @@
     <string name="mDNS_key">mDNS</string>
     <string name="mDNS_title">Enable mDNS</string>
     <string name="mDNS_summary">Enabling mDNS allows you to find items on the local network.</string>
+    <string name="debug_settings_title">Debug Settings</string>
+    <string name="debug_view_key">Debug</string>
+    <string name="debug_view_title">Enable Debug View</string>
+    <string name="debug_view_summary">Enabling debug view allows you to see more metadata and ranging data.</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>

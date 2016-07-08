@@ -13,8 +13,13 @@
           android:orderInCategory="2"
           android:id="@+id/action_settings"/>
 
-    <item android:title="@string/action_about"
+    <item android:title="Blocked Urls"
           app:showAsAction="never"
           android:orderInCategory="3"
+          android:id="@+id/block_settings"/>
+
+    <item android:title="@string/action_about"
+          app:showAsAction="never"
+          android:orderInCategory="4"
           android:id="@+id/action_about"/>
 </menu>
