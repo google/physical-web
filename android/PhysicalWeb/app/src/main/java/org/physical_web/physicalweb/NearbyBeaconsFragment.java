@@ -28,6 +28,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -252,9 +254,11 @@ public class NearbyBeaconsFragment extends ListFragment
       return;
     }
     // Get the url for the given item
-    PwPair pwPair = mNearbyDeviceAdapter.getItem(position);
-    Intent intent = Utils.createNavigateToUrlIntent(pwPair.getPwsResult());
-    startActivity(intent);
+    PwPair item = mNearbyDeviceAdapter.getItem(position);
+    if (!isFolderItem(item)) {
+      Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
+      startActivity(intent);
+    }
   }
 
   @Override
@@ -347,21 +351,39 @@ public class NearbyBeaconsFragment extends ListFragment
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
+  private boolean isFolderItem(PwPair item) {
+    return item.getUrlDevice() == null && item.getPwsResult().getSiteUrl() == null;
+  }
+
   // Adapter for holding beacons found through scanning.
   private class NearbyBeaconsAdapter extends BaseAdapter {
     private List<PwPair> mPwPairs;
+    private int numberOfHideableResults;
 
     NearbyBeaconsAdapter() {
       mPwPairs = new ArrayList<>();
+      numberOfHideableResults = 0;
     }
 
     public void addItem(PwPair pwPair) {
-      mPwPairs.add(pwPair);
+      if (Utils.isLocalDevice(pwPair.getUrlDevice())) {
+        if (numberOfHideableResults == 0) {
+          mPwPairs.add(new PwPair(null, new PwsResult(null, null)));
+          numberOfHideableResults++;
+        }
+        numberOfHideableResults++;
+        mPwPairs.add(pwPair);
+      } else {
+        mPwPairs.add(mPwPairs.size() - numberOfHideableResults, pwPair);
+      }
     }
 
     public void updateItem(PwPair pwPair) {
       String groupId = Utils.getGroupId(pwPair.getPwsResult());
       for (int i = 0; i < mPwPairs.size(); ++i) {
+        if (isFolderItem(mPwPairs.get(i))) {
+          continue;
+        }
         if (Utils.getGroupId(mPwPairs.get(i).getPwsResult()).equals(groupId)) {
           mPwPairs.set(i, pwPair);
           return;
@@ -372,6 +394,9 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public boolean containsGroupId(String groupId) {
       for (PwPair pwPair : mPwPairs) {
+        if (isFolderItem(pwPair)) {
+          continue;
+        }
         if (Utils.getGroupId(pwPair.getPwsResult()).equals(groupId)) {
           return true;
         }
@@ -381,7 +406,11 @@ public class NearbyBeaconsFragment extends ListFragment
 
     @Override
     public int getCount() {
-      return mPwPairs.size();
+      int size = mPwPairs.size();
+      if (!Utils.getMdnsEnabled(getActivity())) {
+        size -= numberOfHideableResults;
+      }
+      return size;
     }
 
     @Override
@@ -401,34 +430,40 @@ public class NearbyBeaconsFragment extends ListFragment
     @SuppressLint("InflateParams")
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-      // Get the list view item for the given position
-      if (view == null) {
-        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon,
-                                                         viewGroup, false);
-      }
-
       // Display the pwsResult.
       PwPair pwPair = getItem(i);
       PwsResult pwsResult = pwPair.getPwsResult();
-      setText(view, R.id.title, pwsResult.getTitle());
-      setText(view, R.id.url, pwsResult.getSiteUrl());
-      setText(view, R.id.description, pwsResult.getDescription());
-      ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
-          Utils.getBitmapIcon(mPwCollection, pwsResult));
 
-      if (mDebugViewEnabled) {
-        // If we should show the ranging data
-        updateDebugView(pwPair, view);
-        view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
-        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
-        UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
+      // Get the list view item for the given position
+      if (pwsResult.getSiteUrl() != null) {
+        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon,
+                                                         viewGroup, false);
+        setText(view, R.id.title, pwsResult.getTitle());
+        setText(view, R.id.url, pwsResult.getSiteUrl());
+        setText(view, R.id.description, pwsResult.getDescription());
+        ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
+            Utils.getBitmapIcon(mPwCollection, pwsResult));
+
+        if (mDebugViewEnabled) {
+          // If we should show the ranging data
+          updateDebugView(pwPair, view);
+          view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
+          view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
+          mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
+          UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
+        } else {
+          // Otherwise ensure it is not shown
+          view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
+          view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
+          Utils.setPwsEndpoint(getActivity(), mPwCollection);
+          UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
+        }
       } else {
-        // Otherwise ensure it is not shown
-        view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
-        view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
-        Utils.setPwsEndpoint(getActivity(), mPwCollection);
-        UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
+        view = getActivity().getLayoutInflater().inflate(R.layout.folder_item_nearby_beacon,
+                                                         viewGroup, false);
+        WifiManager wifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        setText(view, R.id.title, wifiInfo.getSSID().trim().replace("\"", ""));
       }
 
       return view;
@@ -472,6 +507,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public void clear() {
       mPwPairs.clear();
+      numberOfHideableResults = 0;
       notifyDataSetChanged();
     }
   }

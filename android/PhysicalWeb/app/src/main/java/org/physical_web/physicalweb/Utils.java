@@ -138,6 +138,31 @@ class Utils {
     }
   }
 
+
+  private static class RemoveLocalDevicesDiscoveryServiceConnection implements ServiceConnection {
+    private Context mContext;
+
+    @Override
+    public synchronized void onServiceConnected(ComponentName className, IBinder service) {
+      // Get the service
+      UrlDeviceDiscoveryService.LocalBinder localBinder =
+          (UrlDeviceDiscoveryService.LocalBinder) service;
+      localBinder.getServiceInstance().removeLocalDevices();  
+      mContext.unbindService(this);
+    }
+
+    @Override
+    public synchronized void onServiceDisconnected(ComponentName className) {
+    }
+
+    public synchronized void connect(Context context) {
+      mContext = context;
+      Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
+      mContext.startService(intent);
+      mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
+  }
+
   private static void throwEncodeException(JSONException e) {
     throw new RuntimeException("Could not encode JSON", e);
   }
@@ -213,6 +238,12 @@ class Utils {
    */
   public static void deleteCache(Context context) {
     new ClearCacheDiscoveryServiceConnection().connect(context);
+  }
+
+  /**
+   */
+  public static void removeLocalDevices(Context context) {
+    new RemoveLocalDevicesDiscoveryServiceConnection().connect(context);
   }
 
   /**

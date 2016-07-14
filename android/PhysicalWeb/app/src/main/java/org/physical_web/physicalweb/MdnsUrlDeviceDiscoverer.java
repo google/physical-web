@@ -45,6 +45,7 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
       public void onServicesChanged(Map<String, MDNSDiscover.Result> services) {
         for (MDNSDiscover.Result result : services.values()) {
             // access the Bluetooth MAC from the TXT record
+            Log.d(TAG,result.txt.dict.toString());
             String url = result.txt.dict.get("url");
             Log.d(TAG, url);
             String id = TAG + result.srv.fqdn + result.srv.port;
@@ -58,6 +59,7 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
               if (result.txt.dict.containsKey("description")) {
                 description = result.txt.dict.get("description");
               }
+              Log.d(TAG,"reporting mdns device");
               reportUrlDevice(createUrlDeviceBuilder(id, url)
                 .setPrivate()
                 .setTitle(title)

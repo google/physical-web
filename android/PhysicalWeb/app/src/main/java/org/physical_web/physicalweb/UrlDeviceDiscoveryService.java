@@ -144,6 +144,7 @@ public class UrlDeviceDiscoveryService extends Service
     mUrlDeviceDiscoverers = new ArrayList<>();
 
     if (Utils.getMdnsEnabled(this)) {
+      Log.d(TAG,"mdns started");
       mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
@@ -232,6 +233,7 @@ public class UrlDeviceDiscoveryService extends Service
   public void onRebind(Intent intent) {
     mIsBound = true;
   }
+
   private void cancelNotifications() {
     mNotificationManager.cancel(NEAREST_BEACON_NOTIFICATION_ID);
     mNotificationManager.cancel(SECOND_NEAREST_BEACON_NOTIFICATION_ID);
@@ -245,6 +247,15 @@ public class UrlDeviceDiscoveryService extends Service
         .putLong(SCAN_START_TIME_KEY, mScanStartTime)
         .putString(PW_COLLECTION_KEY, mPwCollection.jsonSerialize().toString())
         .apply();
+  }
+
+  public void removeLocalDevices() {
+    for (UrlDevice urlDevice : mPwCollection.getUrlDevices()) {
+      if (Utils.isLocalDevice(urlDevice)) {
+        mPwCollection.removeDevice(urlDevice);
+      }
+    }
+    saveCache();
   }
 
   @Override
@@ -265,7 +276,9 @@ public class UrlDeviceDiscoveryService extends Service
     // Don't short circuit because icons
     // and metadata may not be fetched
     mPwCollection.addUrlDevice(urlDevice);
+    Log.d(TAG,urlDevice.getUrl());
     if (Utils.isLocalDevice(urlDevice)) {
+      Log.d(TAG,"isLocalDevice");
       mPwCollection.addMetadata(new PwsResult.Builder(urlDevice.getUrl(), urlDevice.getUrl())
         .setTitle(Utils.getTitle(urlDevice))
         .setDescription(Utils.getDescription(urlDevice))
