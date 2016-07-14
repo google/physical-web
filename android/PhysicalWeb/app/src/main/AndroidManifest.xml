@@ -89,7 +89,7 @@
 
         <activity
             android:name=".OobActivity"
-            android:label="@string/title_activity_oob"
+            android:label="OobActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.NoActionBar">
         </activity>

@@ -17,9 +17,7 @@
 package org.physical_web.physicalweb;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -37,12 +35,7 @@ public class OobActivity extends AppCompatActivity {
     @Override
     public void onClick(View v) {
       // Save the opt in preference
-      String preferencesKey = getString(R.string.main_prefs_key);
-      SharedPreferences sharedPreferences = getSharedPreferences(preferencesKey,
-                                                                 Context.MODE_PRIVATE);
-      SharedPreferences.Editor editor = sharedPreferences.edit();
-      editor.putBoolean(getString(R.string.user_opted_in_flag), true);
-      editor.apply();
+      Utils.setOptInPreference(OobActivity.this);
 
       // Exit the activity
       finish();

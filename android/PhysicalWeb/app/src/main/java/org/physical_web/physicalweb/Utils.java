@@ -27,7 +27,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -40,11 +39,11 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import org.json.JSONException;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * This class is for various static utilities, largely for manipulation of data structures provided
@@ -57,6 +56,10 @@ class Utils {
   public static final int DEV_ENDPOINT_VERSION = 1;
   public static final String GOOGLE_ENDPOINT = "https://physicalweb.googleapis.com";
   public static final int GOOGLE_ENDPOINT_VERSION = 2;
+  private static final String USER_OPTED_IN_KEY = "userOptedIn";
+  private static final String MAIN_PREFS_KEY = "physical_web_preferences";
+  private static final String DISCOVERY_SERVICE_PREFS_KEY =
+      "org.physical_web.physicalweb.DISCOVERY_SERVICE_PREFS";
   private static final String SCANTIME_KEY = "scantime";
   private static final String PUBLIC_KEY = "public";
   private static final String RSSI_KEY = "rssi";
@@ -137,6 +140,10 @@ class Utils {
     throw new RuntimeException("Could not encode JSON", e);
   }
 
+  private static void deletePreference(Context context, String preferenceName) {
+    context.getSharedPreferences(preferenceName, Context.MODE_PRIVATE).edit().clear().apply();
+  }
+
   private static int getGoogleApiKeyResourceId(Context context) {
     return context.getResources().getIdentifier("google_api_key", "string",
                                                 context.getPackageName());
@@ -150,9 +157,8 @@ class Utils {
 
   private static String getCurrentPwsEndpointString(Context context) {
     String defaultEndpoint = getDefaultPwsEndpointPreferenceString(context);
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    return sharedPref.getString(context.getString(R.string.pws_endpoint_setting_key),
-                                defaultEndpoint);
+    return PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(
+        R.string.pws_endpoint_setting_key), defaultEndpoint);
   }
 
   private static String getCurrentPwsEndpointUrl(Context context) {
@@ -174,20 +180,29 @@ class Utils {
   }
 
   private static String readCustomPwsEndpointUrl(Context context) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    return sharedPref.getString(context.getString(R.string.custom_pws_url_key), "");
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getString(context.getString(R.string.custom_pws_url_key), "");
   }
 
   private static int readCustomPwsEndpointVersion(Context context) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    return Integer.parseInt(sharedPref.getString(
-      context.getString(R.string.custom_pws_version_key),
-      context.getString(R.string.custom_pws_version_default)));
+    return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(context)
+        .getString(context.getString(R.string.custom_pws_version_key),
+                   context.getString(R.string.custom_pws_version_default)));
   }
 
   private static String readCustomPwsEndpointApiKey(Context context) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    return sharedPref.getString(context.getString(R.string.custom_pws_api_key_key), "");
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getString(context.getString(R.string.custom_pws_api_key_key), "");
+  }
+
+  /**
+   * Gets whether the user has optedIn from SharedPreferences.
+   * @param context The context for the SharedPreferences.
+   * @return True if the user has optedIn otherwise false.
+   */
+  public static boolean checkIfUserHasOptedIn(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(USER_OPTED_IN_KEY, false);
   }
 
   /**
@@ -224,6 +239,15 @@ class Utils {
   }
 
   /**
+   * Saves the optIn preference in the default shared preferences file.
+   * @param context The context for the SharedPreferences.
+   */
+  public static void setOptInPreference(Context context) {
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+        .putBoolean(USER_OPTED_IN_KEY, true).apply();
+  }
+
+  /**
    * Saves the endpoint to SharedPreferences.
    * @param context The context for the SharedPreferences.
    * @param endpoint The endpoint formatted for SharedPreferences.
@@ -241,6 +265,12 @@ class Utils {
   public static void setSharedPreferencesDefaultValues(Context context) {
     PreferenceManager.setDefaultValues(context, R.xml.settings, false);
     setPwsEndpointPreference(context, getCurrentPwsEndpointString(context));
+    if (context.getSharedPreferences(MAIN_PREFS_KEY, Context.MODE_PRIVATE)
+          .getBoolean(USER_OPTED_IN_KEY, false)) {
+      setOptInPreference(context);
+      deletePreference(context, MAIN_PREFS_KEY);
+      deletePreference(context, DISCOVERY_SERVICE_PREFS_KEY);
+    }
   }
 
   /**
@@ -317,8 +347,8 @@ class Utils {
    */
   public static String getCustomPwsEndpoint(Context context) {
     return formatEndpointForSharedPrefernces(readCustomPwsEndpointUrl(context),
-                                           readCustomPwsEndpointVersion(context),
-                                           readCustomPwsEndpointApiKey(context));
+                                             readCustomPwsEndpointVersion(context),
+                                             readCustomPwsEndpointApiKey(context));
   }
 
   /**
@@ -327,8 +357,8 @@ class Utils {
    * @return The enable mDNS folder setting.
    */
   public static boolean getMdnsEnabled(Context context) {
-    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-    return sharedPref.getBoolean(context.getString(R.string.mDNS_key), false);
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.mDNS_key), false);
   }
 
   /**
