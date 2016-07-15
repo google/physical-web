@@ -94,6 +94,7 @@ public class NearbyBeaconsFragment extends ListFragment
       if (!mGroupIdQueue.isEmpty()) {
         emptyGroupIdQueue();
         mSwipeRefreshWidget.setRefreshing(false);
+        mScanningAnimationDrawable.stop();
       }
     }
   };
@@ -107,6 +108,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mSecondScanComplete = true;
       mSwipeRefreshWidget.setRefreshing(false);
       mScanningAnimationTextView.setAlpha(0f);
+      mScanningAnimationDrawable.stop();
     }
   };
 
@@ -308,6 +310,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mScanningAnimationDrawable.start();
     } else {
       mSwipeRefreshWidget.setRefreshing(false);
+      mScanningAnimationDrawable.stop();
     }
 
     // Schedule the timeouts
