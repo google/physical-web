@@ -457,6 +457,15 @@ public class PhysicalWebCollection {
     }
   }
 
+  public void removeDevice(UrlDevice urlDevice) {
+    PwsResult pwsResult = mBroadcastUrlToPwsResultMap.get(urlDevice.getUrl());
+    if (pwsResult.hasIconUrl()) {
+      mIconUrlToIconMap.remove(pwsResult.getIconUrl());
+    }
+    mBroadcastUrlToPwsResultMap.remove(urlDevice.getUrl());
+    mDeviceIdToUrlDeviceMap.remove(urlDevice.getId());
+  }
+
   /**
    * Cancel all current HTTP requests.
    */

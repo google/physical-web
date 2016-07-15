@@ -7,35 +7,24 @@ The Physical Web is about getting URLs into the physical world. However, this is
 
 Below is an example of how to setup a Raspberry Pi to broadcast a Physical Web URL using mDNS. We hope others are willing to contribute and offer more versions. If so, we'll create an mDNS directory for all the alternatives.
 
-You'll first need a mDNS service on your Raspberry Pi. [Avahi](http://www.avahi.org/) is the one we use here:
+Using any zeroconf networking implementation that supports mDNS service registration, register a service as follows: (below our examples are using the dns-sd tool on Mac)
+
+If you want to broadcast a public url:
+
 ```shell
-sudo apt-get install avahi-daemon
+dns-sd -R "example_name" _physicalweb._tcp local 80 url="www.example_url.com"
 ```
 
-You'll then place a `.service` file into the `/etc/avahi/services` directory.  
-Our sample file `physical-web-url.service` looks like this:
+"example_name" should be replaced by any name unique to your network. Use `dns-sd -B _physicalweb._tcp local` to find all registered names. Replace www.example_url.com with the url you wish to broadcast.
 
-```xml
-<?xml version="1.0" standalone='no'?><!--*-nxml-*-->
-<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+If you want to broadcast a private url:
 
-<service-group>
-  <name replace-wildcards="yes">http://www.mycompany.com/xyz.html</name>
-  <service>
-    <host-name>www.mycompany.com</host-name>
-    <type>_http._tcp</type>
-    <port>80</port>
-    <txt-record>path=/xyz.html</txt-record>
-  </service>
-</service-group>
-```
-
-Then `<name>` tag must be unique on your network. We are suggesting that you use the URL as your name to be safe. 
-Finally reload Avahi daemon:
 ```shell
-sudo /etc/init.d/avahi-daemon reload
+dns-sd -R "example_name" _physicalweb._tcp local 80 url="www.example_local_url.com" title="Example Title" desc="Example Description"
 ```
 
-That should be it. If you have the latest client on your phone, the web page http://www.mycompany.com/xyz.html will now show up in your list of nearby devices.
+Replace the Url, Title, and Description with your local page's metadata.
 
-Note: if the URL is global, it shows up just like a BLE beacon with Title, Description, and favicon information. If the URL is local (e.g. 192.x.x.x) the meta data isn't supported yet, only the URL itself will be displayed. We're working on adding the meta data.
+That should be it. If you have the latest client on your phone, the web page you wish to broadcast will now show up in your list of nearby devices.
+
+Note: if the URL is global, it shows up just like a BLE beacon with Title, Description, and favicon information. If the URL is local, the meta data isn't supported yet, only the URL and given metadata will be displayed.
