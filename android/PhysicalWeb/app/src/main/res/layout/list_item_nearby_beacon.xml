@@ -23,6 +23,7 @@
                 android:orientation="vertical"
                 android:layout_weight="1"
                 android:gravity="start">
+
             <ImageView
                     android:id="@+id/icon"
                     android:layout_width="24dp"
@@ -74,9 +75,53 @@
             </TextView>
         </LinearLayout>
 
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:gravity="end">
+
+            <ImageView
+                    android:id="@+id/star"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="6dp"
+                    android:clickable="true"
+                    android:contentDescription="@string/nearby_beacon_star_description">
+            </ImageView>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/star_block_container"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/star_button"
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:textSize="15dp"
+            android:text="star"
+            android:layout_weight="1"
+            android:focusable="false"/>
+
+        <Button
+            android:id="@+id/block_button"
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:textSize="15dp"
+            android:text="block"
+            android:layout_weight="1"
+            android:focusable="false"/>
+    </LinearLayout>
+
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
