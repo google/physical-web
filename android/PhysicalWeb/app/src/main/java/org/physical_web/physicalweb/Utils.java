@@ -362,6 +362,16 @@ class Utils {
   }
 
   /**
+   * Get the saved setting for debug View.
+   * @param context The context for the SharedPreferences.
+   * @return The debug view setting.
+   */
+  public static boolean getDebugViewEnabled(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.debug_key), false);
+  }
+
+  /**
    * Toast the user to indicate the API key is missing.
    * @param context The context for the resources.
    */

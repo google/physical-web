@@ -76,7 +76,6 @@ public class NearbyBeaconsFragment extends ListFragment
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private SwipeRefreshWidget mSwipeRefreshWidget;
-  private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
   private boolean mFirstTime;
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
@@ -122,15 +121,6 @@ public class NearbyBeaconsFragment extends ListFragment
     public void run() {
       Log.d(TAG, "running third scan timeout");
       mDiscoveryServiceConnection.disconnect();
-    }
-  };
-
-  private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener =
-      new AdapterView.OnItemLongClickListener() {
-    public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-      mDebugViewEnabled = !mDebugViewEnabled;
-      mNearbyDeviceAdapter.notifyDataSetChanged();
-      return true;
     }
   };
 
@@ -423,7 +413,7 @@ public class NearbyBeaconsFragment extends ListFragment
       ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
           Utils.getBitmapIcon(mPwCollection, pwsResult));
 
-      if (mDebugViewEnabled) {
+      if (Utils.getDebugViewEnabled(getActivity())) {
         // If we should show the ranging data
         updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
