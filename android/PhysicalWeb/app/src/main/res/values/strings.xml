@@ -46,6 +46,9 @@
     <string name="scan_settings_title">Scan Settings</string>
     <string name="mDNS_title">Enable mDNS</string>
     <string name="mDNS_summary">Enabling mDNS allows you to find items on the local network.</string>
+    <string name="debug_settings_title">Debug Settings</string>
+    <string name="debug_title">Enable Debug View</string>
+    <string name="debug_summary">Enabling Debug View lets you view additional metadata.</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>

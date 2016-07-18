@@ -8,4 +8,6 @@
     <string name="custom_pws_api_key_key">custom_pws_key</string>
     <string name="scan_settings_key">scan_settings</string>
     <string name="mDNS_key">mDNS</string>
+    <string name="debug_settings_key">debug_settings</string>
+    <string name="debug_key">debug</string>
 </resources>
