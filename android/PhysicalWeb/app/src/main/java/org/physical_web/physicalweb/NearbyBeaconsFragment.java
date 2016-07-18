@@ -28,10 +28,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -106,7 +108,11 @@ public class NearbyBeaconsFragment extends ListFragment
       emptyGroupIdQueue();
       mSecondScanComplete = true;
       mSwipeRefreshWidget.setRefreshing(false);
-      mScanningAnimationTextView.setAlpha(0f);
+      if (mNearbyDeviceAdapter.getCount() == 0) {
+        int tintColor = ContextCompat.getColor(getActivity(), R.color.physical_web_logo);
+        mScanningAnimationDrawable.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
+        mScanningAnimationTextView.setText(R.string.empty_nearby_beacons_list_text_no_results);
+      }
     }
   };
 
@@ -304,7 +310,8 @@ public class NearbyBeaconsFragment extends ListFragment
     if (elapsedMillis < FIRST_SCAN_TIME_MILLIS
         || (elapsedMillis < SECOND_SCAN_TIME_MILLIS && !hasResults)) {
       mNearbyDeviceAdapter.clear();
-      mScanningAnimationTextView.setAlpha(1f);
+      mScanningAnimationDrawable.setColorFilter(null);
+      mScanningAnimationTextView.setText(R.string.empty_nearby_beacons_list_text);
       mScanningAnimationDrawable.start();
     } else {
       mSwipeRefreshWidget.setRefreshing(false);
