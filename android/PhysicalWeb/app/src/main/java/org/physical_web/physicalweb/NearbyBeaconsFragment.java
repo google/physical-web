@@ -27,6 +27,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,15 +40,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,10 +81,11 @@ public class NearbyBeaconsFragment extends ListFragment
   private Handler mHandler;
   private NearbyBeaconsAdapter mNearbyDeviceAdapter;
   private SwipeRefreshWidget mSwipeRefreshWidget;
-  private boolean mDebugViewEnabled = false;
   private boolean mSecondScanComplete;
   private boolean mFirstTime;
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
+  private boolean missedEmptyGroupIdQueue = false;
+  private Set<Integer> open;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -122,7 +130,13 @@ public class NearbyBeaconsFragment extends ListFragment
   private AdapterView.OnItemLongClickListener mAdapterViewItemLongClickListener =
       new AdapterView.OnItemLongClickListener() {
     public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-      mDebugViewEnabled = !mDebugViewEnabled;
+      if (open.contains(position)) {
+        open.remove(position);
+        Log.d(TAG,"out");
+      } else {
+        open.add(position);
+        Log.d(TAG,"in");
+      }
       mNearbyDeviceAdapter.notifyDataSetChanged();
       return true;
     }
@@ -187,6 +201,7 @@ public class NearbyBeaconsFragment extends ListFragment
     setHasOptionsMenu(true);
     mGroupIdQueue = new ArrayList<>();
     mHandler = new Handler();
+    open = new HashSet<>();
 
     mSwipeRefreshWidget = (SwipeRefreshWidget) rootView.findViewById(R.id.swipe_refresh_widget);
     mSwipeRefreshWidget.setColorSchemeResources(R.color.swipe_refresh_widget_first_color,
@@ -203,6 +218,7 @@ public class NearbyBeaconsFragment extends ListFragment
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
+    Utils.restoreFavorites(getActivity());
   }
 
   @Override
@@ -266,7 +282,7 @@ public class NearbyBeaconsFragment extends ListFragment
       @Override
       public void run() {
         for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
-            Utils.newDistanceComparator())) {
+            new Utils.PwPairComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
           Log.d(TAG, "groupid to add " + groupId);
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
@@ -339,7 +355,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "groupid " + groupId);
       pwPairs.add(Utils.getTopRankedPwPairByGroupId(mPwCollection, groupId));
     }
-    Collections.sort(pwPairs, Utils.newDistanceComparator());
+    Collections.sort(pwPairs, new Utils.PwPairComparator());
     for (PwPair pwPair : pwPairs) {
       mNearbyDeviceAdapter.addItem(pwPair);
     }
@@ -415,22 +431,30 @@ public class NearbyBeaconsFragment extends ListFragment
       setText(view, R.id.description, pwsResult.getDescription());
       ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
           Utils.getBitmapIcon(mPwCollection, pwsResult));
+      final String siteUrl = pwsResult.getSiteUrl();
+        if (Utils.isFavorite(pwsResult.getSiteUrl())) {
+          ((ImageView) view.findViewById(R.id.star)).setImageResource(R.drawable.ic_star_black_24dp);
+        } else {
+          ((ImageView) view.findViewById(R.id.star)).setImageResource(0);
+        }
+        ((Button) view.findViewById(R.id.star_button)).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            Utils.toggleFavorite(siteUrl);
+            Utils.saveFavorites(getActivity());
+            notifyDataSetChanged();
+          }
+        });
 
-      if (mDebugViewEnabled) {
-        // If we should show the ranging data
-        updateDebugView(pwPair, view);
-        view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
+      if (open.contains(i)) {
+        view.findViewById(R.id.star_block_container).setVisibility(View.VISIBLE);
         mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
         UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
       } else {
-        // Otherwise ensure it is not shown
-        view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
-        view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
+        view.findViewById(R.id.star_block_container).setVisibility(View.GONE);
         Utils.setPwsEndpoint(getActivity(), mPwCollection);
         UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
       }
-
       return view;
     }
 
