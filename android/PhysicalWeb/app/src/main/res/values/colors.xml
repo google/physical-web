@@ -9,4 +9,5 @@
     <color name="action_bar_background_color">#FFFFFF</color>
     <color name="swipe_refresh_widget_first_color">#70a2d3</color>
     <color name="swipe_refresh_widget_second_color">#c2c2c2</color>
+    <color name="physical_web_logo">#4184c5</color>
 </resources>
