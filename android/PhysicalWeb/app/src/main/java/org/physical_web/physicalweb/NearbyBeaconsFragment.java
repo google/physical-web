@@ -27,8 +27,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -39,8 +39,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -197,8 +197,8 @@ public class NearbyBeaconsFragment extends ListFragment
     mScanningAnimationDrawable =
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
-    listView.setOnItemLongClickListener(mAdapterViewItemLongClickListener);
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
+    Utils.restoreFavorites(getActivity());
   }
 
   @Override
@@ -262,7 +262,7 @@ public class NearbyBeaconsFragment extends ListFragment
       @Override
       public void run() {
         for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
-            Utils.newDistanceComparator())) {
+            new Utils.PwPairRelevanceComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
           Log.d(TAG, "groupid to add " + groupId);
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
@@ -336,7 +336,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "groupid " + groupId);
       pwPairs.add(Utils.getTopRankedPwPairByGroupId(mPwCollection, groupId));
     }
-    Collections.sort(pwPairs, Utils.newDistanceComparator());
+    Collections.sort(pwPairs, new Utils.PwPairRelevanceComparator());
     for (PwPair pwPair : pwPairs) {
       mNearbyDeviceAdapter.addItem(pwPair);
     }
@@ -412,22 +412,43 @@ public class NearbyBeaconsFragment extends ListFragment
       setText(view, R.id.description, pwsResult.getDescription());
       ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
           Utils.getBitmapIcon(mPwCollection, pwsResult));
+      final String siteUrl = pwsResult.getSiteUrl();
+
+      if (Utils.isFavorite(siteUrl)) {
+        ((Button) view.findViewById(R.id.star)).setBackgroundResource(
+            android.R.drawable.btn_star_big_on);
+        ((Button) view.findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            Utils.toggleFavorite(siteUrl);
+            Utils.saveFavorites(getActivity());
+            ((Button) v).setBackgroundResource(android.R.drawable.btn_star_big_off);
+            notifyDataSetChanged();
+          }
+        });
+      } else {
+        ((Button) view.findViewById(R.id.star)).setBackgroundResource(
+            android.R.drawable.btn_star_big_off);
+        ((Button) view.findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            Utils.toggleFavorite(siteUrl);
+            Utils.saveFavorites(getActivity());
+            ((Button) v).setBackgroundResource(android.R.drawable.btn_star_big_on);
+            notifyDataSetChanged();
+          }
+        });
+      }
 
       if (Utils.getDebugViewEnabled(getActivity())) {
         // If we should show the ranging data
         updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.VISIBLE);
-        mPwCollection.setPwsEndpoint(Utils.DEV_ENDPOINT, Utils.DEV_ENDPOINT_VERSION);
-        UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.DEV_ENDPOINT);
       } else {
-        // Otherwise ensure it is not shown
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.GONE);
         view.findViewById(R.id.metadata_debug_container).setVisibility(View.GONE);
-        Utils.setPwsEndpoint(getActivity(), mPwCollection);
-        UrlShortenerClient.getInstance(getActivity()).setEndpoint(Utils.PROD_ENDPOINT);
       }
-
       return view;
     }
 

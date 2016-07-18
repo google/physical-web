@@ -23,6 +23,7 @@
                 android:orientation="vertical"
                 android:layout_weight="1"
                 android:gravity="start">
+
             <ImageView
                     android:id="@+id/icon"
                     android:layout_width="24dp"
@@ -72,6 +73,22 @@
                 android:ellipsize="end"
                 android:lineSpacingExtra="1.5dp">
             </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1"
+                android:gravity="end">
+
+            <Button
+                    android:id="@+id/star"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:clickable="true"
+                    android:contentDescription="@string/nearby_beacon_star_description">
+            </Button>
         </LinearLayout>
 
     </LinearLayout>

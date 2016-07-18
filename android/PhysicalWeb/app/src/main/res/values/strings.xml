@@ -9,6 +9,7 @@
     <string name="config_save_url_button">SAVE URL</string>
     <string name="about_version_label">Version</string>
     <string name="nearby_beacon_favicon_content_description">favicon for the given URL for this entry</string>
+    <string name="nearby_beacon_star_description">Toggle favorite</string>
     <string name="config_searching_for_beacons_text">Put your beacon into config mode</string>
     <string name="config_found_near_beacon">Beacon found!</string>
     <string name="config_found_far_beacon">Move Beacon closer!</string>
@@ -55,8 +56,13 @@
         <item quantity="one">Beacon Nearby</item>
         <item quantity="other">Beacons Nearby</item>
     </plurals>
+    <string name="title_activity_oob">OobActivity</string>
     <string name="action_settings">Settings</string>
     <string name="oob_accept_and_continue">ACCEPT &amp; CONTINUE</string>
+    <string name="main_prefs_key">physical_web_preferences</string>
+    <!-- The following is a more appropriate name, but would require special code to migrate users -->
+    <!-- string name="main_prefs_key">org.physical_web.physicalweb.MAIN_PREFS</string -->
+    <string name="discovery_service_prefs_key">org.physical_web.physicalweb.DISCOVERY_SERVICE_PREFS</string>
     <string name="ranging_debug_tx_power_prefix">tx: </string>
     <string name="ranging_debug_rssi_prefix">rssi: </string>
     <string name="ranging_debug_distance_prefix">distance: </string>
