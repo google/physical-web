@@ -43,7 +43,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+
 
 /**
  * This class is for various static utilities, largely for manipulation of data structures provided
@@ -56,6 +61,7 @@ class Utils {
   public static final int DEV_ENDPOINT_VERSION = 1;
   public static final String GOOGLE_ENDPOINT = "https://physicalweb.googleapis.com";
   public static final int GOOGLE_ENDPOINT_VERSION = 2;
+  public static final String FAVORITES_KEY = "favorites";
   private static final String USER_OPTED_IN_KEY = "userOptedIn";
   private static final String MAIN_PREFS_KEY = "physical_web_preferences";
   private static final String DISCOVERY_SERVICE_PREFS_KEY =
@@ -67,27 +73,96 @@ class Utils {
   private static final String PWSTRIPTIME_KEY = "pwstriptime";
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
+  private static Set<String> mFavoriteUrls = new HashSet<>();
 
-  public static Comparator<PwPair> newDistanceComparator() {
-    return new Comparator<PwPair>() {
-      public Map<String, Double> cachedDistances = new HashMap<>();
+  // Compares PwPairs by first considering if it has been favorited
+  // and then considering distance
+  public static class PwPairRelevanceComparator implements Comparator<PwPair> {
+    private Set<String> mFavorites = mFavoriteUrls;
+    public Map<String, Double> mCachedDistances;
 
-      public double getDistance(UrlDevice urlDevice) {
-        if (cachedDistances.containsKey(urlDevice.getId())) {
-          return cachedDistances.get(urlDevice.getId());
-        }
-        double distance = Utils.getDistance(urlDevice);
-        cachedDistances.put(urlDevice.getId(), distance);
-        return distance;
+    PwPairRelevanceComparator() {
+      mCachedDistances = new HashMap<>();
+    }
+
+    public double getDistance(UrlDevice urlDevice) {
+      if (mCachedDistances.containsKey(urlDevice.getId())) {
+        return mCachedDistances.get(urlDevice.getId());
       }
+      double distance = Utils.getDistance(urlDevice);
+      mCachedDistances.put(urlDevice.getId(), distance);
+      return distance;
+    }
 
-      @Override
-      public int compare(PwPair lhs, PwPair rhs) {
+    @Override
+    public int compare(PwPair lhs, PwPair rhs) {
+      String lSite = lhs.getPwsResult().getSiteUrl();
+      String rSite = rhs.getPwsResult().getSiteUrl();
+      if (mFavorites.contains(lSite) == mFavorites.contains(rSite)) {
         return Double.compare(getDistance(lhs.getUrlDevice()),
             getDistance(rhs.getUrlDevice()));
+      } else {
+        if (mFavorites.contains(lSite)) {
+          return -1;
+        }
+        return 1;
       }
-    };
+    }
   }
+
+  /**
+   * Check if URL has been favorited.
+   * @param siteUrl.
+   */
+  public static boolean isFavorite(String siteUrl) {
+    return mFavoriteUrls.contains(siteUrl);
+  }
+
+  /**
+   * Toggles favorite status.
+   * @param siteUrl.
+   */
+  public static void toggleFavorite(String siteUrl) {
+    if (isFavorite(siteUrl)) {
+      mFavoriteUrls.remove(siteUrl);
+      return;
+    }
+    mFavoriteUrls.add(siteUrl);
+  }
+
+  /**
+   * Save favorites to shared preferences.
+   * @param context To get shared preferences.
+   */
+  public static void saveFavorites(Context context) {
+    // Write the PW Collection
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+      .putStringSet(FAVORITES_KEY, mFavoriteUrls)
+      .apply();
+  }
+
+  /**
+   * Get favorites from shared preferences.
+   * @param context To get shared preferences.
+   */
+  public static void restoreFavorites(Context context) {
+    mFavoriteUrls = new HashSet<>(PreferenceManager.getDefaultSharedPreferences(
+        context).getStringSet(FAVORITES_KEY, new HashSet<String>()));
+  }
+
+  /**
+   * Check if any PwPair in the list is favorited.
+   * @param pairs List of pwPairs
+   */
+  public static boolean containsFavorite(List<PwPair> pairs) {
+    for (PwPair pair : pairs) {
+      if (isFavorite(pair.getPwsResult().getSiteUrl())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   private static class PwsEndpoint {
     public String url;
@@ -413,7 +488,8 @@ class Utils {
       PhysicalWebCollection pwCollection, String groupId) {
     // This does the same thing as the PhysicalWebCollection method, only it uses our custom
     // getGroupId method.
-    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank(newDistanceComparator())) {
+    for (PwPair pwPair : pwCollection.getGroupedPwPairsSortedByRank(
+        new PwPairRelevanceComparator())) {
       if (getGroupId(pwPair.getPwsResult()).equals(groupId)) {
         return pwPair;
       }

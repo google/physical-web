@@ -80,7 +80,6 @@ public class UrlDeviceDiscoveryService extends Service
   private static final int NON_LOLLIPOP_NOTIFICATION_TITLE_COLOR = Color.parseColor("#ffffff");
   private static final int NON_LOLLIPOP_NOTIFICATION_URL_COLOR = Color.parseColor("#999999");
   private static final int NON_LOLLIPOP_NOTIFICATION_SNIPPET_COLOR = Color.parseColor("#999999");
-  private static final int NOTIFICATION_PRIORITY = NotificationCompat.PRIORITY_MIN;
   private static final int NOTIFICATION_VISIBILITY = NotificationCompat.VISIBILITY_PUBLIC;
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
@@ -323,7 +322,7 @@ public class UrlDeviceDiscoveryService extends Service
     }
 
     List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank(
-        Utils.newDistanceComparator());
+        new Utils.PwPairRelevanceComparator());
 
     // If no beacons have been found
     if (pwPairs.size() == 0) {
@@ -355,7 +354,8 @@ public class UrlDeviceDiscoveryService extends Service
         .setLargeIcon(Utils.getBitmapIcon(mPwCollection, pwsResult))
         .setContentTitle(pwsResult.getTitle())
         .setContentText(pwsResult.getDescription())
-        .setPriority(NOTIFICATION_PRIORITY)
+        .setPriority((Utils.isFavorite(pwPair.getPwsResult().getSiteUrl()))
+            ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN)
         .setContentIntent(Utils.createNavigateToUrlPendingIntent(pwsResult, this));
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
         && Utils.isPublic(pwPair.getUrlDevice())) {
@@ -389,7 +389,8 @@ public class UrlDeviceDiscoveryService extends Service
         .setSmallIcon(R.drawable.ic_notification)
         .setGroup(NOTIFICATION_GROUP_KEY)
         .setGroupSummary(true)
-        .setPriority(NOTIFICATION_PRIORITY)
+        .setPriority(Utils.containsFavorite(pwPairs)
+            ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN)
         .setContentIntent(createReturnToAppPendingIntent());
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       builder.setVisibility(NOTIFICATION_VISIBILITY);
