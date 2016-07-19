@@ -52,8 +52,10 @@ android {
 
     lintOptions {
         // We'll get to fixing the icon later
+        // We'll get to updating the target api
+        // We can't use the next app compat until we update the target api
         disable 'GoogleAppIndexingWarning', 'IconLauncherShape', 'IconDensities',
-            'IconMissingDensityFolder', 'LongLogTag'
+            'IconMissingDensityFolder', 'LongLogTag', 'OldTargetApi', 'GradleDependency'
         abortOnError true
         warningsAsErrors true
     }
