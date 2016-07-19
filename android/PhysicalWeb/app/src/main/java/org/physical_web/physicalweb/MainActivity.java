@@ -73,6 +73,9 @@ public class MainActivity extends Activity {
       case R.id.action_settings:
         showSettingsFragment();
         return true;
+      case R.id.block_settings:
+        showBlockedFragment();
+        return true;
       // If the action bar up button was pressed
       case android.R.id.home:
         getFragmentManager().popBackStack();
@@ -170,7 +173,7 @@ public class MainActivity extends Activity {
         (NearbyBeaconsFragment) getFragmentManager().findFragmentByTag(NEARBY_BEACONS_FRAGMENT_TAG);
     if (nearbyBeaconsFragment != null) {
       nearbyBeaconsFragment.restartScan();
-    } else  {
+    } else {
       getFragmentManager().beginTransaction()
           .replace(R.id.main_activity_container, new NearbyBeaconsFragment(),
               NEARBY_BEACONS_FRAGMENT_TAG)
@@ -210,6 +213,19 @@ public class MainActivity extends Activity {
         .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
                              R.animator.fade_in_activity, R.animator.fade_out_fragment)
         .replace(R.id.main_activity_container, aboutFragment)
+        .addToBackStack(null)
+        .commit();
+  }
+
+  /**
+   * Show the fragment displaying information about this application.
+   */
+  private void showBlockedFragment() {
+    BlockedFragment blockedFragment = new BlockedFragment();
+    getFragmentManager().beginTransaction()
+        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
+                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
+        .replace(R.id.main_activity_container, blockedFragment)
         .addToBackStack(null)
         .commit();
   }

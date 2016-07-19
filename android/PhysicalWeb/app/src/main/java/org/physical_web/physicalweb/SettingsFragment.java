@@ -67,6 +67,7 @@ public class SettingsFragment extends PreferenceFragment
     menu.findItem(R.id.action_config).setVisible(false);
     menu.findItem(R.id.action_about).setVisible(false);
     menu.findItem(R.id.action_settings).setVisible(false);
+    menu.findItem(R.id.block_settings).setVisible(false);
   }
 
   @Override
