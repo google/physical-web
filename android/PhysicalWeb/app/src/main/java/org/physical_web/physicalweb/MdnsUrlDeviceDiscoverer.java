@@ -39,7 +39,7 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
 
   public MdnsUrlDeviceDiscoverer(Context context) {
     mState = State.STOPPED;
-    resolver = new DiscoverResolver(context, MDNS_SERVICE_TYPE,
+    mResolver = new DiscoverResolver(context, MDNS_SERVICE_TYPE,
         new DiscoverResolver.Listener() {
       @Override
       public void onServicesChanged(Map<String, MDNSDiscover.Result> services) {
@@ -78,7 +78,7 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
       return;
     }
     mState = State.WAITING;
-    resolver.start();
+    mResolver.start();
   }
 
   @Override
@@ -87,6 +87,6 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
       return;
     }
     mState = State.WAITING;
-    resolver.stop();
+    mResolver.stop();
   }
 }
