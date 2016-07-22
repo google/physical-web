@@ -205,7 +205,7 @@ class Utils {
 
   /**
    * Check if URL has been favorited.
-   * @param siteUrl.
+   * @param siteUrl
    */
   public static boolean isFavorite(String siteUrl) {
     return mFavoriteUrls.contains(siteUrl);
@@ -213,7 +213,7 @@ class Utils {
 
   /**
    * Toggles favorite status.
-   * @param siteUrl.
+   * @param siteUrl
    */
   public static void toggleFavorite(String siteUrl) {
     if (isFavorite(siteUrl)) {
@@ -506,6 +506,8 @@ class Utils {
    */
   public static String formatEndpointForSharedPrefernces(String pwsUrl, int pwsVersion,
                                                        String apiKey) {
+    pwsUrl = pwsUrl == null ? "" : pwsUrl;
+    apiKey = apiKey == null ? "" : apiKey;
     return pwsUrl + SEPARATOR + pwsVersion + SEPARATOR + apiKey;
   }
 

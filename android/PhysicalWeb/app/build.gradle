@@ -76,6 +76,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.youview:tinydnssd:1.2.7'
     compile 'org.nanohttpd:nanohttpd:2.3.0'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.10.19'
 
     checkstyleRules files('config/checkstyle/checkstyle.xml')
     findbugsRules files('config/findbugs/exclude-filter.xml')

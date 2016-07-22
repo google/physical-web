@@ -6,6 +6,7 @@
     # This will run our linters etc.
     # NOTE: check depends on assembleDebug
     ./gradlew check
+    ./gradlew test
 )
 
 # Test the Physical Web java libraries
