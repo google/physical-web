@@ -323,22 +323,30 @@ public class UrlDeviceDiscoveryService extends Service
 
     List<PwPair> pwPairs = mPwCollection.getGroupedPwPairsSortedByRank(
         new Utils.PwPairRelevanceComparator());
+    List<PwPair> notBlockedPwPairs = new ArrayList<>();
+    for (PwPair i : pwPairs) {
+      if (!Utils.isBlocked(i.getPwsResult().getSiteUrl())) {
+        notBlockedPwPairs.add(i);
+      }
+    }
+
 
     // If no beacons have been found
-    if (pwPairs.size() == 0) {
+    if (notBlockedPwPairs.size() == 0) {
       // Remove all existing notifications
       cancelNotifications();
-    } else if (pwPairs.size() == 1) {
-      updateNearbyBeaconNotification(true, pwPairs.get(0), NEAREST_BEACON_NOTIFICATION_ID);
+    } else if (notBlockedPwPairs.size() == 1) {
+      updateNearbyBeaconNotification(true, notBlockedPwPairs.get(0),
+          NEAREST_BEACON_NOTIFICATION_ID);
     } else {
       // Create a summary notification for both beacon notifications.
       // Do this first so that we don't first show the individual notifications
-      updateSummaryNotification(pwPairs);
+      updateSummaryNotification(notBlockedPwPairs);
       // Create or update a notification for second beacon
-      updateNearbyBeaconNotification(false, pwPairs.get(1),
+      updateNearbyBeaconNotification(false, notBlockedPwPairs.get(1),
                                      SECOND_NEAREST_BEACON_NOTIFICATION_ID);
       // Create or update a notification for first beacon. Needs to be added last to show up top
-      updateNearbyBeaconNotification(false, pwPairs.get(0),
+      updateNearbyBeaconNotification(false, notBlockedPwPairs.get(0),
                                      NEAREST_BEACON_NOTIFICATION_ID);
 
     }

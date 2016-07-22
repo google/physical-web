@@ -74,6 +74,7 @@ class Utils {
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
   private static Set<String> mFavoriteUrls = new HashSet<>();
+  private static Set<String> mBlockedUrls = new HashSet<>();
 
   // Compares PwPairs by first considering if it has been favorited
   // and then considering distance
@@ -108,6 +109,13 @@ class Utils {
         return 1;
       }
     }
+  }
+
+  /**
+   * Get set of Blocked hosts.
+   */
+  public static Set<String> getBlockedHosts() {
+    return mBlockedUrls;
   }
 
   /**
@@ -162,6 +170,62 @@ class Utils {
     }
     return false;
   }
+
+  /**
+   * Check if domain of URL has been blocked.
+   * @param siteUrl
+   * @return is siteURL blocked
+   */
+  public static boolean isBlocked(String siteUrl) {
+    try {
+      return mBlockedUrls.contains(new URI(siteUrl).getHost());
+    } catch (URISyntaxException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Block the host of siteUrl.
+   * @param siteUrl
+   */
+  public static void addBlocked(String siteUrl) {
+    try {
+      mBlockedUrls.add(new URI(siteUrl).getHost());
+    } catch (URISyntaxException e) {
+      return;
+    }
+  }
+
+  /**
+   * Unblock the host.
+   * @param host
+   */
+  public static void removeBlocked(String host) {
+    if (mBlockedUrls.contains(host)) {
+      mBlockedUrls.remove(host);
+    }
+  }
+
+  /**
+   * Save blocked set to shared preferences.
+   * @param context to access shared preferences
+   */
+  public static void saveBlocked(Context context) {
+    // Write the PW Collection
+    PreferenceManager.getDefaultSharedPreferences(context).edit()
+      .putStringSet("blocked", mBlockedUrls)
+      .apply();
+  }
+
+  /**
+   * Restore blocked set from shared preferences.
+   * @param context to access shared preferences
+   */
+  public static void restoreBlocked(Context context) {
+    mBlockedUrls = new HashSet<>(PreferenceManager.getDefaultSharedPreferences(
+        context).getStringSet("blocked", new HashSet<String>()));
+  }
+
 
 
   private static class PwsEndpoint {

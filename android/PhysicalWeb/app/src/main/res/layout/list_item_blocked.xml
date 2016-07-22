@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:paddingStart="18dp"
+              android:paddingEnd="18dp"
+              android:paddingTop="18dp"
+              android:paddingBottom="18dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="#FFFFFF">
+
+    <TextView
+            android:id="@+id/blocked_host"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:layout_toStartOf="@+id/delete_button"
+            android:fontFamily="arial-sans-serif"
+            android:textColor="@color/description_color"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true">
+        </TextView>
+
+    <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="@string/unblock_button"
+            android:focusable="false"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"/>
+
+</RelativeLayout>

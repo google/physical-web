@@ -79,6 +79,8 @@ public class NearbyBeaconsFragment extends ListFragment
   private boolean mSecondScanComplete;
   private boolean mFirstTime;
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
+  private boolean mMissedEmptyGroupIdQueue = false;
+  private SwipeDismissListViewTouchListener mTouchListener;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -95,6 +97,7 @@ public class NearbyBeaconsFragment extends ListFragment
       if (!mGroupIdQueue.isEmpty()) {
         emptyGroupIdQueue();
         mSwipeRefreshWidget.setRefreshing(false);
+        mScanningAnimationDrawable.stop();
       }
     }
   };
@@ -107,6 +110,7 @@ public class NearbyBeaconsFragment extends ListFragment
       emptyGroupIdQueue();
       mSecondScanComplete = true;
       mSwipeRefreshWidget.setRefreshing(false);
+      mScanningAnimationDrawable.stop();
       if (mNearbyDeviceAdapter.getCount() == 0) {
         int tintColor = ContextCompat.getColor(getActivity(), R.color.physical_web_logo);
         mScanningAnimationDrawable.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
@@ -198,7 +202,33 @@ public class NearbyBeaconsFragment extends ListFragment
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
+    mTouchListener =
+      new SwipeDismissListViewTouchListener(
+              listView,
+              new SwipeDismissListViewTouchListener.DismissCallbacks() {
+                  @Override
+                  public boolean canDismiss(int position) {
+                      return true;
+                  }
+
+                  @Override
+                  public void onDismiss(ListView listView, int position) {
+                    Utils.addBlocked(mNearbyDeviceAdapter
+                        .getItem(position).getPwsResult().getSiteUrl());
+                    Utils.saveBlocked(getActivity());
+                    if (mMissedEmptyGroupIdQueue) {
+                      mMissedEmptyGroupIdQueue = false;
+                      emptyGroupIdQueue();
+                    }
+                  }
+              });
+    listView.setOnTouchListener(mTouchListener);
+
+    // Setting this scroll listener is required to ensure that during ListView scrolling,
+    // we don't look for swipes.
+    listView.setOnScrollListener(mTouchListener.makeScrollListener());
     Utils.restoreFavorites(getActivity());
+    Utils.restoreBlocked(getActivity());
   }
 
   @Override
@@ -261,13 +291,17 @@ public class NearbyBeaconsFragment extends ListFragment
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
+        if (SwipeDismissListViewTouchListener.isLocked()) {
+          return;
+        }
         for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
             new Utils.PwPairRelevanceComparator())) {
           String groupId = Utils.getGroupId(pwPair.getPwsResult());
           Log.d(TAG, "groupid to add " + groupId);
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
             mNearbyDeviceAdapter.updateItem(pwPair);
-          } else if (!mGroupIdQueue.contains(groupId)) {
+          } else if (!mGroupIdQueue.contains(groupId)
+              && !Utils.isBlocked(pwPair.getPwsResult().getSiteUrl())) {
             mGroupIdQueue.add(groupId);
             if (mSecondScanComplete) {
               // If we've already waited for the second scan timeout,
@@ -305,6 +339,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mScanningAnimationDrawable.start();
     } else {
       mSwipeRefreshWidget.setRefreshing(false);
+      mScanningAnimationDrawable.stop();
     }
 
     // Schedule the timeouts
@@ -330,6 +365,11 @@ public class NearbyBeaconsFragment extends ListFragment
   }
 
   private void emptyGroupIdQueue() {
+    if (SwipeDismissListViewTouchListener.isLocked()) {
+      mMissedEmptyGroupIdQueue = true;
+      return;
+    }
+
     List<PwPair> pwPairs = new ArrayList<>();
 
     for (String groupId : mGroupIdQueue) {
