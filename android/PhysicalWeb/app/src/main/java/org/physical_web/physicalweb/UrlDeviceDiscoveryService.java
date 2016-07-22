@@ -143,6 +143,7 @@ public class UrlDeviceDiscoveryService extends Service
     mUrlDeviceDiscoverers = new ArrayList<>();
 
     if (Utils.getMdnsEnabled(this)) {
+      Log.d(TAG, "mdns started");
       mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
@@ -264,6 +265,14 @@ public class UrlDeviceDiscoveryService extends Service
     // Don't short circuit because icons
     // and metadata may not be fetched
     mPwCollection.addUrlDevice(urlDevice);
+    Log.d(TAG, urlDevice.getUrl());
+    if (Utils.isResolvableDevice(urlDevice)) {
+      Log.d(TAG, "isResolvableDevice");
+      mPwCollection.addMetadata(new PwsResult.Builder(urlDevice.getUrl(), urlDevice.getUrl())
+        .setTitle(Utils.getTitle(urlDevice))
+        .setDescription(Utils.getDescription(urlDevice))
+        .build());
+    }
     mPwCollection.fetchPwsResults(new PwsResultCallback() {
       long mPwsTripTimeMillis = 0;
 

@@ -29,6 +29,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -278,9 +280,11 @@ public class NearbyBeaconsFragment extends ListFragment
       return;
     }
     // Get the url for the given item
-    PwPair pwPair = mNearbyDeviceAdapter.getItem(position);
-    Intent intent = Utils.createNavigateToUrlIntent(pwPair.getPwsResult());
-    startActivity(intent);
+    PwPair item = mNearbyDeviceAdapter.getItem(position);
+    if (!isFolderItem(item)) {
+      Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
+      startActivity(intent);
+    }
   }
 
   @Override
@@ -384,21 +388,42 @@ public class NearbyBeaconsFragment extends ListFragment
     mNearbyDeviceAdapter.notifyDataSetChanged();
   }
 
+  private static boolean isFolderItem(PwPair item) {
+    return item.getUrlDevice() == null && item.getPwsResult().getSiteUrl() == null;
+  }
+
   // Adapter for holding beacons found through scanning.
   private class NearbyBeaconsAdapter extends BaseAdapter {
     private List<PwPair> mPwPairs;
+    private int mNumberOfHideableResults;
 
     NearbyBeaconsAdapter() {
       mPwPairs = new ArrayList<>();
+      mNumberOfHideableResults = 0;
     }
 
     public void addItem(PwPair pwPair) {
-      mPwPairs.add(pwPair);
+      // If isResolvableDevice place in the folder at the bottom
+      // of the list (making the folder if it didn't already exist)
+      // Otherwise place in the bottom of the non-folder list
+      if (Utils.isResolvableDevice(pwPair.getUrlDevice())) {
+        if (mNumberOfHideableResults == 0) {
+          mPwPairs.add(new PwPair(null, new PwsResult(null, null)));
+          mNumberOfHideableResults++;
+        }
+        mNumberOfHideableResults++;
+        mPwPairs.add(pwPair);
+      } else {
+        mPwPairs.add(mPwPairs.size() - mNumberOfHideableResults, pwPair);
+      }
     }
 
     public void updateItem(PwPair pwPair) {
       String groupId = Utils.getGroupId(pwPair.getPwsResult());
       for (int i = 0; i < mPwPairs.size(); ++i) {
+        if (isFolderItem(mPwPairs.get(i))) {
+          continue;
+        }
         if (Utils.getGroupId(mPwPairs.get(i).getPwsResult()).equals(groupId)) {
           mPwPairs.set(i, pwPair);
           return;
@@ -409,6 +434,9 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public boolean containsGroupId(String groupId) {
       for (PwPair pwPair : mPwPairs) {
+        if (isFolderItem(pwPair)) {
+          continue;
+        }
         if (Utils.getGroupId(pwPair.getPwsResult()).equals(groupId)) {
           return true;
         }
@@ -418,7 +446,11 @@ public class NearbyBeaconsFragment extends ListFragment
 
     @Override
     public int getCount() {
-      return mPwPairs.size();
+      int size = mPwPairs.size();
+      if (!Utils.getMdnsEnabled(getActivity())) {
+        size -= mNumberOfHideableResults;
+      }
+      return size;
     }
 
     @Override
@@ -438,15 +470,25 @@ public class NearbyBeaconsFragment extends ListFragment
     @SuppressLint("InflateParams")
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-      // Get the list view item for the given position
-      if (view == null) {
-        view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon,
-                                                         viewGroup, false);
-      }
-
       // Display the pwsResult.
       PwPair pwPair = getItem(i);
       PwsResult pwsResult = pwPair.getPwsResult();
+      if (isFolderItem(pwPair)) {
+        view = getActivity().getLayoutInflater().inflate(R.layout.folder_item_nearby_beacon,
+            viewGroup, false);
+        WifiManager wifiManager = (WifiManager) getActivity().
+            getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        String ssid = wifiInfo.getSSID().trim();
+        if (ssid.charAt(0) == '"' && ssid.charAt(ssid.length() - 1) == '"') {
+          setText(view, R.id.title, ssid.substring(1, ssid.length() - 1));
+        } else {
+          setText(view, R.id.title, "Wireless Network");
+        }
+        return view;
+      }
+      view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon,
+          viewGroup, false);
       setText(view, R.id.title, pwsResult.getTitle());
       setText(view, R.id.url, pwsResult.getSiteUrl());
       setText(view, R.id.description, pwsResult.getDescription());
@@ -530,6 +572,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
     public void clear() {
       mPwPairs.clear();
+      mNumberOfHideableResults = 0;
       notifyDataSetChanged();
     }
   }
