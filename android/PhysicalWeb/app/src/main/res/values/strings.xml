@@ -54,6 +54,7 @@
     <string name="debug_view_title">Enable Debug View</string>
     <string name="debug_view_summary">Enabling debug view allows you to see more metadata and ranging data.</string>
     <string name="unblock_button">Unblock</string>
+    <string name="folder_text">Folder</string>
 
     <plurals name="numFoundBeacons">
         <item quantity="one">Beacon Nearby</item>

@@ -83,6 +83,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private DiscoveryServiceConnection mDiscoveryServiceConnection;
   private boolean mMissedEmptyGroupIdQueue = false;
   private SwipeDismissListViewTouchListener mTouchListener;
+  private WifiDirectConnect mWifiDirectConnect;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -204,6 +205,7 @@ public class NearbyBeaconsFragment extends ListFragment
         (AnimationDrawable) mScanningAnimationTextView.getCompoundDrawables()[1];
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
+    mWifiDirectConnect = new WifiDirectConnect(getActivity());
     mTouchListener =
       new SwipeDismissListViewTouchListener(
               listView,
@@ -282,8 +284,13 @@ public class NearbyBeaconsFragment extends ListFragment
     // Get the url for the given item
     PwPair item = mNearbyDeviceAdapter.getItem(position);
     if (!isFolderItem(item)) {
-      Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
-      startActivity(intent);
+      if (Utils.isWifiDirect(item.getUrlDevice())) {
+        // Initiate WifiDirect Connection request to device
+        mWifiDirectConnect.connect(item.getUrlDevice());
+      } else {
+        Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
+        startActivity(intent);
+      }
     }
   }
 

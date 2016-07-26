@@ -7,15 +7,18 @@ plugins {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.1"
 
     defaultConfig {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 24
         versionCode 16
         versionName "0.1.857"
+        jackOptions {
+            enabled true
+        }
     }
 
     buildTypes {
@@ -26,8 +29,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     if(new File("signing.properties").exists()) {
@@ -74,7 +77,7 @@ dependencies {
 
     compile 'com.android.volley:volley@aar'
     compile 'org.uribeacon:uribeacon-library-release@aar'
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.youview:tinydnssd:1.2.7'
 }
 

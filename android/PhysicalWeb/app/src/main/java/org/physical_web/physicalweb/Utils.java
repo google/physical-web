@@ -73,6 +73,8 @@ class Utils {
   private static final String RSSI_KEY = "rssi";
   private static final String TXPOWER_KEY = "tx";
   private static final String PWSTRIPTIME_KEY = "pwstriptime";
+  private static final String WIFIDIRECT_KEY = "wifidirect";
+  private static final String WIFIDIRECT_PORT_KEY = "wifiport";
   private static final RegionResolver REGION_RESOLVER = new RegionResolver();
   private static final String SEPARATOR = "\0";
   private static Set<String> mFavoriteUrls = new HashSet<>();
@@ -228,7 +230,30 @@ class Utils {
         context).getStringSet("blocked", new HashSet<String>()));
   }
 
+  public static class WifiDirectInfo {
+    public String title;
+    public int port;
 
+    public WifiDirectInfo(String title, int port) {
+      this.title = title;
+      this.port = port;
+    }
+  }
+
+  /**
+   * Checks to see if name matches defined wifi direct structure.
+   * @param name WifiDirect device name
+   */
+  public static WifiDirectInfo parseWifiDirectName(String name) {
+    String split[] = name.split("-");
+    if (split.length < 3 || !split[0].equals("PW")
+        || !split[split.length - 1].matches("\\d+")) {
+      return null;
+    }
+    return new WifiDirectInfo(name.substring(3, name.lastIndexOf('-')),
+        Integer.parseInt(split[split.length - 1]));
+
+  }
 
   private static class PwsEndpoint {
     public String url;
@@ -689,6 +714,50 @@ class Utils {
 
 
   /**
+   * Gets if the device is Wifi Direct.
+   * @param urlDevice The device that is getting checked.
+   * @return Is a WifiDirect device
+   */
+  public static boolean isWifiDirect(UrlDevice urlDevice) {
+    try {
+      urlDevice.getExtraString(WIFIDIRECT_KEY);
+    } catch (JSONException e) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Gets the UrlDevice MAC address.
+   * @param urlDevice The device that is getting checked.
+   * @return The MAC address for the device.
+   * @throws RuntimeException if no address present.
+   */
+  public static String getWifiAddress(UrlDevice urlDevice) {
+    try {
+      return urlDevice.getExtraString(WIFIDIRECT_KEY);
+    } catch (JSONException e) {
+      throw new RuntimeException(
+          "Tried to get address when no description set " + urlDevice.getId(), e);
+    }
+  }
+
+  /**
+   * Gets the UrlDevice port.
+   * @param urlDevice The device that is getting checked.
+   * @return The port for the device.
+   * @throws RuntimeException if no port present.
+   */
+  public static int getWifiPort(UrlDevice urlDevice) {
+    try {
+      return urlDevice.getExtraInt(WIFIDIRECT_PORT_KEY);
+    } catch (JSONException e) {
+      throw new RuntimeException(
+          "Tried to get port when no port set " + urlDevice.getId(), e);
+    }
+  }
+
+  /**
    * Gets the amount of time in milliseconds to get the result from the PWS if available.
    * @param pwsResult The result that is being queried.
    * @return The trip time for the result.
@@ -795,6 +864,7 @@ class Utils {
 
     /**
      * Set the title.
+     * @param title corresonding to UrlDevice.
      * @return The builder with title
      */
     public UrlDeviceBuilder setTitle(String title) {
@@ -804,10 +874,31 @@ class Utils {
 
     /**
      * Set the description.
+     * @param description corresonding to UrlDevice.
      * @return The builder with description
      */
     public UrlDeviceBuilder setDescription(String description) {
       addExtra(DESCRIPTION_KEY, description);
+      return this;
+    }
+
+    /**
+     * Set wifi-direct MAC address.
+     * @param MAC address corresonding to UrlDevice.
+     * @return The builder with address
+     */
+    public UrlDeviceBuilder setWifiAddress(String address) {
+      addExtra(WIFIDIRECT_KEY, address);
+      return this;
+    }
+
+        /**
+     * Set wifi-direct port.
+     * @param port corresonding to UrlDevice.
+     * @return The builder with port
+     */
+    public UrlDeviceBuilder setWifiPort(int port) {
+      addExtra(WIFIDIRECT_PORT_KEY, port);
       return this;
     }
 
