@@ -19,6 +19,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 
 /**
  * Collection of Physical Web URL devices and related metadata.
@@ -147,6 +149,9 @@ public class PhysicalWebCollection {
     // Serialize the UrlDevices
     JSONArray urlDevices = new JSONArray();
     for (UrlDevice urlDevice : mDeviceIdToUrlDeviceMap.values()) {
+      if (isWifiDirect(urlDevice)) {
+        continue;
+      }
       urlDevices.put(urlDevice.jsonSerialize());
     }
     jsonObject.put(DEVICES_KEY, urlDevices);
@@ -167,6 +172,21 @@ public class PhysicalWebCollection {
 
     jsonObject.put(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
     return jsonObject;
+  }
+
+  /**
+   * Gets the UrlDevice Description.
+   * @param urlDevice The device that is getting checked.
+   * @return The Description for the device.
+   * @throws RuntimeException if no description present.
+   */
+  public static boolean isWifiDirect(UrlDevice urlDevice) {
+    try {
+      urlDevice.getExtraString("direct");
+    } catch (JSONException e) {
+      return false;
+    }
+    return true;
   }
 
   /**
