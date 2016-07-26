@@ -152,7 +152,13 @@ def ReplaceDistanceWithRank(device_data):
 def ComputeGroupId(url, title, description):
     import hashlib
     domain = urlparse(url).netloc
-    seed = domain + '\0' + title
+    if title is not None:
+        identifier = title
+    elif description is not None:
+        identifier = description
+    else:
+        identifier = urlparse(url).path
+    seed = domain + '\0' + identifier
     groupid = hashlib.sha1(seed.encode('utf-8')).hexdigest()[:16]
     return groupid
 
