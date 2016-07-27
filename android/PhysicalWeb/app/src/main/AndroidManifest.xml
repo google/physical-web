@@ -96,7 +96,6 @@
         <activity
             android:name=".OobActivity"
             android:label="OobActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.NoActionBar">
         </activity>
     </application>
