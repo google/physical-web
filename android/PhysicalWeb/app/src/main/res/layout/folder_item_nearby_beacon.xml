@@ -3,7 +3,7 @@
         android:id="@+id/title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Folder"
+        android:text="@string/folder_text"
         android:textSize="20sp"
         android:fontFamily="sans-serif"
         android:textColor="#FFFFFF"
@@ -11,5 +11,6 @@
         android:ellipsize="end"
         android:background="#464646"
         android:paddingStart="18dp"
+        android:paddingEnd="18dp"
         android:paddingTop="3dp"
         android:paddingBottom="6dp" />

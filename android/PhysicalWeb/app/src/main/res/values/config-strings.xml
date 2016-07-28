@@ -9,4 +9,5 @@
     <string name="scan_settings_key">scan_settings</string>
     <string name="mDNS_key">mDNS</string>
     <string name="debug_key">debug</string>
+    <string name="wifi_port_key">wifiport</string>
 </resources>
