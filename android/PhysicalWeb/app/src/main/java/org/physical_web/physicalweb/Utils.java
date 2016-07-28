@@ -38,6 +38,8 @@ import org.uribeacon.scan.util.RangingUtils;
 import org.uribeacon.scan.util.RegionResolver;
 
 import org.json.JSONException;
+import android.webkit.URLUtil;
+
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -226,6 +228,45 @@ class Utils {
   public static void restoreBlocked(Context context) {
     mBlockedUrls = new HashSet<>(PreferenceManager.getDefaultSharedPreferences(
         context).getStringSet("blocked", new HashSet<String>()));
+  }
+
+  /**
+   * Restore blocked set from shared preferences.
+   * @param context to access shared preferences
+   */
+  public static boolean isWifiDirectName(String name) {
+    String split[] = name.split("-");
+    return (split.length >= 3 && split[0].equals("PW") && isInteger(split[split.length - 1]));
+  }
+
+  /**
+   * Restore blocked set from shared preferences.
+   * @param context to access shared preferences
+   */
+  public static int getWifiDirectPort(String name) {
+    String split[] = name.split("-");
+    return  Integer.parseInt(split[split.length - 1]);
+  }
+
+  /**
+   * Restore blocked set from shared preferences.
+   * @param context to access shared preferences
+   */
+  public static String getTitleOrURL(String name) {
+    int lastDash = name.lastIndexOf("-");
+    return name.substring(3,lastDash);
+  }
+
+  public static boolean isInteger(String s) {
+    try { 
+        Integer.parseInt(s); 
+    } catch(NumberFormatException e) { 
+        return false; 
+    } catch(NullPointerException e) {
+        return false;
+    }
+    // only got here if we didn't return false
+    return true;
   }
 
 
@@ -687,6 +728,50 @@ class Utils {
     }
   }
 
+  /**
+   * Gets the UrlDevice Description.
+   * @param urlDevice The device that is getting checked.
+   * @return The Description for the device.
+   * @throws RuntimeException if no description present.
+   */
+  public static boolean isWifiDirect(UrlDevice urlDevice) {
+    try {
+      urlDevice.getExtraString("direct");
+    } catch (JSONException e) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Gets the UrlDevice Description.
+   * @param urlDevice The device that is getting checked.
+   * @return The Description for the device.
+   * @throws RuntimeException if no description present.
+   */
+  public static String getWifiAddress(UrlDevice urlDevice) {
+    try {
+      return urlDevice.getExtraString("direct");
+    } catch (JSONException e) {
+      throw new RuntimeException(
+          "Tried to get address when no description set " + urlDevice.getId(), e);
+    }
+  }
+
+  /**
+   * Gets the UrlDevice Description.
+   * @param urlDevice The device that is getting checked.
+   * @return The Description for the device.
+   * @throws RuntimeException if no description present.
+   */
+  public static int getWifiPort(UrlDevice urlDevice) {
+    try {
+      return urlDevice.getExtraInt("port");
+    } catch (JSONException e) {
+      throw new RuntimeException(
+          "Tried to get port when no port set " + urlDevice.getId(), e);
+    }
+  }
 
   /**
    * Gets the amount of time in milliseconds to get the result from the PWS if available.
@@ -808,6 +893,24 @@ class Utils {
      */
     public UrlDeviceBuilder setDescription(String description) {
       addExtra(DESCRIPTION_KEY, description);
+      return this;
+    }
+
+    /**
+     * Set wifi-direct.
+     * @return The builder with title
+     */
+    public UrlDeviceBuilder setWifiAddress(String address) {
+      addExtra("direct", address);
+      return this;
+    }
+
+        /**
+     * Set wifi-direct.
+     * @return The builder with title
+     */
+    public UrlDeviceBuilder setWifiPort(int port) {
+      addExtra("port", port);
       return this;
     }
 

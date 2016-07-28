@@ -282,8 +282,12 @@ public class NearbyBeaconsFragment extends ListFragment
     // Get the url for the given item
     PwPair item = mNearbyDeviceAdapter.getItem(position);
     if (!isFolderItem(item)) {
-      Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
-      startActivity(intent);
+      if (Utils.isWifiDirect(item.getUrlDevice())) {
+        new WifiDirectConnect(getActivity(),item.getUrlDevice());
+      } else {
+        Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
+        startActivity(intent);
+      }
     }
   }
 
