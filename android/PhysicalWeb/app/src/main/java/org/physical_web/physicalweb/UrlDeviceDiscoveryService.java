@@ -148,6 +148,7 @@ public class UrlDeviceDiscoveryService extends Service
     }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
     mUrlDeviceDiscoverers.add(new BleUrlDeviceDiscoverer(this));
+    mUrlDeviceDiscoverers.add(new WifiUrlDeviceDiscoverer(this));
     for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
       urlDeviceDiscoverer.setCallback(this);
     }
@@ -203,7 +204,6 @@ public class UrlDeviceDiscoveryService extends Service
     cancelNotifications();
     mHandler.postDelayed(mFirstScanTimeout, FIRST_SCAN_TIME_MILLIS);
     mHandler.postDelayed(mSecondScanTimeout, SECOND_SCAN_TIME_MILLIS);
-    startScan();
   }
 
   @Override
