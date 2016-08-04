@@ -50,6 +50,11 @@
            android:title="@string/debug_view_title"
            android:summary="@string/debug_view_summary"
            android:defaultValue="false" />
+        <EditTextPreference
+            android:inputType="number"
+            android:key="@string/wifi_port_key"
+            android:summary="@string/wifi_port_summary"
+            android:title="@string/wifi_port_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

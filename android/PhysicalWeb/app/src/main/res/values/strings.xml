@@ -52,6 +52,8 @@
     <string name="debug_settings_title">Debug Settings</string>
     <string name="debug_view_title">Enable Debug View</string>
     <string name="debug_view_summary">Enabling debug view allows you to see more metadata and ranging data.</string>
+    <string name="wifi_port_title">Wi-Fi Direct Broadcast Port</string>
+    <string name="wifi_port_summary">Click to change port</string>
     <string name="unblock_button">Unblock</string>
     <string name="folder_text">Folder</string>
 

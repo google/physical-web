@@ -538,6 +538,20 @@ class Utils {
   }
 
   /**
+   * Get the saved setting for enabling mDNS folder.
+   * @param context The context for the SharedPreferences.
+   * @return The enable mDNS folder setting.
+   */
+  public static int getWifiDirectPort(Context context) {
+    String port = PreferenceManager.getDefaultSharedPreferences(context)
+        .getString(context.getString(R.string.wifi_port_key), "1234");
+    if (port.matches("\\d+")) {
+      return Integer.parseInt(port);
+    }
+    return 1234;
+  }
+
+  /**
    * Toast the user to indicate the API key is missing.
    * @param context The context for the resources.
    */
