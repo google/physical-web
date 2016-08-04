@@ -82,6 +82,7 @@ class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
     UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress(), url)
         .setRssi(rssi)
         .setTxPower(uriBeacon.getTxPowerLevel())
+        .setDeviceType(Utils.BLE_DEVICE_TYPE)
         .build();
     Utils.updateRegion(urlDevice);
     reportUrlDevice(urlDevice);
