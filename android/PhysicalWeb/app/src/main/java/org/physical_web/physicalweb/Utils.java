@@ -392,7 +392,7 @@ class Utils {
         // Get the service
         UrlDeviceDiscoveryService.LocalBinder localBinder =
             (UrlDeviceDiscoveryService.LocalBinder) service;
-        localBinder.getServiceInstance().clearCache();
+        localBinder.getServiceInstance().restartScan();
         mContext.unbindService(this);
       }
 
