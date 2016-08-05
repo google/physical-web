@@ -142,13 +142,16 @@ public class UrlDeviceDiscoveryService extends Service
     mNotificationManager = NotificationManagerCompat.from(this);
     mUrlDeviceDiscoverers = new ArrayList<>();
 
-    if (Utils.getMdnsEnabled(this)) {
+    if (Utils.isMdnsEnabled(this)) {
       Log.d(TAG, "mdns started");
       mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
+    if (Utils.isWifiDirectEnabled(this)) {
+      Log.d(TAG, "wifi direct started");
+      mUrlDeviceDiscoverers.add(new WifiUrlDeviceDiscoverer(this));
+    }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
     mUrlDeviceDiscoverers.add(new BleUrlDeviceDiscoverer(this));
-    mUrlDeviceDiscoverers.add(new WifiUrlDeviceDiscoverer(this));
     for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
       urlDeviceDiscoverer.setCallback(this);
     }
@@ -243,7 +246,8 @@ public class UrlDeviceDiscoveryService extends Service
     PreferenceManager.getDefaultSharedPreferences(this).edit()
         .putInt(PREFS_VERSION_KEY, PREFS_VERSION)
         .putLong(SCAN_START_TIME_KEY, mScanStartTime)
-        .putString(PW_COLLECTION_KEY, mPwCollection.jsonSerialize().toString())
+        .putString(PW_COLLECTION_KEY, Utils.clearUnresolvableUrlDevices(mPwCollection)
+          .jsonSerialize().toString())
         .apply();
   }
 
@@ -266,8 +270,7 @@ public class UrlDeviceDiscoveryService extends Service
     // and metadata may not be fetched
     mPwCollection.addUrlDevice(urlDevice);
     Log.d(TAG, urlDevice.getUrl());
-    if (Utils.isResolvableDevice(urlDevice)) {
-      Log.d(TAG, "isResolvableDevice");
+    if (!Utils.isResolvableDevice(urlDevice)) {
       mPwCollection.addMetadata(new PwsResult.Builder(urlDevice.getUrl(), urlDevice.getUrl())
         .setTitle(Utils.getTitle(urlDevice))
         .setDescription(Utils.getDescription(urlDevice))

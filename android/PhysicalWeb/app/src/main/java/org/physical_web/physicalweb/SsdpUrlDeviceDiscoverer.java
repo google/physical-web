@@ -85,7 +85,9 @@ public class SsdpUrlDeviceDiscoverer extends UrlDeviceDiscoverer implements Ssdp
       new Thread(new Runnable() {
         @Override
         public void run() {
-          reportUrlDevice(createUrlDeviceBuilder(TAG + url, url).build());
+          reportUrlDevice(createUrlDeviceBuilder(TAG + url, url)
+            .setDeviceType(Utils.SSDP_DEVICE_TYPE)
+            .build());
         }
       }).start();
     }
