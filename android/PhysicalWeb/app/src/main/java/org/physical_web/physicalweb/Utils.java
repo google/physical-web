@@ -62,11 +62,17 @@ class Utils {
   public static final String GOOGLE_ENDPOINT = "https://physicalweb.googleapis.com";
   public static final int GOOGLE_ENDPOINT_VERSION = 2;
   public static final String FAVORITES_KEY = "favorites";
+  public static final String BLE_DEVICE_TYPE = "ble";
+  public static final String MDNS_LOCAL_DEVICE_TYPE = "mdns-local";
+  public static final String MDNS_PUBLIC_DEVICE_TYPE = "mdns-public";
+  public static final String WIFI_DIRECT_DEVICE_TYPE = "wifidirect";
+  public static final String SSDP_DEVICE_TYPE = "ssdp";
   private static final String USER_OPTED_IN_KEY = "userOptedIn";
   private static final String MAIN_PREFS_KEY = "physical_web_preferences";
   private static final String DISCOVERY_SERVICE_PREFS_KEY =
       "org.physical_web.physicalweb.DISCOVERY_SERVICE_PREFS";
   private static final String SCANTIME_KEY = "scantime";
+  private static final String TYPE_KEY = "type";
   private static final String PUBLIC_KEY = "public";
   private static final String TITLE_KEY = "title";
   private static final String DESCRIPTION_KEY = "description";
@@ -522,7 +528,7 @@ class Utils {
    * @param context The context for the SharedPreferences.
    * @return The enable mDNS folder setting.
    */
-  public static boolean getMdnsEnabled(Context context) {
+  public static boolean isMdnsEnabled(Context context) {
     return PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean(context.getString(R.string.mDNS_key), false);
   }
@@ -532,7 +538,7 @@ class Utils {
    * @param context The context for the SharedPreferences.
    * @return The debug view setting.
    */
-  public static boolean getDebugViewEnabled(Context context) {
+  public static boolean isDebugViewEnabled(Context context) {
     return PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean(context.getString(R.string.debug_key), false);
   }
@@ -640,17 +646,33 @@ class Utils {
   }
 
   /**
+   * Checks if device is PWS resolvable.
+   * @param urlDevice The device that is getting checked.
+   * @return If the device is resolvable or not.
+   */
+  public static boolean isResolvableDevice(UrlDevice urlDevice) {
+    String type = urlDevice.optExtraString(TYPE_KEY, "");
+    return type.equals(BLE_DEVICE_TYPE)
+        || type.equals(SSDP_DEVICE_TYPE)
+        || type.equals(MDNS_PUBLIC_DEVICE_TYPE);
+  }
+
+  /**
    * Checks if device is Bluetooth Low Energy.
    * @param urlDevice The device that is getting checked.
    * @return If the device is BLE or not.
    */
   public static boolean isBleUrlDevice(UrlDevice urlDevice) {
-    try {
-      urlDevice.getExtraInt(RSSI_KEY);
-    } catch (JSONException e) {
-      return false;
-    }
-    return true;
+    return urlDevice.optExtraString(TYPE_KEY, "").equals(BLE_DEVICE_TYPE);
+  }
+
+  /**
+   * Checks if device is mdns device broadcasting public url.
+   * @param urlDevice The device that is getting checked.
+   * @return If the device is mdns public or not.
+   */
+  public static boolean isMDNSPublicDevice(UrlDevice urlDevice) {
+    return urlDevice.optExtraString(TYPE_KEY, "").equals(MDNS_PUBLIC_DEVICE_TYPE);
   }
 
   /**
@@ -658,13 +680,26 @@ class Utils {
    * @param urlDevice The device that is getting checked.
    * @return If the device is local or not.
    */
-  public static boolean isResolvableDevice(UrlDevice urlDevice) {
-    try {
-      urlDevice.getExtraString(TITLE_KEY);
-    } catch (JSONException e) {
-      return false;
-    }
-    return true;
+  public static boolean isMDNSLocalDevice(UrlDevice urlDevice) {
+    return urlDevice.optExtraString(TYPE_KEY, "").equals(MDNS_LOCAL_DEVICE_TYPE);
+  }
+
+  /**
+   * Gets if the device is Wifi Direct.
+   * @param urlDevice The device that is getting checked.
+   * @return Is a WifiDirect device
+   */
+  public static boolean isWifiDirectDevice(UrlDevice urlDevice) {
+    return urlDevice.optExtraString(TYPE_KEY, "").equals(WIFI_DIRECT_DEVICE_TYPE);
+  }
+
+  /**
+   * Gets if the device is SSDP.
+   * @param urlDevice The device that is getting checked.
+   * @return Is a SSDP device
+   */
+  public static boolean isSSDPDevice(UrlDevice urlDevice) {
+    return urlDevice.optExtraString(TYPE_KEY, "").equals(SSDP_DEVICE_TYPE);
   }
 
   /**
@@ -724,21 +759,6 @@ class Utils {
       throw new RuntimeException(
           "Tried to get Description when no description set " + urlDevice.getId(), e);
     }
-  }
-
-
-  /**
-   * Gets if the device is Wifi Direct.
-   * @param urlDevice The device that is getting checked.
-   * @return Is a WifiDirect device
-   */
-  public static boolean isWifiDirect(UrlDevice urlDevice) {
-    try {
-      urlDevice.getExtraString(WIFIDIRECT_KEY);
-    } catch (JSONException e) {
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -846,6 +866,15 @@ class Utils {
      */
     public UrlDeviceBuilder(String id, String url) {
       super(id, url);
+    }
+
+    /**
+    * Set the device type.
+    * @return The builder with type set.
+    */
+    public UrlDeviceBuilder setDeviceType(String type) {
+      addExtra(TYPE_KEY, type);
+      return this;
     }
 
     /**

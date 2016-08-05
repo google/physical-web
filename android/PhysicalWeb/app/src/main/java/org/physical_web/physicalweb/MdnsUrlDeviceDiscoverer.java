@@ -61,10 +61,12 @@ class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
               .setPrivate()
               .setTitle(title)
               .setDescription(description)
+              .setDeviceType(Utils.MDNS_LOCAL_DEVICE_TYPE)
               .build());
           } else if (URLUtil.isNetworkUrl(url)) {
             reportUrlDevice(createUrlDeviceBuilder(id, url)
               .setPrivate()
+              .setDeviceType(Utils.MDNS_PUBLIC_DEVICE_TYPE)
               .build());
           }
         }

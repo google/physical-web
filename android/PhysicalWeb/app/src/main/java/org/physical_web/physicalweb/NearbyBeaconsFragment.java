@@ -284,7 +284,7 @@ public class NearbyBeaconsFragment extends ListFragment
     // Get the url for the given item
     PwPair item = mNearbyDeviceAdapter.getItem(position);
     if (!isFolderItem(item)) {
-      if (Utils.isWifiDirect(item.getUrlDevice())) {
+      if (Utils.isWifiDirectDevice(item.getUrlDevice())) {
         // Initiate WifiDirect Connection request to device
         mWifiDirectConnect.connect(item.getUrlDevice());
       } else {
@@ -414,15 +414,15 @@ public class NearbyBeaconsFragment extends ListFragment
       // of the list (making the folder if it didn't already exist)
       // Otherwise place in the bottom of the non-folder list
       if (Utils.isResolvableDevice(pwPair.getUrlDevice())) {
-        if (mNumberOfHideableResults == 0) {
-          mPwPairs.add(new PwPair(null, new PwsResult(null, null)));
-          mNumberOfHideableResults++;
-        }
-        mNumberOfHideableResults++;
-        mPwPairs.add(pwPair);
-      } else {
         mPwPairs.add(mPwPairs.size() - mNumberOfHideableResults, pwPair);
+        return;
       }
+      if (mNumberOfHideableResults == 0) {
+        mPwPairs.add(new PwPair(null, new PwsResult(null, null)));
+        mNumberOfHideableResults++;
+      }
+      mNumberOfHideableResults++;
+      mPwPairs.add(pwPair);
     }
 
     public void updateItem(PwPair pwPair) {
@@ -453,11 +453,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
     @Override
     public int getCount() {
-      int size = mPwPairs.size();
-      if (!Utils.getMdnsEnabled(getActivity())) {
-        size -= mNumberOfHideableResults;
-      }
-      return size;
+      return mPwPairs.size();
     }
 
     @Override
@@ -529,7 +525,7 @@ public class NearbyBeaconsFragment extends ListFragment
         });
       }
 
-      if (Utils.getDebugViewEnabled(getActivity())) {
+      if (Utils.isDebugViewEnabled(getActivity())) {
         // If we should show the ranging data
         updateDebugView(pwPair, view);
         view.findViewById(R.id.ranging_debug_container).setVisibility(View.VISIBLE);
