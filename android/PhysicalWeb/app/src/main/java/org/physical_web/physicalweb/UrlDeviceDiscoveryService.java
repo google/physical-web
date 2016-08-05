@@ -536,6 +536,10 @@ public class UrlDeviceDiscoveryService extends Service
     Utils.setPwsEndpoint(this, mPwCollection);
     mPwCollection.clear();
     saveCache();
-    startScan();
+  }
+
+  public void newPwsStartScan() {
+    Utils.setPwsEndpoint(this, mPwCollection);
+    restartScan();
   }
 }

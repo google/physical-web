@@ -85,8 +85,7 @@ public class SettingsFragment extends PreferenceFragment
       Toast.makeText(getActivity(), R.string.error_pws_endpoint_not_configured_properly,
                      Toast.LENGTH_SHORT).show();
     }
-
-
+    Utils.startScan(getActivity());
   }
 
   @Override
@@ -116,10 +115,10 @@ public class SettingsFragment extends PreferenceFragment
     endpoints.add(Utils.getCustomPwsEndpoint(getActivity()));
     endpointNames.add(getString(R.string.prod_pws));
     endpointNames.add(getString(R.string.dev_pws));
-    endpoints.add(Utils.formatEndpointForSharedPrefernces(Utils.DEV_ENDPOINT,
-                                                          Utils.DEV_ENDPOINT_VERSION, ""));
     endpoints.add(Utils.formatEndpointForSharedPrefernces(Utils.PROD_ENDPOINT,
                                                           Utils.PROD_ENDPOINT_VERSION, ""));
+    endpoints.add(Utils.formatEndpointForSharedPrefernces(Utils.DEV_ENDPOINT,
+                                                          Utils.DEV_ENDPOINT_VERSION, ""));
     listPreference.setEntries(endpointNames.toArray(new CharSequence[endpointNames.size()]));
     listPreference.setEntryValues(endpoints.toArray(new CharSequence[endpoints.size()]));
   }

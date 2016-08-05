@@ -278,29 +278,7 @@ class Utils {
 
   }
 
-  private static class ClearCacheDiscoveryServiceConnection implements ServiceConnection {
-    private Context mContext;
 
-    @Override
-    public synchronized void onServiceConnected(ComponentName className, IBinder service) {
-      // Get the service
-      UrlDeviceDiscoveryService.LocalBinder localBinder =
-          (UrlDeviceDiscoveryService.LocalBinder) service;
-      localBinder.getServiceInstance().clearCache();
-      mContext.unbindService(this);
-    }
-
-    @Override
-    public synchronized void onServiceDisconnected(ComponentName className) {
-    }
-
-    public synchronized void connect(Context context) {
-      mContext = context;
-      Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
-      mContext.startService(intent);
-      mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
-    }
-  }
 
   private static void throwEncodeException(JSONException e) {
     throw new RuntimeException("Could not encode JSON", e);
@@ -376,7 +354,59 @@ class Utils {
    * @param context The context for the service.
    */
   public static void deleteCache(Context context) {
-    new ClearCacheDiscoveryServiceConnection().connect(context);
+    new ServiceConnection() {
+      private Context mContext;
+
+      @Override
+      public void onServiceConnected(ComponentName className, IBinder service) {
+        // Get the service
+        UrlDeviceDiscoveryService.LocalBinder localBinder =
+            (UrlDeviceDiscoveryService.LocalBinder) service;
+        localBinder.getServiceInstance().clearCache();
+        mContext.unbindService(this);
+      }
+
+      @Override
+      public void onServiceDisconnected(ComponentName className) {
+      }
+
+      public void connect(Context context) {
+        mContext = context;
+        Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
+        mContext.startService(intent);
+        mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+      }
+    }.connect(context);
+  }
+
+  /**
+   * Starts scanning with UrlDeviceDisoveryService.
+   * @param context The context for the service.
+   */
+  public static void startScan(Context context) {
+    new ServiceConnection() {
+      private Context mContext;
+
+      @Override
+      public void onServiceConnected(ComponentName className, IBinder service) {
+        // Get the service
+        UrlDeviceDiscoveryService.LocalBinder localBinder =
+            (UrlDeviceDiscoveryService.LocalBinder) service;
+        localBinder.getServiceInstance().clearCache();
+        mContext.unbindService(this);
+      }
+
+      @Override
+      public void onServiceDisconnected(ComponentName className) {
+      }
+
+      public void connect(Context context) {
+        mContext = context;
+        Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
+        mContext.startService(intent);
+        mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+      }
+    }.connect(context);
   }
 
   /**
