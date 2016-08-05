@@ -528,6 +528,16 @@ class Utils {
   }
 
   /**
+   * Get the saved setting for enabling Wifi direct.
+   * @param context The context for the SharedPreferences.
+   * @return The enable wifi direct setting.
+   */
+  public static boolean isWifiDirectEnabled(Context context) {
+   return PreferenceManager.getDefaultSharedPreferences(context)
+       .getBoolean(context.getString(R.string.wifi_direct_key), false);
+  }
+
+  /**
    * Get the saved setting for debug View.
    * @param context The context for the SharedPreferences.
    * @return The debug view setting.
