@@ -186,9 +186,12 @@ class Utils {
    * @param siteUrl
    * @return is siteURL blocked
    */
-  public static boolean isBlocked(String siteUrl) {
+  public static boolean isBlocked(PwPair pwPair) {
+    if (Utils.isWifiDirectDevice(pwPair.getUrlDevice())) {
+      return mBlockedUrls.contains(Utils.getWifiAddress(pwPair.getUrlDevice()));
+    }
     try {
-      return mBlockedUrls.contains(new URI(siteUrl).getHost());
+      return mBlockedUrls.contains(new URI(pwPair.getPwsResult().getSiteUrl()).getHost());
     } catch (URISyntaxException e) {
       return false;
     }
@@ -198,9 +201,13 @@ class Utils {
    * Block the host of siteUrl.
    * @param siteUrl
    */
-  public static void addBlocked(String siteUrl) {
+  public static void addBlocked(PwPair pwPair) {
+    if (Utils.isWifiDirectDevice(pwPair.getUrlDevice())) {
+      mBlockedUrls.add(Utils.getWifiAddress(pwPair.getUrlDevice()));
+      return;
+    }
     try {
-      mBlockedUrls.add(new URI(siteUrl).getHost());
+      mBlockedUrls.add(new URI(pwPair.getPwsResult().getSiteUrl()).getHost());
     } catch (URISyntaxException e) {
       return;
     }
