@@ -84,6 +84,7 @@ public class UrlDeviceDiscoveryService extends Service
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);
   private static final long SCAN_STALE_TIME_MILLIS = TimeUnit.MINUTES.toMillis(2);
+  private static final long LOCAL_SCAN_STALE_TIME_MILLIS = TimeUnit.SECONDS.toMillis(30);
   private boolean mCanUpdateNotifications = false;
   private boolean mSecondScanComplete = false;
   private boolean mIsBound = false;
@@ -142,7 +143,7 @@ public class UrlDeviceDiscoveryService extends Service
     mNotificationManager = NotificationManagerCompat.from(this);
     mUrlDeviceDiscoverers = new ArrayList<>();
 
-    if (Utils.getMdnsEnabled(this)) {
+    if (Utils.isMdnsEnabled(this)) {
       Log.d(TAG, "mdns started");
       mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
@@ -173,7 +174,8 @@ public class UrlDeviceDiscoveryService extends Service
 
     // Don't load the cache if it's stale
     mScanStartTime = prefs.getLong(SCAN_START_TIME_KEY, 0);
-    if (now - mScanStartTime >= SCAN_STALE_TIME_MILLIS) {
+    scanDelta = now - mScanStartTime;
+    if (scanDelta >= SCAN_STALE_TIME_MILLIS) {
       mScanStartTime = now;
       return;
     }
@@ -183,16 +185,26 @@ public class UrlDeviceDiscoveryService extends Service
       JSONObject serializedCollection = new JSONObject(prefs.getString(PW_COLLECTION_KEY, null));
       mPwCollection = PhysicalWebCollection.jsonDeserialize(serializedCollection);
       Utils.setPwsEndpoint(this, mPwCollection);
-      // replace TxPower and RSSI data after restoring cache
-      for (UrlDevice urlDevice : mPwCollection.getUrlDevices()) {
-        if (Utils.isBleUrlDevice(urlDevice)) {
-          Utils.updateRegion(urlDevice);
-        }
-      }
     } catch (JSONException e) {
       Log.e(TAG, "Could not restore Physical Web collection cache", e);
     } catch (PhysicalWebCollectionException e) {
       Log.e(TAG, "Could not restore Physical Web collection cache", e);
+    }
+    // replace TxPower and RSSI data after restoring cache
+    for (UrlDevice urlDevice : mPwCollection.getUrlDevices()) {
+      if (Utils.isBleUrlDevice(urlDevice)) {
+        Utils.updateRegion(urlDevice);
+      }
+    }
+    // Unresolvable devices are typically not 
+    // relevant outside of scan range. Hence, 
+    // we specially clean them from the cache.
+    if (scanDelta >= LOCAL_SCAN_STALE_TIME_MILLIS) {
+      for (UrlDevice urlDevice : mPwCollection.getUrlDevices()) {
+        if (!Utils.isResolvableDevice(urlDevice)) {
+          mPwCollection.removeUrlDevice(urlDevice);
+        }
+      }
     }
   }
 
@@ -266,8 +278,7 @@ public class UrlDeviceDiscoveryService extends Service
     // and metadata may not be fetched
     mPwCollection.addUrlDevice(urlDevice);
     Log.d(TAG, urlDevice.getUrl());
-    if (Utils.isResolvableDevice(urlDevice)) {
-      Log.d(TAG, "isResolvableDevice");
+    if (!Utils.isResolvableDevice(urlDevice)) {
       mPwCollection.addMetadata(new PwsResult.Builder(urlDevice.getUrl(), urlDevice.getUrl())
         .setTitle(Utils.getTitle(urlDevice))
         .setDescription(Utils.getDescription(urlDevice))

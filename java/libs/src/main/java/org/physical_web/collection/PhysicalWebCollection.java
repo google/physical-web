@@ -72,6 +72,14 @@ public class PhysicalWebCollection {
     mDeviceIdToUrlDeviceMap.put(urlDevice.getId(), urlDevice);
     return alreadyFound;
   }
+  
+  /** 
+   * Remove a UrlDevice from the collection.
+   * @param urlDevice The UrlDevice to remove.
+   */
+  public void removeUrlDevice(UrlDevice urlDevice) {
+    mDeviceIdToUrlDeviceMap.remove(urlDevice.getId());
+  }
 
   /**
    * Add URL metadata to the collection.
