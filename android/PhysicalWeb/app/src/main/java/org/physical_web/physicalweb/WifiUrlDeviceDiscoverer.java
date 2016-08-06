@@ -63,6 +63,7 @@ class WifiUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
             .setWifiPort(port)
             .setTitle(name)
             .setDescription("")
+            .setDeviceType(Utils.WIFI_DIRECT_DEVICE_TYPE)
             .build());
         }
       }
