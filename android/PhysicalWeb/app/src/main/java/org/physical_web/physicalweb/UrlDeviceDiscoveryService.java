@@ -147,6 +147,10 @@ public class UrlDeviceDiscoveryService extends Service
       Log.d(TAG, "mdns started");
       mUrlDeviceDiscoverers.add(new MdnsUrlDeviceDiscoverer(this));
     }
+    if (Utils.isWifiDirectEnabled(this)) {
+      Log.d(TAG, "wifi direct started");
+      mUrlDeviceDiscoverers.add(new WifiUrlDeviceDiscoverer(this));
+    }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
     mUrlDeviceDiscoverers.add(new BleUrlDeviceDiscoverer(this));
     mUrlDeviceDiscoverers.add(new WifiUrlDeviceDiscoverer(this));

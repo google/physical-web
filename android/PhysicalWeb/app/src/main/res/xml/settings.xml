@@ -39,6 +39,11 @@
            android:title="@string/mDNS_title"
            android:summary="@string/mDNS_summary"
            android:defaultValue="false" />
+        <CheckBoxPreference
+           android:key="@string/wifi_direct_key"
+           android:title="@string/wifi_direct_title"
+           android:summary="@string/wifi_direct_summary"
+           android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
