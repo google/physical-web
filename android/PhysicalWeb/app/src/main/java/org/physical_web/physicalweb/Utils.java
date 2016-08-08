@@ -63,6 +63,7 @@ class Utils {
   public static final int GOOGLE_ENDPOINT_VERSION = 2;
   public static final String FAVORITES_KEY = "favorites";
   public static final String BLE_DEVICE_TYPE = "ble";
+  public static final String FAT_BEACON_DEVICE_TYPE = "fat-beacon";
   public static final String MDNS_LOCAL_DEVICE_TYPE = "mdns-local";
   public static final String MDNS_PUBLIC_DEVICE_TYPE = "mdns-public";
   public static final String WIFI_DIRECT_DEVICE_TYPE = "wifidirect";
@@ -561,6 +562,16 @@ class Utils {
   }
 
   /**
+   * Get the saved setting for enabling Fatbeacon.
+   * @param context The context for the SharedPreferences.
+   * @return The enable Fatbeacon setting.
+   */
+  public static boolean isFatBeaconEnabled(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.fatbeacon_key), false);
+  }
+
+  /**
    * Get the saved setting for enabling mDNS folder.
    * @param context The context for the SharedPreferences.
    * @return The enable mDNS folder setting.
@@ -711,6 +722,15 @@ class Utils {
    */
   public static boolean isBleUrlDevice(UrlDevice urlDevice) {
     return urlDevice.optExtraString(TYPE_KEY, "").equals(BLE_DEVICE_TYPE);
+  }
+
+  /**
+   * Gets if the device is a FatBeacon.
+   * @param urlDevice The device that is getting checked.
+   * @return Is a FatBeacon device
+   */
+  public static boolean isFatBeaconDevice(UrlDevice urlDevice) {
+    return urlDevice.optExtraString(TYPE_KEY, "").equals(FAT_BEACON_DEVICE_TYPE);
   }
 
   /**

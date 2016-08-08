@@ -51,6 +51,8 @@
     <string name="mDNS_summary">Enabling mDNS allows you to find items on the local network.</string>
     <string name="wifi_direct_title">Enable Wi-Fi Direct</string>
     <string name="wifi_direct_summary">Enabling Wi-Fi Direct allows you to find Wi-Fi beacons.</string>
+    <string name="fatbeacon_title">Enable FatBeacon</string>
+    <string name="fatbeacon_summary">Enabling FatBeacon allows you to find beacons that contains offline web pages.</string>
     <string name="debug_settings_title">Debug Settings</string>
     <string name="debug_view_title">Enable Debug View</string>
     <string name="debug_view_summary">Enabling debug view allows you to see more metadata and ranging data.</string>
@@ -81,4 +83,8 @@
     <string name="error_pws_endpoint_not_configured_properly">Physical Web Service not configured properly. Switching to default settings.</string>
     <string name="pws_filtered_url_unknown">Other clients may filter your URL.</string>
     <string name="pws_filtered_url_http">Other clients may filter your URL because it is not HTTPS.</string>
+    <string name="page_loading_message">Please wait while page loads.</string>
+    <string name="page_loading_title">Loading </string>
+    <string name="ble_download_error_message">Downloading of page failed, please try again</string>
+    <string name="fatbeacon_description">This is web page that is downloaded from a local beacon over ble.</string>
 </resources>
