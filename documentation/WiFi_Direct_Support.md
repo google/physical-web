@@ -7,4 +7,4 @@ Broadcast instructions:
 To "broadcast", a device must be in a Wi-Fi Direct discoverable state.
 In addition, the device name must conform to the following naming convention: `PW-<title>-<port>`
 
-<title> is the title of the content. <port> is the port the HTTP service is running at.
+`<title>` is the title of the content. `<port>` is the port the HTTP service is running at.
