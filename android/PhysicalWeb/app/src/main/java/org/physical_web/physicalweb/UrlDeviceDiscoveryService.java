@@ -200,8 +200,8 @@ public class UrlDeviceDiscoveryService extends Service
         Utils.updateRegion(urlDevice);
       }
     }
-    // Unresolvable devices are typically not 
-    // relevant outside of scan range. Hence, 
+    // Unresolvable devices are typically not
+    // relevant outside of scan range. Hence,
     // we specially clean them from the cache.
     if (scanDelta >= LOCAL_SCAN_STALE_TIME_MILLIS) {
       for (UrlDevice urlDevice : mPwCollection.getUrlDevices()) {

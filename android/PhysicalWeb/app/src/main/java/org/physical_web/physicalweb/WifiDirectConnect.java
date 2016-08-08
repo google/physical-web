@@ -25,12 +25,12 @@ import android.content.IntentFilter;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.util.Log;
-import android.net.wifi.p2p.WifiP2pGroup;
 
 /**
  * This class is for using WifiDirect to create a WifiDirect
