@@ -16,9 +16,9 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.collection.EddystoneBeacon;
 import org.physical_web.collection.UrlDevice;
 import org.physical_web.physicalweb.ble.ScanRecord;
-import org.physical_web.physicalweb.ble.UriBeacon;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -39,10 +39,11 @@ class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
       ParcelUuid.fromString("0000FEAA-0000-1000-8000-00805F9B34FB");
   private BluetoothAdapter mBluetoothAdapter;
   private Parcelable[] mScanFilterUuids;
-  private boolean isRunning;
+  private Context mContext;
 
   public BleUrlDeviceDiscoverer(Context context) {
-    final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(
+    mContext = context;
+    final BluetoothManager bluetoothManager = (BluetoothManager) mContext.getSystemService(
         Context.BLUETOOTH_SERVICE);
     mBluetoothAdapter = bluetoothManager.getAdapter();
     mScanFilterUuids = new ParcelUuid[]{URIBEACON_SERVICE_UUID, EDDYSTONE_URL_SERVICE_UUID};
@@ -65,23 +66,34 @@ class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
 
   @Override
   public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanBytes) {
-    if (!leScanMatches(ScanRecord.parseFromBytes(scanBytes))) {
+    ScanRecord scanRecord = ScanRecord.parseFromBytes(scanBytes);
+    if (!leScanMatches(scanRecord)) {
       return;
     }
 
-    UriBeacon uriBeacon = UriBeacon.parseFromBytes(scanBytes);
-    if (uriBeacon == null) {
+    byte[] urlServiceData = scanRecord.getServiceData(EDDYSTONE_URL_SERVICE_UUID);
+    byte[] uriServiceData = scanRecord.getServiceData(URIBEACON_SERVICE_UUID);
+    if (Utils.isFatBeaconEnabled(mContext) && EddystoneBeacon.isFatBeacon(urlServiceData)) {
+      String title = EddystoneBeacon.getFatBeaconTitle(urlServiceData);
+      if (title.isEmpty()) {
+        return;
+      }
+      UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress(), device.getAddress())
+          .setTitle(title)
+          .setDescription(mContext.getString(R.string.fatbeacon_description))
+          .setDeviceType(Utils.FAT_BEACON_DEVICE_TYPE)
+          .build();
+      reportUrlDevice(urlDevice);
       return;
     }
 
-    String url = uriBeacon.getUriString();
-    if (!URLUtil.isNetworkUrl(url)) {
+    EddystoneBeacon beacon = EddystoneBeacon.parseFromServiceData(urlServiceData, uriServiceData);
+    if (beacon == null || !URLUtil.isNetworkUrl(beacon.getUrl())) {
       return;
     }
-
-    UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress(), url)
+    UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress(), beacon.getUrl())
         .setRssi(rssi)
-        .setTxPower(uriBeacon.getTxPowerLevel())
+        .setTxPower(beacon.getTxPowerLevel())
         .setDeviceType(Utils.BLE_DEVICE_TYPE)
         .build();
     Utils.updateRegion(urlDevice);
