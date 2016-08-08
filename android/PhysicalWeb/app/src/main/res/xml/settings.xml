@@ -44,6 +44,12 @@
            android:title="@string/wifi_direct_title"
            android:summary="@string/wifi_direct_summary"
            android:defaultValue="false" />
+
+        <CheckBoxPreference
+          android:key="@string/fatbeacon_key"
+          android:title="@string/fatbeacon_title"
+          android:summary="@string/fatbeacon_summary"
+          android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
