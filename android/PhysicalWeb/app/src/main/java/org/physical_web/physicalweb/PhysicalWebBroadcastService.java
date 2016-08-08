@@ -16,6 +16,9 @@
 
 package org.physical_web.physicalweb;
 
+import org.physical_web.collection.PwsClient;
+import org.physical_web.collection.PwsResult;
+import org.physical_web.collection.PwsResultCallback;
 import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
 
 import android.annotation.TargetApi;
@@ -44,6 +47,8 @@ import android.widget.Toast;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Shares URLs via bluetooth.
@@ -101,41 +106,81 @@ public class PhysicalWebBroadcastService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        fetchBroadcastData(intent);
-        if (mDisplayUrl == null) {
-            stopSelf();
-            return START_STICKY;
-        }
-        Log.d(TAG, "SERVICE onStartCommand");
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-
-        Log.d(TAG, mDisplayUrl);
-        mShareUrl = AdvertiseDataUtils.encodeUri(mDisplayUrl);
-        if (hasValidUrlLength(mShareUrl.length) && checkAndHandleAsciiUrl(mDisplayUrl)) {
-            // Set the url if we can
-            Log.d(TAG, "valid length");
-            broadcastUrl();
-        } else {
-            Log.d(TAG, "needs shortening");
-            // Shorten the url if necessary
-            UrlShortenerClient.ShortenUrlCallback urlSetter =
-            new UrlShortenerClient.ShortenUrlCallback() {
-                @Override
-                public void onUrlShortened(String newUrl) {
-                    Log.d(TAG, "shortening success");
-                    mShareUrl = AdvertiseDataUtils.encodeUri(newUrl);
-                    broadcastUrl();
-                }
-                @Override
-                public void onError(String oldUrl) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
-                        Toast.LENGTH_LONG).show();
-                }
-            };
-            UrlShortenerClient.getInstance(this).shortenUrl(mDisplayUrl, urlSetter, TAG);
-        }
+      fetchBroadcastData(intent);
+      if (mDisplayUrl == null) {
+        stopSelf();
         return START_STICKY;
+      }
+      Log.d(TAG, "SERVICE onStartCommand");
+      IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+      registerReceiver(mReceiver, filter);
+
+      Log.d(TAG, mDisplayUrl);
+      byte[] encodedUrl = AdvertiseDataUtils.encodeUri(mDisplayUrl);
+      if (hasValidUrlLength(encodedUrl.length) && checkAndHandleAsciiUrl(mDisplayUrl)) {
+        // Set the url if we can
+        Log.d(TAG, "valid length");
+        mShareUrl = encodedUrl;
+        broadcastUrl();
+      } else {
+        Log.d(TAG, "needs shortening");
+        UrlShortenerClient.ShortenUrlCallback urlSetter =
+            new UrlShortenerClient.ShortenUrlCallback() {
+          @Override
+          public void onUrlShortened(String newUrl) {
+            Log.d(TAG, "shortening success");
+            mShareUrl = AdvertiseDataUtils.encodeUri(newUrl);
+            broadcastUrl();
+          }
+          @Override
+          public void onError(String oldUrl) {
+            Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
+                Toast.LENGTH_LONG).show();
+            stopSelf();
+          }
+        };
+        UrlShortenerClient shortenerClient = UrlShortenerClient.getInstance(this);
+
+        if (mDisplayUrl.contains("goo.gl")) {
+          // find the site URL and reshorten it since
+          // goo.gl will not reshorten other goo.gl links
+          fetchAndShorten(shortenerClient, urlSetter);
+        } else {
+          shortenerClient.shortenUrl(mDisplayUrl, urlSetter, TAG);
+        }
+      }
+      return START_STICKY;
+    }
+
+    private void fetchAndShorten(UrlShortenerClient shortenerClient,
+        UrlShortenerClient.ShortenUrlCallback urlSetter) {
+      PwsClient pwsClient = new PwsClient();
+      pwsClient.resolve(Arrays.asList(mDisplayUrl), new PwsResultCallback() {
+        @Override
+        public void onPwsResult(PwsResult pwsResult) {
+          shortenerClient.shortenUrl(pwsResult.getSiteUrl(), urlSetter, TAG);
+        }
+
+        @Override
+        public void onPwsResultAbsent(String url) {
+          Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
+              Toast.LENGTH_LONG).show();
+          stopSelf();
+          return;
+        }
+
+        @Override
+        public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
+          Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
+              Toast.LENGTH_LONG).show();
+          stopSelf();
+          return;
+        }
+
+        @Override
+        public void onResponseReceived(long durationMillis) {
+        }
+      });
     }
 
     private void fetchBroadcastData(Intent intent) {
@@ -174,13 +219,6 @@ public class PhysicalWebBroadcastService extends Service {
         unregisterReceiver(mReceiver);
         disableUrlBroadcasting();
         super.onDestroy();
-    }
-
-    // Fires when user swipes away app from the recent apps list
-    @Override
-    public void onTaskRemoved (Intent rootIntent) {
-        Log.d(TAG, "onTaskRemoved");
-        stopSelf();
     }
 
     @Override
