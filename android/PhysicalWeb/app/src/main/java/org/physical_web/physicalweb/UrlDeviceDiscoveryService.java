@@ -349,7 +349,7 @@ public class UrlDeviceDiscoveryService extends Service
         new Utils.PwPairRelevanceComparator());
     List<PwPair> notBlockedPwPairs = new ArrayList<>();
     for (PwPair i : pwPairs) {
-      if (!Utils.isBlocked(i.getPwsResult().getSiteUrl())) {
+      if (!Utils.isBlocked(i)) {
         notBlockedPwPairs.add(i);
       }
     }

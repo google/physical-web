@@ -217,8 +217,7 @@ public class NearbyBeaconsFragment extends ListFragment
 
                   @Override
                   public void onDismiss(ListView listView, int position) {
-                    Utils.addBlocked(mNearbyDeviceAdapter
-                        .getItem(position).getPwsResult().getSiteUrl());
+                    Utils.addBlocked(mNearbyDeviceAdapter.getItem(position));
                     Utils.saveBlocked(getActivity());
                     if (mMissedEmptyGroupIdQueue) {
                       mMissedEmptyGroupIdQueue = false;
@@ -312,7 +311,7 @@ public class NearbyBeaconsFragment extends ListFragment
           if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
             mNearbyDeviceAdapter.updateItem(pwPair);
           } else if (!mGroupIdQueue.contains(groupId)
-              && !Utils.isBlocked(pwPair.getPwsResult().getSiteUrl())) {
+              && !Utils.isBlocked(pwPair)) {
             mGroupIdQueue.add(groupId);
             if (mSecondScanComplete) {
               // If we've already waited for the second scan timeout,
