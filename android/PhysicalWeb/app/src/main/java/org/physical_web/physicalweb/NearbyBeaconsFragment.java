@@ -500,25 +500,25 @@ public class NearbyBeaconsFragment extends ListFragment
 
       if (Utils.isFavorite(siteUrl)) {
         ((Button) view.findViewById(R.id.star)).setBackgroundResource(
-            android.R.drawable.btn_star_big_on);
+            R.drawable.ic_star_black_24dp);
         ((Button) view.findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
             Utils.toggleFavorite(siteUrl);
             Utils.saveFavorites(getActivity());
-            ((Button) v).setBackgroundResource(android.R.drawable.btn_star_big_off);
+            ((Button) v).setBackgroundResource(R.drawable.ic_star_border_black_24dp);
             notifyDataSetChanged();
           }
         });
       } else {
         ((Button) view.findViewById(R.id.star)).setBackgroundResource(
-            android.R.drawable.btn_star_big_off);
+            R.drawable.ic_star_border_black_24dp);
         ((Button) view.findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
             Utils.toggleFavorite(siteUrl);
             Utils.saveFavorites(getActivity());
-            ((Button) v).setBackgroundResource(android.R.drawable.btn_star_big_on);
+            ((Button) v).setBackgroundResource(R.drawable.ic_star_black_24dp);
             notifyDataSetChanged();
           }
         });
