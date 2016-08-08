@@ -92,7 +92,8 @@ public class BroadcastActivity extends Activity {
             } else {
                 checkBleAndStart();
             }
-        } else if (type.startsWith("image/") || type.startsWith("text/html")|| type.startsWith("video")|| type.startsWith("audio")) {
+        } else if (type.startsWith("image/") || type.startsWith("text/html") ||
+            type.startsWith("video") || type.startsWith("audio")) {
             Log.d(TAG, type);
             Uri fileUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             Log.d(TAG, fileUri.toString());
