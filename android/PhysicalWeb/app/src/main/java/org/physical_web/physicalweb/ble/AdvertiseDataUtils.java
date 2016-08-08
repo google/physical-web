@@ -179,13 +179,12 @@ public class AdvertiseDataUtils {
 
     // Generate the advertising bytes for the given URL
     @TargetApi(21)
-    public static AdvertiseData getAdvertisementData(String uri) {
+    public static AdvertiseData getAdvertisementData(byte[] urlData) {
         AdvertiseData.Builder builder = new AdvertiseData.Builder();
         builder.setIncludeTxPowerLevel(false); // reserve advertising space for URI
 
         // Manually build the advertising info
         // See https://github.com/google/eddystone/tree/master/eddystone-url
-        byte[] urlData = AdvertiseDataUtils.encodeUri(uri);
         if (urlData == null || urlData.length == 0) {
             return null;
         }

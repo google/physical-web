@@ -17,7 +17,6 @@
 package org.physical_web.physicalweb;
 
 import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
-import org.physical_web.physicalweb.ble.UriBeacon;
 
 import android.annotation.TargetApi;
 import android.app.NotificationManager;
@@ -63,7 +62,7 @@ public class PhysicalWebBroadcastService extends Service {
     private NotificationManagerCompat mNotificationManager;
     private Handler mHandler = new Handler();
     private String mDisplayUrl;
-    private String mShareUrl;
+    private byte[] mShareUrl;
     private boolean mStartedByRestart;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -112,11 +111,10 @@ public class PhysicalWebBroadcastService extends Service {
         registerReceiver(mReceiver, filter);
 
         Log.d(TAG, mDisplayUrl);
-
-        if (hasValidUrlLength(mDisplayUrl) && checkAndHandleAsciiUrl(mDisplayUrl)) {
+        mShareUrl = AdvertiseDataUtils.encodeUri(mDisplayUrl);
+        if (hasValidUrlLength(mShareUrl.length) && checkAndHandleAsciiUrl(mDisplayUrl)) {
             // Set the url if we can
             Log.d(TAG, "valid length");
-            mShareUrl = mDisplayUrl;
             broadcastUrl();
         } else {
             Log.d(TAG, "needs shortening");
@@ -126,7 +124,7 @@ public class PhysicalWebBroadcastService extends Service {
                 @Override
                 public void onUrlShortened(String newUrl) {
                     Log.d(TAG, "shortening success");
-                    mShareUrl = newUrl;
+                    mShareUrl = AdvertiseDataUtils.encodeUri(newUrl);
                     broadcastUrl();
                 }
                 @Override
@@ -153,8 +151,7 @@ public class PhysicalWebBroadcastService extends Service {
             .commit();
     }
 
-    private static boolean hasValidUrlLength(String url) {
-        int uriLength = UriBeacon.uriLength(url);
+    private static boolean hasValidUrlLength(int uriLength) {
         return 0 < uriLength && uriLength <= MAX_URI_LENGTH;
     }
 
