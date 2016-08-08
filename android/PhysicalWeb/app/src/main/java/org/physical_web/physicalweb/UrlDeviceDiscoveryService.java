@@ -178,7 +178,7 @@ public class UrlDeviceDiscoveryService extends Service
 
     // Don't load the cache if it's stale
     mScanStartTime = prefs.getLong(SCAN_START_TIME_KEY, 0);
-    long scanDelta = now - mScanStartTime;
+    scanDelta = now - mScanStartTime;
     if (scanDelta >= SCAN_STALE_TIME_MILLIS) {
       mScanStartTime = now;
       return;
