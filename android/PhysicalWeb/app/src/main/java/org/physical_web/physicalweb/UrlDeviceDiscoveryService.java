@@ -38,7 +38,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -68,7 +67,7 @@ import java.util.concurrent.TimeUnit;
 public class UrlDeviceDiscoveryService extends Service
                                        implements UrlDeviceDiscoverer.UrlDeviceDiscoveryCallback {
 
-  private static final String TAG = "UrlDeviceDiscoveryService";
+  private static final String TAG = UrlDeviceDiscoveryService.class.getSimpleName();
   private static final String NOTIFICATION_GROUP_KEY = "URI_BEACON_NOTIFICATIONS";
   private static final String PREFS_VERSION_KEY = "prefs_version";
   private static final String SCAN_START_TIME_KEY = "scan_start_time";

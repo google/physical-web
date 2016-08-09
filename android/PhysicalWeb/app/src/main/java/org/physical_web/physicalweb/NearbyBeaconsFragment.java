@@ -36,7 +36,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -67,7 +66,7 @@ public class NearbyBeaconsFragment extends ListFragment
                                    implements UrlDeviceDiscoveryService.UrlDeviceDiscoveryListener,
                                               SwipeRefreshWidget.OnRefreshListener {
 
-  private static final String TAG = "NearbyBeaconsFragment";
+  private static final String TAG = NearbyBeaconsFragment.class.getSimpleName();
   private static final long FIRST_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(2);
   private static final long SECOND_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(5);
   private static final long THIRD_SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(10);

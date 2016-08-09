@@ -20,7 +20,6 @@ import org.physical_web.physicalweb.ssdp.Ssdp;
 import org.physical_web.physicalweb.ssdp.SsdpMessage;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -28,7 +27,7 @@ import java.io.IOException;
  * This class discovers Physical Web URI/URLs over SSDP.
  */
 public class SsdpUrlDeviceDiscoverer extends UrlDeviceDiscoverer implements Ssdp.SsdpCallback {
-  private static final String TAG = "SsdpPwoDiscoverer";
+  private static final String TAG = SsdpUrlDeviceDiscoverer.class.getSimpleName();
   private static final String PHYSICAL_WEB_SSDP_TYPE = "urn:physical-web-org:device:Basic:1";
   private Context mContext;
   private Thread mThread;

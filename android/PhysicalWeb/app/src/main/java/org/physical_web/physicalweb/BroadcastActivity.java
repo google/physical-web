@@ -27,7 +27,6 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
@@ -41,7 +40,7 @@ import java.util.regex.Matcher;
  */
 public class BroadcastActivity extends Activity {
 
-    private static final String TAG  = "BroadcastActivity";
+    private static final String TAG  = BroadcastActivity.class.getSimpleName();
     private static final int ENABLE_BLUETOOTH_REQUEST_ID = 1;
     public static final int MAX_URI_LENGTH = 18;
     private final BroadcastReceiver serverStartReceiver = new BroadcastReceiver() {

@@ -30,14 +30,14 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.util.Log;
+
 
 /**
  * This class is for using WifiDirect to create a WifiDirect
  * P2P connection with the Physical Web Device.
  */
 class WifiDirectConnect {
-  private static final String TAG = "WifiDirectConnect";
+  private static final String TAG = WifiDirectConnect.class.getSimpleName();
   private Context mContext;
   private WifiP2pManager mManager;
   private Channel mChannel;

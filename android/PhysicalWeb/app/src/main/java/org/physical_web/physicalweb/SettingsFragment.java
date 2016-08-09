@@ -38,7 +38,7 @@ import java.util.ArrayList;
 public class SettingsFragment extends PreferenceFragment
                               implements OnSharedPreferenceChangeListener {
 
-  private static final String TAG = "SettingsFragment";
+  private static final String TAG = SettingsFragment.class.getSimpleName();
   private static final int MAX_ENDPOINT_OPTIONS = 3;
 
   public SettingsFragment() {

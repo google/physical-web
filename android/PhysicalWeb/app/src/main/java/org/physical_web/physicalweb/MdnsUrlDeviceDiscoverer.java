@@ -17,7 +17,6 @@
 package org.physical_web.physicalweb;
 
 import android.content.Context;
-import android.util.Log;
 import android.webkit.URLUtil;
 
 import com.youview.tinydnssd.DiscoverResolver;
@@ -27,7 +26,7 @@ import java.util.Map;
 
 
 class MdnsUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
-  private static final String TAG = "mdns";
+  private static final String TAG = MdnsUrlDeviceDiscoverer.class.getSimpleName();
   private DiscoverResolver mResolver;
   private static final String MDNS_SERVICE_TYPE = "_physicalweb._tcp";
   private enum State {
