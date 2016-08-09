@@ -39,7 +39,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.net.URI;
@@ -53,7 +52,7 @@ import java.net.URISyntaxException;
 @TargetApi(21)
 public class PhysicalWebBroadcastService extends Service {
 
-    private static final String TAG = "PhysicalWebBroadcastService";
+    private static final String TAG = PhysicalWebBroadcastService.class.getSimpleName();
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
     private static final int BROADCASTING_NOTIFICATION_ID = 6;
     public static final String DISPLAY_URL_KEY = "displayUrl";

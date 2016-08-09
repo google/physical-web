@@ -31,7 +31,6 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -48,7 +47,7 @@ import java.lang.reflect.Method;
 @TargetApi(21)
 public class FileBroadcastService extends Service {
 
-    private static final String TAG = "FileBroadcastService";
+    private static final String TAG = FileBroadcastService.class.getSimpleName();
     private static final int BROADCASTING_NOTIFICATION_ID = 7;
     public static final String FILE_KEY = "file";
     public static final String MIME_TYPE_KEY = "type";

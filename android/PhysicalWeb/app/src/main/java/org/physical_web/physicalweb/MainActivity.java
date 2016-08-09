@@ -25,7 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -35,7 +34,7 @@ import android.widget.Toast;
  */
 
 public class MainActivity extends Activity {
-  private static final String TAG  = "MainActivity";
+  private static final String TAG  = MainActivity.class.getSimpleName();
   private static final int REQUEST_ENABLE_BT = 0;
   private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";

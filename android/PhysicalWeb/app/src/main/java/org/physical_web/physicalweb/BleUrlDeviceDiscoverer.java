@@ -32,7 +32,7 @@ import java.util.List;
 
 class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
                              implements BluetoothAdapter.LeScanCallback {
-  private static final String TAG = "BleUrlDeviceDiscoverer";
+  private static final String TAG = BleUrlDeviceDiscoverer.class.getSimpleName();
   private static final ParcelUuid URIBEACON_SERVICE_UUID =
       ParcelUuid.fromString("0000FED8-0000-1000-8000-00805F9B34FB");
   private static final ParcelUuid EDDYSTONE_URL_SERVICE_UUID =

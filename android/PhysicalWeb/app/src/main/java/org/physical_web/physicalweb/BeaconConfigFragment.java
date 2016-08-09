@@ -32,7 +32,6 @@ import android.os.Handler;
 import android.os.ParcelUuid;
 import android.os.SystemClock;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -75,7 +74,7 @@ import java.util.concurrent.TimeUnit;
 
 public class BeaconConfigFragment extends Fragment implements TextView.OnEditorActionListener {
 
-  private static final String TAG = "BeaconConfigFragment";
+  private static final String TAG = BeaconConfigFragment.class.getSimpleName();
   private static final byte TX_POWER_DEFAULT = -22;
   private static final long SCAN_TIME_MILLIS = TimeUnit.SECONDS.toMillis(15);
   private static final ParcelUuid[] mScanFilterUuids =

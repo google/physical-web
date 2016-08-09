@@ -17,7 +17,6 @@
 package org.physical_web.physicalweb;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,7 +31,7 @@ import org.json.JSONObject;
  * This class sends requests to the physical web service to shorten URLs.
  */
 class UrlShortenerClient {
-  private static final String TAG = "UrlShortenerClient";
+  private static final String TAG = UrlShortenerClient.class.getSimpleName();
   private static final String RESOLVE_SCAN_PATH = "resolve-scan";
   private static final String SHORTEN_URL_PATH = "shorten-url";
   private static final int UNDEFINED_SCORE = -1;
