@@ -275,21 +275,22 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
-    // If we are scanning
-    if (mScanningAnimationDrawable.isRunning()) {
+    PwPair item = mNearbyDeviceAdapter.getItem(position);
+    // If we are scanning or user clicked on folder
+    if (mScanningAnimationDrawable.isRunning() || isFolderItem(item)) {
       // Don't respond to touch events
       return;
     }
     // Get the url for the given item
-    PwPair item = mNearbyDeviceAdapter.getItem(position);
-    if (!isFolderItem(item)) {
-      if (Utils.isWifiDirectDevice(item.getUrlDevice())) {
-        // Initiate WifiDirect Connection request to device
-        mWifiDirectConnect.connect(item.getUrlDevice());
-      } else {
-        Intent intent = Utils.createNavigateToUrlIntent(item.getPwsResult());
-        startActivity(intent);
-      }
+    PwsResult pwsResult = item.getPwsResult();
+    if (Utils.isWifiDirectDevice(item.getUrlDevice())) {
+      // Initiate WifiDirect Connection request to device
+      mWifiDirectConnect.connect(item.getUrlDevice());
+    } else if (Utils.isFatBeaconDevice(item.getUrlDevice())) {
+      (new BluetoothSite(getActivity())).connect(pwsResult.getSiteUrl(), pwsResult.getTitle());
+    } else {
+      Intent intent = Utils.createNavigateToUrlIntent(pwsResult);
+      startActivity(intent);
     }
   }
 
@@ -492,7 +493,11 @@ public class NearbyBeaconsFragment extends ListFragment
       view = getActivity().getLayoutInflater().inflate(R.layout.list_item_nearby_beacon,
           viewGroup, false);
       setText(view, R.id.title, pwsResult.getTitle());
-      setText(view, R.id.url, pwsResult.getSiteUrl());
+      if (Utils.isFatBeaconDevice(pwPair.getUrlDevice())) {
+        setText(view, R.id.url, getString(R.string.FatBeacon_URL) + pwsResult.getSiteUrl());
+      } else {
+        setText(view, R.id.url, pwsResult.getSiteUrl());
+      }
       setText(view, R.id.description, pwsResult.getDescription());
       ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
           Utils.getBitmapIcon(mPwCollection, pwsResult));

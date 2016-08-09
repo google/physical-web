@@ -87,4 +87,5 @@
     <string name="page_loading_title">Loading </string>
     <string name="ble_download_error_message">Downloading of page failed, please try again</string>
     <string name="fatbeacon_description">This is web page that is downloaded from a local beacon over ble.</string>
+    <string name="FatBeacon_URL">"Local BLE page @ "</string>
 </resources>
