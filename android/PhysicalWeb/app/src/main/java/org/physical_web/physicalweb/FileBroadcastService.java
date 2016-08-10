@@ -87,8 +87,12 @@ public class FileBroadcastService extends Service {
         mFile = getBytes(getContentResolver().openInputStream(mUri));
       } catch (FileNotFoundException e) {
         Log.d(TAG, e.getMessage());
+        stopSelf();
+        return START_STICKY;
       } catch (IOException e) {
         Log.d(TAG, e.getMessage());
+        stopSelf();
+        return START_STICKY;
       }
       mNotificationManager = NotificationManagerCompat.from(this);
       mFileBroadcastServer = new FileBroadcastServer(port, mType, mFile);
@@ -97,6 +101,8 @@ public class FileBroadcastService extends Service {
         createNotification();
       } catch (IOException e) {
         Log.d(TAG, e.getMessage());
+        stopSelf();
+        return START_STICKY;
       }
       sendBroadcast(new Intent("server"));
       WifiP2pManager mManager = (WifiP2pManager) this.getSystemService(Context.WIFI_P2P_SERVICE);
