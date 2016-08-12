@@ -21,7 +21,9 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -52,6 +54,7 @@ public class SettingsFragment extends PreferenceFragment
     // Load the preferences from an XML resource
     addPreferencesFromResource(R.xml.settings);
     updatePwsList();
+    updateAllSettingSummaries();
   }
 
   @Override
@@ -90,6 +93,7 @@ public class SettingsFragment extends PreferenceFragment
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    updateSettingSummary(key);
     if (key.equals(getString(R.string.custom_pws_url_key)) ||
         key.equals(getString(R.string.custom_pws_version_key)) ||
         key.equals(getString(R.string.custom_pws_api_key_key))) {
@@ -142,6 +146,24 @@ public class SettingsFragment extends PreferenceFragment
       customPwsApiKey = customPwsApiKey == null ? "" : customPwsApiKey;
       listPreference.setValue(Utils.formatEndpointForSharedPrefernces(customPwsUrl,
           customPwsVersion, customPwsApiKey));
+    }
+  }
+
+  private void updateSettingSummary(String key) {
+    Preference pref = findPreference(key);
+    if (pref instanceof ListPreference) {
+      ListPreference listPref = (ListPreference) pref;
+      listPref.setSummary(listPref.getEntry());
+    } else if (pref instanceof EditTextPreference) {
+      EditTextPreference editTextPref = (EditTextPreference) pref;
+      editTextPref.setSummary(editTextPref.getText());
+    }
+  }
+
+  private void updateAllSettingSummaries() {
+    for(String key : PreferenceManager.getDefaultSharedPreferences(getActivity())
+        .getAll().keySet()) {
+      updateSettingSummary(key);
     }
   }
 }
