@@ -112,6 +112,12 @@
             android:stopWithTask="false"
             android:exported="false">
         </service>
+        <service
+          android:name=".FatBeaconBroadcastService"
+          android:enabled="true"
+          android:stopWithTask="false"
+          android:exported="false">
+        </service>
         <!-- This is required for the scan library. -->
         <receiver android:name="org.uribeacon.scan.compat.ScanWakefulBroadcastReceiver">
         </receiver>

@@ -22,16 +22,21 @@ import org.physical_web.collection.PwsClient;
 import org.physical_web.collection.PwsResult;
 import org.physical_web.collection.UrlDevice;
 
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.widget.Toast;
 
 import org.uribeacon.scan.util.RangingUtils;
@@ -39,6 +44,9 @@ import org.uribeacon.scan.util.RegionResolver;
 
 import org.json.JSONException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Comparator;
@@ -120,6 +128,60 @@ class Utils {
         return 1;
       }
     }
+  }
+
+  /**
+   * Surface a notification to the user that the Physical Web is broadcasting. The notification
+   * specifies the transport or URL that is being broadcast and cannot be swiped away.
+   * @param context
+   * @param stopServiceReceiver
+   * @param broadcastNotificationId
+   * @param title
+   * @param text
+   * @param filter
+   */
+  public static void createBroadcastNotification(Context context,
+      BroadcastReceiver stopServiceReceiver, int broadcastNotificationId, CharSequence title,
+      CharSequence text, String filter) {
+    Intent resultIntent = new Intent();
+    TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+    stackBuilder.addParentStack(MainActivity.class);
+    stackBuilder.addNextIntent(resultIntent);
+    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
+        PendingIntent.FLAG_UPDATE_CURRENT);
+    context.registerReceiver(stopServiceReceiver, new IntentFilter(filter));
+    PendingIntent pIntent = PendingIntent.getBroadcast(context, 0, new Intent(filter),
+        PendingIntent.FLAG_UPDATE_CURRENT);
+    NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        .setSmallIcon(R.drawable.ic_leak_add_white_24dp)
+        .setContentTitle(title)
+        .setContentText(text)
+        .setOngoing(true)
+        .addAction(android.R.drawable.ic_menu_close_clear_cancel,
+            context.getString(R.string.stop), pIntent);
+    builder.setContentIntent(resultPendingIntent);
+
+    NotificationManager notificationManager = (NotificationManager) context.getSystemService(
+        Context.NOTIFICATION_SERVICE);
+    notificationManager.notify(broadcastNotificationId, builder.build());
+  }
+
+  /**
+   * Reads the data from the inputStream.
+   * @param inputStream The input to read from.
+   * @return The entire input stream as a byte array
+   * @throws IOException
+   */
+  public static byte[] getBytes(InputStream inputStream) throws IOException {
+    ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+    int bufferSize = 1024;
+    byte[] buffer = new byte[bufferSize];
+
+    int len;
+    while ((len = inputStream.read(buffer)) != -1) {
+      byteBuffer.write(buffer, 0, len);
+    }
+    return byteBuffer.toByteArray();
   }
 
   /**

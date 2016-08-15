@@ -114,6 +114,7 @@ class WifiUrlDeviceDiscoverer extends UrlDeviceDiscoverer {
   @Override
   public synchronized void stopScanImpl() {
     mIsRunning = false;
+    mContext.unregisterReceiver(mReceiver);
     mManager.stopPeerDiscovery(mChannel, new WifiP2pManager.ActionListener() {
       @Override
       public void onSuccess() {

@@ -35,7 +35,7 @@ import java.util.UUID;
 **/
 public class AdvertiseDataUtils {
     private static final String TAG = "AdvertiseDataUtils";
-    private static final ParcelUuid URI_BEACON_UUID = ParcelUuid.fromString(
+    private static final ParcelUuid EDDYSTONE_BEACON_UUID = ParcelUuid.fromString(
         "0000FEAA-0000-1000-8000-00805F9B34FB");
     /**
      * URI Scheme maps a byte code into the scheme and an optional scheme specific prefix.
@@ -68,9 +68,11 @@ public class AdvertiseDataUtils {
         put((byte) 12, ".biz");
         put((byte) 13, ".gov");
     }};
+   private static final byte URL_FRAME_TYPE = 0x10;
+   private static final byte FAT_BEACON = 0x0e;
 
 
-    /**
+   /**
      * Creates the Uri string with embedded expansion codes.
      *
      * @param uri to be encoded
@@ -180,35 +182,54 @@ public class AdvertiseDataUtils {
     // Generate the advertising bytes for the given URL
     @TargetApi(21)
     public static AdvertiseData getAdvertisementData(byte[] urlData) {
-        AdvertiseData.Builder builder = new AdvertiseData.Builder();
-        builder.setIncludeTxPowerLevel(false); // reserve advertising space for URI
+      AdvertiseData.Builder builder = new AdvertiseData.Builder();
+      builder.setIncludeTxPowerLevel(false); // reserve advertising space for URI
 
-        // Manually build the advertising info
-        // See https://github.com/google/eddystone/tree/master/eddystone-url
-        if (urlData == null || urlData.length == 0) {
-            return null;
-        }
+      // Manually build the advertising info
+      // See https://github.com/google/eddystone/tree/master/eddystone-url
+      if (urlData == null || urlData.length == 0) {
+        return null;
+      }
 
-        byte[] beaconData = new byte[urlData.length + 2];
-        System.arraycopy(urlData, 0, beaconData, 2, urlData.length);
-        beaconData[0] = 0x10; // frame type: url
-        beaconData[1] = (byte) 0xBA; // calibrated tx power at 0 m
+      byte[] beaconData = new byte[urlData.length + 2];
+      System.arraycopy(urlData, 0, beaconData, 2, urlData.length);
+      beaconData[0] = URL_FRAME_TYPE; // frame type: url
+      beaconData[1] = (byte) 0xBA; // calibrated tx power at 0 m
 
-        builder.addServiceData(URI_BEACON_UUID, beaconData);
+      builder.addServiceData(EDDYSTONE_BEACON_UUID, beaconData);
 
-        // Adding 0xFEAA to the "Service Complete List UUID 16" (0x3) for iOS compatibility
-        builder.addServiceUuid(URI_BEACON_UUID);
+      // Adding 0xFEAA to the "Service Complete List UUID 16" (0x3) for iOS compatibility
+      builder.addServiceUuid(EDDYSTONE_BEACON_UUID);
 
-        return builder.build();
+      return builder.build();
     }
+
+   // Build and return the advertising bytes for the given FatBeacon advertisement
+   @TargetApi(21)
+   public static AdvertiseData getFatBeaconAdvertisementData(byte[] fatBeaconAdvertisement) {
+
+     // Manually build the advertising info
+     int length = Math.min(fatBeaconAdvertisement.length, 17);
+     byte[] beaconData = new byte[length + 3];
+     System.arraycopy(fatBeaconAdvertisement, 0, beaconData, 3, length);
+     beaconData[0] = URL_FRAME_TYPE;
+     beaconData[1] = (byte) 0xBA;
+     beaconData[2] = FAT_BEACON;
+     return new AdvertiseData.Builder()
+         .setIncludeTxPowerLevel(false) // reserve advertising space for URI
+         .addServiceData(EDDYSTONE_BEACON_UUID, beaconData)
+         // Adding 0xFEAA to the "Service Complete List UUID 16" (0x3) for iOS compatibility
+         .addServiceUuid(EDDYSTONE_BEACON_UUID)
+         .build();
+   }
 
     // Build and return the ble advertising settings
     @TargetApi(21)
-    public static AdvertiseSettings getAdvertiseSettings() {
+    public static AdvertiseSettings getAdvertiseSettings(boolean connectable) {
         AdvertiseSettings.Builder builder = new AdvertiseSettings.Builder();
         builder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_POWER);
         builder.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM);
-        builder.setConnectable(false);
+        builder.setConnectable(connectable);
 
         return builder.build();
     }
