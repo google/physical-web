@@ -17,25 +17,18 @@
 package org.physical_web.physicalweb;
 
 import android.annotation.TargetApi;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.app.TaskStackBuilder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -84,7 +77,7 @@ public class FileBroadcastService extends Service {
       Log.d(TAG, mUri.toString());
       port = Utils.getWifiDirectPort(this);
       try {
-        mFile = getBytes(getContentResolver().openInputStream(mUri));
+        mFile = Utils.getBytes(getContentResolver().openInputStream(mUri));
       } catch (FileNotFoundException e) {
         Log.d(TAG, e.getMessage());
         stopSelf();
@@ -98,7 +91,9 @@ public class FileBroadcastService extends Service {
       mFileBroadcastServer = new FileBroadcastServer(port, mType, mFile);
       try {
         mFileBroadcastServer.start();
-        createNotification();
+        Utils.createBroadcastNotification(this, stopServiceReceiver, BROADCASTING_NOTIFICATION_ID,
+            getString(R.string.wifi_direct_notification_title), Integer.toString(port),
+            "myFilter2");
       } catch (IOException e) {
         Log.d(TAG, e.getMessage());
         stopSelf();
@@ -131,33 +126,6 @@ public class FileBroadcastService extends Service {
       mFileBroadcastServer.stop();
       mNotificationManager.cancel(BROADCASTING_NOTIFICATION_ID);
       super.onDestroy();
-    }
-
-        // Surface a notification to the user that a URL is being broadcast
-    // The notification specifies the URL being broadcast (the long URL)
-    // and cannot be swiped away
-    private void createNotification() {
-      Intent resultIntent = new Intent();
-      TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-      stackBuilder.addParentStack(BroadcastActivity.class);
-      stackBuilder.addNextIntent(resultIntent);
-      PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
-          PendingIntent.FLAG_UPDATE_CURRENT);
-      registerReceiver(stopServiceReceiver, new IntentFilter("myFilter2"));
-      PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, new Intent("myFilter2"),
-          PendingIntent.FLAG_UPDATE_CURRENT);
-      NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-        .setSmallIcon(R.drawable.ic_leak_add_white_24dp)
-        .setContentTitle("Physical Web is sharing with WifiDirect")
-        .setContentText(Integer.toString(port))
-        .setOngoing(true)
-        .addAction(android.R.drawable.ic_menu_close_clear_cancel,
-            getString(R.string.stop), pIntent);
-      mBuilder.setContentIntent(resultPendingIntent);
-
-      NotificationManager mNotificationManager = (NotificationManager) getSystemService(
-          Context.NOTIFICATION_SERVICE);
-      mNotificationManager.notify(BROADCASTING_NOTIFICATION_ID, mBuilder.build());
     }
 
     protected BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
@@ -207,17 +175,4 @@ public class FileBroadcastService extends Service {
         Log.d(TAG, e.getMessage());
       }
     }
-
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-      ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-      int bufferSize = 1024;
-      byte[] buffer = new byte[bufferSize];
-
-      int len = 0;
-      while ((len = inputStream.read(buffer)) != -1) {
-        byteBuffer.write(buffer, 0, len);
-      }
-      return byteBuffer.toByteArray();
-    }
-
 }

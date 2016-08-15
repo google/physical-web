@@ -22,8 +22,6 @@ import org.physical_web.collection.PwsResultCallback;
 import org.physical_web.physicalweb.ble.AdvertiseDataUtils;
 
 import android.annotation.TargetApi;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -39,9 +37,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.widget.Toast;
 
 import java.net.URI;
@@ -232,7 +228,9 @@ public class PhysicalWebBroadcastService extends Service {
         @Override
         public void onStartSuccess(AdvertiseSettings advertiseSettings) {
             Log.d(TAG, "URL is broadcasting");
-            createNotification();
+            Utils.createBroadcastNotification(PhysicalWebBroadcastService.this, stopServiceReceiver,
+                BROADCASTING_NOTIFICATION_ID, getString(R.string.broadcast_notif), mDisplayUrl,
+                "myFilter");
             if (!mStartedByRestart) {
                 Toast.makeText(getApplicationContext(), getString(R.string.url_broadcast),
                     Toast.LENGTH_LONG).show();
@@ -256,7 +254,7 @@ public class PhysicalWebBroadcastService extends Service {
     private void broadcastUrl() {
         Log.d(TAG, "broadcastUrl: " + mShareUrl);
         final AdvertiseData advertisementData = AdvertiseDataUtils.getAdvertisementData(mShareUrl);
-        final AdvertiseSettings advertiseSettings = AdvertiseDataUtils.getAdvertiseSettings();
+        final AdvertiseSettings advertiseSettings = AdvertiseDataUtils.getAdvertiseSettings(false);
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings,
             advertisementData, mAdvertiseCallback);
@@ -267,36 +265,6 @@ public class PhysicalWebBroadcastService extends Service {
         Log.d(TAG, "disableUrlBroadcasting");
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
         mNotificationManager.cancel(BROADCASTING_NOTIFICATION_ID);
-    }
-
-
-
-    // Surface a notification to the user that a URL is being broadcast
-    // The notification specifies the URL being broadcast (the long URL)
-    // and cannot be swiped away
-    private void createNotification() {
-                //.setPriority(NotificationCompat.PRIORITY_MIN);
-        Intent resultIntent = new Intent();
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(BroadcastActivity.class);
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,
-            PendingIntent.FLAG_UPDATE_CURRENT);
-        registerReceiver(stopServiceReceiver, new IntentFilter("myFilter"));
-        PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, new Intent("myFilter"),
-            PendingIntent.FLAG_UPDATE_CURRENT);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_leak_add_white_24dp)
-                .setContentTitle(getString(R.string.broadcast_notif))
-                .setContentText(mDisplayUrl)
-                .setOngoing(true)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel,
-                    getString(R.string.stop), pIntent);
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(
-            Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(BROADCASTING_NOTIFICATION_ID, mBuilder.build());
     }
 
     protected BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
