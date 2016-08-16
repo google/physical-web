@@ -95,10 +95,10 @@ public class FatBeaconBroadcastService extends Service {
         int offset,
         BluetoothGattCharacteristic characteristic) {
       super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
-      android.util.Log.i(TAG, "onCharacteristicReadRequest " + characteristic.getUuid().toString());
+      Log.i(TAG, "onCharacteristicReadRequest " + characteristic.getUuid().toString());
 
       if (CHARACTERISTIC_WEBPAGE_UUID.equals(characteristic.getUuid())) {
-        android.util.Log.d(TAG, "Data length:" + data.length + ", offset:" + queueOffset);
+        Log.d(TAG, "Data length:" + data.length + ", offset:" + queueOffset);
         if (queueOffset < data.length) {
           int end = queueOffset + transferSpeed >= data.length ?
               data.length : queueOffset + transferSpeed;
@@ -191,9 +191,12 @@ public class FatBeaconBroadcastService extends Service {
       return;
     }
     mDisplayInfo = intent.getStringExtra(TITLE_KEY);
-    Uri uri = Uri.parse(intent.getStringExtra(URI_KEY));
+    String intentUri = intent.getStringExtra(URI_KEY);
+    if (intentUri == null) {
+      return;
+    }
     try {
-      data = Utils.getBytes(getContentResolver().openInputStream(uri));
+      data = Utils.getBytes(getContentResolver().openInputStream(Uri.parse(intentUri)));
     } catch (IOException e) {
       data = null;
       Log.e(TAG, "Error reading file");

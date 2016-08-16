@@ -91,4 +91,7 @@
     <string name="fatbeacon_broadcasting_confirmation">Broadcasting FatBeacon</string>
     <string name="fatbeacon_notification_title">Physical Web is Sharing as a FatBeacon</string>
     <string name="wifi_direct_notification_title">Physical Web is sharing with WifiDirect</string>
+    <string name="demos">Demos</string>
+    <string name="fat_beacon_demo_title">Fat Beacon Demo</string>
+    <string name="fat_beacon_demo_summary">Runs a hello world example of FatBeacon. It will broadcast over ble and show up in another Physical Web app that has FatBeacon enabled. Its title will be Hello World.</string>
 </resources>
