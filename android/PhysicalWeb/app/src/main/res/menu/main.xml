@@ -3,28 +3,23 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context=".MainActivity">
 
-    <item android:title="@string/action_config"
-          app:showAsAction="never"
-          android:orderInCategory="1"
-          android:id="@+id/action_config"/>
-
     <item android:title="@string/action_settings"
           app:showAsAction="never"
-          android:orderInCategory="2"
+          android:orderInCategory="1"
           android:id="@+id/action_settings"/>
 
     <item android:title="@string/action_blocked"
           app:showAsAction="never"
-          android:orderInCategory="3"
+          android:orderInCategory="2"
           android:id="@+id/block_settings"/>
 
     <item android:title="@string/action_about"
           app:showAsAction="never"
-          android:orderInCategory="4"
+          android:orderInCategory="3"
           android:id="@+id/action_about"/>
 
     <item android:title="@string/demos"
           app:showAsAction="never"
-          android:orderInCategory="5"
+          android:orderInCategory="4"
           android:id="@+id/action_demos"/>
 </menu>

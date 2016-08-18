@@ -268,7 +268,6 @@ public class NearbyBeaconsFragment extends ListFragment
   @Override
   public void onPrepareOptionsMenu(Menu menu) {
     super.onPrepareOptionsMenu(menu);
-    menu.findItem(R.id.action_config).setVisible(true);
     menu.findItem(R.id.action_about).setVisible(true);
   }
 
