@@ -17,6 +17,7 @@
 package org.physical_web.physicalweb;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
@@ -38,6 +39,11 @@ public class MainActivity extends Activity {
   private static final int REQUEST_ENABLE_BT = 0;
   private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
+  private static final String BEACON_CONGFIG_FRAGMENT_TAG = "EditUrlsFragmentTag";
+  private static final String SETTINGS_FRAGMENT_TAG = "SettingsFragmentTag";
+  private static final String BLOCKED_URLS_FRAGMENT_TAG = "BlockedUrlsFragmentTag";
+  private static final String ABOUT_FRAGMENT_TAG = "AboutFragmentTag";
+  private static final String DEMOS_FRAGMENT_TAG = "DemosFragmentTag";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +80,9 @@ public class MainActivity extends Activity {
         return true;
       case R.id.block_settings:
         showBlockedFragment();
+        return true;
+      case R.id.action_demos:
+        showDemosFragment();
         return true;
       // If the action bar up button was pressed
       case android.R.id.home:
@@ -173,10 +182,7 @@ public class MainActivity extends Activity {
     if (nearbyBeaconsFragment != null) {
       nearbyBeaconsFragment.restartScan();
     } else {
-      getFragmentManager().beginTransaction()
-          .replace(R.id.main_activity_container, new NearbyBeaconsFragment(),
-              NEARBY_BEACONS_FRAGMENT_TAG)
-          .commit();
+      showFragment(new NearbyBeaconsFragment(), NEARBY_BEACONS_FRAGMENT_TAG);
     }
   }
 
@@ -184,47 +190,42 @@ public class MainActivity extends Activity {
    * Show the fragment configuring a beacon.
    */
   private void showBeaconConfigFragment() {
-    BeaconConfigFragment beaconConfigFragment = new BeaconConfigFragment();
-    getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
-                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
-        .replace(R.id.main_activity_container, beaconConfigFragment)
-        .addToBackStack(null)
-        .commit();
+    showFragment(new BeaconConfigFragment(), BEACON_CONGFIG_FRAGMENT_TAG);
   }
 
+  /**
+   * Show the fragment to configure the app.
+   */
   private void showSettingsFragment() {
-    SettingsFragment settingsFragment = new SettingsFragment();
-    getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
-                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
-        .replace(R.id.main_activity_container, settingsFragment)
-        .addToBackStack(null)
-        .commit();
+    showFragment(new SettingsFragment(), SETTINGS_FRAGMENT_TAG);
   }
 
   /**
    * Show the fragment displaying information about this application.
    */
   private void showAboutFragment() {
-    AboutFragment aboutFragment = new AboutFragment();
-    getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
-                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
-        .replace(R.id.main_activity_container, aboutFragment)
-        .addToBackStack(null)
-        .commit();
+    showFragment(new AboutFragment(), ABOUT_FRAGMENT_TAG);
   }
 
   /**
-   * Show the fragment displaying information about this application.
+   * Show the fragment displaying the blocked URLs.
    */
   private void showBlockedFragment() {
-    BlockedFragment blockedFragment = new BlockedFragment();
+    showFragment(new BlockedFragment(), BLOCKED_URLS_FRAGMENT_TAG);
+  }
+
+  /**
+   * Show the fragment displaying the demos.
+   */
+  private void showDemosFragment() {
+    showFragment(new DemosFragment(), DEMOS_FRAGMENT_TAG);
+  }
+
+  private void showFragment(Fragment newFragment, String fragmentTag) {
     getFragmentManager().beginTransaction()
         .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
-                             R.animator.fade_in_activity, R.animator.fade_out_fragment)
-        .replace(R.id.main_activity_container, blockedFragment)
+            R.animator.fade_in_activity, R.animator.fade_out_fragment)
+        .replace(R.id.main_activity_container, newFragment, fragmentTag)
         .addToBackStack(null)
         .commit();
   }

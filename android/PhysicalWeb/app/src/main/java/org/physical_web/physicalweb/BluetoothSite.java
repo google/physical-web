@@ -61,7 +61,7 @@ public class BluetoothSite extends BluetoothGattCallback {
    * @param title The title of the web page being downloaded
    */
   public void connect(String deviceAddress, String title) {
-    String progressTitle = activity.getString(R.string.page_loading_title) + title;
+    String progressTitle = activity.getString(R.string.page_loading_title) + " " + title;
     progress = ProgressDialog.show(activity, progressTitle,
         activity.getString(R.string.page_loading_message), true);
     BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress)

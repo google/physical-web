@@ -6,7 +6,7 @@
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
- j*
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,6 +37,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.view.Menu;
 import android.widget.Toast;
 
 import org.uribeacon.scan.util.RangingUtils;
@@ -189,6 +190,18 @@ class Utils {
    */
   public static Set<String> getBlockedHosts() {
     return mBlockedUrls;
+  }
+
+  /**
+   * Hides all items in the given menu.
+   * @param menu The menu to hide items for.
+   */
+  public static void hideAllMenuItems(Menu menu) {
+    menu.findItem(R.id.action_config).setVisible(false);
+    menu.findItem(R.id.action_about).setVisible(false);
+    menu.findItem(R.id.action_settings).setVisible(false);
+    menu.findItem(R.id.block_settings).setVisible(false);
+    menu.findItem(R.id.action_demos).setVisible(false);
   }
 
   /**
