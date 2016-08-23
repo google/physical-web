@@ -66,10 +66,6 @@ public class MainActivity extends Activity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      // If the configuration menu item was selected
-      case R.id.action_config:
-        showBeaconConfigFragment();
-        return true;
       // If the about menu item was selected
       case R.id.action_about:
         showAboutFragment();
@@ -184,13 +180,6 @@ public class MainActivity extends Activity {
     } else {
       showFragment(new NearbyBeaconsFragment(), NEARBY_BEACONS_FRAGMENT_TAG);
     }
-  }
-
-  /**
-   * Show the fragment configuring a beacon.
-   */
-  private void showBeaconConfigFragment() {
-    showFragment(new BeaconConfigFragment(), BEACON_CONGFIG_FRAGMENT_TAG);
   }
 
   /**
