@@ -39,7 +39,7 @@
     <string name="wifi_direct_title">Enable Wi-Fi Direct</string>
     <string name="wifi_direct_summary">Enabling Wi-Fi Direct allows you to find Wi-Fi beacons.</string>
     <string name="fatbeacon_title">Enable FatBeacon</string>
-    <string name="fatbeacon_summary">Enabling FatBeacon allows you to find beacons that contains offline web pages.</string>
+    <string name="fatbeacon_summary">Enabling FatBeacon allows you to find beacons that contain offline web pages.</string>
     <string name="debug_settings_title">Debug Settings</string>
     <string name="debug_view_title">Enable Debug View</string>
     <string name="debug_view_summary">Enabling debug view allows you to see more metadata and ranging data.</string>
@@ -72,9 +72,13 @@
     <string name="fatbeacon_description">This is web page that is downloaded from a local beacon over ble.</string>
     <string name="FatBeacon_URL">"Local BLE page @ "</string>
     <string name="fatbeacon_broadcasting_confirmation">Broadcasting FatBeacon</string>
-    <string name="fatbeacon_notification_title">Physical Web is Sharing as a FatBeacon</string>
-    <string name="wifi_direct_notification_title">Physical Web is sharing with WifiDirect</string>
+    <string name="fatbeacon_notification_title">Physical Web is sharing as a FatBeacon</string>
+    <string name="wifi_direct_notification_title">Physical Web is sharing with Wi-Fi Direct</string>
     <string name="demos">Demos</string>
-    <string name="fat_beacon_demo_title">Fat Beacon Demo</string>
-    <string name="fat_beacon_demo_summary">Runs a hello world example of FatBeacon. It will broadcast over ble and show up in another Physical Web app that has FatBeacon enabled. Its title will be Hello World.</string>
+    <string name="fat_beacon_demo_title">FatBeacon Demo</string>
+    <string name="fat_beacon_demo_summary">Turns this device into a FatBeacon advertising an offline webpage with a title of Hello World. To see the beacon, install the Physical Web app on a second device and enable FatBeacon in the app settings.</string>
+    <string name="wifi_direct_demo_title">Wi-Fi Direct Demo</string>
+    <string name="wifi_direct_demo_summary">Turns this device into a Wi-Fi Direct beacon advertising an offline webpage with a title of Hello World. To see the beacon, install the Physical Web app on a second device and enable Wi-Fi Direct in the app settings. For best reliability, use two devices running Android Nougat.</string>
+    <string name="wifi_direct_connection_failed">Connection failed</string>
+    <string name="wifi_direct_connection_succeeded">Connection to device succeeded, trying to connect to network</string>
 </resources>
