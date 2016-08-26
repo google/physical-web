@@ -568,9 +568,12 @@ public class NearbyBeaconsFragment extends ListFragment
       setText(view, R.id.metadata_debug_rank,
           getString(R.string.metadata_debug_rank_prefix)
           + new DecimalFormat("##.##").format(0));  // We currently do not use rank.
-      setText(view, R.id.metadata_debug_pws_trip_time,
-          getString(R.string.metadata_debug_pws_trip_time_prefix)
-          + new DecimalFormat("##.##s").format(Utils.getPwsTripTimeMillis(pwsResult) / 1000.0));
+      if (Utils.isResolvableDevice(urlDevice)) {
+        setText(view, R.id.metadata_debug_pws_trip_time,
+            getString(R.string.metadata_debug_pws_trip_time_prefix)
+                + new DecimalFormat("##.##s")
+                .format(Utils.getPwsTripTimeMillis(pwsResult) / 1000.0));
+      }
       setText(view, R.id.metadata_debug_groupid,
           getString(R.string.metadata_debug_groupid_prefix) + Utils.getGroupId(pwsResult));
     }
