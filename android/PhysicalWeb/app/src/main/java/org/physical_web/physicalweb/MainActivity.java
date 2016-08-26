@@ -18,6 +18,7 @@ package org.physical_web.physicalweb;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
@@ -39,7 +40,6 @@ public class MainActivity extends Activity {
   private static final int REQUEST_ENABLE_BT = 0;
   private static final int REQUEST_LOCATION = 1;
   private static final String NEARBY_BEACONS_FRAGMENT_TAG = "NearbyBeaconsFragmentTag";
-  private static final String BEACON_CONGFIG_FRAGMENT_TAG = "EditUrlsFragmentTag";
   private static final String SETTINGS_FRAGMENT_TAG = "SettingsFragmentTag";
   private static final String BLOCKED_URLS_FRAGMENT_TAG = "BlockedUrlsFragmentTag";
   private static final String ABOUT_FRAGMENT_TAG = "AboutFragmentTag";
@@ -178,7 +178,7 @@ public class MainActivity extends Activity {
     if (nearbyBeaconsFragment != null) {
       nearbyBeaconsFragment.restartScan();
     } else {
-      showFragment(new NearbyBeaconsFragment(), NEARBY_BEACONS_FRAGMENT_TAG);
+      showFragment(new NearbyBeaconsFragment(), NEARBY_BEACONS_FRAGMENT_TAG, false);
     }
   }
 
@@ -186,36 +186,38 @@ public class MainActivity extends Activity {
    * Show the fragment to configure the app.
    */
   private void showSettingsFragment() {
-    showFragment(new SettingsFragment(), SETTINGS_FRAGMENT_TAG);
+    showFragment(new SettingsFragment(), SETTINGS_FRAGMENT_TAG, true);
   }
 
   /**
    * Show the fragment displaying information about this application.
    */
   private void showAboutFragment() {
-    showFragment(new AboutFragment(), ABOUT_FRAGMENT_TAG);
+    showFragment(new AboutFragment(), ABOUT_FRAGMENT_TAG, true);
   }
 
   /**
    * Show the fragment displaying the blocked URLs.
    */
   private void showBlockedFragment() {
-    showFragment(new BlockedFragment(), BLOCKED_URLS_FRAGMENT_TAG);
+    showFragment(new BlockedFragment(), BLOCKED_URLS_FRAGMENT_TAG, true);
   }
 
   /**
    * Show the fragment displaying the demos.
    */
   private void showDemosFragment() {
-    showFragment(new DemosFragment(), DEMOS_FRAGMENT_TAG);
+    showFragment(new DemosFragment(), DEMOS_FRAGMENT_TAG, true);
   }
 
-  private void showFragment(Fragment newFragment, String fragmentTag) {
-    getFragmentManager().beginTransaction()
+  private void showFragment(Fragment newFragment, String fragmentTag, boolean addToBackStack) {
+    FragmentTransaction transaction = getFragmentManager().beginTransaction()
         .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
             R.animator.fade_in_activity, R.animator.fade_out_fragment)
-        .replace(R.id.main_activity_container, newFragment, fragmentTag)
-        .addToBackStack(null)
-        .commit();
+        .replace(R.id.main_activity_container, newFragment, fragmentTag);
+    if (addToBackStack) {
+      transaction.addToBackStack(null);
+    }
+    transaction.commit();
   }
 }
