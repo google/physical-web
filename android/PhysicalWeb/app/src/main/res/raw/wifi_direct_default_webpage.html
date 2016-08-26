@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="shortcut icon" type="image/x-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABC1BMVEX///8+gsM/gsM/gsM/gsQ/gsM/gsM/gsM+gcM/gsM/gsM/gsM/gsM+gsM/gsM/gsM/gsM/gsM9gMI/gsM/gsM/gsM+gcM/gsM/gsM/gsM/gsM/gsM/gsM+gcM/gsM9gcI5f8I/gsM/gsM/gsU8f8E8gMI/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM+gsM/gcM/gsM/gsM/gsM+gcM/gsM/gsM/gsM+gsM+gsM/gsM/gsM9gMM9gME/gsM9gMI8gcM+gcM/gsM+gMI+gMM/gsM9gcI/gcM+gcM9gMI/gsM+gsM8f8M8gME7gME9gcJAg8T///8dQjXcAAAAV3RSTlMBF4XX/f3VgxdL7bVTI0lB81kLZ6FbCeFpH9nNfx/fBwPJlwMDA6c96eu/XWVfvblrx7OjF/c1F6Ut9R11qzkfLZ3BCQc/BwsLkQ0NjwshIwWpBQUFBQXrCtlNAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+AIEREoJpDxKAkAAADMSURBVBjTY2AAAkYmZhZWNnYOBijg5OLm4eXl4ebig/D5BQSFhEVEhIVEBfhBfDFxCUkpaRkZaWZZCTl5oIAom4KikjIDg4qSoiqbKFBAjV1dQwysVFOdXQRIa2kLc0MM49bR1QNS+gaChhABRUEDIyDFZGxiagbim5maWzABaUsraxtbBjs7BlsbeysHkIyjk7OLq4CAq5u7kyNYq4enl7pAeLiAq7ePL9TtfkA+UMQf5heGADWQQGAQXIAhODA83DaEAQmEqgWGQVgAlbAZM4elADkAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDgtMTdUMTc6NDA6MzgtMDQ6MDDPiIKeAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTA4LTE3VDE3OjQwOjM4LTA0OjAwvtU6IgAAAABJRU5ErkJggg==">
+    <title>Wi-Fi Direct demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        color: #444;
+        background: #f5f5f5;
+      }
+      .header {
+        display: flex;
+        background: #3F82C4;
+        height: 100px;
+      }
+      .card {
+        background: #fff;
+        padding: 20px;
+        margin: 30px 30px 0px 30px;
+        border: 1px solid #ccc;
+        box-shadow: 0px 0px 5px #aaa;
+      }
+      p {
+        font-size: 15px;
+      }
+      a {
+        color: #3F82C4;
+      }
+      h1 {
+        margin: 35px 0px 0px 10px;
+        display: inline-block;
+        font-size: 18px;
+        color: #fff;
+      }
+      svg {
+        margin-left: 30px;
+        display: inline-block;
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <svg viewBox="0 0 171 202"><g fill="#fff"><path d="M141.2 85.3c0-31-25-56-56-56-30.7 0-55.8 25-55.8 56 0 17 7.8 32.5 20 42.8l10-10c-9.8-7.6-16-19.4-16-32.7 0-23.2 18.8-42 42-42 23 0 41.8 18.8 41.8 42 0 13.3-6.2 25-16 32.8l10 10c12.2-10.2 20-25.6 20-42.7"/><path d="M14 85.3C14 46 46 14 85.3 14s71.3 32 71.3 71.3c0 21.4-9.5 40.6-24.5 53.7l10 10c17.6-15.7 28.6-38.4 28.6-63.7 0-47-38.2-85.3-85.3-85.3C38.3 0 0 38.2 0 85.3c0 25.3 11 48 28.5 63.6l10-10C23.5 126 14 106.7 14 85.3"/><path d="M89.2 200.3c-2 2-5.5 2-7.6 0l-35.8-35.8c-2-2-2-5.5 0-7.6l35.8-36c2-2 5.5-2 7.6 0l35.8 36c2 2 2 5.4 0 7.5l-35.8 35.8z"/></g></svg>
+    <h1>Welcome to Wi-Fi Direct!</h1>
+    </div>
+    <div class="card">
+    <p><a href="https://www.wi-fi.org/discover-wi-fi/wi-fi-direct">Wi-Fi Direct</a> is a peer to peer Wi-Fi network, that allows enabled devices to connect to each other without an access point. The Physical Web team is experimenting with Wi-Fi Direct as a way to take the Physical Web offline. Wi-Fi Direct offers a variety of use cases, such as;</p>
+    <ul>
+      <li>An interactive offline web page.</li>
+      <li>File sharing.</li>
+    </ul>
+    <p>When you select a Wi-Fi Direct result from the list of nearby beacons, the app joins your device to the Wi-Fi Direct group. Once connected, the app navigates to the IP and port specified in the Wi-Fi Direct result to open up the broadcasted content.</p>
+  </div>
+  </body>
+</html>

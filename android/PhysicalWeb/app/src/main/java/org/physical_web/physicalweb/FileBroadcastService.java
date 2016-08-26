@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
 
@@ -44,11 +43,14 @@ public class FileBroadcastService extends Service {
     private static final int BROADCASTING_NOTIFICATION_ID = 7;
     public static final String FILE_KEY = "file";
     public static final String MIME_TYPE_KEY = "type";
-    public int port;
+    public static final String TITLE_KEY = "title";
+    private static final String DEFAULT_DEVICE_NAME = "PW-Share-";
+    private static final int MAX_DEVICE_NAME_LENGTH = 30;
+    private int mPort;
     private NotificationManagerCompat mNotificationManager;
-    private Handler mHandler = new Handler();
     private Uri mUri;
     private String mType;
+    private String mTitle;
     private byte[] mFile;
     private FileBroadcastServer mFileBroadcastServer;
 
@@ -71,11 +73,13 @@ public class FileBroadcastService extends Service {
       if (mFileBroadcastServer != null) {
         mFileBroadcastServer.stop();
       }
-      String mType = intent.getStringExtra(MIME_TYPE_KEY);
+      mType = intent.getStringExtra(MIME_TYPE_KEY);
       Log.d(TAG, mType);
-      Uri mUri = Uri.parse(intent.getStringExtra(FILE_KEY));
+      mUri = Uri.parse(intent.getStringExtra(FILE_KEY));
       Log.d(TAG, mUri.toString());
-      port = Utils.getWifiDirectPort(this);
+      mTitle = intent.getStringExtra(TITLE_KEY);
+      mTitle = mTitle == null ? "Share" : mTitle;
+      mPort = Utils.getWifiDirectPort(this);
       try {
         mFile = Utils.getBytes(getContentResolver().openInputStream(mUri));
       } catch (FileNotFoundException e) {
@@ -88,11 +92,11 @@ public class FileBroadcastService extends Service {
         return START_STICKY;
       }
       mNotificationManager = NotificationManagerCompat.from(this);
-      mFileBroadcastServer = new FileBroadcastServer(port, mType, mFile);
+      mFileBroadcastServer = new FileBroadcastServer(mPort, mType, mFile);
       try {
         mFileBroadcastServer.start();
         Utils.createBroadcastNotification(this, stopServiceReceiver, BROADCASTING_NOTIFICATION_ID,
-            getString(R.string.wifi_direct_notification_title), Integer.toString(port),
+            getString(R.string.wifi_direct_notification_title), Integer.toString(mPort),
             "myFilter2");
       } catch (IOException e) {
         Log.d(TAG, e.getMessage());
@@ -137,6 +141,10 @@ public class FileBroadcastService extends Service {
     };
 
     private void changeWifiName() {
+      String deviceName = "PW-" + mTitle + "-" + mPort;
+      if (deviceName.length() > MAX_DEVICE_NAME_LENGTH) {
+        deviceName = DEFAULT_DEVICE_NAME + mPort;
+      }
       try {
         WifiP2pManager manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         WifiP2pManager.Channel channel = manager.initialize(this, getMainLooper(), null);
@@ -150,7 +158,7 @@ public class FileBroadcastService extends Service {
 
         Object arglist[] = new Object[3];
         arglist[0] = channel;
-        arglist[1] = "PW-Share-" + port;
+        arglist[1] = deviceName;
         arglist[2] = new WifiP2pManager.ActionListener() {
 
             @Override

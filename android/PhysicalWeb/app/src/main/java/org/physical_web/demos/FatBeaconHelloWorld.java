@@ -54,9 +54,9 @@ public class FatBeaconHelloWorld implements Demo {
   public void startDemo() {
     Intent intent = new Intent(mContext, FatBeaconBroadcastService.class);
     intent.putExtra(FatBeaconBroadcastService.TITLE_KEY, "Hello World");
-    Uri uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
-        mContext.getPackageName() + "/" + R.raw.fatbeacon_default_webpage);
-    intent.putExtra(FatBeaconBroadcastService.URI_KEY, uri.toString());
+    String uriString = ContentResolver.SCHEME_ANDROID_RESOURCE + "://" +
+        mContext.getPackageName() + "/" + R.raw.fatbeacon_default_webpage;
+    intent.putExtra(FatBeaconBroadcastService.URI_KEY, uriString);
     mContext.startService(intent);
     mIsDemoStarted = true;
   }

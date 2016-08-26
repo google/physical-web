@@ -17,6 +17,7 @@ package org.physical_web.physicalweb;
 
 import org.physical_web.demos.Demo;
 import org.physical_web.demos.FatBeaconHelloWorld;
+import org.physical_web.demos.WifiDirectHelloWorld;
 
 import android.app.ListFragment;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ public class DemosFragment extends ListFragment {
   @Override
   public View onCreateView(LayoutInflater layoutInflater, ViewGroup container,
       Bundle savedInstanceState) {
+    setHasOptionsMenu(true);
     getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
     View rootView = layoutInflater.inflate(R.layout.fragment_demos, container, false);
     mAdapter = new DemosAdapter();
@@ -73,6 +75,7 @@ public class DemosFragment extends ListFragment {
 
   private void initialize() {
     mAdapter.addItem(new FatBeaconHelloWorld(getActivity()));
+    mAdapter.addItem(new WifiDirectHelloWorld(getActivity()));
   }
 
   private class DemosAdapter extends BaseAdapter {

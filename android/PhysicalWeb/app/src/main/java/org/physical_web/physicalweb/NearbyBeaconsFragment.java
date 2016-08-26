@@ -283,7 +283,7 @@ public class NearbyBeaconsFragment extends ListFragment
     PwsResult pwsResult = item.getPwsResult();
     if (Utils.isWifiDirectDevice(item.getUrlDevice())) {
       // Initiate WifiDirect Connection request to device
-      mWifiDirectConnect.connect(item.getUrlDevice());
+      mWifiDirectConnect.connect(item.getUrlDevice(), pwsResult.getTitle());
     } else if (Utils.isFatBeaconDevice(item.getUrlDevice())) {
       (new BluetoothSite(getActivity())).connect(pwsResult.getSiteUrl(), pwsResult.getTitle());
     } else {
