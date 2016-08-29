@@ -380,14 +380,37 @@ public class UrlDeviceDiscoveryService extends Service
    */
   private void updateNearbyBeaconNotification(boolean single, PwPair pwPair, int notificationId) {
     PwsResult pwsResult = pwPair.getPwsResult();
+    UrlDevice urlDevice = pwPair.getUrlDevice();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
     builder.setSmallIcon(R.drawable.ic_notification)
         .setLargeIcon(Utils.getBitmapIcon(mPwCollection, pwsResult))
         .setContentTitle(pwsResult.getTitle())
         .setContentText(pwsResult.getDescription())
         .setPriority((Utils.isFavorite(pwPair.getPwsResult().getSiteUrl()))
-            ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN)
-        .setContentIntent(Utils.createNavigateToUrlPendingIntent(pwsResult, this));
+            ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_MIN);
+    if (Utils.isFatBeaconDevice(urlDevice)) {
+      Intent intent = new Intent(this, OfflineTransportConnectionActivity.class);
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_CONNECTION_TYPE,
+          OfflineTransportConnectionActivity.EXTRA_FAT_BEACON_CONNECTION);
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_DEVICE_ADDRESS,
+          pwsResult.getSiteUrl());
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_PAGE_TITLE, pwsResult.getTitle());
+      int requestID = (int) System.currentTimeMillis();
+      builder.setContentIntent(PendingIntent.getActivity(this, requestID, intent, 0));
+    } else if (Utils.isWifiDirectDevice(urlDevice)) {
+      Intent intent = new Intent(this, OfflineTransportConnectionActivity.class);
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_CONNECTION_TYPE,
+          OfflineTransportConnectionActivity.EXTRA_WIFI_DIRECT_CONNECTION);
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_DEVICE_ADDRESS,
+          Utils.getWifiAddress(urlDevice));
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_PAGE_TITLE, pwsResult.getTitle());
+      intent.putExtra(OfflineTransportConnectionActivity.EXTRA_DEVICE_PORT,
+          Utils.getWifiPort(urlDevice));
+      int requestID = (int) System.currentTimeMillis();
+      builder.setContentIntent(PendingIntent.getActivity(this, requestID, intent, 0));
+    } else {
+      builder.setContentIntent(Utils.createNavigateToUrlPendingIntent(pwsResult, this));
+    }
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
         && Utils.isPublic(pwPair.getUrlDevice())) {
       builder.setVisibility(NOTIFICATION_VISIBILITY);
