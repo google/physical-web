@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.IBinder;
 import android.support.v4.app.NotificationManagerCompat;
+import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -118,6 +119,8 @@ public class FileBroadcastService extends Service {
           Log.d(TAG, "discovery failed " + reasonCode);
         }
       });
+      Toast.makeText(this, R.string.wifi_direct_broadcasting_confirmation, Toast.LENGTH_SHORT)
+          .show();
       return START_STICKY;
     }
 

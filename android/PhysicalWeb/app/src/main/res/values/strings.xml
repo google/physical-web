@@ -73,6 +73,7 @@
     <string name="FatBeacon_URL">"Local BLE page @ "</string>
     <string name="fatbeacon_broadcasting_confirmation">Broadcasting FatBeacon</string>
     <string name="fatbeacon_notification_title">Physical Web is sharing as a FatBeacon</string>
+    <string name="wifi_direct_broadcasting_confirmation">Broadcasting with Wi-Fi Direct</string>
     <string name="wifi_direct_notification_title">Physical Web is sharing with Wi-Fi Direct</string>
     <string name="demos">Demos</string>
     <string name="fat_beacon_demo_title">FatBeacon Demo</string>
