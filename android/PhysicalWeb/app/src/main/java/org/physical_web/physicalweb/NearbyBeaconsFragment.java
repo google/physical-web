@@ -285,7 +285,9 @@ public class NearbyBeaconsFragment extends ListFragment
       // Initiate WifiDirect Connection request to device
       mWifiDirectConnect.connect(item.getUrlDevice(), pwsResult.getTitle());
     } else if (Utils.isFatBeaconDevice(item.getUrlDevice())) {
-      (new BluetoothSite(getActivity())).connect(pwsResult.getSiteUrl(), pwsResult.getTitle());
+        if (!BluetoothSite.isRunning()) {   // nested to prevent firing the navigate to url intent
+            (new BluetoothSite(getActivity())).connect(pwsResult.getSiteUrl(), pwsResult.getTitle());
+        }
     } else {
       Intent intent = Utils.createNavigateToUrlIntent(pwsResult);
       startActivity(intent);
