@@ -496,9 +496,14 @@ public class NearbyBeaconsFragment extends ListFragment
       } else {
         setText(view, R.id.url, pwsResult.getSiteUrl());
       }
+      if (Utils.isResolvableDevice(pwPair.getUrlDevice())) {
+        ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
+            Utils.getBitmapIcon(mPwCollection, pwsResult));
+      } else {
+        ((ImageView) view.findViewById(R.id.icon))
+            .setImageResource(R.drawable.unresolved_result_icon);
+      }
       setText(view, R.id.description, pwsResult.getDescription());
-      ((ImageView) view.findViewById(R.id.icon)).setImageBitmap(
-          Utils.getBitmapIcon(mPwCollection, pwsResult));
       final String siteUrl = pwsResult.getSiteUrl();
 
       if (Utils.isFavorite(siteUrl)) {
