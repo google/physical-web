@@ -170,10 +170,8 @@ public class FatBeaconBroadcastService extends Service {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    System.out.println("BUG: FatBeaconBroadcast onStart");
     fetchBroadcastData(intent);
     if (mDisplayInfo == null || data == null) {
-      System.out.println("BUG: mDisplayInfo or data is null");
       stopSelf();
       return START_STICKY;
     }
