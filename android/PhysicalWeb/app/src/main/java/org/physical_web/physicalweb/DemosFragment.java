@@ -21,6 +21,7 @@ import org.physical_web.demos.WifiDirectHelloWorld;
 
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
@@ -71,11 +72,20 @@ public class DemosFragment extends ListFragment {
     } else {
       demo.startDemo();
     }
+    setBackgroundColor(v, demo.isDemoStarted());
   }
 
   private void initialize() {
     mAdapter.addItem(new FatBeaconHelloWorld(getActivity()));
     mAdapter.addItem(new WifiDirectHelloWorld(getActivity()));
+  }
+
+  private void setBackgroundColor(View view, boolean isStarted) {
+    if (isStarted) {
+      view.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.physical_web_logo));
+    } else {
+      view.setBackgroundColor(0xFFFFFFFF);
+    }
   }
 
   private class DemosAdapter extends BaseAdapter {
@@ -111,6 +121,7 @@ public class DemosFragment extends ListFragment {
       }
       ((TextView) view.findViewById(R.id.demo_title)).setText(demos.get(i).getTitle());
       ((TextView) view.findViewById(R.id.demo_summary)).setText(demos.get(i).getSummary());
+      setBackgroundColor(view, demos.get(i).isDemoStarted());
       return view;
     }
   }
