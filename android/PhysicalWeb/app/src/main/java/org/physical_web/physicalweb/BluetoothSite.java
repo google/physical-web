@@ -51,6 +51,7 @@ public class BluetoothSite extends BluetoothGattCallback {
   private Activity activity;
   private BluetoothGatt mBluetoothGatt;
   private BluetoothGattCharacteristic characteristic;
+  private ConnectionListener mCallback;
   private ProgressDialog progress;
   private int transferRate = 20;
   private StringBuilder html;
@@ -83,6 +84,18 @@ public class BluetoothSite extends BluetoothGattCallback {
         .connectGatt(activity, false, this);
   }
 
+  /**
+   * Connects to the Gatt service of the device to download a web page and displays a progress bar
+   * for the title.
+   * @param deviceAddress The mac address of the bar
+   * @param title The title of the web page being downloaded
+   * @param callback The callback for when the connection is complete.
+   */
+  public void connect(String deviceAddress, String title, ConnectionListener callback) {
+    mCallback = callback;
+    connect(deviceAddress, title);
+  }
+
   @Override
   public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
       int status) {
@@ -92,7 +105,7 @@ public class BluetoothSite extends BluetoothGattCallback {
       // Transfer is complete
       html.append(new String(characteristic.getValue()));
       progress.dismiss();
-      gatt.close();
+      close();
       File websiteDir = new File(activity.getFilesDir(), "Websites");
       websiteDir.mkdir();
       File file = new File(websiteDir, "website.html");
@@ -148,6 +161,9 @@ public class BluetoothSite extends BluetoothGattCallback {
   }
 
   private void close() {
+    if (mCallback != null) {
+      mCallback.onConnectionFinished();
+    }
     if (mBluetoothGatt == null) {
       return;
     }

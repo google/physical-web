@@ -48,6 +48,7 @@ class WifiDirectConnect {
   private Channel mChannel;
   private UrlDevice mDevice;
   private BroadcastReceiver mReceiver;
+  private ConnectionListener mCallback;
 
   public WifiDirectConnect(Context context) {
     mManager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
@@ -69,11 +70,11 @@ class WifiDirectConnect {
                   @Override
                   public void onConnectionInfoAvailable(final WifiP2pInfo info) {
                     if (mDevice != null) {
-                      mProgress.dismiss();
                       Intent intent = new Intent(Intent.ACTION_VIEW);
                       intent.setData(Uri.parse("http:/" + info.groupOwnerAddress + ":" +
                           Integer.toString(Utils.getWifiPort(mDevice))));
                       mContext.startActivity(intent);
+                      close();
                     }
                   }
                 });
@@ -154,6 +155,11 @@ class WifiDirectConnect {
     });
   }
 
+  public void connect(UrlDevice urlDevice, String title, ConnectionListener callback) {
+    mCallback = callback;
+    connect(urlDevice, title);
+  }
+
   private void connectHelper(boolean retry, WifiP2pConfig config) {
     mManager.connect(mChannel, config, new ActionListener() {
       @Override
@@ -176,17 +182,24 @@ class WifiDirectConnect {
             @Override
             public void onFailure(int reason) {
               Log.d(TAG, "cancel connect call fail " + reason);
-              mProgress.dismiss();
               Toast.makeText(mContext, R.string.wifi_direct_connection_failed, Toast.LENGTH_SHORT)
                   .show();
+              close();
             }
           });
         } else {
-          mProgress.dismiss();
           Toast.makeText(mContext, R.string.wifi_direct_connection_failed, Toast.LENGTH_SHORT)
               .show();
+          close();
         }
       }
     });
+  }
+
+  private void close() {
+    mProgress.dismiss();
+    if (mCallback != null) {
+      mCallback.onConnectionFinished();
+    }
   }
 }
