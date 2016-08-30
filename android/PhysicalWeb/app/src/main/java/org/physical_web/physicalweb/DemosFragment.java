@@ -20,6 +20,8 @@ import org.physical_web.demos.FatBeaconHelloWorld;
 import org.physical_web.demos.WifiDirectHelloWorld;
 
 import android.app.ListFragment;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -76,7 +78,9 @@ public class DemosFragment extends ListFragment {
   }
 
   private void initialize() {
-    mAdapter.addItem(new FatBeaconHelloWorld(getActivity()));
+    if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+      mAdapter.addItem(new FatBeaconHelloWorld(getActivity()));
+    }
     mAdapter.addItem(new WifiDirectHelloWorld(getActivity()));
   }
 
