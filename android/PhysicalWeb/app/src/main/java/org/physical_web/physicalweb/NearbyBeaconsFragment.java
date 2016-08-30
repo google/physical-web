@@ -83,6 +83,7 @@ public class NearbyBeaconsFragment extends ListFragment
   private boolean mMissedEmptyGroupIdQueue = false;
   private SwipeDismissListViewTouchListener mTouchListener;
   private WifiDirectConnect mWifiDirectConnect;
+  private BluetoothSite mBluetoothSite;
 
   // The display of gathered urls happens as follows
   // 0. Begin scan
@@ -205,6 +206,7 @@ public class NearbyBeaconsFragment extends ListFragment
     ListView listView = (ListView) rootView.findViewById(android.R.id.list);
     mDiscoveryServiceConnection = new DiscoveryServiceConnection();
     mWifiDirectConnect = new WifiDirectConnect(getActivity());
+    mBluetoothSite = new BluetoothSite(getActivity());
     mTouchListener =
       new SwipeDismissListViewTouchListener(
               listView,
@@ -285,7 +287,9 @@ public class NearbyBeaconsFragment extends ListFragment
       // Initiate WifiDirect Connection request to device
       mWifiDirectConnect.connect(item.getUrlDevice(), pwsResult.getTitle());
     } else if (Utils.isFatBeaconDevice(item.getUrlDevice())) {
-      (new BluetoothSite(getActivity())).connect(pwsResult.getSiteUrl(), pwsResult.getTitle());
+      if (!mBluetoothSite.isRunning()) {
+        mBluetoothSite.connect(pwsResult.getSiteUrl(), pwsResult.getTitle());
+      }
     } else {
       Intent intent = Utils.createNavigateToUrlIntent(pwsResult);
       startActivity(intent);

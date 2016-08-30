@@ -55,9 +55,15 @@ public class BluetoothSite extends BluetoothGattCallback {
   private ProgressDialog progress;
   private int transferRate = 20;
   private StringBuilder html;
+  private boolean running = false;
 
   public BluetoothSite(Activity activity) {
     this.activity = activity;
+  }
+
+
+  public Boolean isRunning() {
+    return running;
   }
 
   /**
@@ -67,6 +73,7 @@ public class BluetoothSite extends BluetoothGattCallback {
    * @param title The title of the web page being downloaded
    */
   public void connect(String deviceAddress, String title) {
+    running = true;
     String progressTitle = activity.getString(R.string.page_loading_title) + " " + title;
     progress = new ProgressDialog(activity);
     progress.setCancelable(true);
@@ -80,7 +87,7 @@ public class BluetoothSite extends BluetoothGattCallback {
     progress.setTitle(progressTitle);
     progress.setMessage(activity.getString(R.string.page_loading_message));
     progress.show();
-    BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress)
+    mBluetoothGatt = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress)
         .connectGatt(activity, false, this);
   }
 
@@ -99,12 +106,13 @@ public class BluetoothSite extends BluetoothGattCallback {
   @Override
   public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
       int status) {
-    if (status == BluetoothGatt.GATT_SUCCESS
+    if (!isRunning()) {   // This can happen when the dialog is dismissed very quickly
+      close();
+    } else if (status == BluetoothGatt.GATT_SUCCESS
         && characteristic.getValue().length < transferRate) {
       Log.i(TAG, "onCharacteristicRead successful: small packet");
       // Transfer is complete
       html.append(new String(characteristic.getValue()));
-      progress.dismiss();
       close();
       File websiteDir = new File(activity.getFilesDir(), "Websites");
       websiteDir.mkdir();
@@ -121,7 +129,6 @@ public class BluetoothSite extends BluetoothGattCallback {
     } else {
       Log.i(TAG, "onCharacteristicRead unsuccessful: " + status);
       close();
-      progress.dismiss();
       Toast.makeText(activity, R.string.ble_download_error_message, Toast.LENGTH_SHORT).show();
     }
   }
@@ -140,6 +147,8 @@ public class BluetoothSite extends BluetoothGattCallback {
       }
     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
       Log.i(TAG, "Disconnected to GATT server");
+      // ensure progress dialog is removed and running is set false
+      close();
     }
   }
 
@@ -164,6 +173,11 @@ public class BluetoothSite extends BluetoothGattCallback {
     if (mCallback != null) {
       mCallback.onConnectionFinished();
     }
+    if (progress != null) {
+      progress.dismiss();
+    }
+
+    running = false;
     if (mBluetoothGatt == null) {
       return;
     }
