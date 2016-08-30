@@ -54,12 +54,19 @@ public class BluetoothSite extends BluetoothGattCallback {
   private ProgressDialog progress;
   private int transferRate = 20;
   private StringBuilder html;
+  private static Boolean running = false;
 
   public BluetoothSite(Activity activity) {
     this.activity = activity;
   }
 
-  /**
+  // Currently the same filename is used for every Fatbeacon request, so only allow one instance
+  // of this class at a time
+  public static Boolean isRunning() {
+    return running;
+  }
+
+    /**
    * Connects to the Gatt service of the device to download a web page and displays a progress bar
    * for the title.
    * @param deviceAddress The mac address of the bar
@@ -67,6 +74,7 @@ public class BluetoothSite extends BluetoothGattCallback {
    */
   public void connect(String deviceAddress, String title) {
     String progressTitle = activity.getString(R.string.page_loading_title) + " " + title;
+    running = true;
     progress = new ProgressDialog(activity);
     progress.setCancelable(true);
     progress.setOnCancelListener(new OnCancelListener() {
@@ -86,31 +94,31 @@ public class BluetoothSite extends BluetoothGattCallback {
   @Override
   public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
       int status) {
-    if (status == BluetoothGatt.GATT_SUCCESS
-        && characteristic.getValue().length < transferRate) {
-      Log.i(TAG, "onCharacteristicRead successful: small packet");
-      // Transfer is complete
-      html.append(new String(characteristic.getValue()));
-      progress.dismiss();
-      gatt.close();
-      File websiteDir = new File(activity.getFilesDir(), "Websites");
-      websiteDir.mkdir();
-      File file = new File(websiteDir, "website.html");
-      writeToFile(file);
-      if (file != null) {
-        openInChrome(file);
+      if (!isRunning()) {   // This can happen when the dialog is dismissed very quickly
+          close();
+      } else if (status == BluetoothGatt.GATT_SUCCESS
+          && characteristic.getValue().length < transferRate) {
+        Log.i(TAG, "onCharacteristicRead successful: small packet");
+        // Transfer is complete
+        html.append(new String(characteristic.getValue()));
+        close();
+        File websiteDir = new File(activity.getFilesDir(), "Websites");
+        websiteDir.mkdir();
+        File file = new File(websiteDir, "website.html");
+        writeToFile(file);
+        if (file != null) {
+          openInChrome(file);
+        }
+      } else if (status == BluetoothGatt.GATT_SUCCESS) {
+        Log.i(TAG, "onCharacteristicRead successful: full packet");
+        // Full packet received, check for more data
+        html.append(new String(characteristic.getValue()));
+        gatt.readCharacteristic(this.characteristic);
+      } else {
+        Log.i(TAG, "onCharacteristicRead unsuccessful: " + status);
+        close();
+        Toast.makeText(activity, R.string.ble_download_error_message, Toast.LENGTH_SHORT).show();
       }
-    } else if (status == BluetoothGatt.GATT_SUCCESS) {
-      Log.i(TAG, "onCharacteristicRead successful: full packet");
-      // Full packet received, check for more data
-      html.append(new String(characteristic.getValue()));
-      gatt.readCharacteristic(this.characteristic);
-    } else {
-      Log.i(TAG, "onCharacteristicRead unsuccessful: " + status);
-      close();
-      progress.dismiss();
-      Toast.makeText(activity, R.string.ble_download_error_message, Toast.LENGTH_SHORT).show();
-    }
   }
 
   @Override
@@ -148,6 +156,10 @@ public class BluetoothSite extends BluetoothGattCallback {
   }
 
   private void close() {
+    if (progress != null) {
+        progress.dismiss();
+    }
+    running = false;
     if (mBluetoothGatt == null) {
       return;
     }
