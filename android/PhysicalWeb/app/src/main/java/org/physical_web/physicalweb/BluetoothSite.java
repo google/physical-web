@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
@@ -87,8 +86,13 @@ public class BluetoothSite extends BluetoothGattCallback {
     progress.setTitle(progressTitle);
     progress.setMessage(activity.getString(R.string.page_loading_message));
     progress.show();
-    mBluetoothGatt = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress)
-        .connectGatt(activity, false, this);
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mBluetoothGatt = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress)
+            .connectGatt(activity, false, BluetoothSite.this);
+      }
+    });
   }
 
   /**
@@ -135,7 +139,7 @@ public class BluetoothSite extends BluetoothGattCallback {
 
   @Override
   public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-    if (newState == BluetoothProfile.STATE_CONNECTED) {
+    if (newState == BluetoothProfile.STATE_CONNECTED && status == gatt.GATT_SUCCESS) {
       Log.i(TAG, "Connected to GATT server");
       mBluetoothGatt = gatt;
       html = new StringBuilder("");
@@ -148,6 +152,9 @@ public class BluetoothSite extends BluetoothGattCallback {
     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
       Log.i(TAG, "Disconnected to GATT server");
       // ensure progress dialog is removed and running is set false
+      close();
+    } else if (status != gatt.GATT_SUCCESS){
+      Log.i(TAG, "Status is " + status);
       close();
     }
   }
