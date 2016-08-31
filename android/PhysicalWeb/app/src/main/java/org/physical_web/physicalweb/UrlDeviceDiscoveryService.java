@@ -152,7 +152,6 @@ public class UrlDeviceDiscoveryService extends Service
     }
     mUrlDeviceDiscoverers.add(new SsdpUrlDeviceDiscoverer(this));
     mUrlDeviceDiscoverers.add(new BleUrlDeviceDiscoverer(this));
-    mUrlDeviceDiscoverers.add(new WifiUrlDeviceDiscoverer(this));
     for (UrlDeviceDiscoverer urlDeviceDiscoverer : mUrlDeviceDiscoverers) {
       urlDeviceDiscoverer.setCallback(this);
     }
