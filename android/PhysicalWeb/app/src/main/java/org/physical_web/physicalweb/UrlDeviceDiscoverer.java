@@ -16,6 +16,7 @@
 
 package org.physical_web.physicalweb;
 
+import org.json.JSONException;
 import org.physical_web.collection.UrlDevice;
 
 import android.os.SystemClock;
@@ -50,11 +51,11 @@ abstract class UrlDeviceDiscoverer {
         .setScanTimeMillis(SystemClock.elapsedRealtime() - mScanStartTime);
   }
 
-  protected void reportUrlDevice(UrlDevice urlDevice) {
+  protected void reportUrlDevice(UrlDevice urlDevice) throws JSONException {
     mUrlDeviceDiscoveryCallback.onUrlDeviceDiscovered(urlDevice);
   }
 
   public interface UrlDeviceDiscoveryCallback {
-    public void onUrlDeviceDiscovered(UrlDevice urlDevice);
+    public void onUrlDeviceDiscovered(UrlDevice urlDevice) throws JSONException;
   }
 }

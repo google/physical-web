@@ -252,7 +252,7 @@ public class UrlDeviceDiscoveryService extends Service
     mNotificationManager.cancel(SUMMARY_NOTIFICATION_ID);
   }
 
-  private void saveCache() {
+  private void saveCache() throws JSONException {
     // Write the PW Collection
     PreferenceManager.getDefaultSharedPreferences(this).edit()
         .putInt(PREFS_VERSION_KEY, PREFS_VERSION)
@@ -269,12 +269,16 @@ public class UrlDeviceDiscoveryService extends Service
     mHandler.removeCallbacks(mFirstScanTimeout);
     mHandler.removeCallbacks(mSecondScanTimeout);
     stopScan();
-    saveCache();
+    try {
+      saveCache();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
     super.onDestroy();
   }
 
   @Override
-  public void onUrlDeviceDiscovered(UrlDevice urlDevice) {
+  public void onUrlDeviceDiscovered(UrlDevice urlDevice) throws JSONException {
     // Add Device and fetch results
     // Don't short circuit because icons
     // and metadata may not be fetched
@@ -290,7 +294,7 @@ public class UrlDeviceDiscoveryService extends Service
       long mPwsTripTimeMillis = 0;
 
       @Override
-      public void onPwsResult(PwsResult pwsResult) {
+      public void onPwsResult(PwsResult pwsResult) throws JSONException {
         PwsResult replacement = new Utils.PwsResultBuilder(pwsResult)
             .setPwsTripTimeMillis(pwsResult, mPwsTripTimeMillis)
             .build();
@@ -566,7 +570,7 @@ public class UrlDeviceDiscoveryService extends Service
     return mPwCollection;
   }
 
-  public void clearCache() {
+  public void clearCache() throws JSONException {
     stopScan();
     mScanStartTime = new Date().getTime();
     Utils.setPwsEndpoint(this, mPwCollection);
