@@ -84,7 +84,7 @@
 <div class="panel">
   <h2>
 <a id="url" class="anchor" href="#url" aria-hidden="true"><span class="octicon octicon-link"></span></a>URL</h2>
-  <p>This is the link to your webpage. The Physical Web on Chrome only supports HTTPS URLs. We recommend the URLs to have the following attributes to provide the best possible user experience:</p>
+  <p>This is the link to your webpage. The Physical Web on Chrome and <a href="https://developers.google.com/nearby/notifications/overview"> Nearby Notifications </a> only supports HTTPS URLs. We recommend the URLs to have the following attributes to provide the best possible user experience:</p>
   <ul>
     <li>Mobile-optimized, both for the user interface and navigation.</li>
     <li>Single-purpose. Each should should cater to a single action (e.g. consume a piece of content, perform an action). Remember that users won’t be browsing to this page but instead will be arriving directly to it if they are nearby your beacon.</li>
@@ -108,7 +108,7 @@
 <a id="advertising-frequency" class="anchor" href="#advertising-frequency" aria-hidden="true"><span class="octicon octicon-link"></span></a>Advertising Frequency</h2>
   <p>As a general rule, we recommend an advertising frequency of 700ms. 
   </p>
-<p>Most beacons can advertise in a range from as fast as every 100ms to as slow as every 10 seconds. Going slower can save battery life but scanning applications such as Chrome may not reliably surface URLs to users if the frequency is much slower than 1 second. Going faster than 700ms is possible too, although this will reduce the beacon's battery life.</p>
+<p>Most beacons can advertise in a range from as fast as every 100ms to as slow as every 10 seconds. Going slower can save battery life but scanning applications such as Chrome and Nearby Notifications may not reliably surface URLs to users if the frequency is much slower than 1 second. Going faster than 700ms is possible too, although this will reduce the beacon's battery life.</p>
 </div>
 
 <h2 id="deploying">
@@ -151,7 +151,7 @@
   <li id="yourls"><a href="https://github.com/YOURLS/YOURLS">YOURLS</a></li>
   <li><a href="https://github.com/briancray/PHP-URL-Shortener">PHP URL Shortener</a></li>
 </ul>
-<p>Finally, you may wish to disable your URL broadcast in certain scenarios (e.g. turning off exhibit information for a temporary exhibit at a museum). To do so, you can update your shortened URL to redirect to a 404 page. Physical Web on Chrome will not display these URLs.</p>
+<p>Finally, you may wish to disable your URL broadcast in certain scenarios (e.g. turning off exhibit information for a temporary exhibit at a museum). To do so, you can update your shortened URL to redirect to a 404 page. Physical Web on Chrome and Nearby Notifications will not display these URLs.</p>
         </div>
       </div>
     </div>

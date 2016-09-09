@@ -87,7 +87,7 @@
                 <p>The Physical Web also benefits from the web security model, given that it is built on top of URLs. Some of these benefits include:</p><br>
 
                 <ul>
-                  <li>Certain implementations of the Physical Web require that the broadcast URL be over HTTPS (e.g. Chrome)</li>
+                  <li>Certain implementations of the Physical Web require that the broadcast URL be over HTTPS (e.g. Chrome, Nearby Notifications)</li>
                   <li>The URL could be obfuscated (e.g. using a non-branded domain)</li>
                   <li>A rotating token on the beacon would constantly alter the URL</li>
                   <li>The web page could require a login</li>
@@ -106,7 +106,7 @@
               <div>
                 <p>Different implementations of the Physical Web might offer different user experiences for users to discover nearby URLs.</p><br>
 
-                <p>For example, on Android, the open source implementation and the <a href="/physical-web/try-physical-web">Chrome implementation</a> surface Physical Web results via low priority notifications, which do not vibrate the user’s device. This ensures that the user’s workflow is not interrupted and that results appear only when the user proactively seeks them out.</p>
+                <p>For example, on Android, the open source implementation, the <a href="/physical-web/try-physical-web">Nearby Notifications implementation</a>, and the Chrome implementation surface Physical Web results via low priority notifications, which do not vibrate the user’s device. This ensures that the user’s workflow is not interrupted and that results appear only when the user proactively seeks them out.</p>
               </div>
             </li>
             <li>
@@ -118,13 +118,13 @@
             <li>
               <a class="toggle-faq">How does Physical Web affect battery life?</a>
               <div>
-                <p>Ultimately, this is dependent on the design of the Physical Web implementation. The open source and Chrome implementations only scan for nearby beacons when the device screen is on, which significantly reduces the battery impact.</p>
+                <p>Ultimately, this is dependent on the design of the Physical Web implementation. The open source, Nearby Notifications, and Chrome implementations only scan for nearby beacons when the device screen is on, which significantly reduces the battery impact.</p>
               </div>
             </li>
             <li>
               <a class="toggle-faq">Which platforms are supported?</a>
               <div>
-                <p>Both iOS and Android offer bluetooth scanning APIs at the platform level on which Physical Web clients can be built. The open source Physical Web implementations on <a href="https://github.com/google/physical-web">Github</a> include both iOS and Android. Additionally, the Chrome implementation of Physical Web is available on iOS and Android.</p>
+                <p>Both iOS and Android offer bluetooth scanning APIs at the platform level on which Physical Web clients can be built. The open source Physical Web implementations on <a href="https://github.com/google/physical-web">Github</a> include both iOS and Android. Additionally, the Chrome implementation of Physical Web is available on iOS and Android. The Nearby Notifications implementation is available on Android.</p>
               </div>
             </li>
             <li>

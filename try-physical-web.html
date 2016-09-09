@@ -48,9 +48,9 @@
   <div class="row">
     <div id="sidenav">
       <ul class="section-nav">
-<li class="toc-entry toc-h1"><a href="#setting-up-physical-web-in-chrome">Setting up Physical Web in Chrome</a></li>
-<li class="toc-entry toc-h2"><a href="#ios">iOS</a></li>
-<li class="toc-entry toc-h2"><a href="#android">Android</a></li>
+<li class="toc-entry toc-h1"><a href="#setting-up-physical-web-in-chrome">Setting up Physical Web</a></li>
+<li class="toc-entry toc-h2"><a href="#ios">Chrome on iOS</a></li>
+<li class="toc-entry toc-h2"><a href="#android">Chrome on Android</a></li>
 <li class="toc-entry toc-h2"><a href="#potential-issues">Potential issues</a></li>
 </ul>
     </div>
@@ -59,13 +59,75 @@
         <div class="content">
           <h1>
 <a id="setting-up-physical-web-in-chrome" class="anchor" href="#setting-up-physical-web-in-chrome" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up Physical Web in Chrome</h1>
-<p>The Physical Web enables you to discover web pages associated with everyday objects and locations. It is powered by bluetooth low energy (BLE) beacons that broadcast URLs using the Eddystone format. Various mobile browsers are working to display these URLs. This document explains how to use the Physical Web on Chrome.
+<p>The Physical Web enables you to discover web pages associated with everyday objects and locations. It is powered by bluetooth low energy (BLE) beacons that broadcast URLs using the Eddystone format. Various mobile browsers are working to display these URLs. This document explains how to use the Physical Web on Chrome and Nearby Notifications.
 
 </p><p>If you experience any issues with this setup process, reach out to <a href="mailto:physical-web-discuss@googlegroups.com">physical-web-discuss@googlegroups.com</a>.</p>
 
+<h2 id="nearby">
+<a id="nearby" class="anchor" href="#nearby" aria-hidden="true"><span class="octicon octicon-link"></span></a>Nearby Notifications</h2>
+<p>Nearby Notifications is an Android feature available on devices running Android KitKat (4.4) and above. When you are near a bluetooth beacon (and have bluetooth enabled), you will receive a notification for the Physical Web.</p>
+<p>When you are near a beacon, you will see the following: </p>
+<ol>
+  <li>
+    First, check that you have an active data connection as well as Bluetooth and Location turned on. The notification shade provides an easy way to check that these requirements are met.
+    <img src="/physical-web/assets/images/image07-48ee16064bb907cddb0eb2e823cfa3b628f886e8c43ddc0f7233dd09c4fc1e7a.png" srcset="/physical-web/assets/images/image07@2x-6be3e76acd4c39999f9b17c85e088482b98bb14b79f9c3cb32169857a3b1735d.png 2x" alt="Check active data connection, bluetooth and location turned on">  
+  </li>
+  <li>
+    Swipe down on the notification shade when you first encounter a beacon. You will receive a notification alerting you about nearby web pages.
+    <img src="/physical-web/assets/images/first_nearby_notif.png" srcset="/physical-web/assets/images/first_nearby_notif_large.png 2x" alt="Initial nearby notification">  
+  </li>
+  <li>
+    Tap on the notification to opt into future Nearby notifications. Opting in will take you to a list of nearby URLs.
+    <div class="row">
+      <img src="/physical-web/assets/images/opt_in.png" srcset="/physical-web/assets/images/opt_in_large.png 2x" alt="Opt in screen">  
+      <img src="/physical-web/assets/images/list_view.png" srcset="/physical-web/assets/images/list_view_large.png 2x" alt="List of URLs">  
+    </div>
+  </li>
+  <li>
+    When you are near a beacon in the future, you will see a notification informing you of nearby URLs.
+      <img src="/physical-web/assets/images/notif.png" srcset="/physical-web/assets/images/notif_large.png 2x" alt="Notification">  
+  </li>
+  <li>
+    To enable or disable Nearby Notifications in the future, visit Settings > Google > Nearby Notifications.
+      <img src="/physical-web/assets/images/settings.png" srcset="/physical-web/assets/images/settings_large.png 2x" alt="Nearby Notifications settings"> 
+  </li>
+</ol>
+
+<h2 id="android">
+<a id="android" class="anchor" href="#android" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android</h2>
+<p>The Physical Web is available starting Chrome version 49 and on devices running Android KitKat (4.4) and above. When you are near a beacon for the first time (and if you have Bluetooth enabled) you will receive a notification describing the Physical Web.</p>
+<p>If you’d like to explicitly turn on Physical Web, try the following:</p>
+<ol>
+  <li>
+    Check that you have an active data connection as well as Bluetooth and Location turned on, as outlined above in the Nearby Notifications section.
+  </li>
+  <li>
+    Enable the Physical Web privacy option from within Chrome in Privacy settings:
+    <div class="row">
+      <img src="/physical-web/assets/images/image08-b178c71a9b01407fdcdc129f5581f7b37cdedc31a07101dd14fa41fdd667765f.png" srcset="/physical-web/assets/images/image08@2x-2a588cc2fad46021f862a975ea86730967fd0b17d5822f5280423d5487c4dcd4.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+      <img src="/physical-web/assets/images/image09-7ab425b326d7508365f28a9d1bab0cdfa9e0a960494485edd231b91348746aab.png" srcset="/physical-web/assets/images/image09@2x-970b78d016e6abae1f49e4656df7aceda661278b044d4258848f1ca0f2b51ade.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+    </div>
+    <div class="row">
+      <img src="/physical-web/assets/images/image10-bfbe0cf88df7bd6eff204a3eceb772680a970253bc23f7ed0972145e1d9b5680.png" srcset="/physical-web/assets/images/image10@2x-14c30135f256b3d8d67a090655683163806414489cd5ac9a8fa3d221dea172bc.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+      <img src="/physical-web/assets/images/image11-4fb78e5317aa1d2c713cbbfe70e760afcc6eca9e16436b853d3ef9026daa0c35.png" srcset="/physical-web/assets/images/image11@2x-62641df5d742250c14f720e4d9b0bbba74b87f8d0af06a2080bd39d9c1abcda1.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
+    </div>
+    <img src="/physical-web/assets/images/image12-ac01858ce4ca5b345dcb84f0970ea50ea047c4e6779d66c66089173b37b42663.png" srcset="/physical-web/assets/images/image12@2x-4aad5a84421608b39657e61a32e5f64c6d9ea40f4984b9fcc0f04fc333312706.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings"> 
+
+    <p><strong>(Marshmallow ONLY)</strong> On Marshmallow (Android 6.0) devices, the Physical Web requires that Chrome is granted the Location runtime permission.  If you have not already granted this permission, enabling the Physical Web privacy option will automatically prompt you to grant it.  This step is not necessary on pre-Marshmallow versions of Android.</p>
+    <img src="/physical-web/assets/images/image13-5b703fb08fb6c8a6aa22e39647e9e126d67ca03a483851932523321edf5f6657.png" srcset="/physical-web/assets/images/image13@2x-85210461ab3842a55f41cc529ac10a79ff4ab6676d73bf85bc82301790740851.png 2x" alt="On Marshmallow (Android 6.0) devices, the Physical Web requires that Chrome is granted the Location runtime permission.">
+  </li>
+  <li>
+    To see URLs when you are nearby a beacon in the future, swipe down on your notification shade to see a low priority notification informing you of nearby Physical Web URLs.
+    <img src="/physical-web/assets/images/image14-afb529ea61b9baba4cd10c54b1fb10cca5b7fa92a7826fd7ebbb49e671bc6060.png" srcset="/physical-web/assets/images/image14@2x-4d7092d9270f2c9b9411f6d91b925db6977564e8dd4b0de84d28578fdfda64f8.png 2x" alt="swipe down on your notification shade to see a low priority notification">
+  </li>
+  <li>
+    Tap on notification. You will see a list of nearby URLs.
+  </li>
+</ol>
+
 <h2 id="ios">
 <a id="ios" class="anchor" href="#ios" aria-hidden="true"><span class="octicon octicon-link"></span></a>iOS</h2>
-<p>As of July 2015, Chrome for iOS supports the Physical Web. You can take the following steps to discover Physical Web URLs via Chrome for iOS:</p>
+<p>Chrome for iOS supports the Physical Web as of July 2015. You can take the following steps to discover Physical Web URLs via Chrome for iOS:</p>
 <ol>
   <li>
     Turn on Bluetooth if not enabled.
@@ -91,38 +153,9 @@
     <img src="/physical-web/assets/images/image06-8057877b079f57fce655ffae09f2b3127772d34d6230240128b4eb2998fbe2f0.png" alt="">
   </li>
 </ol>
-<h2 id="android">
-<a id="android" class="anchor" href="#android" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android</h2>
-<p>The Physical Web is available starting Chrome version 49 and on devices running Android KitKat (4.4) and above. When you are near a beacon for the first time (and if you have Bluetooth enabled) you will receive a notification describing the Physical Web.</p>
-<p>If you’d like to explicitly turn on Physical Web, try the following:</p>
-<ol>
-  <li>
-    Check that you have an active data connection as well as Bluetooth and Location turned on. The notification shade provides an easy way to check that these requirements are met:
-    <img src="/physical-web/assets/images/image07-48ee16064bb907cddb0eb2e823cfa3b628f886e8c43ddc0f7233dd09c4fc1e7a.png" srcset="/physical-web/assets/images/image07@2x-6be3e76acd4c39999f9b17c85e088482b98bb14b79f9c3cb32169857a3b1735d.png 2x" alt="Check active data connection, bluetooth and location turned on">
-  </li>
-  <li>
-    Enable the Physical Web privacy option from within Chrome in Privacy settings:
-    <div class="row">
-      <img src="/physical-web/assets/images/image08-b178c71a9b01407fdcdc129f5581f7b37cdedc31a07101dd14fa41fdd667765f.png" srcset="/physical-web/assets/images/image08@2x-2a588cc2fad46021f862a975ea86730967fd0b17d5822f5280423d5487c4dcd4.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
-      <img src="/physical-web/assets/images/image09-7ab425b326d7508365f28a9d1bab0cdfa9e0a960494485edd231b91348746aab.png" srcset="/physical-web/assets/images/image09@2x-970b78d016e6abae1f49e4656df7aceda661278b044d4258848f1ca0f2b51ade.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
-    </div>
-    <div class="row">
-      <img src="/physical-web/assets/images/image10-bfbe0cf88df7bd6eff204a3eceb772680a970253bc23f7ed0972145e1d9b5680.png" srcset="/physical-web/assets/images/image10@2x-14c30135f256b3d8d67a090655683163806414489cd5ac9a8fa3d221dea172bc.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
-      <img src="/physical-web/assets/images/image11-4fb78e5317aa1d2c713cbbfe70e760afcc6eca9e16436b853d3ef9026daa0c35.png" srcset="/physical-web/assets/images/image11@2x-62641df5d742250c14f720e4d9b0bbba74b87f8d0af06a2080bd39d9c1abcda1.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings">
-    </div>
-    <img src="/physical-web/assets/images/image12-ac01858ce4ca5b345dcb84f0970ea50ea047c4e6779d66c66089173b37b42663.png" srcset="/physical-web/assets/images/image12@2x-4aad5a84421608b39657e61a32e5f64c6d9ea40f4984b9fcc0f04fc333312706.png 2x" alt="Enable the Physical Web privacy option from within Chrome in Privacy settings"> 
 
-    <p><strong>(Marshmallow ONLY)</strong> On Marshmallow (Android 6.0) devices, the Physical Web requires that Chrome is granted the Location runtime permission.  If you have not already granted this permission, enabling the Physical Web privacy option will automatically prompt you to grant it.  This step is not necessary on pre-Marshmallow versions of Android.</p>
-    <img src="/physical-web/assets/images/image13-5b703fb08fb6c8a6aa22e39647e9e126d67ca03a483851932523321edf5f6657.png" srcset="/physical-web/assets/images/image13@2x-85210461ab3842a55f41cc529ac10a79ff4ab6676d73bf85bc82301790740851.png 2x" alt="On Marshmallow (Android 6.0) devices, the Physical Web requires that Chrome is granted the Location runtime permission.">
-  </li>
-  <li>
-    To see URLs when you are nearby a beacon in the future, swipe down on your notification shade to see a low priority notification informing you of nearby Physical Web URLs.
-    <img src="/physical-web/assets/images/image14-afb529ea61b9baba4cd10c54b1fb10cca5b7fa92a7826fd7ebbb49e671bc6060.png" srcset="/physical-web/assets/images/image14@2x-4d7092d9270f2c9b9411f6d91b925db6977564e8dd4b0de84d28578fdfda64f8.png 2x" alt="swipe down on your notification shade to see a low priority notification">
-  </li>
-  <li>
-    Tap on notification. You will see a list of nearby URLs.
-  </li>
-</ol>
+
+
 <h2 id="issues">
 <a id="potential-issues" class="anchor" href="#potential-issues" aria-hidden="true"><span class="octicon octicon-link"></span></a>Potential issues</h2>
 <ol>
@@ -133,10 +166,6 @@
     <p>Additionally, nearby broadcasted URLs must be public. The URL will be accessed by a Google service to resolve the URL and retrieve page metadata. If the page is not accessible from the Internet (for instance, it requires authentication or is only accessible from an internal network) then it will not appear in the list of results.</p>
 
     <p>Finally, all URLs must resolve to an HTTPS URL. For our users’ security, we require all Physical Web pages be served over HTTPS. You may use a URL shortener that generates HTTP URLs as long as the shortened URL resolves to an HTTPS URL.</p>
-  </li>
-  <li>
-    <p><strong>On Android, sometimes I see URLs, but sometimes they don’t show up.</strong></p>
-    <p>There is a known issue that can cause the Physical Web list to be empty even after receiving a notification indicating that Physical Web pages are nearby. This can usually be resolved by refreshing the Physical Web list, but not always. As a workaround, force-quit Chrome and turn the device’s screen off and on again to trigger a new scan for nearby devices.</p>
   </li>
 </ol>
         
