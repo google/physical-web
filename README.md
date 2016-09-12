@@ -31,8 +31,8 @@ The Physical Web must be an open standard that everyone can use. This can’t be
 * [Eddystone](https://github.com/google/eddystone) - Repo with the specification for the beacons themselves
 * [mDNS support](https://github.com/google/physical-web/blob/master/documentation/mDNS_Support.md) - How to use mDNS instead of Bluetooth to broadcast public URLs and local data
 * [Wi-Fi Direct support](https://github.com/google/physical-web/blob/master/documentation/WiFi_Direct_Support.md) - How to use Wi-Fi Direct instead of Bluetooth to broadcast local data
-* [SSDP support](documentation/ssdp_support.md) - How to use SSDP instead of Bluetooth to broadcast URLs
-* [Branding guidelines](documentation/branding_guidelines.md)
+* [SSDP support](https://github.com/google/physical-web/blob/master/documentation/ssdp_support.md) - How to use SSDP instead of Bluetooth to broadcast URLs
+* [Branding guidelines](https://github.com/google/physical-web/blob/master/documentation/branding_guidelines.md)
 * Different Physical Web clients
     * [Android](android)  
     * [IOS](ios)  
