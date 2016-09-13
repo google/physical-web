@@ -18,6 +18,7 @@ package org.physical_web.collection;
 import org.apache.commons.codec.binary.Base64;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.Charset;
@@ -149,7 +150,7 @@ public class PhysicalWebCollection {
    * Create a JSON object that represents this data structure.
    * @return a JSON serialization of this data structure.
    */
-  public JSONObject jsonSerialize() {
+  public JSONObject jsonSerialize() throws JSONException {
     JSONObject jsonObject = new JSONObject();
 
     // Serialize the UrlDevices
@@ -184,7 +185,7 @@ public class PhysicalWebCollection {
    * @throws PhysicalWebCollectionException on invalid or unrecognized input
    */
   public static PhysicalWebCollection jsonDeserialize(JSONObject jsonObject)
-      throws PhysicalWebCollectionException {
+          throws PhysicalWebCollectionException, JSONException {
     // Check the schema version
     int schemaVersion = jsonObject.getInt(SCHEMA_VERSION_KEY);
     if (schemaVersion > SCHEMA_VERSION) {
@@ -422,7 +423,7 @@ public class PhysicalWebCollection {
     final Set<String> finalResolveUrls = newResolveUrls;
     PwsResultCallback augmentedCallback = new PwsResultCallback() {
       @Override
-      public void onPwsResult(PwsResult pwsResult) {
+      public void onPwsResult(PwsResult pwsResult) throws JSONException {
         addMetadata(pwsResult);
         if (pwsResultIconCallback != null) {
             PwsResultIconCallback augmentedIconCallback =
