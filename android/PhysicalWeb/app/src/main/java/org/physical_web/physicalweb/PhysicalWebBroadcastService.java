@@ -252,7 +252,6 @@ public class PhysicalWebBroadcastService extends Service {
 
     // Broadcast via bluetooth the stored URL
     private void broadcastUrl() {
-        Log.d(TAG, "broadcastUrl: " + mShareUrl);
         final AdvertiseData advertisementData = AdvertiseDataUtils.getAdvertisementData(mShareUrl);
         final AdvertiseSettings advertiseSettings = AdvertiseDataUtils.getAdvertiseSettings(false);
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);

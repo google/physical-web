@@ -3,4 +3,12 @@
   <Match>
     <Class name="org.physical_web.physicalweb.ble.ScanRecord"/>
   </Match>
+  <Match>
+    <Class name="org.physical_web.demos.FatBeaconHelloWorld"/>
+    <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+  </Match>
+  <Match>
+    <Class name="org.physical_web.demos.WifiDirectHelloWorld"/>
+    <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+  </Match>
 </FindBugsFilter>
