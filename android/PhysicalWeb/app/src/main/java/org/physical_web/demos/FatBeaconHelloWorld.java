@@ -21,7 +21,6 @@ import org.physical_web.physicalweb.R;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 
 /**
  * Hello world demo for FatBeacon.
@@ -60,7 +59,7 @@ public class FatBeaconHelloWorld implements Demo {
     mContext.startService(intent);
     mIsDemoStarted = true;
   }
-  
+
   @Override
   public void stopDemo() {
     mContext.stopService(new Intent(mContext, FatBeaconBroadcastService.class));

@@ -158,7 +158,7 @@ public class SettingsFragment extends PreferenceFragment
   }
 
   private void updateAllSettingSummaries() {
-    for(String key : PreferenceManager.getDefaultSharedPreferences(getActivity())
+    for (String key : PreferenceManager.getDefaultSharedPreferences(getActivity())
         .getAll().keySet()) {
       updateSettingSummary(key);
     }
