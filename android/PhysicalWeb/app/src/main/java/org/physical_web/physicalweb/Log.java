@@ -16,6 +16,9 @@
 
 package org.physical_web.physicalweb;
 
+/**
+ * Convenience Log class.
+ */
 public class Log {
   private static final String TAG = "PW-";
 

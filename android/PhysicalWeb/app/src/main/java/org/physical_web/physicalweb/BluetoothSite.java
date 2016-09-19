@@ -153,7 +153,7 @@ public class BluetoothSite extends BluetoothGattCallback {
       Log.i(TAG, "Disconnected to GATT server");
       // ensure progress dialog is removed and running is set false
       close();
-    } else if (status != gatt.GATT_SUCCESS){
+    } else if (status != gatt.GATT_SUCCESS) {
       Log.i(TAG, "Status is " + status);
       close();
     }
