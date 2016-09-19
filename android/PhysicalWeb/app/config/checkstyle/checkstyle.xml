@@ -332,7 +332,8 @@ page at http://checkstyle.sourceforge.net/config.html -->
   </module>
 
   <module name="SuppressionFilter">
-    <property name="file" value="${checkstyleSuppressionsPath}"/>
+    <!-- Can't set ${samedir} using soter, so we have to hardcode the path -->
+    <property name="file" value="app/config/checkstyle/suppressions.xml"/>
   </module>
 </module>
 

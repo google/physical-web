@@ -1,10 +1,5 @@
-plugins {
-    id 'checkstyle'
-    id 'findbugs'
-    id 'pmd'
-}
-
 apply plugin: 'com.android.application'
+apply plugin: 'si.dlabs.soter'
 
 android {
     compileSdkVersion 24
@@ -80,64 +75,31 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.youview:tinydnssd:1.2.7'
     compile 'org.nanohttpd:nanohttpd:2.3.0'
+
+    checkstyleRules files('config/checkstyle/checkstyle.xml')
+    findbugsRules files('config/findbugs/exclude-filter.xml')
+    pmdRules files('config/pmd/pmd-ruleset.xml')
 }
 
-checkstyle {
-    toolVersion = "6.19"
-}
-
-task checkstyle(type: Checkstyle) {
-    configProperties.checkstyleSuppressionsPath = new File(rootDir, "app/config/checkstyle/suppressions.xml").absolutePath
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-    classpath = files()
-}
-
-task findbugs(type: FindBugs, dependsOn: assembleDebug) {
-    ignoreFailures = false
-    effort = "max"
-    reportLevel = "high"
-    classes = files("${project.rootDir}/app/build/intermediates/classes")
-    excludeFilter = file("${project.rootDir}/app/config/findbugs/exclude-filter.xml")
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml.enabled = false
-        html.enabled = true
-        xml {
-            destination "$project.buildDir/reports/findbugs/findbugs.xml"
-        }
-        html {
-            destination "$project.buildDir/reports/findbugs/findbugs.html"
-        }
+soter {
+    checkstyle {
+        enabled true
+        toolVersion "6.19"
     }
 
-    classpath = files()
-}
+    findbugs {
+        enabled true
+        effort = "max"
+        reportLevel "high"
+        reportType "html"
+        ignoreFailures false
+    }
 
-task pmd(type: Pmd, dependsOn: assembleDebug) {
-    ignoreFailures = false
-    ruleSetFiles = files("${project.rootDir}/app/config/pmd/pmd-ruleset.xml")
-    ruleSets = []
-
-    source 'src'
-    include '**/*.java'
-    exclude '**/gen/**'
-
-    reports {
-        xml.enabled = false
-        html.enabled = true
-        xml {
-            destination "$project.buildDir/reports/pmd/pmd.xml"
-        }
-        html {
-            destination "$project.buildDir/reports/pmd/pmd.html"
-        }
+    pmd {
+        enabled true
+        ignoreFailures false
     }
 }
 
-check.dependsOn 'checkstyle', 'findbugs', 'lint', 'pmd'
+
+check.dependsOn 'lint'
