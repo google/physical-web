@@ -44,6 +44,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -253,12 +254,17 @@ public class FatBeaconBroadcastService extends Service {
 
   // Broadcast via bluetooth the stored URL
   private void broadcastUrl() {
-    final AdvertiseData advertisementData = AdvertiseDataUtils
-        .getFatBeaconAdvertisementData(mDisplayInfo.getBytes());
-    final AdvertiseSettings advertiseSettings = AdvertiseDataUtils.getAdvertiseSettings(true);
+    byte[] bytes = null;
+    try {
+      bytes = mDisplayInfo.getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      Log.e(TAG, "Could not encode URL", e);
+      return;
+    }
+    AdvertiseData advertiseData = AdvertiseDataUtils.getFatBeaconAdvertisementData(bytes);
+    AdvertiseSettings advertiseSettings = AdvertiseDataUtils.getAdvertiseSettings(true);
     mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
-    mBluetoothLeAdvertiser.startAdvertising(advertiseSettings,
-        advertisementData, mAdvertiseCallback);
+    mBluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, mAdvertiseCallback);
   }
 
   // Turn off URL broadcasting

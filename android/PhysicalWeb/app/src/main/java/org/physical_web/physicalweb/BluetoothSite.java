@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 /**
@@ -116,7 +117,7 @@ public class BluetoothSite extends BluetoothGattCallback {
         && characteristic.getValue().length < transferRate) {
       Log.i(TAG, "onCharacteristicRead successful: small packet");
       // Transfer is complete
-      html.append(new String(characteristic.getValue()));
+      html.append(new String(characteristic.getValue(), Charset.forName("UTF-8")));
       close();
       File websiteDir = new File(activity.getFilesDir(), "Websites");
       websiteDir.mkdir();
@@ -128,7 +129,7 @@ public class BluetoothSite extends BluetoothGattCallback {
     } else if (status == BluetoothGatt.GATT_SUCCESS) {
       Log.i(TAG, "onCharacteristicRead successful: full packet");
       // Full packet received, check for more data
-      html.append(new String(characteristic.getValue()));
+      html.append(new String(characteristic.getValue(), Charset.forName("UTF-8")));
       gatt.readCharacteristic(this.characteristic);
     } else {
       Log.i(TAG, "onCharacteristicRead unsuccessful: " + status);
@@ -208,7 +209,7 @@ public class BluetoothSite extends BluetoothGattCallback {
     try {
       outputStream = new FileOutputStream(file);
       try {
-        outputStream.write(html.toString().getBytes());
+        outputStream.write(html.toString().getBytes("UTF-8"));
       } catch (IOException e) {
         Log.e(TAG, "Failed to write to file");
       } finally {
