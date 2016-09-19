@@ -16,6 +16,7 @@
 
 package org.physical_web.physicalweb;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -210,10 +211,14 @@ public class MainActivity extends Activity {
     showFragment(new DemosFragment(), DEMOS_FRAGMENT_TAG, true);
   }
 
+  @SuppressLint("CommitTransaction")
   private void showFragment(Fragment newFragment, String fragmentTag, boolean addToBackStack) {
     FragmentTransaction transaction = getFragmentManager().beginTransaction()
-        .setCustomAnimations(R.animator.fade_in_and_slide_up_fragment, R.animator.fade_out_fragment,
-            R.animator.fade_in_activity, R.animator.fade_out_fragment)
+        .setCustomAnimations(
+            R.animator.fade_in_and_slide_up_fragment,
+            R.animator.fade_out_fragment,
+            R.animator.fade_in_activity,
+            R.animator.fade_out_fragment)
         .replace(R.id.main_activity_container, newFragment, fragmentTag);
     if (addToBackStack) {
       transaction.addToBackStack(null);
