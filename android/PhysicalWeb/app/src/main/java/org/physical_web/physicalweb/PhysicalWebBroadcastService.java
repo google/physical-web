@@ -161,7 +161,6 @@ public class PhysicalWebBroadcastService extends Service {
           Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
               Toast.LENGTH_LONG).show();
           stopSelf();
-          return;
         }
 
         @Override
@@ -169,7 +168,6 @@ public class PhysicalWebBroadcastService extends Service {
           Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
               Toast.LENGTH_LONG).show();
           stopSelf();
-          return;
         }
 
         @Override

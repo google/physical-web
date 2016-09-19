@@ -279,7 +279,7 @@ public final class BluetoothUuid {
         if (uuid.getLeastSignificantBits() != BASE_UUID.getUuid().getLeastSignificantBits()) {
             return false;
         }
-        return ((uuid.getMostSignificantBits() & 0xFFFF0000FFFFFFFFL) == 0x1000L);
+        return (uuid.getMostSignificantBits() & 0xFFFF0000FFFFFFFFL) == 0x1000L;
     }
 
     /**
@@ -296,6 +296,6 @@ public final class BluetoothUuid {
         if (is16BitUuid(parcelUuid)) {
             return false;
         }
-        return ((uuid.getMostSignificantBits() & 0xFFFFFFFFL) == 0x1000L);
+        return (uuid.getMostSignificantBits() & 0xFFFFFFFFL) == 0x1000L;
     }
 }
