@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.UUID;
 
 /**
@@ -50,13 +49,13 @@ public class BluetoothSite extends BluetoothGattCallback {
       "d1a517f0-2499-46ca-9ccc-809bc1c966fa");
   // This is BluetoothGatt.CONNECTION_PRIORITY_HIGH, from API level 21
   private static final int CONNECTION_PRIORITY_HIGH = 1;
+  private FileOutputStream mHtml;
   private Activity activity;
   private BluetoothGatt mBluetoothGatt;
   private BluetoothGattCharacteristic characteristic;
   private ConnectionListener mCallback;
   private ProgressDialog progress;
   private int transferRate = 20;
-  private StringBuilder html;
   private boolean running = false;
 
   public BluetoothSite(Activity activity) {
@@ -113,31 +112,40 @@ public class BluetoothSite extends BluetoothGattCallback {
   @Override
   public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic,
       int status) {
-    if (!isRunning()) {   // This can happen when the dialog is dismissed very quickly
+    // Make sure the site is running.  It can stop if the dialog is dismissed very quickly.
+    if (!isRunning()) {
       close();
-    } else if (status == BluetoothGatt.GATT_SUCCESS
-        && characteristic.getValue().length < transferRate) {
-      Log.i(TAG, "onCharacteristicRead successful: small packet");
-      // Transfer is complete
-      html.append(new String(characteristic.getValue(), Charset.forName("UTF-8")));
-      close();
-      File websiteDir = new File(activity.getFilesDir(), "Websites");
-      websiteDir.mkdir();
-      File file = new File(websiteDir, "website.html");
-      writeToFile(file);
-      if (file != null) {
-        openInChrome(file);
-      }
-    } else if (status == BluetoothGatt.GATT_SUCCESS) {
-      Log.i(TAG, "onCharacteristicRead successful: full packet");
-      // Full packet received, check for more data
-      html.append(new String(characteristic.getValue(), Charset.forName("UTF-8")));
-      gatt.readCharacteristic(this.characteristic);
-    } else {
+      return;
+    }
+
+    // Make sure the read was successful.
+    if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.i(TAG, "onCharacteristicRead unsuccessful: " + status);
       close();
       Toast.makeText(activity, R.string.ble_download_error_message, Toast.LENGTH_SHORT).show();
+      return;
     }
+
+    // Record the data.
+    Log.i(TAG, "onCharacteristicRead successful");
+    try {
+      mHtml.write(characteristic.getValue());
+    } catch (IOException e) {
+      Log.e(TAG, "Could not write to buffer", e);
+      close();
+      return;
+    }
+
+    // Request a new read if we are not done.
+    if (characteristic.getValue().length == transferRate) {
+      gatt.readCharacteristic(this.characteristic);
+      return;
+    }
+
+    // At this point we are done.  Show the file.
+    Log.i(TAG, "transfer is complete");
+    close();
+    openInChrome(getHtmlFile());
   }
 
   @Override
@@ -145,7 +153,6 @@ public class BluetoothSite extends BluetoothGattCallback {
     if (newState == BluetoothProfile.STATE_CONNECTED && status == gatt.GATT_SUCCESS) {
       Log.i(TAG, "Connected to GATT server");
       mBluetoothGatt = gatt;
-      html = new StringBuilder("");
       if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
         gatt.requestConnectionPriority(CONNECTION_PRIORITY_HIGH);
         gatt.requestMtu(505);
@@ -173,10 +180,20 @@ public class BluetoothSite extends BluetoothGattCallback {
   @Override
   public void onServicesDiscovered(BluetoothGatt gatt, int status) {
     Log.i(TAG, "Services Discovered");
-    if (status == BluetoothGatt.GATT_SUCCESS) {
-      characteristic = gatt.getService(SERVICE_UUID).getCharacteristic(CHARACTERISTIC_WEBPAGE_UUID);
-      gatt.readCharacteristic(characteristic);
+    if (status != BluetoothGatt.GATT_SUCCESS) {
+      Log.e(TAG, "Service discovery failed!");
+      return;
     }
+
+    try {
+      mHtml = new FileOutputStream(getHtmlFile());
+    } catch (FileNotFoundException e) {
+      Log.e(TAG, "File not found", e);
+      return;
+    }
+
+    characteristic = gatt.getService(SERVICE_UUID).getCharacteristic(CHARACTERISTIC_WEBPAGE_UUID);
+    gatt.readCharacteristic(characteristic);
   }
 
   private void close() {
@@ -187,12 +204,28 @@ public class BluetoothSite extends BluetoothGattCallback {
       progress.dismiss();
     }
 
+    if (mHtml != null) {
+      try {
+        mHtml.close();
+      } catch (IOException e) {
+        Log.e(TAG, "Failed to close file", e);
+        return;
+      }
+      mHtml = null;
+    }
+
     running = false;
     if (mBluetoothGatt == null) {
       return;
     }
     mBluetoothGatt.close();
     mBluetoothGatt = null;
+  }
+
+  private File getHtmlFile() {
+    File websiteDir = new File(activity.getFilesDir(), "Websites");
+    websiteDir.mkdir();
+    return new File(websiteDir, "website.html");
   }
 
   private void openInChrome(File file) {
@@ -205,21 +238,4 @@ public class BluetoothSite extends BluetoothGattCallback {
     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
     activity.startActivity(intent);
   }
-
-  private void writeToFile(File file) {
-    FileOutputStream outputStream;
-    try {
-      outputStream = new FileOutputStream(file);
-      try {
-        outputStream.write(html.toString().getBytes("UTF-8"));
-      } catch (IOException e) {
-        Log.e(TAG, "Failed to write to file");
-      } finally {
-        outputStream.close();
-      }
-    } catch (FileNotFoundException e) {
-      Log.e(TAG, "File not found: " + file.getName());
-    } catch (IOException e) { }
-  }
-
 }
