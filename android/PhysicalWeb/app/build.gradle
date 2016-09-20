@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'si.dlabs.soter'
+apply plugin: 'pmd'
 
 android {
     compileSdkVersion 24
@@ -81,6 +82,27 @@ dependencies {
     pmdRules files('config/pmd/pmd-ruleset.xml')
 }
 
+task customPmd(type: Pmd) {
+    ignoreFailures = false
+    ruleSetFiles = files("${project.rootDir}/app/config/pmd/pmd-ruleset.xml")
+    ruleSets = []
+
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    reports {
+        xml {
+            enabled = false
+            destination "$project.buildDir/reports/pmd/pmd.xml"
+        }
+        html {
+            enabled = true
+            destination "$project.buildDir/reports/pmd/pmd.html"
+        }
+    }
+}
+
 soter {
     checkstyle {
         enabled true
@@ -96,10 +118,10 @@ soter {
     }
 
     pmd {
-        enabled true
+        // Soter currently forces pmd rules we don't want, so we need to include pmd ourselves.
+        enabled false
         ignoreFailures false
     }
 }
 
-
-check.dependsOn 'lint'
+check.dependsOn 'customPmd', 'lint'

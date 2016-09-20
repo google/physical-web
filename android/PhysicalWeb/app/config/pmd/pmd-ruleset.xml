@@ -15,10 +15,12 @@
     <rule ref="rulesets/java/finalizers.xml" />
     <rule ref="rulesets/java/imports.xml" />
     <rule ref="rulesets/java/logging-java.xml" />
+    <rule ref="rulesets/java/android.xml" />
     <rule ref="rulesets/java/braces.xml" />
     <rule ref="rulesets/java/strings.xml" />
     <rule ref="rulesets/java/basic.xml">
         <exclude name="AvoidUsingHardCodedIP" />
+        <exclude name="UselessParentheses" />
     </rule>
     <rule ref="rulesets/java/naming.xml">
         <exclude name="AbstractNaming" />
@@ -27,5 +29,8 @@
         <exclude name="ShortMethodName" />
         <exclude name="ShortVariable" />
         <exclude name="VariableNamingConventions" />
+    </rule>
+    <rule ref="rulesets/java/unnecessary.xml">
+        <exclude name="UselessParentheses" />
     </rule>
 </ruleset>

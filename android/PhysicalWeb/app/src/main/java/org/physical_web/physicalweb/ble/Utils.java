@@ -48,7 +48,7 @@ public class Utils {
         StringBuilder buffer = new StringBuilder();
         buffer.append('{');
         for (int i = 0; i < array.size(); ++i) {
-            buffer.append(array.keyAt(i)).append("=").append(array.valueAt(i));
+            buffer.append(array.keyAt(i)).append('=').append(array.valueAt(i));
         }
         buffer.append('}');
         return buffer.toString();
@@ -70,7 +70,7 @@ public class Utils {
         while (it.hasNext()) {
             Map.Entry<T, byte[]> entry = it.next();
             Object key = entry.getKey();
-            buffer.append(key).append("=").append(Arrays.toString(map.get(key)));
+            buffer.append(key).append('=').append(Arrays.toString(map.get(key)));
             if (it.hasNext()) {
                 buffer.append(", ");
             }
