@@ -48,6 +48,8 @@ public class BluetoothSite extends BluetoothGattCallback {
   private static final UUID SERVICE_UUID = UUID.fromString("ae5946d4-e587-4ba8-b6a5-a97cca6affd3");
   private static final UUID CHARACTERISTIC_WEBPAGE_UUID = UUID.fromString(
       "d1a517f0-2499-46ca-9ccc-809bc1c966fa");
+  // This is BluetoothGatt.CONNECTION_PRIORITY_HIGH, from API level 21
+  private static final int CONNECTION_PRIORITY_HIGH = 1;
   private Activity activity;
   private BluetoothGatt mBluetoothGatt;
   private BluetoothGattCharacteristic characteristic;
@@ -145,7 +147,7 @@ public class BluetoothSite extends BluetoothGattCallback {
       mBluetoothGatt = gatt;
       html = new StringBuilder("");
       if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-        gatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+        gatt.requestConnectionPriority(CONNECTION_PRIORITY_HIGH);
         gatt.requestMtu(505);
       } else {
         gatt.discoverServices();

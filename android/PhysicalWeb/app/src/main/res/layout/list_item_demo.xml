@@ -16,13 +16,13 @@
     android:layout_height="wrap_content"
     android:id="@+id/demo_title"
     android:gravity="center"
-    android:textSize="22dp" />
+    android:textSize="22sp" />
 
   <TextView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/demo_summary"
     android:gravity="start"
-    android:textSize="14dp" />
+    android:textSize="14sp" />
 
 </LinearLayout>
