@@ -22,10 +22,10 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.skyscreamer.jsonassert.JSONAssert;
+
 import java.util.Comparator;
 import java.util.List;
-
-import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * PhysicalWebCollection unit test class.
