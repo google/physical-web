@@ -72,8 +72,8 @@ public class PhysicalWebCollection {
     mDeviceIdToUrlDeviceMap.put(urlDevice.getId(), urlDevice);
     return alreadyFound;
   }
-  
-  /** 
+
+  /**
    * Remove a UrlDevice from the collection.
    * @param urlDevice The UrlDevice to remove.
    */

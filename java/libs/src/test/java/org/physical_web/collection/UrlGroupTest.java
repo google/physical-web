@@ -17,10 +17,10 @@ package org.physical_web.collection;
 
 import static org.junit.Assert.*;
 
-import java.util.Comparator;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Comparator;
 
 /**
  * UrlGroup unit test class.

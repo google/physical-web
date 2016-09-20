@@ -17,9 +17,11 @@ package org.physical_web.collection;
 
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests for the EddystoneBeacon class.
+ */
 public class EddystoneBeaconTest {
 
   @Test
