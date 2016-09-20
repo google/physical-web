@@ -19,6 +19,7 @@ package org.physical_web.collection;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
@@ -75,7 +76,8 @@ public class EddystoneBeacon {
    */
   public static String getFatBeaconTitle(byte[] serviceData) {
     if (serviceData.length > 2) {
-      String title = new String(Arrays.copyOfRange(serviceData, 3, serviceData.length)).trim();
+      byte[] bytes = Arrays.copyOfRange(serviceData, 3, serviceData.length);
+      String title = new String(bytes, Charset.forName("UTF-8")).trim();
       return  title.indexOf('\uFFFD') == -1 ? title : "";
     }
     return "";

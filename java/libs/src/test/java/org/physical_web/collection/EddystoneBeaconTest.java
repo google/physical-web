@@ -19,13 +19,15 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
+
 /**
  * Tests for the EddystoneBeacon class.
  */
 public class EddystoneBeaconTest {
 
   @Test
-  public void getFatBeaconTitleTest() {
+  public void getFatBeaconTitleTest() throws UnsupportedEncodingException {
     // Array length failure
     assertEquals("", EddystoneBeacon.getFatBeaconTitle(new byte[]{}));
     assertEquals("", EddystoneBeacon.getFatBeaconTitle(new byte[]{0x01}));
@@ -36,9 +38,10 @@ public class EddystoneBeaconTest {
 
     // Valid title
     String title = "title";
-    int length = title.getBytes().length;
+    byte[] titleBytes = title.getBytes("UTF-8");
+    int length = titleBytes.length;
     byte[] serviceData = new byte[length + 3];
-    System.arraycopy(title.getBytes(), 0, serviceData, 3, length);
+    System.arraycopy(titleBytes, 0, serviceData, 3, length);
     serviceData[0] = 0x10;
     serviceData[1] = 0x00;
     serviceData[2] = 0x0e;
