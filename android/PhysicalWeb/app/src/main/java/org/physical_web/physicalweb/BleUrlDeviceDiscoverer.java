@@ -91,7 +91,8 @@ class BleUrlDeviceDiscoverer extends UrlDeviceDiscoverer
     if (beacon == null || !URLUtil.isNetworkUrl(beacon.getUrl())) {
       return;
     }
-    UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress(), beacon.getUrl())
+    UrlDevice urlDevice = createUrlDeviceBuilder(TAG + device.getAddress() + beacon.getUrl(),
+                                                 beacon.getUrl())
         .setRssi(rssi)
         .setTxPower(beacon.getTxPowerLevel())
         .setDeviceType(Utils.BLE_DEVICE_TYPE)
