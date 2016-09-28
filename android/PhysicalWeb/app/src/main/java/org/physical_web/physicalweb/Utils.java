@@ -437,32 +437,39 @@ class Utils {
         .getBoolean(USER_OPTED_IN_KEY, false);
   }
 
+  public abstract static class UrlDeviceDiscoveryServiceConnection implements ServiceConnection {
+    private Context mContext;
+
+    @Override
+    public void onServiceConnected(ComponentName className, IBinder service) {
+      // Forward the service to the implementing class
+      serviceHandler((UrlDeviceDiscoveryService.LocalBinder) service);
+      mContext.unbindService(this);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName className) {
+    }
+
+    public void connect(Context context) {
+      mContext = context;
+      Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
+      mContext.startService(intent);
+      mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
+    }
+
+    public abstract void serviceHandler(UrlDeviceDiscoveryService.LocalBinder localBinder);
+  }
+
   /**
    * Delete the cached results from the UrlDeviceDisoveryService.
    * @param context The context for the service.
    */
   public static void deleteCache(Context context) {
-    new ServiceConnection() {
-      private Context mContext;
-
+    new UrlDeviceDiscoveryServiceConnection() {
       @Override
-      public void onServiceConnected(ComponentName className, IBinder service) {
-        // Get the service
-        UrlDeviceDiscoveryService.LocalBinder localBinder =
-            (UrlDeviceDiscoveryService.LocalBinder) service;
+      public void serviceHandler(UrlDeviceDiscoveryService.LocalBinder localBinder) {
         localBinder.getServiceInstance().clearCache();
-        mContext.unbindService(this);
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName className) {
-      }
-
-      public void connect(Context context) {
-        mContext = context;
-        Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
-        mContext.startService(intent);
-        mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
       }
     }.connect(context);
   }
@@ -472,27 +479,10 @@ class Utils {
    * @param context The context for the service.
    */
   public static void startScan(Context context) {
-    new ServiceConnection() {
-      private Context mContext;
-
+    new UrlDeviceDiscoveryServiceConnection() {
       @Override
-      public void onServiceConnected(ComponentName className, IBinder service) {
-        // Get the service
-        UrlDeviceDiscoveryService.LocalBinder localBinder =
-            (UrlDeviceDiscoveryService.LocalBinder) service;
+      public void serviceHandler(UrlDeviceDiscoveryService.LocalBinder localBinder) {
         localBinder.getServiceInstance().restartScan();
-        mContext.unbindService(this);
-      }
-
-      @Override
-      public void onServiceDisconnected(ComponentName className) {
-      }
-
-      public void connect(Context context) {
-        mContext = context;
-        Intent intent = new Intent(mContext, UrlDeviceDiscoveryService.class);
-        mContext.startService(intent);
-        mContext.bindService(intent, this, Context.BIND_AUTO_CREATE);
       }
     }.connect(context);
   }
