@@ -99,8 +99,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "running first scan timeout");
       if (!mGroupIdQueue.isEmpty()) {
         emptyGroupIdQueue();
-        mSwipeRefreshWidget.setRefreshing(false);
-        mScanningAnimationDrawable.stop();
+        setRefreshWidgetInvisible();
       }
     }
   };
@@ -112,8 +111,7 @@ public class NearbyBeaconsFragment extends ListFragment
       Log.d(TAG, "running second scan timeout");
       emptyGroupIdQueue();
       mSecondScanComplete = true;
-      mSwipeRefreshWidget.setRefreshing(false);
-      mScanningAnimationDrawable.stop();
+      setRefreshWidgetInvisible();
       if (mNearbyDeviceAdapter.getCount() == 0) {
         int tintColor = ContextCompat.getColor(getActivity(), R.color.physical_web_logo);
         mScanningAnimationDrawable.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN);
@@ -335,8 +333,7 @@ public class NearbyBeaconsFragment extends ListFragment
     mHandler.removeCallbacks(mThirdScanTimeout);
 
     // Change the display appropriately
-    mSwipeRefreshWidget.setRefreshing(false);
-    mScanningAnimationDrawable.stop();
+    setRefreshWidgetInvisible();
   }
 
   private void startScanningDisplay(long scanStartTime, boolean hasResults) {
@@ -351,8 +348,7 @@ public class NearbyBeaconsFragment extends ListFragment
       mScanningAnimationTextView.setText(R.string.empty_nearby_beacons_list_text);
       mScanningAnimationDrawable.start();
     } else {
-      mSwipeRefreshWidget.setRefreshing(false);
-      mScanningAnimationDrawable.stop();
+      setRefreshWidgetInvisible();
     }
 
     // Schedule the timeouts
@@ -399,6 +395,12 @@ public class NearbyBeaconsFragment extends ListFragment
 
   private static boolean isFolderItem(PwPair item) {
     return item.getUrlDevice() == null && item.getPwsResult().getSiteUrl() == null;
+  }
+
+  private void setRefreshWidgetInvisible() {
+    mSwipeRefreshWidget.setRefreshing(false);
+    mScanningAnimationDrawable.stop();
+    mScanningAnimationTextView.setVisibility(View.INVISIBLE);
   }
 
   // Adapter for holding beacons found through scanning.
@@ -593,5 +595,5 @@ public class NearbyBeaconsFragment extends ListFragment
       notifyDataSetChanged();
     }
   }
-}
 
+}
