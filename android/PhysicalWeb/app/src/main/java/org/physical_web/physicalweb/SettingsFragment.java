@@ -23,6 +23,7 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.widget.Toast;
@@ -42,6 +43,7 @@ public class SettingsFragment extends PreferenceFragment
 
   private static final String TAG = SettingsFragment.class.getSimpleName();
   private static final int MAX_ENDPOINT_OPTIONS = 3;
+  private PreferenceGroup mCustomEndpointCategory;
 
   public SettingsFragment() {
   }
@@ -54,6 +56,9 @@ public class SettingsFragment extends PreferenceFragment
     // Load the preferences from an XML resource
     addPreferencesFromResource(R.xml.settings);
     updatePwsList();
+    mCustomEndpointCategory =
+        (PreferenceGroup) findPreference(getString(R.string.custom_pws_endpoint_key));
+    updatePwsPreference();
     updateAllSettingSummaries();
   }
 
@@ -97,6 +102,7 @@ public class SettingsFragment extends PreferenceFragment
       updatePwsPreference();
       updatePwsList();
     } else if (key.equals(getString(R.string.pws_endpoint_setting_key))) {
+      updatePwsPreference();
       Utils.deleteCache(getActivity());
     }
   }
@@ -128,14 +134,21 @@ public class SettingsFragment extends PreferenceFragment
     ListPreference listPreference = (ListPreference) findPreference(
         getString(R.string.pws_endpoint_setting_key));
     String entry = (String) listPreference.getEntry();
-    if (entry != null && entry.equals(getString(R.string.custom_pws))) {
+    if (entry == null) {
+      return;
+    }
+
+    if (entry.equals(getString(R.string.custom_pws))) {
       // User selected custom PWS therefore need to update it accordingly
-      EditTextPreference customPwsUrlPreference = (EditTextPreference) findPreference(
-        getString(R.string.custom_pws_url_key));
-      ListPreference customPwsVersionPreference = (ListPreference) findPreference(
-        getString(R.string.custom_pws_version_key));
-      EditTextPreference customPwsApiKeyPreference = (EditTextPreference) findPreference(
-        getString(R.string.custom_pws_api_key_key));
+      EditTextPreference customPwsUrlPreference =
+          (EditTextPreference) mCustomEndpointCategory.findPreference(
+              getString(R.string.custom_pws_url_key));
+      ListPreference customPwsVersionPreference =
+          (ListPreference) mCustomEndpointCategory.findPreference(
+              getString(R.string.custom_pws_version_key));
+      EditTextPreference customPwsApiKeyPreference =
+          (EditTextPreference) mCustomEndpointCategory.findPreference(
+              getString(R.string.custom_pws_api_key_key));
       String customPwsUrl = customPwsUrlPreference.getText();
       int customPwsVersion = Integer.parseInt(customPwsVersionPreference.getValue());
       String customPwsApiKey = customPwsApiKeyPreference.getText();
@@ -143,6 +156,9 @@ public class SettingsFragment extends PreferenceFragment
       customPwsApiKey = customPwsApiKey == null ? "" : customPwsApiKey;
       listPreference.setValue(Utils.formatEndpointForSharedPrefernces(customPwsUrl,
           customPwsVersion, customPwsApiKey));
+      getPreferenceScreen().addPreference(mCustomEndpointCategory);
+    } else {
+      getPreferenceScreen().removePreference(mCustomEndpointCategory);
     }
   }
 
