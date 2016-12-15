@@ -3,13 +3,13 @@ apply plugin: 'si.dlabs.soter'
 apply plugin: 'pmd'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
 
     defaultConfig {
         applicationId "physical_web.org.physicalweb"
         minSdkVersion 19
-        targetSdkVersion 24
+        targetSdkVersion 25
         versionCode 18
         versionName "0.2.1"
         jackOptions {
