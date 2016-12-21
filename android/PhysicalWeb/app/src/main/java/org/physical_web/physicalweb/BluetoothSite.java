@@ -31,6 +31,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.support.v4.content.FileProvider;
 import android.widget.Toast;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,6 +58,7 @@ public class BluetoothSite extends BluetoothGattCallback {
   private ProgressDialog progress;
   private int transferRate = 20;
   private boolean running = false;
+  private long startTime;
 
   public BluetoothSite(Activity activity) {
     this.activity = activity;
@@ -88,6 +90,8 @@ public class BluetoothSite extends BluetoothGattCallback {
     progress.setTitle(progressTitle);
     progress.setMessage(activity.getString(R.string.page_loading_message));
     progress.show();
+    this.startTime = System.currentTimeMillis();
+    Log.v(TAG, "Button Clicked: " + this.startTime);
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -127,7 +131,8 @@ public class BluetoothSite extends BluetoothGattCallback {
     }
 
     // Record the data.
-    Log.i(TAG, "onCharacteristicRead successful");
+    Log.i(TAG, "onCharacteristicRead successful: " + (System.currentTimeMillis() - this.startTime));
+    this.startTime = System.currentTimeMillis();
     try {
       mHtml.write(characteristic.getValue());
     } catch (IOException e) {
@@ -143,7 +148,7 @@ public class BluetoothSite extends BluetoothGattCallback {
     }
 
     // At this point we are done.  Show the file.
-    Log.i(TAG, "transfer is complete");
+    Log.i(TAG, "transfer is complete: " + (System.currentTimeMillis() - this.startTime));
     close();
     openInChrome(getHtmlFile());
   }
@@ -151,7 +156,8 @@ public class BluetoothSite extends BluetoothGattCallback {
   @Override
   public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
     if (newState == BluetoothProfile.STATE_CONNECTED && status == gatt.GATT_SUCCESS) {
-      Log.i(TAG, "Connected to GATT server");
+      Log.i(TAG, "Connected to GATT server: " + (System.currentTimeMillis() - this.startTime));
+      this.startTime = System.currentTimeMillis();
       mBluetoothGatt = gatt;
       if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
         gatt.requestConnectionPriority(CONNECTION_PRIORITY_HIGH);
@@ -172,14 +178,15 @@ public class BluetoothSite extends BluetoothGattCallback {
 
   @Override
   public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
-    Log.i(TAG, "MTU changed to " + mtu);
+    Log.i(TAG, "MTU changed: " + (System.currentTimeMillis() - this.startTime));
+    this.startTime = System.currentTimeMillis();
     transferRate = mtu - 5;
     gatt.discoverServices();
   }
 
   @Override
   public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-    Log.i(TAG, "Services Discovered");
+    Log.i(TAG, "Services Discovered: " +  (System.currentTimeMillis() - this.startTime));
     if (status != BluetoothGatt.GATT_SUCCESS) {
       Log.e(TAG, "Service discovery failed!");
       return;
