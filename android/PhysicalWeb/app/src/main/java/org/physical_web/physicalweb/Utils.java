@@ -46,6 +46,10 @@ import org.uribeacon.scan.util.RegionResolver;
 import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -56,6 +60,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 
 
@@ -95,6 +100,7 @@ class Utils {
   private static final String SEPARATOR = "\0";
   private static Set<String> mFavoriteUrls = new HashSet<>();
   private static Set<String> mBlockedUrls = new HashSet<>();
+  private static final int GZIP_SIGNATURE_LENGTH = 2;
 
   // Compares PwPairs by first considering if it has been favorited
   // and then considering distance
@@ -1119,4 +1125,62 @@ class Utils {
       return this;
     }
   }
+
+  /**
+   * Determines if a file is gzipped by examining the signature of
+   * the file, which is the first two bytes.
+   * @param file to be determined if is gzipped.
+   * @return true If the contents of the file are gzipped otherwise false.
+   */
+  public static boolean isGzippedFile(File file) {
+    InputStream input;
+
+    try {
+      input = new FileInputStream(file);
+    } catch(FileNotFoundException e) {
+      return false;
+    }
+
+    byte[] signature = new byte[GZIP_SIGNATURE_LENGTH];
+
+    try {
+      input.read(signature);
+    } catch(IOException e) {
+      return false;
+    }
+
+    return ((signature[0] == (byte) (GZIPInputStream.GZIP_MAGIC))
+            && (signature[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8)));
+  }
+
+
+  /**
+   * Out-of-place Gunzips from src to dest.
+   * @param src file containing gzipped information.
+   * @param dest file to place decompressed information.
+   * @return File that has decompressed information.
+   */
+  public static File gunzip(File src, File dest) {
+
+    byte[] buffer = new byte[1024];
+
+    try{
+
+      GZIPInputStream gzis = new GZIPInputStream(new FileInputStream(src));
+
+      FileOutputStream out = new FileOutputStream(dest);
+
+      int len;
+      while ((len = gzis.read(buffer)) > 0) {
+        out.write(buffer, 0, len);
+      }
+
+      gzis.close();
+      out.close();
+
+    } catch(IOException ex){
+       ex.printStackTrace();
+    }
+    return dest;
+   }
 }
