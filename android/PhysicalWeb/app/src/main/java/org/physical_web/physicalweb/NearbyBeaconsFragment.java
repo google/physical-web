@@ -296,32 +296,28 @@ public class NearbyBeaconsFragment extends ListFragment
 
   @Override
   public void onUrlDeviceDiscoveryUpdate() {
+    for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
+        new Utils.PwPairRelevanceComparator())) {
+      String groupId = Utils.getGroupId(pwPair.getPwsResult());
+      Log.d(TAG, "groupid to add " + groupId);
+      if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
+        mNearbyDeviceAdapter.updateItem(pwPair);
+      } else if (!mGroupIdQueue.contains(groupId)
+          && !Utils.isBlocked(pwPair)) {
+        mGroupIdQueue.add(groupId);
+      }
+    }
+
+    if(mGroupIdQueue.isEmpty() || !mSecondScanComplete) {
+      return;
+    }
     // Since this callback is given on a background thread and we want
     // to update the list adapter (which can only be done on the UI thread)
     // we have to interact with the adapter on the UI thread.
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        if (SwipeDismissListViewTouchListener.isLocked()) {
-          return;
-        }
-        for (PwPair pwPair : mPwCollection.getGroupedPwPairsSortedByRank(
-            new Utils.PwPairRelevanceComparator())) {
-          String groupId = Utils.getGroupId(pwPair.getPwsResult());
-          Log.d(TAG, "groupid to add " + groupId);
-          if (mNearbyDeviceAdapter.containsGroupId(groupId)) {
-            mNearbyDeviceAdapter.updateItem(pwPair);
-          } else if (!mGroupIdQueue.contains(groupId)
-              && !Utils.isBlocked(pwPair)) {
-            mGroupIdQueue.add(groupId);
-            if (mSecondScanComplete) {
-              // If we've already waited for the second scan timeout,
-              // go ahead and put the item in the listview.
-              emptyGroupIdQueue();
-            }
-          }
-        }
-        mNearbyDeviceAdapter.notifyDataSetChanged();
+       emptyGroupIdQueue();
       }
     });
   }
