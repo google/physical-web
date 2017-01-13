@@ -21,6 +21,7 @@
     <string name="url_broadcast">URL is broadcasting!</string>
     <string name="broadcast_notif">Physical Web is broadcasting a URL</string>
     <string name="shorten_error">Could not shorten URL</string>
+    <string name="invalid_url_error">Invalid Url</string>
     <string name="loc_permission">Needs Location permission</string>
     <string name="stop">Stop</string>
     <string name="pws_endpoint_setting_display">Physical Web Service</string>
