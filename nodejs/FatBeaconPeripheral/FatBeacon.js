@@ -1,6 +1,7 @@
 var bleno = require('bleno');
 var eddystoneBeacon = require('eddystone-beacon');
 var webpageCharacteristic = require('./webpageCharacteristic');
+var fs = require('fs');
 
 var SERVICE_UUID = 'ae5946d4-e587-4ba8-b6a5-a97cca6affd3';
 
@@ -54,8 +55,12 @@ AdvertisementData.makeUrlBuffer = function(name) {
 /*********************************************************/
 
 var characteristic = new webpageCharacteristic();
-var data = new Buffer.from('Hello World of FatBeacon!');
-characteristic.onWriteRequest(data, 0, null, null);
+
+fs.readFile("./html/fatBeaconDefault.html", function(err, data) {
+  if(err) throw err;
+  characteristic.onWriteRequest(data, 0, null, null);
+  console.log(service);
+});
 
 var service = new bleno.PrimaryService({
   uuid: SERVICE_UUID,
