@@ -14,6 +14,8 @@ var AdvertisementData =
         require('eddystone-beacon/lib/util/advertisement-data');
 var Eir = require('eddystone-beacon/lib/util/eir');
 var Gatt = require('bleno/lib/hci-socket/gatt');
+var Hci = require('bleno/lib/hci-socket/hci');
+var exec = require('child_process').exec;
 
 var FAT_BEACON_FRAME_TYPE = 0x0e;
 var MAX_URL_LENGTH = 18;
@@ -80,6 +82,56 @@ Gatt.prototype.handleMtuRequest = function(request) {
 
   return response;
 };
+
+/**
+ * Change the connection interval through commandline tool hcileup. Specs,
+ * allow for a 7.5ms connection interval. Note, there is a 1.25 multiplier
+ * on the min and max values.
+ */
+Hci.changeConnectionInterval = function(handle) {
+  var min = 6;  // Will be multiplied by 1.25.
+  var max = 7;  // Will be multiplied by 1.25.
+  var latency = 0;
+  var timeout = 500;
+
+  var cmd = `hcitool lecup --handle ${handle} --min ${min} --max ${max} ` +
+            `--latency ${latency} --timeout ${timeout}`;
+
+  console.log(cmd);
+
+  exec(cmd, function(error, stdout, stderr) {
+    if(stdout !== null) {
+      console.log('stdout:\t' + stdout );
+    }
+    if(stderr !== null) {
+      console.log('stderr:\t' + stderr);
+    }
+    if(error !== null) {
+      console.log('ERROR:\t' + error);
+    }
+  });
+};
+
+/**
+ * Does the standard processLeConnComplete library behavior, but calls our
+ * custom changeConnectionInterval function to optimize CI.
+ */
+Hci.prototype.processLeConnComplete = function(status, data) {
+  var handle = data.readUInt16LE(0);
+  var role = data.readUInt8(2);
+  var addressType = data.readUInt8(3) === 0x01 ? 'random': 'public';
+  var address = data.slice(4, 10).toString('hex').match(/.{1,2}/g).reverse().join(':');
+  var interval = data.readUInt16LE(10) * 1.25;
+  var latency = data.readUInt16LE(12); // TODO: multiplier?
+  var supervisionTimeout = data.readUInt16LE(14) * 10;
+  var masterClockAccuracy = data.readUInt8(16); // TODO: multiplier?
+
+  Hci.changeConnectionInterval(handle);
+
+  this.emit('leConnComplete', status, handle, role, addressType, address,
+             interval, latency, supervisionTimeout, masterClockAccuracy);
+};
+
 
 /*********************************************************/
 
