@@ -11,13 +11,24 @@ var WebpageCharacteristic = function() {
 
   this._value = Buffer.alloc(0);
   this._updateValueCallback = null;
+
+  this._mtuSize = 251;  // 5 less than the specified mtu
+  this._start = 0;
+  this._end = this._mtuSize;
 };
 
 util.inherits(WebpageCharacteristic, bleno.Characteristic);
 
 WebpageCharacteristic.prototype.onReadRequest = function(offset, callback) {
-  console.log(`Reading - ${this._value}`);
-  callback(this.RESULT_SUCCESS, this._value);
+  var tempBuffer = this._value.slice(this._start, this._end);
+  callback(this.RESULT_SUCCESS, tempBuffer);
+
+  this._start = this._end;
+  this._end = this._end + this._mtuSize;
+  if(this._start >= this._value.length) {
+    this._start = 0;
+    this._end = this._mtuSize;
+ }
 };
 
 WebpageCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
