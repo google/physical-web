@@ -13,10 +13,13 @@ var SERVICE_UUID = 'ae5946d4-e587-4ba8-b6a5-a97cca6affd3';
 var AdvertisementData =
         require('eddystone-beacon/lib/util/advertisement-data');
 var Eir = require('eddystone-beacon/lib/util/eir');
+var Gatt = require('bleno/lib/hci-socket/gatt');
 
 var FAT_BEACON_FRAME_TYPE = 0x0e;
 var MAX_URL_LENGTH = 18;
 var ADVERTISING_HEADER_UUID = 'feaa';
+var ATT_OP_MTU_RESP = 0x03;
+var REQUESTING_MTU = 505;
 
 /**
  * this patch ensures that the correct Fatbeacon eir flag (0x06) is added
@@ -52,6 +55,32 @@ AdvertisementData.makeUrlBuffer = function(name) {
   return AdvertisementData.makeEirData(serviceData);
 }
 
+/**
+ * This allows us to change the negotiate the MTU size from 0 - 505. We have
+ * set REQUESTING_MTU to 505 for maximum transfer rate.
+ */
+Gatt.prototype.handleMtuRequest = function(request) {
+  var mtu = request.readUInt16LE(1);
+  this.maxMtu = REQUESTING_MTU;
+
+  if (mtu < 23) {
+    mtu = 23;
+  } else if (mtu > this.maxMtu) {
+    mtu = this.maxMtu;
+  }
+
+  this._mtu = mtu;
+
+  this.emit('mtuChange', this._mtu);
+
+  var response = new Buffer(3);
+
+  response.writeUInt8(ATT_OP_MTU_RESP, 0);
+  response.writeUInt16LE(mtu, 1);
+
+  return response;
+};
+
 /*********************************************************/
 
 var characteristic = new webpageCharacteristic();
@@ -59,7 +88,6 @@ var characteristic = new webpageCharacteristic();
 fs.readFile("./html/fatBeaconDefault.html", function(err, data) {
   if(err) throw err;
   characteristic.onWriteRequest(data, 0, null, null);
-  console.log(service);
 });
 
 var service = new bleno.PrimaryService({
