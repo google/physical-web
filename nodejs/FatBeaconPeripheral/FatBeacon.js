@@ -20,8 +20,9 @@ var exec = require('child_process').exec;
 var FAT_BEACON_FRAME_TYPE = 0x0e;
 var MAX_URL_LENGTH = 18;
 var ADVERTISING_HEADER_UUID = 'feaa';
-var ATT_OP_MTU_RESP = 0x03;
-var REQUESTING_MTU = 505;
+var ATT_OP_MTU_RESP = 0x03;  // Refer to bleno/lib/hci-socket/gatt for doc
+var MIN_MTU = 23;
+var MAX_MTU = 505;
 
 /**
  * this patch ensures that the correct Fatbeacon eir flag (0x06) is added
@@ -63,19 +64,18 @@ AdvertisementData.makeUrlBuffer = function(name) {
  */
 Gatt.prototype.handleMtuRequest = function(request) {
   var mtu = request.readUInt16LE(1);
-  this.maxMtu = REQUESTING_MTU;
-
-  if (mtu < 23) {
-    mtu = 23;
-  } else if (mtu > this.maxMtu) {
-    mtu = this.maxMtu;
+ 
+  if (mtu < MIN_MTU) {
+    mtu = MIN_MTU;
+  } else if (mtu > MAX_MTU) {
+    mtu = MAX_MTU;
   }
 
   this._mtu = mtu;
 
   this.emit('mtuChange', this._mtu);
 
-  var response = new Buffer(3);
+  var response = Buffer.alloc(3);
 
   response.writeUInt8(ATT_OP_MTU_RESP, 0);
   response.writeUInt16LE(mtu, 1);
@@ -132,13 +132,15 @@ Hci.prototype.processLeConnComplete = function(status, data) {
              interval, latency, supervisionTimeout, masterClockAccuracy);
 };
 
-
 /*********************************************************/
 
 var characteristic = new webpageCharacteristic();
 
 fs.readFile("./html/fatBeaconDefault.html", function(err, data) {
-  if(err) throw err;
+  if (err) {
+    throw err;
+  }
+
   characteristic.onWriteRequest(data, 0, null, null);
 });
 
@@ -151,7 +153,7 @@ var service = new bleno.PrimaryService({
 
 bleno.once('advertisingStart', function(err) {
   
-  if(err) {
+  if (err) {
     throw err;
   }
 

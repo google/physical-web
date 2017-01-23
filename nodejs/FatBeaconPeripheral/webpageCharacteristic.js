@@ -34,7 +34,7 @@ WebpageCharacteristic.prototype.onReadRequest = function(offset, callback) {
 WebpageCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
   this._value = data;
 
-  console.log(`Writing - ${this._value.length}`);
+  console.log(`Writing ${this._value.length} bytes`);
 
   if (this._updateValueCallback) {
     console.log('WebpageCharacteristic - onWriteRequest: notifying');

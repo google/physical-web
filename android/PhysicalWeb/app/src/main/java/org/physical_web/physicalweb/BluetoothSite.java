@@ -228,7 +228,16 @@ public class BluetoothSite extends BluetoothGattCallback {
     return new File(websiteDir, "website.html");
   }
 
+  private File getTempFile() {
+    File websiteDir = new File(activity.getFilesDir(), "Websites");
+    websiteDir.mkdir();
+    return new File(websiteDir, "temp.html");
+  }
+
   private void openInChrome(File file) {
+    if(Utils.isGzippedFile(file)) {
+      file = Utils.gunzip(file, getTempFile());
+    }
     Intent intent = new Intent(Intent.ACTION_VIEW);
     Uri contentUri = new FileProvider()
         .getUriForFile(activity, "org.physical_web.fileprovider", file);

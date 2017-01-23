@@ -62,7 +62,6 @@ public class PhysicalWebBroadcastService extends Service {
     private NotificationManagerCompat mNotificationManager;
     private Handler mHandler = new Handler();
     private String mDisplayUrl;
-    private byte[] mShareUrl;
     private boolean mStartedByRestart;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -110,63 +109,34 @@ public class PhysicalWebBroadcastService extends Service {
       IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
       registerReceiver(mReceiver, filter);
 
-      Log.d(TAG, mDisplayUrl);
-      byte[] encodedUrl = AdvertiseDataUtils.encodeUri(mDisplayUrl);
-      if (hasValidUrlLength(encodedUrl.length) && checkAndHandleAsciiUrl(mDisplayUrl)) {
-        // Set the url if we can
-        Log.d(TAG, "valid length");
-        mShareUrl = encodedUrl;
-        broadcastUrl();
-      } else {
-        Log.d(TAG, "needs shortening");
-        UrlShortenerClient.ShortenUrlCallback urlSetter =
-            new UrlShortenerClient.ShortenUrlCallback() {
-          @Override
-          public void onUrlShortened(String newUrl) {
-            Log.d(TAG, "shortening success");
-            mShareUrl = AdvertiseDataUtils.encodeUri(newUrl);
-            broadcastUrl();
-          }
-          @Override
-          public void onError(String oldUrl) {
-            Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
-                Toast.LENGTH_LONG).show();
-            stopSelf();
-          }
-        };
-        UrlShortenerClient shortenerClient = UrlShortenerClient.getInstance(this);
+      handleUrl();
 
-        if (mDisplayUrl.contains("goo.gl")) {
-          // find the site URL and reshorten it since
-          // goo.gl will not reshorten other goo.gl links
-          fetchAndShorten(shortenerClient, urlSetter);
-        } else {
-          shortenerClient.shortenUrl(mDisplayUrl, urlSetter, TAG);
-        }
-      }
       return START_STICKY;
     }
 
-    private void fetchAndShorten(UrlShortenerClient shortenerClient,
-        UrlShortenerClient.ShortenUrlCallback urlSetter) {
-      PwsClient pwsClient = new PwsClient();
-      pwsClient.resolve(Arrays.asList(mDisplayUrl), new PwsResultCallback() {
+    private void handleUrl() {
+        PwsClient pwsClient = new PwsClient();
+        pwsClient.resolve(Arrays.asList(mDisplayUrl), new PwsResultCallback() {
         @Override
         public void onPwsResult(PwsResult pwsResult) {
-          shortenerClient.shortenUrl(pwsResult.getSiteUrl(), urlSetter, TAG);
+            String fullUrl = pwsResult.getSiteUrl();
+            byte[] encodedUrl = AdvertiseDataUtils.encodeUri(fullUrl);
+            if(checkNeedsShortening(encodedUrl, fullUrl)) {
+                shortenAndBroadcastUrl(fullUrl);
+            } else {
+                broadcastUrl(encodedUrl);
+            }
         }
 
         @Override
         public void onPwsResultAbsent(String url) {
-          Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
-              Toast.LENGTH_LONG).show();
+          toastError(R.string.invalid_url_error);
           stopSelf();
         }
 
         @Override
         public void onPwsResultError(Collection<String> urls, int httpResponseCode, Exception e) {
-          Toast.makeText(getApplicationContext(), getString(R.string.shorten_error),
-              Toast.LENGTH_LONG).show();
+          toastError(R.string.invalid_url_error);
           stopSelf();
         }
 
@@ -174,6 +144,25 @@ public class PhysicalWebBroadcastService extends Service {
         public void onResponseReceived(long durationMillis) {
         }
       });
+    }
+
+    private void shortenAndBroadcastUrl(String fullUrl) {
+        UrlShortenerClient.ShortenUrlCallback urlSetter =
+            new UrlShortenerClient.ShortenUrlCallback() {
+          @Override
+          public void onUrlShortened(String newUrl) {
+            broadcastUrl(AdvertiseDataUtils.encodeUri(newUrl));
+          }
+          @Override
+          public void onError(String oldUrl) {
+            toastError(R.string.shorten_error);
+            stopSelf();
+          }
+        };
+
+        UrlShortenerClient shortenerClient = UrlShortenerClient.getInstance(this);
+
+        shortenerClient.shortenUrl(fullUrl, urlSetter, TAG);
     }
 
     private void fetchBroadcastData(Intent intent) {
@@ -189,6 +178,10 @@ public class PhysicalWebBroadcastService extends Service {
             .commit();
     }
 
+    private boolean checkNeedsShortening(byte[] encodedUrl, String fullUrl) {
+        return !hasValidUrlLength(encodedUrl.length) || !checkAndHandleAsciiUrl(fullUrl);
+    }
+
     private static boolean hasValidUrlLength(int uriLength) {
         return 0 < uriLength && uriLength <= MAX_URI_LENGTH;
     }
@@ -200,7 +193,7 @@ public class PhysicalWebBroadcastService extends Service {
           String urlString = uri.toASCIIString();
           isCompliant = url.equals(urlString);
         } catch (URISyntaxException e) {
-            Toast.makeText(this, getString(R.string.no_url_error), Toast.LENGTH_LONG).show();
+            toastError(R.string.no_url_error);
         }
         return isCompliant;
     }
@@ -249,8 +242,8 @@ public class PhysicalWebBroadcastService extends Service {
     /////////////////////////////////
 
     // Broadcast via bluetooth the stored URL
-    private void broadcastUrl() {
-        final AdvertiseData advertisementData = AdvertiseDataUtils.getAdvertisementData(mShareUrl);
+    private void broadcastUrl(byte[] url) {
+        final AdvertiseData advertisementData = AdvertiseDataUtils.getAdvertisementData(url);
         final AdvertiseSettings advertiseSettings = AdvertiseDataUtils.getAdvertiseSettings(false);
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
         mBluetoothLeAdvertiser.startAdvertising(advertiseSettings,
@@ -272,4 +265,7 @@ public class PhysicalWebBroadcastService extends Service {
       }
     };
 
+    private void toastError(int messageId) {
+        Toast.makeText(getApplicationContext(), getString(messageId), Toast.LENGTH_LONG).show();
+    }
 }
