@@ -12,7 +12,7 @@ var WebpageCharacteristic = function() {
   this._value = Buffer.alloc(0);
   this._updateValueCallback = null;
 
-  this._mtuSize = 251;  // 5 less than the specified mtu
+  this._mtuSize = 500;  // 5 less than the specified mtu
   this._start = 0;
   this._end = this._mtuSize;
 };
@@ -34,7 +34,7 @@ WebpageCharacteristic.prototype.onReadRequest = function(offset, callback) {
 WebpageCharacteristic.prototype.onWriteRequest = function(data, offset, withoutResponse, callback) {
   this._value = data;
 
-  console.log(`Writing - ${this._value}`);
+  console.log(`Writing ${this._value.length} bytes`);
 
   if (this._updateValueCallback) {
     console.log('WebpageCharacteristic - onWriteRequest: notifying');
