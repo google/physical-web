@@ -13,8 +13,6 @@ Even though this is a fairly simple idea, it immediately generates lots of quest
 ##0. Wait, why are you an app?
 This is an early prototype. We are trying to get people to experiment with this at an early stage. Of course, this should be built into all smartphones (and tablets and anything with a screen really). We are building an app for now that tries to not feel like an app. It works in the background so you don't need to use it actively. It just silently monitors beacons that you can browse when you're interested.
 
-##1. Will you be pestering people with alarms?
-A core principle of this system is **no proactive notifications**. The user will only see a list of nearby devices when they ask. If your phone were to be buzzing constantly as you walked through the mall, it would be very frustrating. Push notifications in general are too easily abused. Of course, the user can opt-in to notifications, we are just saying that by default, the user must ask to see anything nearby.
 
 In addition, we only scan when the screen is on: there is no scanning that goes on when the phone is in your pocket. This is consistent with our 'no interruptions' goal but it also has a large positive impact on power usage. Using this app should have very little impact on your phone's battery life.
 
