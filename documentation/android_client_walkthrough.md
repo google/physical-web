@@ -1,4 +1,4 @@
-##Physical Web Android Client Walkthrough
+## Physical Web Android Client Walkthrough
 An Introduction to the Physical Web Android Client
 
 We start with a high level-description of the user flows and then dive into and detail the specifics of each screen.
@@ -41,18 +41,18 @@ So that’s it! Happy Physical Webbing!
 Please note that this app has been targeting Android L release (21) and has been tested primarily on the Nexus 5.
 
 
-##FCC Stuff
+## FCC Stuff
 
-###FCC Part 15.19
+### FCC Part 15.19
 This device complies with part 15 of the FCC Rules. Operation is subject to The following two conditions: 
 
 1. This device may not cause harmful interference, and 
 2. This device must accept any interference received, including interference that may cause undesired operation.
 
-###FCC Part 15.21
+### FCC Part 15.21
 Any changes or modifications (including the antennas) made to this device that are not expressly approved by the manufacturer may void the user's authority to operate the equipment.
 
-###FCC RF Radiation Exposure Statement
+### FCC RF Radiation Exposure Statement
 This transmitter must not be co-location or operating in conjunction with any other antenna or transmitter.
 
 This equipment complies with FCC RF radiation exposure limits set forth for an uncontrolled environment.

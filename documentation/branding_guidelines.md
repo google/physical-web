@@ -1,10 +1,10 @@
 
 <img src="https://raw.githubusercontent.com/google/physical-web/master/documentation/images/logo/logo-black.png" width="100px">
-#Physical Web™
+# Physical Web™
 If we believe in Moore's Law whatsoever, then small, cheap, connected devices will soon explode into our lives, filling our homes, workplaces, and public spaces. Today, most IoT devices require installing a dedicated app, which simply doesn't scale when you want to interact with a multitude of smart “things” around you every day. The web is a natural fit, offering interaction on demand without the friction and overhead of installation. The Physical Web is an approach to unleash the core superpower of the web, enabling interaction that’s just a tap away.
 
 
-##Branding Guidelines
+## Branding Guidelines
 
 The following guidelines provide you with guidance for using the Physical Web name and the corresponding Physical Web logo. You can use the name and the logo on your website or in print without pre-approval, provided you follow these basic guidelines.
 
