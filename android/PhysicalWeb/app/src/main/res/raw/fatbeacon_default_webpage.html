@@ -1,60 +1,558 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="shortcut icon" type="image/x-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABC1BMVEX///8+gsM/gsM/gsM/gsQ/gsM/gsM/gsM+gcM/gsM/gsM/gsM/gsM+gsM/gsM/gsM/gsM/gsM9gMI/gsM/gsM/gsM+gcM/gsM/gsM/gsM/gsM/gsM/gsM+gcM/gsM9gcI5f8I/gsM/gsM/gsU8f8E8gMI/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM/gsM+gsM/gcM/gsM/gsM/gsM+gcM/gsM/gsM/gsM+gsM+gsM/gsM/gsM9gMM9gME/gsM9gMI8gcM+gcM/gsM+gMI+gMM/gsM9gcI/gcM+gcM9gMI/gsM+gsM8f8M8gME7gME9gcJAg8T///8dQjXcAAAAV3RSTlMBF4XX/f3VgxdL7bVTI0lB81kLZ6FbCeFpH9nNfx/fBwPJlwMDA6c96eu/XWVfvblrx7OjF/c1F6Ut9R11qzkfLZ3BCQc/BwsLkQ0NjwshIwWpBQUFBQXrCtlNAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+AIEREoJpDxKAkAAADMSURBVBjTY2AAAkYmZhZWNnYOBijg5OLm4eXl4ebig/D5BQSFhEVEhIVEBfhBfDFxCUkpaRkZaWZZCTl5oIAom4KikjIDg4qSoiqbKFBAjV1dQwysVFOdXQRIa2kLc0MM49bR1QNS+gaChhABRUEDIyDFZGxiagbim5maWzABaUsraxtbBjs7BlsbeysHkIyjk7OLq4CAq5u7kyNYq4enl7pAeLiAq7ePL9TtfkA+UMQf5heGADWQQGAQXIAhODA83DaEAQmEqgWGQVgAlbAZM4elADkAAAAldEVYdGRhdGU6Y3JlYXRlADIwMTYtMDgtMTdUMTc6NDA6MzgtMDQ6MDDPiIKeAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE2LTA4LTE3VDE3OjQwOjM4LTA0OjAwvtU6IgAAAABJRU5ErkJggg==">
-    <title>FatBeacon demo</title>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: sans-serif;
-        color: #444;
-        background: #f5f5f5;
-      }
-      .header {
-        display: flex;
-        background: #3F82C4;
-        height: 100px;
-      }
-      .card {
-        background: #fff;
-        padding: 20px;
-        margin: 30px 30px 0px 30px;
-        border: 1px solid #ccc;
-        box-shadow: 0px 0px 5px #aaa;
-      }
-      p {
-        font-size: 15px;
-      }
-      a {
-        color: #3F82C4;
-      }
-      h1 {
-        margin: 35px 0px 0px 10px;
-        display: inline-block;
-        font-size: 18px;
-        color: #fff;
-      }
-      svg {
-        margin-left: 30px;
-        display: inline-block;
-        width: 50px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <svg viewBox="0 0 171 202"><g fill="#fff"><path d="M141.2 85.3c0-31-25-56-56-56-30.7 0-55.8 25-55.8 56 0 17 7.8 32.5 20 42.8l10-10c-9.8-7.6-16-19.4-16-32.7 0-23.2 18.8-42 42-42 23 0 41.8 18.8 41.8 42 0 13.3-6.2 25-16 32.8l10 10c12.2-10.2 20-25.6 20-42.7"/><path d="M14 85.3C14 46 46 14 85.3 14s71.3 32 71.3 71.3c0 21.4-9.5 40.6-24.5 53.7l10 10c17.6-15.7 28.6-38.4 28.6-63.7 0-47-38.2-85.3-85.3-85.3C38.3 0 0 38.2 0 85.3c0 25.3 11 48 28.5 63.6l10-10C23.5 126 14 106.7 14 85.3"/><path d="M89.2 200.3c-2 2-5.5 2-7.6 0l-35.8-35.8c-2-2-2-5.5 0-7.6l35.8-36c2-2 5.5-2 7.6 0l35.8 36c2 2 2 5.4 0 7.5l-35.8 35.8z"/></g></svg>
-    <h1>Welcome to FatBeacon!</h1>
-    </div>
-    <div class="card">
-    <p>A FatBeacon is an experimental beacon type for offline web pages. A FatBeacon does two things:</p>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Constructing HTML with templates</title>
+    <meta name="description" content="" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="/assets/css/screen.css?v=7b86c17a4b" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+
+    <link rel="canonical" href="http://www.codereadability.com/constructing-html-with-templates/" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <link rel="amphtml" href="http://www.codereadability.com/constructing-html-with-templates/amp/" />
+    
+    <meta property="og:site_name" content="JavaScript Code Readability" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Constructing HTML with templates" />
+    <meta property="og:description" content="Using JavaScript makes it possible to dynamically add and remove HTML content in the browser. This article shows an approach to adding HTML content that is common, but results in poor readability. It then gradually modifies the code to introduce templates as a better way to generate and display new" />
+    <meta property="og:url" content="http://www.codereadability.com/constructing-html-with-templates/" />
+    <meta property="article:published_time" content="2015-08-31T18:57:03.000Z" />
+    <meta property="article:modified_time" content="2015-08-31T20:07:33.000Z" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Constructing HTML with templates" />
+    <meta name="twitter:description" content="Using JavaScript makes it possible to dynamically add and remove HTML content in the browser. This article shows an approach to adding HTML content that is common, but results in poor readability. It then gradually modifies the code to introduce templates as a better way to generate and display new" />
+    <meta name="twitter:url" content="http://www.codereadability.com/constructing-html-with-templates/" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Matt Zeunert" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "publisher": {
+        "@type": "Organization",
+        "name": "JavaScript Code Readability",
+        "logo": "http://www.codereadability.com/ghost/img/ghosticon.jpg"
+    },
+    "author": {
+        "@type": "Person",
+        "name": "Matt Zeunert",
+        "url": "http://www.codereadability.com/author/matt/",
+        "sameAs": [
+            "https://twitter.com/mattzeunert"
+        ]
+    },
+    "headline": "Constructing HTML with templates",
+    "url": "http://www.codereadability.com/constructing-html-with-templates/",
+    "datePublished": "2015-08-31T18:57:03.000Z",
+    "dateModified": "2015-08-31T20:07:33.000Z",
+    "description": "Using JavaScript makes it possible to dynamically add and remove HTML content in the browser. This article shows an approach to adding HTML content that is common, but results in poor readability. It then gradually modifies the code to introduce templates as a better way to generate and display new",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://www.codereadability.com"
+    }
+}
+    </script>
+
+    <meta name="generator" content="Ghost 0.11" />
+    <link rel="alternate" type="application/rss+xml" title="JavaScript Code Readability" href="http://www.codereadability.com/rss/" />
+</head>
+<body class="post-template nav-closed">
+
+    <div class="nav">
+    <h3 class="nav-title">Menu</h3>
+    <a href="#" class="nav-close">
+        <span class="hidden">Close</span>
+    </a>
     <ul>
-      <li>It advertises the name of the device</li>
-      <li>Runs a <a href="https://developer.bluetooth.org/TechnologyOverview/pages/gatt.aspx">GATT</a> service that offers up a simple web page.</li>
+            <li class="nav-home" role="presentation"><a href="http://www.codereadability.com/">Home</a></li>
     </ul>
-    <p>When you select a FatBeacon from the list of nearby beacons, the app connects to it and downloads to page to your phone before displaying it. This means you can interact with a FatBeacon with no data connectivity at all.</p>
-  </div>
-  </body>
+    <a class="subscribe-button icon-feed" href="http://www.codereadability.com/rss/">Subscribe</a>
+</div>
+<span class="nav-cover"></span>
+
+
+    <div class="site-wrapper">
+
+        
+
+
+<header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        
+            <a class="menu-button icon-menu" href="#"><span class="word">Menu</span></a>
+    </nav>
+</header>
+
+<style>
+.pull-quote {
+  float: right;
+  font-size: 28px;
+  max-width: 50%;
+  box-sizing: border-box;
+  padding-bottom: 20px;
+  line-height: 1.2em;
+  margin-left: 30px;
+  margin-bottom: 20px;
+  color: white;
+  background: #3A4145;
+  padding: 20px;
+  text-align: center;
+}
+.pull-quote:before {
+  content: "\201C";
+}
+.pull-quote:after {
+  content: "\201D";
+}
+
+@media only screen and (max-width: 900px) {
+  .pull-quote {
+    width: 100%;
+    max-width: none;
+    font-size: 24px;
+  }
+}
+</style>
+
+<main class="content" role="main">
+    <article class="post">
+
+        <header class="post-header">
+            <h1 class="post-title">Constructing HTML with templates</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2015-08-31">31 August 2015</time> 
+            </section>
+        </header>
+
+        <section class="post-content">
+            <p>Using JavaScript makes it possible to dynamically add and remove HTML content in the browser.</p>
+
+<p>This article shows an approach to adding HTML content that is common, but results in poor readability. It then gradually modifies the code to introduce templates as a better way to generate and display new HTML content.</p>
+
+<h2 id="constructingelementswithjquery">Constructing elements with jQuery</h2>
+
+<p>Using <a href="http://jquery.com/">jQuery</a> is an easy way to create a new HTML element in JavaScript. After creating the element you can add it to the page:</p>
+
+<pre><code>var title = "Constructing HTML Elements";
+
+var container = $("&lt;div&gt;");
+container.addClass("tutorial");
+
+var h1 = $("&lt;h1&gt;");
+h1.text(title);
+h1.addClass("tutorial-heading"); 
+container.append(h1);
+
+$("body").append(wrapper);
+</code></pre>
+
+<p>The code above adds this to the body element in your HTML:</p>
+
+<pre><code>&lt;div class="tutorial"&gt;
+    &lt;h1 class="tutorial-heading"&gt;Constructing HTML Elements&lt;/h1&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>Using jQuery to construct new elements is easy, but it has several downsides.</p>
+
+<p>Most importantly, while it's easy to write this code it's hard to read it. There's no separation between the HTML and the JavaScript code.</p>
+
+<p>You also need a lot of JavaScript code to generate 3 lines of HTML.</p>
+
+<p>There's one positive thing to note about the code above. By creating a variable called <code>title</code> it separates your HTML structure from the data that's displayed inside it. This makes it easy to re-use this code when you want to display a different article.</p>
+
+<h2 id="generatinganhtmlstring">Generating an HTML string</h2>
+
+<p>Constructing a string that contains the HTML code is a better approach. You can then append that string to the body:</p>
+
+<pre><code>var title = "Constructing HTML Elements";
+
+var html = [
+    '&lt;div class="tutorial"&gt;',
+        '&lt;h1 class="tutorial-heading"&gt;' + title + '&lt;h1&gt;',
+    '&lt;/div&gt;'
+].join("\n");
+// html: '&lt;div ...&gt;\n&lt;h1 ...&gt;Constructing HTML Elements&lt;h1&gt;\n&lt;/div&gt;'
+
+$("body").append(html);
+</code></pre>
+
+<p>This code begins to separate the HTML from the JavaScript.</p>
+
+<p>Since JavaScript doesn't support multi-line strings we're using the <a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/join"><code>join</code></a> method to connect the 3 strings in the list together using a line break (<code>\n</code>).</p>
+
+<h2 id="usingtemplatelibraries">Using template libraries</h2>
+
+<p>Template libraries help further break apart JavaScript and HTML code by letting you use placeholders inside your HTML string.</p>
+
+<p>A popular JavaScript templating library is <a href="https://github.com/janl/mustache.js/">Mustache</a>:</p>
+
+<pre><code>var data = {
+    title: "Constructing HTML Elements"
+}
+
+var template = [
+    '&lt;div class="tutorial"&gt;',
+        '&lt;h1 class="tutorial-heading"&gt;{{title}}&lt;h1&gt;',
+    '&lt;/div&gt;'
+].join("\n");
+// template: '&lt;div ...&gt;\n&lt;h1 ...&gt;{{title}}&lt;h1&gt;\n&lt;/div&gt;'
+
+var html = Mustache.render(template, data);
+$("body").append(html);
+</code></pre>
+
+<p>You can <a href="http://jsfiddle.net/1u18zkqc/">try this example on jsFiddle</a>.</p>
+
+<p>Mustache allows us to use <code>{{title}}</code> as a placeholder inside the HTML string.</p>
+
+<p>We then call <code>Mustache.render</code> and pass in the data object that contains the values for our placeholders. Mustache then looks up <code>title</code> in the data object and uses it to replace <code>{{title}}</code> in the template.</p>
+
+<h2 id="movingthehtmloutofthejavascriptfile">Moving the HTML out of the JavaScript file</h2>
+
+<p>Currently, our HTML template is constructed inside the JavaScript file. That has two downsides:</p>
+
+<ul>
+<li>We need to wrap the HTML code in quotes to generate strings</li>
+<li>Mixing HTML and JavaScript makes the application less well-structured</li>
+</ul>
+
+<p>There's a way to store arbitrary text in your initial HTML page download. We can use this mechanism to store our template string.</p>
+
+<p>If you create a script tag with a type the browser doesn't understand the browser won't attempt to run what's inside it.</p>
+
+<p>For example if you set type to "text/template", then you can embed your HTML template in the script tag, but the HTML won't become visible:</p>
+
+<pre><code>&lt;script id="tutorial-template" type="text/template"&gt;
+    &lt;div class="tutorial"&gt;
+        &lt;h1 class="tutorial-heading"&gt;{{title}}&lt;h1&gt;
+    &lt;/div&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>We can then take the contents of our script tag and store it in the <code>template</code> variable:</p>
+
+<pre><code>var data = {
+    title: "Constructing HTML Elements"
+}
+
+var template = $("#tutorial-template").html();
+// html: '&lt;div ...&gt;\n&lt;h1 ...&gt;{{title }}&lt;h1&gt;\n&lt;/div&gt;'
+
+var html = Mustache.render(template, data);
+$("body").append(html);
+</code></pre>
+
+<p>To access the template we select the script tag by its ID and use <a href="http://api.jquery.com/html/">jQuery's <code>html</code> function</a> to access the embedded HTML code.</p>
+
+<p>Now the HTML template and the JavaScript code are fully separated. <a href="http://jsfiddle.net/1u18zkqc/1/">Try the code here</a>.</p>
+
+<h2 id="storingeachtemplateinaseparatefile">Storing each template in a separate file</h2>
+
+<p>The example above works quite well, and makes it easy to further improve your code later.</p>
+
+<p>However, inserting your templates in the main HTML file can get messy if you have a large number of templates.</p>
+
+<p>Another downside is that your editor's syntax highlighting may not work on the template code because it's inside a script tag.</p>
+
+<p>Ideally, each template would have its own file and you would use a tool like <a href="https://www.npmjs.com/package/grunt-html-convert">grunt-html-convert</a> to access the templates from your JavaScript code.</p>
+
+<p>It's a bit more complex to set this up though, and not necessarily required for a small application. If you're just beginning to build JavaScript apps putting the template in a script tag is good enough.</p>
+        </section>
+
+        <!-- Begin MailChimp Signup Form -->
+        <link href="//cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css">
+        <style type="text/css">
+          #mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; }
+          /* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
+             We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+          #mc_embed_signup form {
+            padding: 0;
+          }
+          #mc_embed_signup input.button {
+            background: #000085;
+          }
+          #mc_embed_signup input.button:hover {
+            background: #000042;
+          }
+          #mc_embed_signup input[type="email"]{
+            border-radius: 5px;
+          }
+
+.mailchimp-message {
+display: none;
+    padding: 10px;
+  background: #fafafa;
+  line-height: 1.5em;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+
+ #newsletter-form p.weekly {
+  display: none;
+ }
+
+
+
+        </style>
+
+        <style>
+.newsletter-form-b #newsletter-form {
+    border: 5px solid #dc3e3b;
+    padding: 40px !important;
+    border-radius: 5px;
+    background-color: #fefbfc;
+}
+
+.newsletter-form-b #newsletter-form label {
+  font-size: 20px;
+  margin-bottom: 0px;
+}
+
+.newsletter-form-b #newsletter-form input[type="text"] {
+  font-size: 20px;
+  padding: 10px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.newsletter-form-b #newsletter-form input[type="submit"] {
+  height: auto;
+  padding: 10px;
+  background-color: #dc3e3b;
+  font-size: 20px;
+  margin: 0;
+}
+
+.newsletter-form-b #newsletter-form input[type="submit"]:hover {
+  background-color: #961d1b;
+}
+
+.newsletter-form-b #newsletter-form .mailchimp-message {
+    margin-top: 20px;
+    font-size: 20px;
+    border-color: #aaa;
+    padding: 10px;
+    font-weight: bold;
+}
+
+@media screen and (max-width: 700px) {
+  .newsletter-form-b #newsletter-form input[type="submit"],
+  .newsletter-form-b #newsletter-form input[type="text"] {
+    width: 100%;
+  }
+}
+
+.newsletter-form-b #newsletter-form .mailchimp-message {
+    background-color: transparent;
+    border: none;
+    margin-top: 0;
+}
+
+.newsletter-form-b #newsletter-form p.weekly {
+  display: block;
+  margin-bottom: 40px;
+  margin-top: 0px
+}
+        </style>
+
+
+
+
+        <div id="mc_embed_signup">
+        <form id="newsletter-form"  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" novalidate>
+            <div id="mc_embed_signup_scroll">
+          <label for="mce-EMAIL">Read more code readability articles like this</label>
+          <p class="weekly">Get an email with a new articles once a week.</p>
+          <input type="text" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="Email address" required>
+            <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+            <div style="position: absolute; left: -5000px;"><input type="text" name="b_6e1d1f58acfc60f4eb4adce31_3c7a4d756e" tabindex="-1" value=""></div>
+            <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+            <div class="mailchimp-message">
+
+            </div>
+        </form>
+        </div>
+
+
+
+
+        <!--End mc_embed_signup-->
+
+        <footer class="post-footer">
+
+
+
+            <section class="author">
+                <h4><a href="/author/matt/">Matt Zeunert</a></h4>
+
+                    <p>Read <a href="/author/matt/">more posts</a> by this author.</p>
+                <div class="author-meta">
+                    <span class="author-location icon-location">London, UK</span>
+                    <span class="author-link icon-link"><a href="https://twitter.com/mattzeunert">https://twitter.com/mattzeunert</a></span>
+                </div>
+            </section>
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/share?text=Constructing%20HTML%20with%20templates&amp;url=http://www.codereadability.com/constructing-html-with-templates/"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://www.codereadability.com/constructing-html-with-templates/"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=http://www.codereadability.com/constructing-html-with-templates/"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+<hr>
+        <div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'codereadability';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+    </article>
+</main>
+
+<aside class="read-next">
+    <a class="read-next-story no-cover" href="/maximum-line-length/">
+        <section class="post">
+            <h2>Maximum Line Length</h2>
+            <p>Many code standards recommend a maximum number of characters per line. This article explains why such a limit is&hellip;</p>
+        </section>
+    </a>
+    <a class="read-next-story prev no-cover" href="/why-use-a-style-guide/">
+        <section class="post">
+            <h2>Why use a style guide?</h2>
+            <p>Most medium and large software projects have a style guide to ensure different developers write code in a consistent&hellip;</p>
+        </section>
+    </a>
+</aside>
+
+
+
+        <footer class="site-footer clearfix">
+            <section class="copyright"><a href="http://www.codereadability.com">JavaScript Code Readability</a> &copy; 2016</section>
+            <section class="poweredby">Proudly published with <a href="https://ghost.org">Ghost</a></section>
+        </footer>
+
+    </div>
+
+    <!-- You can safely delete this line if your theme does not require jQuery -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-64817302-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+    <script type="text/javascript" src="/assets/js/jquery.fitvids.js?v=7b86c17a4b"></script>
+    <script type="text/javascript" src="/assets/js/index.js?v=7b86c17a4b"></script>
+
+    <script>
+
+
+
+      if (window.ga === undefined) {
+        window.ga = function(){
+          console.log("ga blocked")
+        }
+      }
+
+        var $ = jQuery;
+
+
+        if (localStorage.getItem("gaDimension1") === null) {
+            var dimension1 = Math.random() > .5 ? "B" : "A";
+            ga('set', 'dimension1', dimension1);
+            ga('send', 'event', 'Dimension1 Set', dimension1, location.pathname);
+            localStorage.setItem("gaDimension1", dimension1);
+        }
+
+        if (localStorage.getItem("gaDimension1")==="B") {
+          $("body").addClass("newsletter-form-b");
+        }
+
+
+          $("#newsletter-form").submit(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var form = $(this);
+
+            function updateUi(msg) {
+              $(".mailchimp-message").show().html(msg.replace("0 - ", ""));
+
+            }
+
+            $("#mc-embedded-subscribe").prop("disabled", true);
+            $("#mce-EMAIL").prop("disabled", true);
+
+            var email = $("#mce-EMAIL").val();
+
+            $.ajax({
+                type: "GET",
+                url: "//mostlystatic.us8.list-manage.com/subscribe/post-json?u=6e1d1f58acfc60f4eb4adce31&amp;id=3c7a4d756e&c=?",
+                data: "b_6e1d1f58acfc60f4eb4adce31_3c7a4d756e=&EMAIL=" + encodeURIComponent(email),
+                cache       : false,
+                dataType    : 'json',
+                contentType: "application/json; charset=utf-8",
+                error       : function(err) { alert("Could not connect to the registration server. Please try again later."); },
+                success     : function(data) {
+                    updateUi(data.msg);
+                    if (data.result != "success") {
+                      $("#mc-embedded-subscribe").prop("disabled", false);
+                        $("#mce-EMAIL").prop("disabled", false);
+                        ga('send', 'event', 'Failed Newsletter Subscribe', location.pathname, email);
+                        ga('set', 'dimension1', dimensionValue);
+                        // Something went wrong, do something to notify the user. maybe alert(data.msg);
+                    } else {
+                        // It worked, carry on...
+                        ga('send', 'event', 'Newsletter Subscribe', location.pathname, email);
+                        $('#newsletter-form label, #newsletter-form p, #newsletter-form input[type="text"], #newsletter-form input[type="submit"]').hide();
+                    }
+                }
+            });
+
+            return false;
+
+          })
+        </script>
+
+
+
+</body>
 </html>
