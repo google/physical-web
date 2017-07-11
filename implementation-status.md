@@ -13,8 +13,8 @@ HTTPS only                |           | ✓
 
 ### Notes
 
-* iOS blog post: [Exploring the Physical Web with Chrome for iOS](blog.chromium.org/2015/07/exploring-physical-web-with-chrome-for.html)
-* Android blog post: [The Physical Web expands to Chrome for Android](blog.chromium.org/2016/02/the-physical-web-expands-to-chrome-for_10.html)
+* iOS blog post: [Exploring the Physical Web with Chrome for iOS](https://blog.chromium.org/2015/07/exploring-physical-web-with-chrome-for.html)
+* Android blog post: [The Physical Web expands to Chrome for Android](https://blog.chromium.org/2016/02/the-physical-web-expands-to-chrome-for_10.html)
 
 # Opera
 
