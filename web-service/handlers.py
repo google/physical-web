@@ -37,9 +37,7 @@ class GoUrl(webapp2.RequestHandler):
 class RefreshUrl(webapp2.RequestHandler):
     def post(self):
         url = self.request.get('url')
-        #logging.info('refreshing ' + url)
-        siteInfo = models.SiteInformation.get_by_id(url)
-        siteInfo = helpers.FetchAndStoreUrl(siteInfo, url)
+        helpers.RefreshUrl(url)
 
 ################################################################################
 

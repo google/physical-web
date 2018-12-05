@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import json
+import urllib
 import urllib2
 
 ################################################################################
@@ -78,6 +79,20 @@ def testRssiRanking(endpoint):
 
 ################################################################################
 
+def testUrlWhichRedirects(endpoint):
+    values = {
+        'objects': [
+            {
+                'url': 'http://goo.gl/KYvLwO',
+            },
+        ]
+    }
+
+    result = resolveScanForValues(endpoint, values)
+    print json.dumps(result, indent=4)
+
+################################################################################
+
 def testUrlShortener(endpoint):
     values = {
         'longUrl': 'http://www.github.com/Google/physical-web'
@@ -88,9 +103,21 @@ def testUrlShortener(endpoint):
     print ret
 
 ################################################################################
+
+def testRefreshUrl(endpoint):
+    params = { 'url': 'https://github.com/google/physical-web' }
+    req = urllib2.Request(endpoint + '/refresh-url?' + urllib.urlencode(params), '')
+    response = urllib2.urlopen(req)
+    ret = response.read()
+    print ret
+
+################################################################################
 ################################################################################
 
 if __name__ == '__main__':
-    testDemoData(LOCAL_ENDPOINT)
-    testRssiRanking(LOCAL_ENDPOINT)
-    testUrlShortener(LOCAL_ENDPOINT)
+    endpoint = LOCAL_ENDPOINT
+    testDemoData(endpoint)
+    testRssiRanking(endpoint)
+    testUrlWhichRedirects(endpoint)
+    testUrlShortener(endpoint)
+    testRefreshUrl(endpoint)

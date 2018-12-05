@@ -16,6 +16,8 @@
 
 #import "PWURLShortener.h"
 
+#import "PWMetadataRequest.h"
+
 #define REDIRECT_TIMEOUT 10
 
 @interface PWInternalURLExpander
@@ -71,10 +73,10 @@
   NSDictionary *postInfo = @{ @"longUrl" : [[self URL] absoluteString] };
   NSData *postData =
       [NSJSONSerialization dataWithJSONObject:postInfo options:0 error:NULL];
-  NSMutableURLRequest *request = [[NSMutableURLRequest alloc]
-      initWithURL:
-          [NSURL
-              URLWithString:@"https://www.googleapis.com/urlshortener/v1/url"]];
+  NSString *urlString = [NSString
+      stringWithFormat:@"https://%@/shorten-url", [PWMetadataRequest hostname]];
+  NSMutableURLRequest *request =
+      [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:urlString]];
   [request setHTTPMethod:@"POST"];
   [request addValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setHTTPBody:postData];

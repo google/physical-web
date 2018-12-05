@@ -59,8 +59,9 @@
                          bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   _firstUpdate = YES;
-  [[PWBeaconManager sharedManager]
-      registerChangeBlock:^{ [self _updateViewAfterDelay]; }];
+  [[PWBeaconManager sharedManager] registerChangeBlock:^{
+    [self _updateViewAfterDelay];
+  }];
 
   [[NSNotificationCenter defaultCenter]
       addObserver:self
@@ -89,8 +90,9 @@
   [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
   [_tableView setScrollsToTop:YES];
   PWBeaconsViewController *__weak weakSelf = self;
-  [_tableView
-      addPullToRefreshWithActionHandler:^{ [weakSelf _performPullToRefresh]; }];
+  [_tableView addPullToRefreshWithActionHandler:^{
+    [weakSelf _performPullToRefresh];
+  }];
   [self viewWillTransitionToSize:bounds.size withTransitionCoordinator:nil];
   [[self view] addSubview:_tableView];
 
@@ -167,7 +169,7 @@
 }
 
 - (void)simpleWebViewControllerProceedPressed:
-            (PWSimpleWebViewController *)controller {
+        (PWSimpleWebViewController *)controller {
   [[NSUserDefaults standardUserDefaults] setBool:YES
                                           forKey:@"GettingStartedDialogShown"];
   [[NSUserDefaults standardUserDefaults] synchronize];
@@ -328,62 +330,29 @@
   BOOL stableMode = [[PWBeaconManager sharedManager] isStableMode];
 
   [_beacons sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-      PWBeacon *beacon1 = obj1;
-      PWBeacon *beacon2 = obj2;
-      if (stableMode) {
-        if ([beacon1 hasScore]) {
-          PWBeacon *beacon1 = obj1;
-          PWBeacon *beacon2 = obj2;
-          double diff = [beacon1 score] - [beacon2 score];
-          if (diff > 0) {
-            return NSOrderedAscending;
-          } else if (diff < 0) {
-            return NSOrderedDescending;
-          } else {
-            NSComparisonResult result =
-            [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
-            if (result != NSOrderedSame) {
-              return result;
-            }
-            return [[[beacon1 URL] absoluteString]
-                    caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
-          }
-        }
-        else if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
-          NSInteger regionDifference =
-              (NSInteger)[beacon1 region] - (NSInteger)[beacon2 region];
-          if (regionDifference > 0) {
-            return NSOrderedDescending;
-          } else if (regionDifference < 0) {
-            return NSOrderedAscending;
-          } else {
-            NSComparisonResult result =
-                [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
-            if (result != NSOrderedSame) {
-              return result;
-            }
-            return [[[beacon1 URL] absoluteString]
-                caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
-          }
-        } else if ([beacon1 sortByRegion]) {
-          return NSOrderedAscending;
-        } else if ([beacon2 sortByRegion]) {
+    PWBeacon *beacon1 = obj1;
+    PWBeacon *beacon2 = obj2;
+    if (stableMode) {
+      if ([beacon1 hasRank]) {
+        PWBeacon *beacon1 = obj1;
+        PWBeacon *beacon2 = obj2;
+        double diff = [beacon1 rank] - [beacon2 rank];
+        if (diff > 0) {
           return NSOrderedDescending;
+        } else if (diff < 0) {
+          return NSOrderedAscending;
         } else {
-          NSComparisonResult result = [[beacon1 date] compare:[beacon2 date]];
-          if (result != NSOrderedSame) {
-            return result;
-          }
-          result = [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+          NSComparisonResult result =
+              [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
           if (result != NSOrderedSame) {
             return result;
           }
           return [[[beacon1 URL] absoluteString]
               caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
         }
-      } else {
-        NSInteger regionDifference = (NSInteger)[[beacon1 uriBeacon] region] -
-                                     (NSInteger)[[beacon2 uriBeacon] region];
+      } else if ([beacon1 sortByRegion] && [beacon2 sortByRegion]) {
+        NSInteger regionDifference =
+            (NSInteger)[beacon1 region] - (NSInteger)[beacon2 region];
         if (regionDifference > 0) {
           return NSOrderedDescending;
         } else if (regionDifference < 0) {
@@ -397,7 +366,39 @@
           return [[[beacon1 URL] absoluteString]
               caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
         }
+      } else if ([beacon1 sortByRegion]) {
+        return NSOrderedAscending;
+      } else if ([beacon2 sortByRegion]) {
+        return NSOrderedDescending;
+      } else {
+        NSComparisonResult result = [[beacon1 date] compare:[beacon2 date]];
+        if (result != NSOrderedSame) {
+          return result;
+        }
+        result = [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+        if (result != NSOrderedSame) {
+          return result;
+        }
+        return [[[beacon1 URL] absoluteString]
+            caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
       }
+    } else {
+      NSInteger regionDifference = (NSInteger)[[beacon1 uriBeacon] region] -
+                                   (NSInteger)[[beacon2 uriBeacon] region];
+      if (regionDifference > 0) {
+        return NSOrderedDescending;
+      } else if (regionDifference < 0) {
+        return NSOrderedAscending;
+      } else {
+        NSComparisonResult result =
+            [[beacon1 title] caseInsensitiveCompare:[beacon2 title]];
+        if (result != NSOrderedSame) {
+          return result;
+        }
+        return [[[beacon1 URL] absoluteString]
+            caseInsensitiveCompare:[[beacon2 URL] absoluteString]];
+      }
+    }
   }];
 }
 
@@ -416,7 +417,9 @@
   _canShowPlaceholder = YES;
   [_placeholderView setShowLabel:YES];
   [UIView animateWithDuration:0.25
-                   animations:^{ [_showDemoBeaconsButton setAlpha:1.0]; }];
+                   animations:^{
+                     [_showDemoBeaconsButton setAlpha:1.0];
+                   }];
   [self _reloadData];
 
   CGRect bounds = [_placeholderView bounds];
@@ -490,8 +493,8 @@
       [unescaped stringByAddingPercentEncodingWithAllowedCharacters:
                      [NSCharacterSet URLHostAllowedCharacterSet]];
   NSString *goURLString =
-      [NSString stringWithFormat:@"http://" METADATA_SERVER_HOSTNAME @"/go?url=%@",
-                                 escapedString];
+      [NSString stringWithFormat:@"http://%@/go?url=%@",
+                                 [PWMetadataRequest hostname], escapedString];
   NSURL *goURL = [NSURL URLWithString:goURLString];
   [[UIApplication sharedApplication] openURL:goURL];
 
@@ -504,7 +507,9 @@
   CGFloat alphaValue = [scrollView contentOffset].y > 0 ? 1.0 : 0.0;
   if ([_gradientView alpha] != alphaValue) {
     [UIView animateWithDuration:0.25
-                     animations:^{ [_gradientView setAlpha:alphaValue]; }];
+                     animations:^{
+                       [_gradientView setAlpha:alphaValue];
+                     }];
   }
 }
 
